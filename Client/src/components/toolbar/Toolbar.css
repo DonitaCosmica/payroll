@@ -1,0 +1,148 @@
+.toolbar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 4%;
+  padding: 0 25px;
+}
+
+.toolbar > .container {
+  display: flex;
+  align-items: center;
+  width: 45%;
+  height: 100%;
+}
+
+.toolbar > .container > .home {
+  flex: 0.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolbar > .container > .home:hover > svg {
+  background-color: #0747A6;
+  color: #fff !important;
+  transition: all 0.5s ease;
+}
+
+.toolbar > .container > .home > svg {
+  height: 45%;
+  width: 45%;
+  padding: 5px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.5s ease;
+}
+
+.toolbar > .container > .main-options {
+  flex: 1;
+}
+
+.toolbar > .container > .other-options {
+  flex: 1.2;
+}
+
+.toolbar > .container > :where(.main-options, .other-options) {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.toolbar > .container :where(.home, .main-options) {
+  border-right: 1px solid #464646;
+}
+
+.toolbar > .container > :is(.main-options, .other-options) > .option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.toolbar > .container > :is(.main-options, .other-options) > .option::before,
+.toolbar > .container > :is(.main-options, .other-options) > .option::after {
+  position: absolute;
+  content: '';
+  height: 50%;
+  width: 25%;
+  transition: all 0.35s ease;
+  opacity: 0;
+}
+
+.toolbar > .container > :is(.main-options, .other-options) > .option::before {
+  right: 0;
+  top: 0;
+  border-top: 2px solid #6c99dd;
+  border-right: 2px solid #0747A6;
+  transform: translate(-100%, 50%);
+}
+
+.toolbar > .container > :is(.main-options, .other-options) > .option::after {
+  left: 0;
+  bottom: 0;
+  border-bottom: 2px solid #6c99dd;
+  border-left: 2px solid #0747A6;
+  transform: translate(100%, -50%);
+}
+
+.toolbar > .container > :is(.main-options, .other-options) > .option:hover:before,
+.toolbar > .container > :is(.main-options, .other-options) > .option:hover:after {
+  transform: translate(0,0);
+  opacity: 1;
+}
+
+.toolbar > .container > :is(.main-options, .other-options) > .option > p {
+  font-size: 0.8rem;
+  margin-left: 5px;
+}
+
+.toolbar > .search {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 15%;
+  height: 100%;
+  padding: 5px 10px;
+}
+
+.toolbar > .search > input[type='text'] {
+  width: 100%;
+  height: 100%;
+  border: solid 1px #ddd;
+  border-radius: 5px;
+  padding: 5px;
+}
+
+.toolbar > .search > svg {
+  position: absolute;
+  right: 15px;
+  font-size: 1.25rem;
+  color: #2c8efa;
+}
+
+.toolbar > .more-options {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 40%;
+  height: 100%;
+}
+
+.toolbar > .more-options > svg {
+  padding: 5px;
+  font-size: 1.75rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.5s ease;
+}
+
+.toolbar > .more-options > svg:hover {
+  background-color: #0747A6;
+  color: #fff;
+}

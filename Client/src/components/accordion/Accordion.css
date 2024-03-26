@@ -1,0 +1,23 @@
+.drop-menu-dates > ul > .container > .year-filter {
+  padding: 5px;
+  background-color: #e2e2e2;
+  cursor: pointer;
+}
+
+.drop-menu-dates > ul > .container > .accordion > li {
+  font-size: 0.9rem;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.drop-menu-dates > ul > .container > .accordion > li:hover {
+  background-color: #eee;
+}
+
+.drop-menu-dates > ul > .container > .accordion.collapsed {
+  display: none;
+}
+
+.drop-menu-dates > ul > .container > .accordion.expanded {
+  display: block;
+}

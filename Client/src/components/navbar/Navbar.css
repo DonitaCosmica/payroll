@@ -1,0 +1,53 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 7.5px 15px;
+}
+
+.navbar > .link {
+  position: relative;
+  font-size: 0.85rem;
+  margin-right: 30px;
+  padding: 10px;
+  color: #777;
+  cursor: pointer;
+  transition: all 0.35s ease-in;
+}
+
+.navbar > .link:hover > p {
+  color: #333;
+  font-weight: 600;
+}
+
+.navbar > .link::before,
+.navbar > .link::after {
+  position: absolute;
+  content: '';
+  height: 50%;
+  width: 25%;
+  transition: all 0.35s ease;
+  opacity: 0;
+}
+
+.navbar > .link::before {
+  right: 0;
+  top: 0;
+  border-top: 3px solid #6c99dd;
+  border-right: 3px solid #0747A6;
+  transform: translate(-100%, 50%);
+}
+
+.navbar > .link::after {
+  left: 0;
+  bottom: 0;
+  border-bottom: 3px solid #6c99dd;
+  border-left: 3px solid #0747A6;
+  transform: translate(100%, -50%);
+}
+
+.navbar > .link:hover:before,
+.navbar > .link:hover:after {
+  transform: translate(0,0);
+  opacity: 1;
+}
