@@ -1,5 +1,4 @@
-import { MdArrowDropDown } from "react-icons/md"
-import { MdArrowDropUp } from "react-icons/md"
+import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md"
 import './List.css'
 
 const filters: string[] = [

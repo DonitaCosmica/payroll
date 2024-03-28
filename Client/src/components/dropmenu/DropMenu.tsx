@@ -1,10 +1,6 @@
 import React from 'react'
+import { type IconDefinition } from "../../types"
 import './DropMenu.css'
-
-interface IconDefinition {
-  icon?: JSX.Element,
-  label: string
-}
 
 interface Props {
   menuOp: IconDefinition[],

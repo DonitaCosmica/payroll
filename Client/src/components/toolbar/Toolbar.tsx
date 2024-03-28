@@ -1,22 +1,13 @@
 import { useState } from "react"
-import { AiFillHome } from "react-icons/ai"
+import { type IconDefinition } from "../../types"
+import { BsThreeDotsVertical, BsBoxArrowInDownLeft, BsDownload } from "react-icons/bs"
+import { AiFillHome, AiOutlineSearch, AiOutlinePrinter } from "react-icons/ai"
+import { BiEditAlt, BiSolidCalculator } from "react-icons/bi"
 import { GrAdd } from "react-icons/gr"
-import { BiEditAlt } from "react-icons/bi"
-import { AiOutlinePrinter } from "react-icons/ai"
-import { BsDownload } from "react-icons/bs"
-import { BiSolidCalculator } from "react-icons/bi"
 import { TbReportSearch } from "react-icons/tb"
-import { AiOutlineSearch } from "react-icons/ai"
-import { BsThreeDotsVertical } from "react-icons/bs"
-import { BsBoxArrowInDownLeft } from "react-icons/bs"
 import { RiDeleteBin6Line } from "react-icons/ri"
 import { DropMenu } from "../dropmenu/DropMenu"
 import './Toolbar.css'
-
-interface IconDefinition {
-  icon: JSX.Element,
-  label: string
-}
 
 const options: IconDefinition[] = [
   { icon: <GrAdd fontSize='1.2rem' color="#73ba69" />, label: 'Nuevo' },

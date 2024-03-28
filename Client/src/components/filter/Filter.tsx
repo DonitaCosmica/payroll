@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { type IconDefinition } from "../../types"
 import { DropMenu } from '../dropmenu/DropMenu'
 import { DropMenuDates } from '../dropMenuDates/DropMenuDates'
 import { IoIosArrowDown } from "react-icons/io"
@@ -9,7 +10,7 @@ interface MenuState {
   text: boolean
 }
 
-const menuOp = [
+const menuOp: IconDefinition[] = [
   { label: 'Ordinario' }, 
   { label: 'Extraordinario' }
 ]
@@ -46,7 +47,7 @@ export const Filter = (): JSX.Element => {
               <p>{ filter }</p>
               { index % 2 === 0 && <IoIosArrowDown /> }
               { index === 0 && showDropMenu.date && <DropMenuDates /> }
-              { index === 2 && showDropMenu.text && <DropMenu menuOp={menuOp} dir={'left'} width={175} /> }
+              { index === 2 && showDropMenu.text && <DropMenu menuOp={ menuOp } dir={ 'left' } width={ 175 } /> }
             </div>
           ))
         }

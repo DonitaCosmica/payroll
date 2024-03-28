@@ -1,21 +1,19 @@
 import { useState } from 'react'
+import { type IconDefinition } from "../../types"
+import { BiBuildings, BiSolidCheckShield, BiLogOut } from "react-icons/bi"
 import { IoIosArrowDown } from "react-icons/io"
-import { BiBuildings } from "react-icons/bi"
-import { BiSolidCheckShield } from "react-icons/bi"
-import { FiSettings } from "react-icons/fi"
-import { DropMenu } from '../dropmenu/DropMenu'
-import { FiUsers } from "react-icons/fi"
+import { FiSettings, FiUsers } from "react-icons/fi"
 import { FaComments } from "react-icons/fa6"
-import { BiLogOut } from "react-icons/bi"
+import { DropMenu } from '../dropmenu/DropMenu'
 import './Titlebar.css'
 
-const menuOp = [
-  { icon: <BiBuildings color='#dd7e7b' />,label: 'Empresas' }, 
-  { icon: <BiSolidCheckShield color='#73ba69' />,label: 'Mi Cuenta' }, 
-  { icon: <FiSettings />,label: 'Configuración Avanzada' },
-  { icon: <FiUsers color='#0747A6' />,label: 'Usuarios' }, 
-  { icon: <FaComments color='#b123ae' />,label: 'Soporte' }, 
-  { icon: <BiLogOut color='#d95a54' />,label: 'Cerrar Sesión' }
+const menuOp: IconDefinition[] = [
+  { icon: <BiBuildings color='#dd7e7b' />, label: 'Empresas' }, 
+  { icon: <BiSolidCheckShield color='#73ba69' />, label: 'Mi Cuenta' }, 
+  { icon: <FiSettings />, label: 'Configuración Avanzada' },
+  { icon: <FiUsers color='#0747A6' />, label: 'Usuarios' }, 
+  { icon: <FaComments color='#b123ae' />, label: 'Soporte' }, 
+  { icon: <BiLogOut color='#d95a54' />, label: 'Cerrar Sesión' }
 ]
 
 export const Titlebar = (): JSX.Element => {

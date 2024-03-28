@@ -7,14 +7,15 @@
 }
 
 .toolbar > .container {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 10% auto auto;
+  grid-template-rows: 40%;
+  align-content: center;
   width: 45%;
   height: 100%;
 }
 
 .toolbar > .container > .home {
-  flex: 0.2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -27,30 +28,23 @@
 }
 
 .toolbar > .container > .home > svg {
-  height: 45%;
-  width: 45%;
+  width: 40%;
+  height: auto;
   padding: 5px;
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.5s ease;
 }
 
-.toolbar > .container > .main-options {
-  flex: 1;
-}
-
-.toolbar > .container > .other-options {
-  flex: 1.2;
-}
-
 .toolbar > .container > :where(.main-options, .other-options) {
   display: flex;
   justify-content: space-evenly;
   align-items: center;
+  margin: 0 10px;
 }
 
 .toolbar > .container :where(.home, .main-options) {
-  border-right: 1px solid #464646;
+  border-right: 1px solid #666565;
 }
 
 .toolbar > .container > :is(.main-options, .other-options) > .option {
