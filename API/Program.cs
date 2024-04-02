@@ -6,7 +6,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Nomina API V1");
+    });
 }
 
 app.UseHttpsRedirection();
@@ -26,6 +29,9 @@ app.MapGet("/weatherforecast", () =>
             summaries[Random.Shared.Next(summaries.Length)]
         ))
         .ToArray();
+
+    foreach(var data in forecast)
+        Console.WriteLine($"forecast: {data}");
     return forecast;
 })
 .WithName("GetWeatherForecast")
