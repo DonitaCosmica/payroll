@@ -2,15 +2,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Payroll.Models
 {
-  public class Bank
+  public class JobPosition
   {
     [Key]
     [MaxLength(36)]
-    public string BankId { get; set; } = default!;
-    
+    public string JobPositionId { get; set; } = default!;
+
     [Required]
-    [MaxLength(20)]
+    [MaxLength(30)]
     public string Name { get; set; } = default!;
+
+    public Department Department { get; set; } = new();
     
     public ICollection<Employee> Employees { get; set; } = [];
   }

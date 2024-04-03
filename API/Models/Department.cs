@@ -14,5 +14,7 @@ namespace Payroll.Models
     
     [Required]
     public uint TotalEmployees { get; set; }
+
+    public ICollection<JobPosition> JobPositions { get; set; } = [];
   }
 }

@@ -23,10 +23,19 @@ namespace Payroll.Models
     [MaxLength(18)]
     public string CURP { get; set; } = default!;
 
+    public Company Company { get; set; } = new();
+
+    [Required]
+    public Bank Bank { get; set; } = new();
+
     [Required]
     public ulong InterbankCode { get; set; }
 
     public uint NSS { get; set; }
+
+    public JobPosition JobPosition { get; set; } = new();
+
+    public CommercialArea CommercialArea { get; set; } = new();
 
     [Required]
     [DataType(DataType.Date)]
@@ -42,6 +51,8 @@ namespace Payroll.Models
     [Required]
     [Range(100, float.MaxValue)]
     public float DailySalary { get; set; }
+
+    public Status Status { get; set; } = new();
 
     [Required]
     [RegularExpression(@"^\d{10}$")]
