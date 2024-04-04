@@ -10,7 +10,8 @@ const links: string[] = [
   'AREAS COMERCIALES',
   'PERCEPCIONES',
   'DEDUCCIONES',
-  'CATALOGO DE PROYECTOS'
+  'CATALOGO DE PROYECTOS',
+  'EMPRESAS'
 ]
 
 export const Navbar = (): JSX.Element => {

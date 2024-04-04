@@ -9,6 +9,7 @@ enum NavigationActionKind {
   PERCEPTIONS,
   DEDUCTIONS,
   PROJECTCATALOG,
+  COMPANIES,
   LOADED,
   ERROR
 }
@@ -43,6 +44,7 @@ const urlMapping: Record<NavigationActionKind, string> = {
   [NavigationActionKind.PERCEPTIONS]: 'f',
   [NavigationActionKind.DEDUCTIONS]: 'g',
   [NavigationActionKind.PROJECTCATALOG]: 'h',
+  [NavigationActionKind.COMPANIES]: 'i',
   [NavigationActionKind.LOADED]: '',
   [NavigationActionKind.ERROR]: ''
 }
