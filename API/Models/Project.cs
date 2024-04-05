@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Payroll.Models
 {
@@ -22,6 +23,10 @@ namespace Payroll.Models
     [Range(typeof(DateTime), "01-01-1900", "31-12-3000")]
     [RegularExpression(@"pattern")]
     public DateTime StartDate { get; set; }
+
+    [Required]
+    [ForeignKey("Status")]
+    public byte StatusId { get; set; }
 
     public Status Status { get; set; } = new();
 

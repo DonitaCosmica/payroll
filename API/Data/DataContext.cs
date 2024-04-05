@@ -20,7 +20,19 @@ namespace Payroll.Data
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+      modelBuilder.Entity<JobPosition>(entity => entity.HasKey(j => j.JobPositionId));
+      modelBuilder.Entity<JobPosition>()
+        .HasOne(j => j.Department)
+        .WithMany(d => d.JobPositions)
+        .HasForeignKey(j => j.DepartmentId);
       
+      modelBuilder.Entity<Project>(entity => entity.HasKey(p => p.ProjectId));
+      modelBuilder.Entity<Project>()
+        .HasOne(p => p.Status)
+        .WithMany(s => s.Projects)
+        .HasForeignKey(p => p.StatusId);
+
+      base.OnModelCreating(modelBuilder);
     }
   }
 }

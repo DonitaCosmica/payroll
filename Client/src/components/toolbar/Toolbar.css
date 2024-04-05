@@ -8,10 +8,8 @@
 
 .toolbar > .container {
   display: grid;
-  grid-template-columns: 10% auto auto;
   grid-template-rows: 40%;
   align-content: center;
-  width: 45%;
   height: 100%;
 }
 

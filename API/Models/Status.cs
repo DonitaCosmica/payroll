@@ -5,15 +5,14 @@ namespace Payroll.Models
   public class Status
   {
     [Key]
-    [MaxLength(36)]
-    public string StatusId { get; set; } = default!;
+    public byte StatusId { get; set; } = default!;
 
     [Required]
     [MaxLength(15)]
     public string Name { get; set; } = default!;
 
-    public Employee Employee { get; set; } = new();
+    public ICollection<Project> Projects { get; set; } = [];
 
-    public Project Project { get; set; } = new();
+    public Employee Employee { get; set; } = new();
   }
 }
