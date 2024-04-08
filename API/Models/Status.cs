@@ -13,6 +13,6 @@ namespace Payroll.Models
 
     public ICollection<Project> Projects { get; set; } = [];
 
-    public Employee Employee { get; set; } = new();
+    public ICollection<Employee> Employees { get; set; } = [];
   }
 }

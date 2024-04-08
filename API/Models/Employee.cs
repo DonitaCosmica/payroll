@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Payroll.Models
 {
@@ -23,17 +24,38 @@ namespace Payroll.Models
     [MaxLength(18)]
     public string CURP { get; set; } = default!;
 
+    [Required]
+    [MaxLength(36)]
+    [ForeignKey("Company")]
+    public string CompanyId { get; set; } = default!;
+
     public Company Company { get; set; } = new();
 
     [Required]
+    [MaxLength(36)]
+    [ForeignKey("Bank")]
+    public byte BankId { get; set; }  = default!;
+
     public Bank Bank { get; set; } = new();
 
     [Required]
     public ulong InterbankCode { get; set; }
 
+    public ICollection<EmployeeProject> EmployeeProjects { get; set; } = [];
+
     public uint NSS { get; set; }
 
+    [Required]
+    [MaxLength(36)]
+    [ForeignKey("JobPosition")]
+    public string JobPositionId { get; set; } = default!;
+    
     public JobPosition JobPosition { get; set; } = new();
+
+    [Required]
+    [MaxLength(36)]
+    [ForeignKey("CommercialArea")]
+    public string CommercialAreaId { get; set; } = default!;
 
     public CommercialArea CommercialArea { get; set; } = new();
 
@@ -51,6 +73,10 @@ namespace Payroll.Models
     [Required]
     [Range(100, float.MaxValue)]
     public float DailySalary { get; set; }
+    
+    [Required]
+    [ForeignKey("Status")]
+    public byte StatusId { get; set; }
 
     public Status Status { get; set; } = new();
 
@@ -62,11 +88,17 @@ namespace Payroll.Models
     [EmailAddress]
     public string Email { get; set; } = default!;
 
+    [MaxLength(75)]
     public string? Direction { get; set; }
 
     public ushort PostalCode { get; set; }
 
+    [MaxLength(50)]
     public string? City { get; set; }
+
+    [Required]
+    [ForeignKey("State")]
+    public ushort StateId { get; set; }
 
     public State State { get; set; } = new();
   }

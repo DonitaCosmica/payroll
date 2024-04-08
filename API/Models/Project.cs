@@ -30,6 +30,6 @@ namespace Payroll.Models
 
     public Status Status { get; set; } = new();
 
-    public ICollection<Employee> Employees { get; set; } = [];
+    public ICollection<EmployeeProject> EmployeeProjects { get; set; } = [];
   }
 }

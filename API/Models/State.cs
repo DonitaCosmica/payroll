@@ -5,8 +5,7 @@ namespace Payroll.Models
   public class State
   {
     [Key]
-    [MaxLength(36)]
-    public string StateId { get; set; } = default!;
+    public ushort StateId { get; set; } = default!;
 
     [Required]
     [MaxLength(20)]
