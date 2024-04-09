@@ -12,6 +12,8 @@ namespace Payroll.Models
     [MaxLength(20)]
     public string Name { get; set; } = default!;
 
+    public ushort TotalWorkers { get; set; }
+
     public ICollection<Employee> Employees { get; set; } = [];
   }
 }

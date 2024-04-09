@@ -5,7 +5,7 @@ namespace Payroll.Models
   public class Status
   {
     [Key]
-    public byte StatusId { get; set; } = default!;
+    public byte StatusId { get; set; }
 
     [Required]
     [MaxLength(15)]
