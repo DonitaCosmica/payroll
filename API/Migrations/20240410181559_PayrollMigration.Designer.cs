@@ -12,7 +12,7 @@ using Payroll.Data;
 namespace API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240408200235_PayrollMigration")]
+    [Migration("20240410181559_PayrollMigration")]
     partial class PayrollMigration
     {
         /// <inheritdoc />
@@ -66,6 +66,9 @@ namespace API.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("TotalWorkers")
+                        .HasColumnType("int");
 
                     b.HasKey("CompanyId");
 
@@ -291,6 +294,10 @@ namespace API.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Name")
                         .IsRequired()

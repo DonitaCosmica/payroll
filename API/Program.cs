@@ -1,8 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Payroll.Data;
+using Payroll.Interfaces;
+using Payroll.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers();
+builder.Services.AddScoped<IBankRepository, BankRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {

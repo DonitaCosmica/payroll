@@ -64,6 +64,9 @@ namespace API.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<int>("TotalWorkers")
+                        .HasColumnType("int");
+
                     b.HasKey("CompanyId");
 
                     b.ToTable("Companies");
@@ -288,6 +291,10 @@ namespace API.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Name")
                         .IsRequired()
