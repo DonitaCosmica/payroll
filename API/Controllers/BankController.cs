@@ -21,11 +21,6 @@ namespace Payroll.Controllers
           Name = b.Name
         }).ToList();
 
-      Console.WriteLine($"Banks: {banks}");
-
-      if(!ModelState.IsValid)
-        return BadRequest(ModelState);
-
       return Ok(banks);
     }
 
@@ -44,10 +39,15 @@ namespace Payroll.Controllers
         Name = bank.Name
       };
 
-      if(!ModelState.IsValid)
-        return BadRequest(ModelState);
-
       return Ok(bankDTO);
+    }
+
+    [HttpPost]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public IActionResult CreateReview()
+    {
+      return BadRequest("");
     }
   }
 }
