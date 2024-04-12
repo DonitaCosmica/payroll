@@ -17,8 +17,18 @@ namespace Payroll.Repository
       context.Add(bank);
       return Save();
     }
+    public bool UpdateBank(Bank bank)
+    {
+      context.Update(bank);
+      return Save();
+    }
+    public bool DeleteBank(Bank bank)
+    {
+      context.Remove(bank);
+      return Save();
+    }
     public bool BankExists(byte bankId) => context.Banks.Any(b => b.BankId == bankId);
-    public bool Save()
+    private bool Save()
     {
       var saved = context.SaveChanges();
       return saved > 0;

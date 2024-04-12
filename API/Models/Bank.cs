@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Payroll.Models
 {
   public class Bank
   {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public byte BankId { get; set; } = default!;
     
     [Required]

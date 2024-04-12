@@ -25,7 +25,10 @@ namespace API.Migrations
             modelBuilder.Entity("Payroll.Models.Bank", b =>
                 {
                     b.Property<byte>("BankId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("tinyint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<byte>("BankId"));
 
                     b.Property<string>("Name")
                         .IsRequired()

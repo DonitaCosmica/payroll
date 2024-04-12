@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Payroll.DTO;
 using Payroll.Interfaces;
+using Payroll.Models;
 
 namespace Payroll.Controllers
 {
@@ -45,9 +46,66 @@ namespace Payroll.Controllers
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public IActionResult CreateReview()
+    public IActionResult CreateReview([FromBody] BankDTO bankCreate)
     {
-      return BadRequest("");
+      if(bankCreate == null)
+        return BadRequest(ModelState);
+
+      var existingBank = bankRepository.GetBanks()
+        .FirstOrDefault(b => b.Name.Trim().Equals(bankCreate.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
+
+      if(existingBank != null)
+        return Conflict("Category already exists");
+
+      var bank = new Bank
+      {
+        Name = bankCreate.Name
+      };
+
+      if(!bankRepository.CreateBank(bank))
+        return StatusCode(500, "Something went wrong while saving");
+
+      return NoContent();
+    }
+
+    [HttpPatch("{bankId}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public IActionResult UpdateBank(byte bankId, [FromBody] BankDTO updateBank)
+    {
+      if(updateBank == null || bankId != updateBank.BankId)
+        return BadRequest();
+
+      if(!bankRepository.BankExists(bankId))
+        return NotFound();
+
+      var bank = bankRepository.GetBank(bankId);
+
+      if(updateBank.Name != null)
+        bank.Name = updateBank.Name;
+
+      if(!bankRepository.UpdateBank(bank))
+        return StatusCode(500, "Something went wrong updating bank");
+
+      return NoContent();
+    }
+
+    [HttpDelete("{bankId}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public IActionResult DeleteBank(byte bankId)
+    {
+      if(!bankRepository.BankExists(bankId))
+        return NotFound();
+      
+      var bankToDelete = bankRepository.GetBank(bankId);
+
+      if(!bankRepository.DeleteBank(bankToDelete))
+        return StatusCode(500, "Something went wrong deleting bank");
+
+      return NoContent();
     }
   }
 }
