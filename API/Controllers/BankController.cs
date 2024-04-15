@@ -46,16 +46,16 @@ namespace Payroll.Controllers
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public IActionResult CreateReview([FromBody] BankDTO bankCreate)
+    public IActionResult CreateBank([FromBody] BankDTO bankCreate)
     {
       if(bankCreate == null)
-        return BadRequest(ModelState);
+        return BadRequest();
 
       var existingBank = bankRepository.GetBanks()
         .FirstOrDefault(b => b.Name.Trim().Equals(bankCreate.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
 
       if(existingBank != null)
-        return Conflict("Category already exists");
+        return Conflict("Bank already exists");
 
       var bank = new Bank
       {

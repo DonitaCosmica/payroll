@@ -28,7 +28,7 @@ namespace Payroll.Repository
       return Save();
     }
     public bool BankExists(byte bankId) => context.Banks.Any(b => b.BankId == bankId);
-    private bool Save()
+    public bool Save()
     {
       var saved = context.SaveChanges();
       return saved > 0;

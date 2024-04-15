@@ -14,5 +14,25 @@ namespace Payroll.Repository
       throw new Exception("No Commercial Area with the specified id was found");
     public bool CommercialAreaExists(string commercialAreaId) => 
       context.CommercialAreas.Any(ca => ca.CommercialAreaId == commercialAreaId);
+    public bool CreateCommercialArea(CommercialArea commercialArea)
+    {
+      context.Add(commercialArea);
+      return Save();
+    }
+    public bool UpdateCommercialArea(CommercialArea commercialArea)
+    {
+      context.Update(commercialArea);
+      return Save();
+    }
+    public bool DeleteCommercialArea(CommercialArea commercialArea)
+    {
+      context.Remove(commercialArea);
+      return Save();
+    }
+    public bool Save()
+    {
+      var saved = context.SaveChanges();
+      return saved > 0;
+    }
   }
 }

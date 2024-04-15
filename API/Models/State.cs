@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Payroll.Models
 {
   public class State
   {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public ushort StateId { get; set; } = default!;
 
     [Required]

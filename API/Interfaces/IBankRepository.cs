@@ -10,5 +10,6 @@ namespace Payroll.Interfaces
     bool UpdateBank(Bank bank);
     bool DeleteBank(Bank bank);
     bool BankExists(byte bankId);
+    bool Save();
   }
 }

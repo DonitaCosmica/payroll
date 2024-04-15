@@ -6,6 +6,10 @@ namespace Payroll.Interfaces
   {
     ICollection<CommercialArea> GetCommercialAreas();
     CommercialArea GetCommercialArea(string commercialAreaId);
+    bool CreateCommercialArea(CommercialArea commercialArea);
+    bool UpdateCommercialArea(CommercialArea commercialArea);
+    bool DeleteCommercialArea(CommercialArea commercialArea);
     bool CommercialAreaExists(string commercialAreaId);
+    bool Save();
   }
 }

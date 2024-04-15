@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Payroll.Models
 {
   public class Status
   {
     [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public byte StatusId { get; set; }
 
     [Required]
