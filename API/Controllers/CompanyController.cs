@@ -20,7 +20,7 @@ namespace  Payroll.Controllers
         {
           CompanyId = c.CompanyId,
           Name = c.Name
-        });
+        }).ToList();
 
       return Ok(companies);
     }

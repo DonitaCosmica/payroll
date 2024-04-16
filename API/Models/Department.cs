@@ -13,7 +13,7 @@ namespace Payroll.Models
     public string Name { get; set; } = default!;
     
     [Required]
-    public uint TotalEmployees { get; set; }
+    public ushort TotalEmployees { get; set; }
 
     public ICollection<JobPosition> JobPositions { get; set; } = [];
   }
