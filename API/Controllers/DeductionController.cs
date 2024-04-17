@@ -89,8 +89,12 @@ namespace Payroll.Controllers
 
       var deduction = deductionRepository.GetDeduction(deductionId);
 
-      if(deductionUpdate.Name != null)
+      if(deductionUpdate.Name != null && deductionUpdate.Key >= 0)
+      {
         deduction.Name = deductionUpdate.Name;
+        deduction.Key = deductionUpdate.Key;
+        deduction.IsHidden = deductionUpdate.IsHidden;
+      }
 
       if(!deductionRepository.UpdateDeduction(deduction))
         return StatusCode(500, "Something went wrong updating deduction"); 

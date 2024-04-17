@@ -28,10 +28,6 @@ namespace Payroll.Repository
       return Save();
     }
     public bool CompanyExists(string companyId) => context.Companies.Any(c => c.CompanyId == companyId);
-    public bool Save()
-    {
-      var saved = context.SaveChanges();
-      return saved > 0;
-    }
+    public bool Save() => context.SaveChanges() > 0;
   }
 }

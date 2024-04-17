@@ -28,10 +28,6 @@ namespace Payroll.Repository
       return Save();
     }
     public bool DeductionExists(string deductionId) => context.Deductions.Any(d => d.DeductionId == deductionId);
-    public bool Save()
-    {
-      var saved = context.SaveChanges();
-      return saved > 0;
-    }
+    public bool Save() => context.SaveChanges() > 0;
   }
 }
