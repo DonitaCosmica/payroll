@@ -108,8 +108,8 @@ namespace API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<long>("TotalEmployees")
-                        .HasColumnType("bigint");
+                    b.Property<int>("TotalEmployees")
+                        .HasColumnType("int");
 
                     b.HasKey("DepartmentId");
 
@@ -343,7 +343,10 @@ namespace API.Migrations
             modelBuilder.Entity("Payroll.Models.Status", b =>
                 {
                     b.Property<byte>("StatusId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("tinyint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<byte>("StatusId"));
 
                     b.Property<string>("Name")
                         .IsRequired()

@@ -51,6 +51,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateJobPosition([FromBody] JobPositionDTO jobPositionCreate)
     {
+      System.Console.WriteLine($"{jobPositionCreate.DepartmentId}");
       if(jobPositionCreate == null || !departmentRepository.DepartmentExists(jobPositionCreate.DepartmentId))
         return BadRequest();
 
@@ -60,11 +61,14 @@ namespace Payroll.Controllers
       if(existingJobPosition != null)
         return Conflict("Job Position already exists");
 
+      var department = departmentRepository.GetDepartment(jobPositionCreate.DepartmentId);
+
       var jobPosition = new JobPosition
       {
         JobPositionId = Guid.NewGuid().ToString(),
         Name = jobPositionCreate.Name,
-        DepartmentId = jobPositionCreate.DepartmentId
+        DepartmentId = jobPositionCreate.DepartmentId,
+        Department = department
       };
 
       if(!jobPositionRepository.CreateJobPosition(jobPosition))

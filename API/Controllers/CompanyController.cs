@@ -83,8 +83,11 @@ namespace  Payroll.Controllers
 
       var company = companyRepository.GetCompany(companyId);
 
-      if(companyUpdate.Name != null)
+      if(companyUpdate.Name != null && companyUpdate.TotalWorkers >= 0)
+      {
         company.Name = companyUpdate.Name;
+        company.TotalWorkers = companyUpdate.TotalWorkers;
+      }
 
       if(!companyRepository.UpdateCompany(company))
         return StatusCode(500, "Something went wrong updating company");

@@ -12,8 +12,6 @@ namespace Payroll.Repository
     public JobPosition GetJobPosition(string jobPositionId) =>
       context.JobPositions.Where(jp => jp.JobPositionId == jobPositionId).FirstOrDefault() ??
       throw new Exception("No Job Position with specified id was found");
-    public ICollection<Employee> GetEmployeesByJobPosition(string jobPositionId) =>
-      context.Employees.Where(e => e.JobPosition.JobPositionId == jobPositionId).ToList();
     public bool CreateJobPosition(JobPosition jobPosition)
     {
       context.Add(jobPosition);
