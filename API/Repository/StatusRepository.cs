@@ -9,7 +9,7 @@ namespace Payroll.Repository
     private readonly DataContext context = context;
 
     public ICollection<Status> GetStatuses() => context.Statuses.ToList();
-    public Status GetStatus(byte statusId) => 
+    public Status GetStatus(string statusId) => 
       context.Statuses.Where(s => s.StatusId == statusId).FirstOrDefault() ??
       throw new Exception("No Status with the specified id was found");
     public bool CreateStatus(Status status)
@@ -27,7 +27,7 @@ namespace Payroll.Repository
       context.Remove(status);
       return Save();
     }
-    public bool StatusExists(byte statusId) => context.Statuses.Any(s => s.StatusId == statusId);
+    public bool StatusExists(string statusId) => context.Statuses.Any(s => s.StatusId == statusId);
     public bool Save() => context.SaveChanges() > 0;
   }
 }

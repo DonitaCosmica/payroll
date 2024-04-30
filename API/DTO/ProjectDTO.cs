@@ -6,7 +6,7 @@ namespace Payroll.DTO
     public string Code { get; set; } = default!;
     public string Name { get; set; } = default!;
     public DateTime StartDate { get; set; }
-    public byte StatusId { get; set; }
+    public string StatusId { get; set; } = default!;
     public string? Description { get; set; }
   }
 }

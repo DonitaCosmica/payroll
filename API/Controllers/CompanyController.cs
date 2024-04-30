@@ -19,7 +19,8 @@ namespace  Payroll.Controllers
         .Select(c => new CompanyDTO
         {
           CompanyId = c.CompanyId,
-          Name = c.Name
+          Name = c.Name,
+          TotalWorkers = c.TotalWorkers
         }).ToList();
 
       return Ok(companies);
@@ -37,7 +38,8 @@ namespace  Payroll.Controllers
       var companyDTO = new CompanyDTO
       {
         CompanyId = company.CompanyId,
-        Name = company.Name
+        Name = company.Name,
+        TotalWorkers = company.TotalWorkers
       };
 
       return Ok(companyDTO);
@@ -60,7 +62,8 @@ namespace  Payroll.Controllers
       var company = new Company
       {
         CompanyId = Guid.NewGuid().ToString(),
-        Name = companyCreate.Name
+        Name = companyCreate.Name,
+        TotalWorkers = companyCreate.TotalWorkers
       };
 
       if(!companyRepository.CreateCompany(company))
@@ -75,7 +78,7 @@ namespace  Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateCompany(string companyId, [FromBody] CompanyDTO companyUpdate)
     {
-      if(companyUpdate == null || companyId != companyUpdate.CompanyId)
+      if(companyUpdate == null || companyId != companyUpdate.CompanyId || companyUpdate.TotalWorkers <= 0)
         return BadRequest();
 
       if(!companyRepository.CompanyExists(companyId))

@@ -6,8 +6,8 @@ namespace Payroll.Models
   public class Bank
   {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public byte BankId { get; set; } = default!;
+    [MaxLength(36)]
+    public string BankId { get; set; } = default!;
     
     [Required]
     [MaxLength(20)]

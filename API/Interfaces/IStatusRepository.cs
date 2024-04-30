@@ -5,11 +5,11 @@ namespace Payroll.Interfaces
   public interface IStatusRepository
   {
     ICollection<Status> GetStatuses();
-    Status GetStatus(byte statusId);
+    Status GetStatus(string statusId);
     bool CreateStatus(Status status);
     bool UpdateStatus(Status status);
     bool DeleteStatus(Status status);
-    bool StatusExists(byte statusId);
+    bool StatusExists(string statusId);
     bool Save();
   }
 }

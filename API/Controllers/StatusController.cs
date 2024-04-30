@@ -28,7 +28,7 @@ namespace Payroll.Controllers
     [HttpGet("{statusId}")]
     [ProducesResponseType(200, Type = typeof(StatusDTO))]
     [ProducesResponseType(400)]
-    public IActionResult GetStatus(byte statusId)
+    public IActionResult GetStatus(string statusId)
     {
       if(!statusRepository.StatusExists(statusId))
         return NotFound();
@@ -59,6 +59,7 @@ namespace Payroll.Controllers
 
       var status = new Status
       {
+        StatusId = Guid.NewGuid().ToString(),
         Name = statusCreate.Name
       };
 
@@ -72,7 +73,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public IActionResult UpdateStatus(byte statusId, [FromBody] StatusDTO statusUpdate)
+    public IActionResult UpdateStatus(string statusId, [FromBody] StatusDTO statusUpdate)
     {
       if(statusUpdate == null || statusId != statusUpdate.StatusId)
         return BadRequest();
@@ -95,7 +96,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public IActionResult DeleteStatus(byte statusId)
+    public IActionResult DeleteStatus(string statusId)
     {
       if(!statusRepository.StatusExists(statusId))
         return NotFound();

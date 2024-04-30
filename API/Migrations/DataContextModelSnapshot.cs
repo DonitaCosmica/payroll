@@ -24,11 +24,9 @@ namespace API.Migrations
 
             modelBuilder.Entity("Payroll.Models.Bank", b =>
                 {
-                    b.Property<byte>("BankId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<byte>("BankId"));
+                    b.Property<string>("BankId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -122,9 +120,10 @@ namespace API.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
-                    b.Property<byte>("BankId")
+                    b.Property<string>("BankId")
+                        .IsRequired()
                         .HasMaxLength(36)
-                        .HasColumnType("tinyint");
+                        .HasColumnType("nvarchar(36)");
 
                     b.Property<float>("BaseSalary")
                         .HasColumnType("real");
@@ -192,11 +191,15 @@ namespace API.Migrations
                         .HasMaxLength(13)
                         .HasColumnType("nvarchar(13)");
 
-                    b.Property<int>("StateId")
-                        .HasColumnType("int");
+                    b.Property<string>("StateId")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
 
-                    b.Property<byte>("StatusId")
-                        .HasColumnType("tinyint");
+                    b.Property<string>("StatusId")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
 
                     b.HasKey("EmployeeId");
 
@@ -307,8 +310,10 @@ namespace API.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<byte>("StatusId")
-                        .HasColumnType("tinyint");
+                    b.Property<string>("StatusId")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
 
                     b.HasKey("ProjectId");
 
@@ -319,11 +324,9 @@ namespace API.Migrations
 
             modelBuilder.Entity("Payroll.Models.State", b =>
                 {
-                    b.Property<int>("StateId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StateId"));
+                    b.Property<string>("StateId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
 
                     b.Property<string>("Abbreviation")
                         .IsRequired()
@@ -342,11 +345,9 @@ namespace API.Migrations
 
             modelBuilder.Entity("Payroll.Models.Status", b =>
                 {
-                    b.Property<byte>("StatusId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<byte>("StatusId"));
+                    b.Property<string>("StatusId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
 
                     b.Property<string>("Name")
                         .IsRequired()

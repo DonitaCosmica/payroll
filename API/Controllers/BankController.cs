@@ -28,7 +28,7 @@ namespace Payroll.Controllers
     [HttpGet("{bankId}")]
     [ProducesResponseType(200, Type = typeof(BankDTO))]
     [ProducesResponseType(400)]
-    public IActionResult GetBank(byte bankId)
+    public IActionResult GetBank(string bankId)
     {
       if(!bankRepository.BankExists(bankId))
         return NotFound();
@@ -59,6 +59,7 @@ namespace Payroll.Controllers
 
       var bank = new Bank
       {
+        BankId = Guid.NewGuid().ToString(),
         Name = bankCreate.Name
       };
 
@@ -72,7 +73,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public IActionResult UpdateBank(byte bankId, [FromBody] BankDTO updateBank)
+    public IActionResult UpdateBank(string bankId, [FromBody] BankDTO updateBank)
     {
       if(updateBank == null || bankId != updateBank.BankId)
         return BadRequest();
@@ -95,7 +96,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public IActionResult DeleteBank(byte bankId)
+    public IActionResult DeleteBank(string bankId)
     {
       if(!bankRepository.BankExists(bankId))
         return NotFound();

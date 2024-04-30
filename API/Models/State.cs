@@ -6,8 +6,8 @@ namespace Payroll.Models
   public class State
   {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public ushort StateId { get; set; } = default!;
+    [MaxLength(36)]
+    public string StateId { get; set; } = default!;
 
     [Required]
     [MaxLength(20)]

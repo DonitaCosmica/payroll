@@ -6,8 +6,8 @@ namespace Payroll.Models
   public class Status
   {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public byte StatusId { get; set; }
+    [MaxLength(36)]
+    public string StatusId { get; set; } = default!;
 
     [Required]
     [MaxLength(15)]

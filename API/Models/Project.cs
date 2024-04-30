@@ -25,8 +25,9 @@ namespace Payroll.Models
     public DateTime StartDate { get; set; }
 
     [Required]
+    [MaxLength(36)]
     [ForeignKey("Status")]
-    public byte StatusId { get; set; }
+    public string StatusId { get; set; } = default!;
 
     public Status Status { get; set; } = new();
 

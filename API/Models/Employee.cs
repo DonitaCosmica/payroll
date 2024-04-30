@@ -34,7 +34,7 @@ namespace Payroll.Models
     [Required]
     [MaxLength(36)]
     [ForeignKey("Bank")]
-    public byte BankId { get; set; }  = default!;
+    public string BankId { get; set; }  = default!;
 
     public Bank Bank { get; set; } = new();
 
@@ -75,8 +75,9 @@ namespace Payroll.Models
     public float DailySalary { get; set; }
     
     [Required]
+    [MaxLength(36)]
     [ForeignKey("Status")]
-    public byte StatusId { get; set; }
+    public string StatusId { get; set; } = default!;
 
     public Status Status { get; set; } = new();
 
@@ -97,8 +98,9 @@ namespace Payroll.Models
     public string? City { get; set; }
 
     [Required]
+    [MaxLength(36)]
     [ForeignKey("State")]
-    public ushort StateId { get; set; }
+    public string StateId { get; set; } = default!;
 
     public State State { get; set; } = new();
   }

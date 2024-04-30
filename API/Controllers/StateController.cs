@@ -28,7 +28,7 @@ namespace Payroll.Controllers
     [HttpGet("{stateId}")]
     [ProducesResponseType(200, Type = typeof(StateDTO))]
     [ProducesResponseType(400)]
-    public IActionResult GetState(ushort stateId)
+    public IActionResult GetState(string stateId)
     {
       if(!stateRepository.StateExists(stateId))
         return NotFound();
@@ -60,6 +60,7 @@ namespace Payroll.Controllers
 
       var state = new State
       {
+        StateId = Guid.NewGuid().ToString(),
         Name = stateCreate.Name,
         Abbreviation = stateCreate.Abbreviation
       };
@@ -74,9 +75,9 @@ namespace Payroll.Controllers
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public IActionResult UpdateState(ushort stateId, [FromBody] StateDTO stateUpdate)
+    public IActionResult UpdateState(string stateId, [FromBody] StateDTO stateUpdate)
     {
-      if(stateUpdate == null || stateId != stateUpdate.StateId || stateId <= 0)
+      if(stateUpdate == null || stateId != stateUpdate.StateId)
         return BadRequest();
 
       if(!stateRepository.StateExists(stateId))
@@ -100,7 +101,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public IActionResult DeleteState(ushort stateId)
+    public IActionResult DeleteState(string stateId)
     {
       if(!stateRepository.StateExists(stateId))
         return NotFound();

@@ -7,7 +7,7 @@ namespace Payroll.Interfaces
   {
     ICollection<Employee> GetEmployees();
     Employee GetEmployee(string employeeId);
-    bool CreateEmployee(List<ProjectDTO> projects, Employee employee);
+    bool CreateEmployee(List<string> projects, Employee employee);
     bool UpdateEmployee(Employee employee);
     bool DeleteEmployee(Employee employee);
     bool EmployeeExists(string employeeId);

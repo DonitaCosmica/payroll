@@ -9,7 +9,7 @@ namespace Payroll.Repository
     private readonly DataContext context = context;
 
     public ICollection<State> GetStates() => context.States.ToList();
-    public State GetState(ushort stateId) =>
+    public State GetState(string stateId) =>
       context.States.Where(s => s.StateId == stateId).FirstOrDefault() ??
       throw new Exception("No State with the specified id was found");
     public bool CreateState(State state)
@@ -27,7 +27,7 @@ namespace Payroll.Repository
       context.Remove(state);
       return Save();
     }
-    public bool StateExists(ushort stateId) => context.States.Any(s => s.StateId == stateId);
+    public bool StateExists(string stateId) => context.States.Any(s => s.StateId == stateId);
     public bool Save() => context.SaveChanges() > 0;
   }
 }
