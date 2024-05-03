@@ -24,13 +24,14 @@ namespace Payroll.Repository
         
         var employeeProject = new EmployeeProject
         {
-          EmployeeId = Guid.NewGuid().ToString(),
+          EmployeeProjectId = Guid.NewGuid().ToString(),
+          EmployeeId = employee.EmployeeId,
+          ProjectId = project.ProjectId,
           Employee = employee,
           Project = project
         };
 
-        Console.WriteLine($"Project: {project}");
-
+        employee.EmployeeProjects.Add(employeeProject);
         context.Add(employeeProject);
       }
 

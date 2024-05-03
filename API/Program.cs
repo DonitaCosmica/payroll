@@ -17,6 +17,7 @@ builder.Services.AddScoped<IPerceptionRepository, PerceptionRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<IStateReporitory, StateRepository>();
 builder.Services.AddScoped<IStatusRepository, StatusRepository>();
+builder.Services.AddScoped<IEmployeeProjectsRepository, EmployeeProjectsRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
