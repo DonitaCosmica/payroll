@@ -10,6 +10,5 @@ namespace Payroll.Interfaces
     bool UpdateBank(Bank bank);
     bool DeleteBank(Bank bank);
     bool BankExists(string bankId);
-    bool Save();
   }
 }

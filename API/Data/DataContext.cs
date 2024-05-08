@@ -75,5 +75,35 @@ namespace Payroll.Data
 
       base.OnModelCreating(modelBuilder);
     }
+
+    public List<string> GetColumuns<TEntity>() where TEntity : class
+    {
+      var entityType = Model.FindEntityType(typeof(TEntity));
+      if(entityType == null)
+        return [];
+
+      var properties = entityType.GetProperties();
+      return properties.Select(property => property.GetColumnName()).ToList();
+    }
+
+    public bool CreateEntity<TEntity>(TEntity entity) where TEntity : class
+    {
+      Add(entity);
+      return Save();
+    }
+
+    public bool UpdateEntity<TEntity>(TEntity entity) where TEntity : class
+    {
+      Update(entity);
+      return Save();
+    }
+
+    public bool DeleteEntity<TEntity>(TEntity entity) where TEntity : class
+    {
+      Remove(entity);
+      return Save();
+    } 
+
+    private bool Save() => SaveChanges() > 0; 
   }
 }

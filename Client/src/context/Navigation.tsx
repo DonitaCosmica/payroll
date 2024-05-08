@@ -10,7 +10,7 @@ enum NavigationActionKind {
   DEDUCTIONS,
   PROJECTCATALOG,
   COMPANIES,
-  LOADED,
+  UPDATEDATA,
   ERROR
 }
 
@@ -19,12 +19,13 @@ interface NavigationState {
   loading: boolean,
   url?: string
   columnNames: string[],
-  data: string[][],
+  data: (string | number)[][],
   error: boolean | null
 }
 
 interface NavigationAction {
-  type: NavigationActionKind
+  type: NavigationActionKind,
+  payload?: any 
 }
 
 interface NavigationContextType extends NavigationState {
@@ -37,15 +38,15 @@ interface Props {
 
 const urlMapping: Record<NavigationActionKind, string> = {
   [NavigationActionKind.PAYROLLRECEIPTS]: 'a',
-  [NavigationActionKind.EMPLOYEES]: 'b',
-  [NavigationActionKind.JOBPOSITIONS]: 'c',
-  [NavigationActionKind.DEPARTMENTS]: 'd',
-  [NavigationActionKind.COMMERCIALAREAS]: 'e',
-  [NavigationActionKind.PERCEPTIONS]: 'f',
-  [NavigationActionKind.DEDUCTIONS]: 'g',
-  [NavigationActionKind.PROJECTCATALOG]: 'h',
-  [NavigationActionKind.COMPANIES]: 'i',
-  [NavigationActionKind.LOADED]: '',
+  [NavigationActionKind.EMPLOYEES]: 'http://localhost:5239/api/Employee',
+  [NavigationActionKind.JOBPOSITIONS]: 'http://localhost:5239/api/JobPosition',
+  [NavigationActionKind.DEPARTMENTS]: 'http://localhost:5239/api/Department',
+  [NavigationActionKind.COMMERCIALAREAS]: 'http://localhost:5239/api/CommercialArea',
+  [NavigationActionKind.PERCEPTIONS]: 'http://localhost:5239/api/Perception',
+  [NavigationActionKind.DEDUCTIONS]: 'http://localhost:5239/api/Deduction',
+  [NavigationActionKind.PROJECTCATALOG]: 'http://localhost:5239/api/Project',
+  [NavigationActionKind.COMPANIES]: 'http://localhost:5239/api/Company',
+  [NavigationActionKind.UPDATEDATA]: '',
   [NavigationActionKind.ERROR]: ''
 }
 
@@ -64,12 +65,13 @@ export const NavigationContext: React.Context<NavigationContextType> = createCon
 })
 
 const NavigationReducer = (state: NavigationState, action: NavigationAction): NavigationState => {
-  const { type } = action
+  const { type, payload } = action
 
   switch(type) {
-    case NavigationActionKind.LOADED: {
+    case NavigationActionKind.UPDATEDATA: {
       return {
         ...state,
+        data: payload,
         loading: false
       }
     }
@@ -98,7 +100,17 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
 
   useEffect(() => {
     const fetchInfo = async (): Promise<void> => {
-
+      try {
+        if(state.url) {
+          const res: Response = await fetch(state.url)
+          const data: (string | number)[] = await res.json()
+          const newData: (string | number)[][] = data.map((info: (string | number)) => Object.values(info))
+          dispatch({ type: NavigationActionKind.UPDATEDATA, payload: newData })
+          console.log(Object.values(newData))
+        }
+      } catch (error) {
+        console.error(error)
+      }
     }
 
     fetchInfo()

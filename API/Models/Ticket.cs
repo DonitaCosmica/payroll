@@ -8,6 +8,9 @@ namespace Payroll.Models
     [Key]
     [MaxLength(36)]
     public string TicketId { get; set; } = default!;
+    [Required]
+    [RegularExpression(@"^N.{0,9}$", ErrorMessage = "The 'Bill' attribute must start with an 'N' and have a maximum length of 10 characters.")]
+    public string Bill { get; set; } = default!;
     
     [Required]
     [MaxLength(36)]

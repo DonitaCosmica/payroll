@@ -23,7 +23,7 @@ namespace Payroll.Controllers
           Code = p.Code,
           Name = p.Name,
           StartDate = p.StartDate,
-          StatusId = p.StatusId,
+          Status = statusRepository.GetStatus(p.StatusId).Name,
           Description = p.Description
         }).ToList();
 
@@ -45,7 +45,7 @@ namespace Payroll.Controllers
         Code = project.Code,
         Name = project.Name,
         StartDate = project.StartDate,
-        StatusId = project.StatusId,
+        Status = statusRepository.GetStatus(project.StatusId).Name,
         Description = project.Description
       };
 
@@ -57,7 +57,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateProject([FromBody] ProjectDTO projectCreate)
     {
-      if(projectCreate == null || !statusRepository.StatusExists(projectCreate.StatusId))
+      if(projectCreate == null || !statusRepository.StatusExists(projectCreate.Status))
         return BadRequest();
 
       var existingProject = projectRepository.GetProjects()
@@ -66,7 +66,7 @@ namespace Payroll.Controllers
       if(existingProject != null)
         return Conflict("Project already exists");
 
-      var status = statusRepository.GetStatus(projectCreate.StatusId);
+      var status = statusRepository.GetStatus(projectCreate.Status);
 
       var project = new Project
       {
@@ -74,7 +74,7 @@ namespace Payroll.Controllers
         Code = projectCreate.Code,
         Name = projectCreate.Name,
         StartDate = DateTime.Now,
-        StatusId = projectCreate.StatusId,
+        StatusId = projectCreate.Status,
         Status = status,
         Description = projectCreate.Description
       };
