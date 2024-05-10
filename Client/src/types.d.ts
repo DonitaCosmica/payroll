@@ -8,3 +8,8 @@ export interface IconsToolbar {
   menuOp?: IconDefinition[],
   end?: number
 }
+
+export interface IdataResponse {
+  columns: string[],
+  data: (string | number)[]
+}

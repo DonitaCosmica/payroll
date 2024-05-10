@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useEffect, useReducer } from "react"
+import { type IdataResponse } from "../types"
 
 enum NavigationActionKind {
   PAYROLLRECEIPTS = 1,
@@ -103,10 +104,11 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
       try {
         if(state.url) {
           const res: Response = await fetch(state.url)
-          const data: (string | number)[] = await res.json()
-          const newData: (string | number)[][] = data.map((info: (string | number)) => Object.values(info))
-          dispatch({ type: NavigationActionKind.UPDATEDATA, payload: newData })
-          console.log(Object.values(newData))
+          const data: IdataResponse = await res.json()
+          const values: IdataResponse[] = Object.values(data)
+          const newData: (string | number)[][] = values[1].map((info: (string | number)) => Object.values(info))
+          // dispatch({ type: NavigationActionKind.UPDATEDATA, payload: newData })
+          // console.log(Object.values(newData))
         }
       } catch (error) {
         console.error(error)

@@ -76,7 +76,7 @@ namespace Payroll.Data
       base.OnModelCreating(modelBuilder);
     }
 
-    public List<string> GetColumuns<TEntity>() where TEntity : class
+    public List<string> GetCollumns<TEntity>() where TEntity : class
     {
       var entityType = Model.FindEntityType(typeof(TEntity));
       if(entityType == null)

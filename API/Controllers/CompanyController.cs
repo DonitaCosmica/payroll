@@ -23,7 +23,13 @@ namespace  Payroll.Controllers
           TotalWorkers = c.TotalWorkers
         }).ToList();
 
-      return Ok(companies);
+      var result = new
+      {
+        Collumns = companyRepository.GetCollumns(),
+        Companyies = companies
+      };
+
+      return Ok(result);
     }
 
     [HttpGet("{companyId}")]
@@ -42,7 +48,13 @@ namespace  Payroll.Controllers
         TotalWorkers = company.TotalWorkers
       };
 
-      return Ok(companyDTO);
+      var result = new
+      {
+        Collumns = companyRepository.GetCollumns(),
+        Company = companyDTO
+      };
+
+      return Ok(result);
     }
 
     [HttpPost]

@@ -22,7 +22,13 @@ namespace Payroll.Controllers
           Name = b.Name
         }).ToList();
 
-      return Ok(banks);
+      var result = new
+      {
+        Collumns = bankRepository.GetCollumns(),
+        Banks = banks
+      };
+
+      return Ok(result);
     }
 
     [HttpGet("{bankId}")]
@@ -40,7 +46,13 @@ namespace Payroll.Controllers
         Name = bank.Name
       };
 
-      return Ok(bankDTO);
+      var result = new
+      {
+        Collumns = bankRepository.GetCollumns(),
+        Bank = bankDTO
+      };
+
+      return Ok(result);
     }
 
     [HttpPost]
