@@ -12,22 +12,10 @@ namespace Payroll.Repository
     public Deduction GetDeduction(string deductionId) =>
       context.Deductions.Where(d => d.DeductionId == deductionId).FirstOrDefault() ??
       throw new Exception("No Deduction with the specified id was found");
-    public bool CreateDeduction(Deduction deduction)
-    {
-      context.Add(deduction);
-      return Save();
-    }
-    public bool UpdateDeduction(Deduction deduction)
-    {
-      context.Update(deduction);
-      return Save();
-    }
-    public bool DeleteDeduction(Deduction deduction)
-    {
-      context.Remove(deduction);
-      return Save();
-    }
+    public bool CreateDeduction(Deduction deduction) => context.CreateEntity(deduction);
+    public bool UpdateDeduction(Deduction deduction) => context.UpdateEntity(deduction);
+    public bool DeleteDeduction(Deduction deduction) => context.DeleteEntity(deduction);
+    public List<string> GetColumns() => context.GetColumns<Deduction>();
     public bool DeductionExists(string deductionId) => context.Deductions.Any(d => d.DeductionId == deductionId);
-    public bool Save() => context.SaveChanges() > 0;
   }
 }

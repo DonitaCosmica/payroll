@@ -39,16 +39,9 @@ namespace Payroll.Repository
 
       return Save();
     }
-    public bool UpdateEmployee(Employee employee)
-    {
-      context.Update(employee);
-      return Save();
-    }
-    public bool DeleteEmployee(Employee employee)
-    {
-      context.Remove(employee);
-      return Save();
-    }
+    public bool UpdateEmployee(Employee employee) => context.UpdateEntity(employee);
+    public bool DeleteEmployee(Employee employee) => context.DeleteEntity(employee);
+    public List<string> GetColumns() => context.GetColumns<Employee>();
     public bool EmployeeExists(string employeeId) => context.Employees.Any(e => e.EmployeeId == employeeId);
     public bool Save() => context.SaveChanges() > 0;
   }

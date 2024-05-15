@@ -1,3 +1,5 @@
+using System.Data;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Payroll.Models;
 
@@ -5,6 +7,7 @@ namespace Payroll.Data
 {
   public class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
   {
+    private readonly Dictionary<Type, List<string>> cachedColumns = [];
     public virtual DbSet<Bank> Banks { get; set; }
     public virtual DbSet<CommercialArea> CommercialAreas { get; set; }
     public virtual DbSet<Company> Companies { get; set; }
@@ -76,14 +79,35 @@ namespace Payroll.Data
       base.OnModelCreating(modelBuilder);
     }
 
-    public List<string> GetCollumns<TEntity>() where TEntity : class
+    public List<string> GetColumns<TEntity>() where TEntity : class
     {
       var entityType = Model.FindEntityType(typeof(TEntity));
       if(entityType == null)
         return [];
 
-      var properties = entityType.GetProperties();
-      return properties.Select(property => property.GetColumnName()).ToList();
+      var entityTypeClrType = entityType.ClrType;
+      if(cachedColumns.TryGetValue(entityTypeClrType, out List<string>? value))
+        return value;
+
+      List<string> columnNames = [];
+      var columnsQuery = $@"
+        SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = @TableName;
+      ";
+
+      using(var command = Database.GetDbConnection().CreateCommand())
+      {
+        command.CommandText = columnsQuery;
+        command.Parameters.Add(new SqlParameter("@TableName", SqlDbType.NVarChar) { Value = entityType.GetTableName() });
+        Database.OpenConnection();
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+          columnNames.Add(reader.GetString(0));
+      }
+      
+      cachedColumns[entityTypeClrType] = columnNames;
+      return columnNames;
     }
 
     public bool CreateEntity<TEntity>(TEntity entity) where TEntity : class

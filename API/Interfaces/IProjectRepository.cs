@@ -9,7 +9,7 @@ namespace Payroll.Interfaces
     bool CreateProject(Project project);
     bool UpdateProject(Project project);
     bool DeleteProject(Project project);
+    List<string> GetColumns();
     bool ProjectExists(string projectId);
-    bool Save();
   }
 }

@@ -9,7 +9,7 @@ namespace Payroll.Interfaces
     bool CreateDeduction(Deduction deduction);
     bool UpdateDeduction(Deduction deduction);
     bool DeleteDeduction(Deduction deduction);
+    List<string> GetColumns();
     bool DeductionExists(string deductionId);
-    bool Save();
   }
 }

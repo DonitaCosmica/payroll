@@ -24,7 +24,13 @@ namespace Payroll.Controllers
           Department = departmentRepository.GetDepartment(jp.DepartmentId).Name
         }).ToList();
 
-      return Ok(jobPositions);
+      var result = new
+      {
+        Columns = jobPositionRepository.GetColumns(),
+        JobPositions = jobPositions
+      };
+
+      return Ok(result);
     }
 
     [HttpGet("{jobPositionId}")]
@@ -43,7 +49,13 @@ namespace Payroll.Controllers
         Department = departmentRepository.GetDepartment(jobPosition.DepartmentId).Name
       };
 
-      return Ok(jobPositionDTO);
+      var result = new
+      {
+        Columns = jobPositionRepository.GetColumns(),
+        JobPosition = jobPositionDTO
+      };
+
+      return Ok(result);
     }
 
     [HttpPost]

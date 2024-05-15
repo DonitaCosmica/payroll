@@ -11,6 +11,7 @@ namespace Payroll.Interfaces
     bool UpdateEmployee(Employee employee);
     bool DeleteEmployee(Employee employee);
     bool EmployeeExists(string employeeId);
+    List<string> GetColumns();
     bool Save();
   }
 }

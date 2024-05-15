@@ -9,7 +9,7 @@ namespace Payroll.Interfaces
     bool CreateDepartment(Department department);
     bool UpdateDepartment(Department department);
     bool DeleteDepartment(Department department);
+    List<string> GetColumns();
     bool DepartmentExists(string departmentId);
-    bool Save();
   }
 }

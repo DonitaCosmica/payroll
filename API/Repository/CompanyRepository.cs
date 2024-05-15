@@ -15,7 +15,7 @@ namespace Payroll.Repository
     public bool CreateCompany(Company company) => context.CreateEntity(company);
     public bool UpdateCompany(Company company) => context.UpdateEntity(company);
     public bool DeleteCompany(Company company) => context.DeleteEntity(company);
-    public List<string> GetCollumns() => context.GetCollumns<Company>();
+    public List<string> GetColumns() => context.GetColumns<Company>();
     public bool CompanyExists(string companyId) => context.Companies.Any(c => c.CompanyId == companyId);
   }
 }

@@ -24,7 +24,13 @@ namespace Payroll.Controllers
           IsHidden = p.IsHidden
         }).ToList();
 
-      return Ok(perceptions);
+      var result = new
+      {
+        Columns = perceptionRepository.GetColumns(),
+        Perceptions = perceptions
+      };
+
+      return Ok(result);
     }
 
     [HttpGet("{perceptionId}")]
@@ -44,7 +50,13 @@ namespace Payroll.Controllers
         IsHidden = perception.IsHidden
       };
 
-      return Ok(perceptionDTO);
+      var result = new
+      {
+        Columns = perceptionRepository.GetColumns(),
+        Perception = perceptionDTO
+      };
+
+      return Ok(result);
     }
 
     [HttpPost]

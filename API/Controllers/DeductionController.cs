@@ -24,7 +24,13 @@ namespace Payroll.Controllers
           IsHidden = d.IsHidden
         }).ToList();
 
-      return Ok(deductions);
+      var result = new
+      {
+        Columns = deductionRepository.GetColumns(),
+        Deductions = deductions
+      };
+
+      return Ok(result);
     }
 
     [HttpGet("{deductionId}")]
@@ -44,7 +50,13 @@ namespace Payroll.Controllers
         IsHidden = deduction.IsHidden
       };
 
-      return Ok(deductionDTO);
+      var result = new
+      {
+        Columns = deductionRepository.GetColumns(),
+        Deduction = deductionDTO
+      };
+
+      return Ok(result);
     }
 
     [HttpPost]

@@ -8,23 +8,10 @@ namespace Payroll.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
-  public class EmployeeController( DataContext context,
-    IEmployeeRepository employeeRepository, ICompanyRepository companyRepository, 
-    IBankRepository bankRepository, IJobPositionRepository jobPositionRepository, 
-    ICommercialAreaRepository commercialAreaRepository, IStatusRepository statusRepository, 
-    IStateReporitory stateRepository,  IEmployeeProjectsRepository employeeProjectsRepository, 
-    IProjectRepository projectRepository) : Controller
+  public class EmployeeController( DataContext context, IEmployeeRepository employeeRepository) : Controller
   {
     private readonly DataContext context = context;
     private readonly IEmployeeRepository employeeRepository = employeeRepository;
-    private readonly ICompanyRepository companyRepository = companyRepository;
-    private readonly IBankRepository bankRepository = bankRepository;
-    private readonly IJobPositionRepository jobPositionRepository = jobPositionRepository;
-    private readonly ICommercialAreaRepository commercialAreaRepository = commercialAreaRepository;
-    private readonly IStatusRepository statusRepository = statusRepository;
-    private readonly IStateReporitory stateRepository = stateRepository;
-    private readonly IEmployeeProjectsRepository employeeProjectsRepository = employeeProjectsRepository;
-    private readonly IProjectRepository projectRepository = projectRepository;
 
     private EmployeeDTO MapToEmployeeDTORequest(Employee? employee)
     {
@@ -50,10 +37,11 @@ namespace Payroll.Controllers
           CommercialAreaName = ca.Name,
           StatusName = s.Name,
           StateName = st.Name,
-          Projects = context.EmployeeProjects
-            .Where(ep => ep.EmployeeId == e.EmployeeId)
-            .Select(ep => context.Projects.Where(p => p.ProjectId == ep.ProjectId).FirstOrDefault().Name)
-            .ToList()
+          Projects = (from ep in context.EmployeeProjects
+            where ep.EmployeeId == e.EmployeeId
+            from p in context.Projects
+            where p.ProjectId == ep.ProjectId
+            select p.Name).ToList()
         };
 
         var result = query.FirstOrDefault();
@@ -92,7 +80,15 @@ namespace Payroll.Controllers
     {
       var employees = employeeRepository.GetEmployees()
         .Select(MapToEmployeeDTORequest).ToList();
-      return Ok(employees);
+
+      var result = new
+      {
+        Columns = employeeRepository.GetColumns(),
+        Employees = employees
+      };
+
+      result.Columns.Insert(8, "Projects");
+      return Ok(result);
     }
 
     [HttpGet("{employeeId}")]
@@ -105,7 +101,14 @@ namespace Payroll.Controllers
 
       var employee = employeeRepository.GetEmployee(employeeId);
       var employeeDTO = MapToEmployeeDTORequest(employee);
-      return Ok(employeeDTO);
+      var result = new
+      {
+        Columns = employeeRepository.GetColumns(),
+        Employee = employeeDTO
+      };
+
+      result.Columns.Insert(8, "Projects");
+      return Ok(result);
     }
 
     [HttpPost]
@@ -116,6 +119,26 @@ namespace Payroll.Controllers
       if(employeeCreate == null)
         return BadRequest();
 
+      var query = from c in context.Companies
+        join b in context.Banks on employeeCreate.Bank equals b.BankId
+        join jp in context.JobPositions on employeeCreate.JobPosition equals jp.JobPositionId
+        join ca in context.CommercialAreas on employeeCreate.CommercialArea equals ca.CommercialAreaId
+        join s in context.Statuses on employeeCreate.Status equals s.StatusId
+        join st in context.States on employeeCreate.State equals st.StateId
+        select new
+        {
+          Company = c,
+          Bank = b,
+          JobPosition = jp,
+          CommercialArea = ca,
+          Status = s,
+          State = st
+        };
+
+      var result = query.FirstOrDefault();
+      if(result == null)
+        return StatusCode(500, "Something went wrong while fetching related data");
+
       var employee = new Employee
       {
         EmployeeId = Guid.NewGuid().ToString(),
@@ -124,27 +147,27 @@ namespace Payroll.Controllers
         RFC = employeeCreate.RFC,
         CURP = employeeCreate.CURP,
         CompanyId = employeeCreate.Company,
-        Company = companyRepository.GetCompany(employeeCreate.Company),
+        Company = result.Company,
         BankId = employeeCreate.Bank,
-        Bank = bankRepository.GetBank(employeeCreate.Bank),
+        Bank = result.Bank,
         InterbankCode = employeeCreate.InterbankCode,
         NSS = employeeCreate.NSS,
         JobPositionId = employeeCreate.JobPosition,
-        JobPosition = jobPositionRepository.GetJobPosition(employeeCreate.JobPosition),
+        JobPosition = result.JobPosition,
         CommercialAreaId = employeeCreate.CommercialArea,
-        CommercialArea = commercialAreaRepository.GetCommercialArea(employeeCreate.CommercialArea),
+        CommercialArea = result.CommercialArea,
         DateAdmission = employeeCreate.DateAdmission,
         BaseSalary = employeeCreate.BaseSalary,
         DailySalary = employeeCreate.DailySalary,
         StatusId = employeeCreate.Status,
-        Status = statusRepository.GetStatus(employeeCreate.Status),
+        Status = result.Status,
         Phone = employeeCreate.Phone,
         Email = employeeCreate.Email,
         Direction = employeeCreate.Direction,
         PostalCode = employeeCreate.PostalCode,
         City = employeeCreate.City,
         StateId = employeeCreate.State,
-        State = stateRepository.GetState(employeeCreate.State)
+        State = result.State
       };
 
       if(!employeeRepository.CreateEmployee(employeeCreate.Projects, employee))

@@ -9,7 +9,7 @@ namespace Payroll.Interfaces
     bool CreatePerception(Perception perception);
     bool UpdatePerception(Perception perception);
     bool DeletePerception(Perception perception);
+    List<string> GetColumns();
     bool PerceptionExists(string perceptionId);
-    bool Save();
   }
 }

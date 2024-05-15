@@ -3,14 +3,8 @@ import { NavigationContext } from "../../context/Navigation"
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md"
 import './List.css'
 
-const filters: string[] = [
-  'Clave', 'Nombre', 'RFC', 'CURP', 'Banco', 'CLABE', 'Proyecto', 'NSS', 'Depto.', 
-  'Area Comercial', 'Fecha de ingreso', 'Puesto', 'Salario Base', 'Salario Diario',
-  'Status', 'Teléfono', 'Email'
-]
-
 export const List = (): JSX.Element => {
-  const { data } = useContext(NavigationContext)
+  const { columnNames, data } = useContext(NavigationContext)
   
   return (
     <section className="list">
@@ -19,7 +13,7 @@ export const List = (): JSX.Element => {
           <thead>
             <tr>
               {
-                filters.map((filter: string) => (
+                columnNames.map((filter: string) => (
                   <>
                     <th key={filter}>
                       <p>{ filter }</p>
@@ -39,9 +33,15 @@ export const List = (): JSX.Element => {
                 <tr key={index}>
                   {
                     row.map((info: number | string) => {
-                      return(
+                      return (
                         <td key={info}>
-                          <p>{ info }</p>
+                          {
+                            Array.isArray(info) ?
+                              (
+                                info.join(', ')
+                              ) :
+                              <p>{ info }</p>
+                          }
                         </td>
                       )
                     })

@@ -9,7 +9,7 @@ namespace Payroll.Interfaces
     bool CreateCommercialArea(CommercialArea commercialArea);
     bool UpdateCommercialArea(CommercialArea commercialArea);
     bool DeleteCommercialArea(CommercialArea commercialArea);
+    List<string> GetColumns();
     bool CommercialAreaExists(string commercialAreaId);
-    bool Save();
   }
 }

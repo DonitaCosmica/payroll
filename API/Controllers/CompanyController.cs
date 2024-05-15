@@ -25,7 +25,7 @@ namespace  Payroll.Controllers
 
       var result = new
       {
-        Collumns = companyRepository.GetCollumns(),
+        Columns = companyRepository.GetColumns(),
         Companyies = companies
       };
 
@@ -50,7 +50,7 @@ namespace  Payroll.Controllers
 
       var result = new
       {
-        Collumns = companyRepository.GetCollumns(),
+        Columns = companyRepository.GetColumns(),
         Company = companyDTO
       };
 

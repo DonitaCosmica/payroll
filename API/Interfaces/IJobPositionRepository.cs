@@ -9,7 +9,7 @@ namespace Payroll.Interfaces
     bool JobPositionExists(string jobPositionId);
     bool CreateJobPosition(JobPosition jobPosition);
     bool UpdateJobPosition(JobPosition jobPosition);
+    List<string> GetColumns();
     bool DeleteJobPosition(JobPosition jobPosition);
-    bool Save();
   }
 }

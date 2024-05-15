@@ -23,7 +23,13 @@ namespace Payroll.Controllers
           TotalEmployees = d.TotalEmployees
         }).ToList();
 
-      return Ok(departments);
+      var result = new
+      {
+        Columns = departmentRepository.GetColumns(),
+        Departments = departments
+      };
+
+      return Ok(result);
     }
 
     [HttpGet("{departmentId}")]
@@ -42,7 +48,13 @@ namespace Payroll.Controllers
         TotalEmployees = department.TotalEmployees
       };
 
-      return Ok(departmentDTO);
+      var result = new
+      {
+        Columns = departmentRepository.GetColumns(),
+        Department = departmentDTO
+      };
+
+      return Ok(result);
     }
 
     [HttpPost]

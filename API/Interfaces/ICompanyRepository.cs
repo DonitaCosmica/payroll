@@ -9,7 +9,7 @@ namespace Payroll.Interfaces
     bool CreateCompany(Company company);
     bool UpdateCompany(Company company);
     bool DeleteCompany(Company company);
-    List<string> GetCollumns();
+    List<string> GetColumns();
     bool CompanyExists(string companyId);
   }
 }

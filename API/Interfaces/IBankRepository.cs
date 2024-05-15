@@ -9,7 +9,7 @@ namespace Payroll.Interfaces
     bool CreateBank(Bank bank);
     bool UpdateBank(Bank bank);
     bool DeleteBank(Bank bank);
-    List<string> GetCollumns();
+    List<string> GetColumns();
     bool BankExists(string bankId);
   }
 }

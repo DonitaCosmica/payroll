@@ -15,7 +15,7 @@ namespace Payroll.Repository
     public bool CreateBank(Bank bank) => context.CreateEntity(bank);
     public bool UpdateBank(Bank bank) => context.UpdateEntity(bank);
     public bool DeleteBank(Bank bank) => context.DeleteEntity(bank);
-    public List<string> GetCollumns() => context.GetCollumns<Bank>();
+    public List<string> GetColumns() => context.GetColumns<Bank>();
     public bool BankExists(string bankId) => context.Banks.Any(b => b.BankId == bankId);
   }
 }

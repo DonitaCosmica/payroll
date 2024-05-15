@@ -26,7 +26,10 @@ interface NavigationState {
 
 interface NavigationAction {
   type: NavigationActionKind,
-  payload?: any 
+  payload?: {
+    columns: string[],
+    newData: (number | string)[][]
+  } 
 }
 
 interface NavigationContextType extends NavigationState {
@@ -72,7 +75,8 @@ const NavigationReducer = (state: NavigationState, action: NavigationAction): Na
     case NavigationActionKind.UPDATEDATA: {
       return {
         ...state,
-        data: payload,
+        columnNames: payload?.columns || state.columnNames,
+        data: payload?.newData || state.data,
         loading: false
       }
     }
@@ -106,9 +110,10 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
           const res: Response = await fetch(state.url)
           const data: IdataResponse = await res.json()
           const values: IdataResponse[] = Object.values(data)
-          const newData: (string | number)[][] = values[1].map((info: (string | number)) => Object.values(info))
-          // dispatch({ type: NavigationActionKind.UPDATEDATA, payload: newData })
-          // console.log(Object.values(newData))
+          const columns: string[] = Array.isArray(values[0]) ? values[0] : []
+          const newData: (string | number)[][] = Array.isArray(values[1]) ?
+            values[1].map((info: (string | number)) => Object.values(info)) : []
+          dispatch({ type: NavigationActionKind.UPDATEDATA, payload: { columns, newData } })
         }
       } catch (error) {
         console.error(error)

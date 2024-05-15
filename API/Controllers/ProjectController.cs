@@ -27,7 +27,13 @@ namespace Payroll.Controllers
           Description = p.Description
         }).ToList();
 
-      return Ok(projects);
+      var result = new
+      {
+        Columns = projectRepository.GetColumns(),
+        Projects = projects
+      };
+
+      return Ok(result);
     }
 
     [HttpGet("{projectId}")]
@@ -49,7 +55,13 @@ namespace Payroll.Controllers
         Description = project.Description
       };
 
-      return Ok(projectDTO);
+      var result = new
+      {
+        Columns = projectRepository.GetColumns(),
+        Project = projectDTO
+      };
+
+      return Ok(result);
     }
 
     [HttpPost]

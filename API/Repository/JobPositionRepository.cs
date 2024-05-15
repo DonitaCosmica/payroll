@@ -12,22 +12,10 @@ namespace Payroll.Repository
     public JobPosition GetJobPosition(string jobPositionId) =>
       context.JobPositions.Where(jp => jp.JobPositionId == jobPositionId).FirstOrDefault() ??
       throw new Exception("No Job Position with specified id was found");
-    public bool CreateJobPosition(JobPosition jobPosition)
-    {
-      context.Add(jobPosition);
-      return Save();
-    }
-    public bool UpdateJobPosition(JobPosition jobPosition)
-    {
-      context.Update(jobPosition);
-      return Save();
-    }
-    public bool DeleteJobPosition(JobPosition jobPosition)
-    {
-      context.Remove(jobPosition);
-      return Save();
-    }
+    public bool CreateJobPosition(JobPosition jobPosition) => context.CreateEntity(jobPosition);
+    public bool UpdateJobPosition(JobPosition jobPosition) => context.UpdateEntity(jobPosition);
+    public bool DeleteJobPosition(JobPosition jobPosition) => context.DeleteEntity(jobPosition);
+    public List<string> GetColumns() => context.GetColumns<JobPosition>();
     public bool JobPositionExists(string jobPositionId) => context.JobPositions.Any(jp => jp.JobPositionId == jobPositionId);
-    public bool Save() => context.SaveChanges() > 0;
   }
 }

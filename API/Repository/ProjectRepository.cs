@@ -12,22 +12,10 @@ namespace Payroll.Repository
     public Project GetProject(string projectId) => 
       context.Projects.Where(p => p.ProjectId == projectId).FirstOrDefault() ??
       throw new Exception("No Project with the specified id was found");
-    public bool CreateProject(Project project)
-    {
-      context.Add(project);
-      return Save();
-    }
-    public bool UpdateProject(Project project)
-    {
-      context.Update(project);
-      return Save();
-    }
-    public bool DeleteProject(Project project)
-    {
-      context.Remove(project);
-      return Save();
-    }
+    public bool CreateProject(Project project) => context.CreateEntity(project);
+    public bool UpdateProject(Project project) => context.UpdateEntity(project);
+    public bool DeleteProject(Project project) => context.DeleteEntity(project);
+    public List<string> GetColumns() => context.GetColumns<Project>();
     public bool ProjectExists(string projectId) => context.Projects.Any(p => p.ProjectId == projectId);
-    public bool Save() => context.SaveChanges() > 0;
   }
 }

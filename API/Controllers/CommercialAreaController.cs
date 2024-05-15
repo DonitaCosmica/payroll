@@ -23,7 +23,13 @@ namespace Payroll.Controllers
           Name = ca.Name
         }).ToList();
 
-      return Ok(commercialAreas);
+      var result = new
+      {
+        Columns = commercialAreaRepository.GetColumns(),
+        CommercialAreas = commercialAreas
+      };
+
+      return Ok(result);
     }
 
     [HttpGet("{commercialAreaId}")]
@@ -41,7 +47,13 @@ namespace Payroll.Controllers
         Name = commercialArea.Name
       };
 
-      return Ok(commercialAreaDTO);
+      var result = new
+      {
+        Columns = commercialAreaRepository.GetColumns(),
+        CommercialArea = commercialAreaDTO
+      };
+
+      return Ok(result);
     }
 
     [HttpPost]

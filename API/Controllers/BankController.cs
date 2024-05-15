@@ -24,7 +24,7 @@ namespace Payroll.Controllers
 
       var result = new
       {
-        Collumns = bankRepository.GetCollumns(),
+        Columns = bankRepository.GetColumns(),
         Banks = banks
       };
 
@@ -48,7 +48,7 @@ namespace Payroll.Controllers
 
       var result = new
       {
-        Collumns = bankRepository.GetCollumns(),
+        Columns = bankRepository.GetColumns(),
         Bank = bankDTO
       };
 
