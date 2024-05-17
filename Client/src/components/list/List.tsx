@@ -38,7 +38,7 @@ export const List = (): JSX.Element => {
                           {
                             Array.isArray(info) ?
                               (
-                                info.join(', ')
+                                <p>{ info.join(', ') }</p>
                               ) :
                               <p>{ info }</p>
                           }
