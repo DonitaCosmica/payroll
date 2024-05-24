@@ -22,13 +22,7 @@ namespace Payroll.Controllers
           Name = b.Name
         }).ToList();
 
-      var result = new
-      {
-        Columns = bankRepository.GetColumns(),
-        Banks = banks
-      };
-
-      return Ok(result);
+      return Ok(banks);
     }
 
     [HttpGet("{bankId}")]
@@ -46,13 +40,7 @@ namespace Payroll.Controllers
         Name = bank.Name
       };
 
-      var result = new
-      {
-        Columns = bankRepository.GetColumns(),
-        Bank = bankDTO
-      };
-
-      return Ok(result);
+      return Ok(bankDTO);
     }
 
     [HttpPost]
@@ -87,7 +75,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateBank(string bankId, [FromBody] BankDTO updateBank)
     {
-      if(updateBank == null || bankId != updateBank.BankId)
+      if(updateBank == null)
         return BadRequest();
 
       if(!bankRepository.BankExists(bankId))

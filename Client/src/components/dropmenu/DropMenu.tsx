@@ -8,7 +8,7 @@ interface Props {
   width: number
 }
 
-export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }) => {
+export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element => {
   const directionStyle = dir === 'left' ? { left: 0, minWidth: `${width}%` } : { right: 0, minWidth: `${width}%` }
 
   return (

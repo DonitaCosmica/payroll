@@ -75,7 +75,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateStatus(string statusId, [FromBody] StatusDTO statusUpdate)
     {
-      if(statusUpdate == null || statusId != statusUpdate.StatusId)
+      if(statusUpdate == null)
         return BadRequest();
 
       if(!statusRepository.StatusExists(statusId))

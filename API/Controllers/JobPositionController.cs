@@ -94,7 +94,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateJobPosition(string jobPositionId, [FromBody] JobPositionDTO jobPositionUpdate)
     {
-      if(jobPositionUpdate == null || jobPositionId != jobPositionUpdate.JobPositionId || !departmentRepository.DepartmentExists(jobPositionUpdate.Department))
+      if(jobPositionUpdate == null || !departmentRepository.DepartmentExists(jobPositionUpdate.Department))
         return BadRequest();
 
       if(!jobPositionRepository.JobPositionExists(jobPositionId))

@@ -93,7 +93,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdatePerception(string perceptionId, [FromBody] PerceptionDTO perceptionUpdate)
     {
-      if(perceptionUpdate == null || perceptionId != perceptionUpdate.PerceptionId)
+      if(perceptionUpdate == null)
         return BadRequest();
 
       if(!perceptionRepository.PerceptionExists(perceptionId))

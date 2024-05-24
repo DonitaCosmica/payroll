@@ -93,7 +93,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateDeduction(string deductionId, [FromBody] DeductionDTO deductionUpdate)
     {
-      if(deductionId == null || deductionId != deductionUpdate.DeductionId)
+      if(deductionId == null)
         return BadRequest();
 
       if(!deductionRepository.DeductionExists(deductionId))

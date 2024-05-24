@@ -103,7 +103,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateProject(string projectId, [FromBody] Project projectUpdate)
     {
-      if(projectUpdate == null || projectId != projectUpdate.ProjectId || !statusRepository.StatusExists(projectUpdate.StatusId))
+      if(projectUpdate == null || !statusRepository.StatusExists(projectUpdate.StatusId))
         return BadRequest();
 
       if(!projectRepository.ProjectExists(projectId))

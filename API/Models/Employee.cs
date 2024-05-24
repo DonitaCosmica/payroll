@@ -35,7 +35,6 @@ namespace Payroll.Models
     [MaxLength(36)]
     [ForeignKey("Bank")]
     public string BankId { get; set; }  = default!;
-
     public Bank Bank { get; set; } = new();
 
     [Required]
@@ -43,20 +42,30 @@ namespace Payroll.Models
 
     public ICollection<EmployeeProject> EmployeeProjects { get; set; } = [];
 
+    [Required]
+    [MaxLength(36)]
+    [ForeignKey("Regime")]
+    public string RegimeId { get; set; } = default!;
+    public Regime Regime { get; set; } = new();
+
     public uint NSS { get; set; }
 
     [Required]
     [MaxLength(36)]
     [ForeignKey("JobPosition")]
     public string JobPositionId { get; set; } = default!;
-    
     public JobPosition JobPosition { get; set; } = new();
+
+    [Required]
+    [MaxLength(36)]
+    [ForeignKey("Contract")]
+    public string ContractId { get; set; } = default!;
+    public Contract Contract { get; set; } = new();
 
     [Required]
     [MaxLength(36)]
     [ForeignKey("CommercialArea")]
     public string CommercialAreaId { get; set; } = default!;
-
     public CommercialArea CommercialArea { get; set; } = new();
 
     [Required]
@@ -73,6 +82,12 @@ namespace Payroll.Models
     [Required]
     [Range(100, float.MaxValue)]
     public float DailySalary { get; set; }
+
+    [Required]
+    [MaxLength(36)]
+    [ForeignKey("FederalEntity")]
+    public string FederalEntityId { get; set; } = default!;
+    public FederalEntity FederalEntity { get; set; } = new();
     
     [Required]
     [MaxLength(36)]

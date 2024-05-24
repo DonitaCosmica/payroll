@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useEffect, useReducer } from "react"
 import { type IdataResponse } from "../types"
 
-enum NavigationActionKind {
+export enum NavigationActionKind {
   PAYROLLRECEIPTS = 1,
   EMPLOYEES,
   JOBPOSITIONS,

@@ -88,7 +88,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateCommercialArea(string commercialAreaId, [FromBody] CommercialArea commercialAreaUpdate)
     {
-      if(commercialAreaUpdate == null || commercialAreaId != commercialAreaUpdate.CommercialAreaId)
+      if(commercialAreaUpdate == null)
         return BadRequest();
       
       if(!commercialAreaRepository.CommercialAreaExists(commercialAreaId))

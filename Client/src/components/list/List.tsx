@@ -12,43 +12,31 @@ export const List = (): JSX.Element => {
         <table className='content'>
           <thead>
             <tr>
-              {
-                columnNames.map((filter: string) => (
-                  <>
-                    <th key={filter}>
-                      <p>{ filter }</p>
-                      <div className="filter-list">
-                        <MdArrowDropUp />
-                        <MdArrowDropDown />
-                      </div>
-                    </th>
-                  </>
-                ))
-              }
+              {columnNames.map((filter: string) => (
+                <th key={filter}>
+                  <p>{ filter }</p>
+                  <div className="filter-list">
+                    <MdArrowDropUp />
+                    <MdArrowDropDown />
+                  </div>
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {
-              data.map((row: (string | number)[], index: number) => (
-                <tr key={index}>
-                  {
-                    row.map((info: number | string) => {
-                      return (
-                        <td key={info}>
-                          {
-                            Array.isArray(info) ?
-                              (
-                                <p>{ info.join(', ') }</p>
-                              ) :
-                              <p>{ info }</p>
-                          }
-                        </td>
-                      )
-                    })
-                  }
-                </tr>
-              ))
-            }
+            {data.map((row: (string | number)[], index: number) => (
+              <tr key={index}>
+                {row.map((info: number | string, cellIndex: number) => (
+                  <td key={`${info}-${cellIndex}`}>
+                    {Array.isArray(info) ? (
+                      <p>{ info.join(', ') }</p>
+                    ) : (
+                      <p>{ info }</p>
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

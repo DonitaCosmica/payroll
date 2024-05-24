@@ -90,7 +90,7 @@ namespace  Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateCompany(string companyId, [FromBody] CompanyDTO companyUpdate)
     {
-      if(companyUpdate == null || companyId != companyUpdate.CompanyId || companyUpdate.TotalWorkers <= 0)
+      if(companyUpdate == null || companyUpdate.TotalWorkers <= 0)
         return BadRequest();
 
       if(!companyRepository.CompanyExists(companyId))

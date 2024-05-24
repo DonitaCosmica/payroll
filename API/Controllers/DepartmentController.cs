@@ -90,7 +90,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateDepartment(string departmentId, [FromBody] DepartmentDTO departmentUpdate)
     {
-      if(departmentUpdate == null || departmentId != departmentUpdate.DepartmentId)
+      if(departmentUpdate == null)
         return BadRequest();
 
       if(!departmentRepository.DepartmentExists(departmentId))

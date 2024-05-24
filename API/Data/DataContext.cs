@@ -11,13 +11,16 @@ namespace Payroll.Data
     public virtual DbSet<Bank> Banks { get; set; }
     public virtual DbSet<CommercialArea> CommercialAreas { get; set; }
     public virtual DbSet<Company> Companies { get; set; }
+    public virtual DbSet<Contract> Contracts { get; set; }
     public virtual DbSet<Deduction> Deductions { get; set; }
     public virtual DbSet<Department> Departments { get; set; }
     public virtual DbSet<Employee> Employees { get; set; }
     public virtual DbSet<EmployeeProject> EmployeeProjects { get; set; }
+    public virtual DbSet<FederalEntity> FederalEntities { get; set; }
     public virtual DbSet<JobPosition> JobPositions { get; set; }
     public virtual DbSet<Perception> Perceptions { get; set; }
     public virtual DbSet<Project> Projects { get; set; }
+    public virtual DbSet<Regime> Regimes { get; set; }
     public virtual DbSet<State> States { get; set; }
     public virtual DbSet<Status> Statuses { get; set; }
     public virtual DbSet<Ticket> Tickets { get; set; }
@@ -51,9 +54,21 @@ namespace Payroll.Data
         .WithMany(c => c.Employees)
         .HasForeignKey(e => e.CompanyId);
       modelBuilder.Entity<Employee>()
+        .HasOne(e => e.Contract)
+        .WithMany(ct => ct.Employees)
+        .HasForeignKey(e => e.ContractId);
+      modelBuilder.Entity<Employee>()
+        .HasOne(e => e.FederalEntity)
+        .WithMany(fe => fe.Employees)
+        .HasForeignKey(e => e.FederalEntityId);
+      modelBuilder.Entity<Employee>()
         .HasOne(e => e.JobPosition)
         .WithMany(jp => jp.Employees)
         .HasForeignKey(e => e.JobPositionId);
+      modelBuilder.Entity<Employee>()
+        .HasOne(e => e.Regime)
+        .WithMany(r => r.Employees)
+        .HasForeignKey(e => e.RegimeId);
       modelBuilder.Entity<Employee>()
         .HasOne(e => e.State)
         .WithMany(s => s.Employees)
