@@ -21,20 +21,26 @@ namespace Payroll.Controllers
       var employeeDTO = new EmployeeDTO();
 
       var query = from e in context.Employees
-        join c in context.Companies on e.CompanyId equals c.CompanyId
         join b in context.Banks on e.BankId equals b.BankId
-        join jp in context.JobPositions on e.JobPositionId equals jp.JobPositionId
+        join c in context.Companies on e.CompanyId equals c.CompanyId
         join ca in context.CommercialAreas on e.CommercialAreaId equals ca.CommercialAreaId
+        join ct in context.Contracts on e.ContractId equals ct.ContractId
+        join fe in context.FederalEntities on e.FederalEntityId equals fe.FederalEntityId
+        join jp in context.JobPositions on e.JobPositionId equals jp.JobPositionId
+        join r in context.Regimes on e.RegimeId equals r.RegimeId
         join s in context.Statuses on e.StatusId equals s.StatusId
         join st in context.States on e.StateId equals st.StateId
         where e.EmployeeId == employee.EmployeeId
         select new
         {
           Employee = e,
-          CompanyName = c.Name,
           BankName = b.Name,
-          JobPositionName = jp.Name,
+          CompanyName = c.Name,
           CommercialAreaName = ca.Name,
+          ContractName = ct.Name,
+          FederalEntityName = fe.Name,
+          JobPositionName = jp.Name,
+          RegimeName = r.Name,
           StatusName = s.Name,
           StateName = st.Name,
           Projects = (from ep in context.EmployeeProjects
@@ -55,19 +61,28 @@ namespace Payroll.Controllers
           employeeDTO.Company = result.CompanyName;
           employeeDTO.Bank = result.BankName;
           employeeDTO.InterbankCode = result.Employee.InterbankCode;
+          employeeDTO.Regime = result.RegimeName;
           employeeDTO.NSS = result.Employee.NSS;
+          employeeDTO.DateAdmission = result.Employee.DateAdmission;
           employeeDTO.JobPosition = result.JobPositionName;
           employeeDTO.CommercialArea = result.CommercialAreaName;
-          employeeDTO.DateAdmission = result.Employee.DateAdmission;
+          employeeDTO.Contract = result.ContractName;
           employeeDTO.BaseSalary = result.Employee.BaseSalary;
           employeeDTO.DailySalary = result.Employee.DailySalary;
-          employeeDTO.Status = result.StatusName;
+          employeeDTO.ValuePerExtraHour = result.Employee.ValuePerExtraHour;
+          employeeDTO.FederalEntity = result.FederalEntityName;
           employeeDTO.Phone = result.Employee.Phone;
           employeeDTO.Email = result.Employee.Email;
           employeeDTO.Direction = result.Employee.Direction;
+          employeeDTO.Suburb = result.Employee.Suburb;
           employeeDTO.PostalCode = result.Employee.PostalCode;
           employeeDTO.City = result.Employee.City;
           employeeDTO.State = result.StateName;
+          employeeDTO.Country = result.Employee.Country;
+          employeeDTO.Status = result.StatusName;
+          employeeDTO.IsProvider = result.Employee.IsProvider;
+          employeeDTO.Credit = result.Employee.Credit;
+          employeeDTO.Contact = result.Employee.Contact;
           employeeDTO.Projects = result.Projects;
         }
 
@@ -121,16 +136,22 @@ namespace Payroll.Controllers
 
       var query = from c in context.Companies
         join b in context.Banks on employeeCreate.Bank equals b.BankId
-        join jp in context.JobPositions on employeeCreate.JobPosition equals jp.JobPositionId
         join ca in context.CommercialAreas on employeeCreate.CommercialArea equals ca.CommercialAreaId
+        join ct in context.Contracts on employeeCreate.Contract equals ct.ContractId
+        join fe in context.FederalEntities on employeeCreate.FederalEntity equals fe.FederalEntityId
+        join jp in context.JobPositions on employeeCreate.JobPosition equals jp.JobPositionId
+        join r in context.Regimes on employeeCreate.Regime equals r.RegimeId
         join s in context.Statuses on employeeCreate.Status equals s.StatusId
         join st in context.States on employeeCreate.State equals st.StateId
         select new
         {
-          Company = c,
           Bank = b,
-          JobPosition = jp,
+          Company = c,
           CommercialArea = ca,
+          Contract = ct,
+          FederalEntity = fe,
+          JobPosition = jp,
+          Regime = r,
           Status = s,
           State = st
         };
@@ -146,28 +167,40 @@ namespace Payroll.Controllers
         Name = employeeCreate.Name,
         RFC = employeeCreate.RFC,
         CURP = employeeCreate.CURP,
-        CompanyId = employeeCreate.Company,
-        Company = result.Company,
         BankId = employeeCreate.Bank,
         Bank = result.Bank,
         InterbankCode = employeeCreate.InterbankCode,
+        RegimeId = employeeCreate.Regime,
+        Regime = result.Regime,
         NSS = employeeCreate.NSS,
+        DateAdmission = employeeCreate.DateAdmission,
         JobPositionId = employeeCreate.JobPosition,
         JobPosition = result.JobPosition,
         CommercialAreaId = employeeCreate.CommercialArea,
         CommercialArea = result.CommercialArea,
-        DateAdmission = employeeCreate.DateAdmission,
+        ContractId = employeeCreate.Contract,
+        Contract = result.Contract,
         BaseSalary = employeeCreate.BaseSalary,
         DailySalary = employeeCreate.DailySalary,
-        StatusId = employeeCreate.Status,
-        Status = result.Status,
+        ValuePerExtraHour = employeeCreate.ValuePerExtraHour,
+        FederalEntityId = employeeCreate.FederalEntity,
+        FederalEntity = result.FederalEntity,
         Phone = employeeCreate.Phone,
         Email = employeeCreate.Email,
         Direction = employeeCreate.Direction,
+        Suburb = employeeCreate.Suburb,
         PostalCode = employeeCreate.PostalCode,
         City = employeeCreate.City,
         StateId = employeeCreate.State,
-        State = result.State
+        State = result.State,
+        Country = employeeCreate.Country,
+        StatusId = employeeCreate.Status,
+        Status = result.Status,
+        IsProvider = employeeCreate.IsProvider,
+        Credit = employeeCreate.Credit,
+        Contact = employeeCreate.Contact,
+        CompanyId = employeeCreate.Company,
+        Company = result.Company,
       };
 
       if(!employeeRepository.CreateEmployee(employeeCreate.Projects, employee))

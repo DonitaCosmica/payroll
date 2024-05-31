@@ -3,13 +3,13 @@ import { type IDropDownMenu } from '../../types'
 import './DropDown.css'
 
 interface Props {
-  options: IDropDownMenu[] | never,
+  options: IDropDownMenu[] | [],
   selectedId: string
 }
 
 export const DropDown: React.FC<Props> = ({ options, selectedId }): JSX.Element => {
   const [selectedValue, setSelectedValue] = useState<string>('0')
-
+  
   const handleChange = (event: ChangeEvent<HTMLSelectElement>): void => 
     setSelectedValue(event.target.value)
 

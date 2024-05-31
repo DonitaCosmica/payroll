@@ -6,12 +6,12 @@ import { Filter } from './components/filter/Filter'
 import { Toolbar } from './components/toolbar/Toolbar'
 import { List } from './components/list/List'
 import { Footer } from './components/footer/Footer'
-import './App.css'
 import { Form } from './components/form/Form'
+import './App.css'
 
 function App(): JSX.Element {
   const { option } = useContext(NavigationContext)
-  const [showBackGround, setShowBackGround] = useState<Boolean>(true)
+  const [showForm, setShowForm] = useState<Boolean>(false)
 
   return (
     <main className='payroll'>
@@ -22,11 +22,14 @@ function App(): JSX.Element {
           <Filter />
         )
       }
-      <Toolbar />
+      <Toolbar 
+        setShowForm={setShowForm}
+        showForm={showForm}
+      />
       <List />
       <Footer />
       {
-        showBackGround && (
+        showForm && (
           <Form />
         )
       }

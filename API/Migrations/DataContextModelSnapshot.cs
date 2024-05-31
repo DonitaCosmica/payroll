@@ -73,6 +73,22 @@ namespace API.Migrations
                     b.ToTable("Companies");
                 });
 
+            modelBuilder.Entity("Payroll.Models.Contract", b =>
+                {
+                    b.Property<string>("ContractId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("ContractId");
+
+                    b.ToTable("Contracts");
+                });
+
             modelBuilder.Entity("Payroll.Models.Deduction", b =>
                 {
                     b.Property<string>("DeductionId")
@@ -147,6 +163,22 @@ namespace API.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
+                    b.Property<decimal>("Contact")
+                        .HasColumnType("decimal(20,0)");
+
+                    b.Property<string>("ContractId")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<long>("Credit")
+                        .HasColumnType("bigint");
+
                     b.Property<float>("DailySalary")
                         .HasColumnType("real");
 
@@ -161,8 +193,16 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("FederalEntityId")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
                     b.Property<decimal>("InterbankCode")
                         .HasColumnType("decimal(20,0)");
+
+                    b.Property<bool>("IsProvider")
+                        .HasColumnType("bit");
 
                     b.Property<string>("JobPositionId")
                         .IsRequired()
@@ -191,6 +231,11 @@ namespace API.Migrations
                         .HasMaxLength(13)
                         .HasColumnType("nvarchar(13)");
 
+                    b.Property<string>("RegimeId")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
                     b.Property<string>("StateId")
                         .IsRequired()
                         .HasMaxLength(36)
@@ -201,6 +246,13 @@ namespace API.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
+                    b.Property<string>("Suburb")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<float>("ValuePerExtraHour")
+                        .HasColumnType("real");
+
                     b.HasKey("EmployeeId");
 
                     b.HasIndex("BankId");
@@ -209,7 +261,13 @@ namespace API.Migrations
 
                     b.HasIndex("CompanyId");
 
+                    b.HasIndex("ContractId");
+
+                    b.HasIndex("FederalEntityId");
+
                     b.HasIndex("JobPositionId");
+
+                    b.HasIndex("RegimeId");
 
                     b.HasIndex("StateId");
 
@@ -240,6 +298,22 @@ namespace API.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("EmployeeProjects");
+                });
+
+            modelBuilder.Entity("Payroll.Models.FederalEntity", b =>
+                {
+                    b.Property<string>("FederalEntityId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("FederalEntityId");
+
+                    b.ToTable("FederalEntities");
                 });
 
             modelBuilder.Entity("Payroll.Models.JobPosition", b =>
@@ -322,6 +396,22 @@ namespace API.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("Payroll.Models.Regime", b =>
+                {
+                    b.Property<string>("RegimeId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("RegimeId");
+
+                    b.ToTable("Regimes");
+                });
+
             modelBuilder.Entity("Payroll.Models.State", b =>
                 {
                     b.Property<string>("StateId")
@@ -365,7 +455,51 @@ namespace API.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
+                    b.Property<string>("Bill")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("Discount")
+                        .HasColumnType("real");
+
+                    b.Property<string>("EmployeeId")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<int>("ExtraHours")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ExtraTime")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Faults")
+                        .HasColumnType("int");
+
+                    b.Property<float>("LoanDiscount")
+                        .HasColumnType("real");
+
+                    b.Property<float>("MissingDiscount")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Observations")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Tickets")
+                        .HasColumnType("int");
+
+                    b.Property<float>("Total")
+                        .HasColumnType("real");
+
+                    b.Property<float>("TravelExpenses")
+                        .HasColumnType("real");
+
+                    b.Property<float>("ValuePerExtraHour")
+                        .HasColumnType("real");
+
                     b.HasKey("TicketId");
+
+                    b.HasIndex("EmployeeId");
 
                     b.ToTable("Tickets");
                 });
@@ -390,9 +524,27 @@ namespace API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Payroll.Models.Contract", "Contract")
+                        .WithMany("Employees")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Payroll.Models.FederalEntity", "FederalEntity")
+                        .WithMany("Employees")
+                        .HasForeignKey("FederalEntityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Payroll.Models.JobPosition", "JobPosition")
                         .WithMany("Employees")
                         .HasForeignKey("JobPositionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Payroll.Models.Regime", "Regime")
+                        .WithMany("Employees")
+                        .HasForeignKey("RegimeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -414,7 +566,13 @@ namespace API.Migrations
 
                     b.Navigation("Company");
 
+                    b.Navigation("Contract");
+
+                    b.Navigation("FederalEntity");
+
                     b.Navigation("JobPosition");
+
+                    b.Navigation("Regime");
 
                     b.Navigation("State");
 
@@ -462,6 +620,17 @@ namespace API.Migrations
                     b.Navigation("Status");
                 });
 
+            modelBuilder.Entity("Payroll.Models.Ticket", b =>
+                {
+                    b.HasOne("Payroll.Models.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
             modelBuilder.Entity("Payroll.Models.Bank", b =>
                 {
                     b.Navigation("Employees");
@@ -477,6 +646,11 @@ namespace API.Migrations
                     b.Navigation("Employees");
                 });
 
+            modelBuilder.Entity("Payroll.Models.Contract", b =>
+                {
+                    b.Navigation("Employees");
+                });
+
             modelBuilder.Entity("Payroll.Models.Department", b =>
                 {
                     b.Navigation("JobPositions");
@@ -487,6 +661,11 @@ namespace API.Migrations
                     b.Navigation("EmployeeProjects");
                 });
 
+            modelBuilder.Entity("Payroll.Models.FederalEntity", b =>
+                {
+                    b.Navigation("Employees");
+                });
+
             modelBuilder.Entity("Payroll.Models.JobPosition", b =>
                 {
                     b.Navigation("Employees");
@@ -495,6 +674,11 @@ namespace API.Migrations
             modelBuilder.Entity("Payroll.Models.Project", b =>
                 {
                     b.Navigation("EmployeeProjects");
+                });
+
+            modelBuilder.Entity("Payroll.Models.Regime", b =>
+                {
+                    b.Navigation("Employees");
                 });
 
             modelBuilder.Entity("Payroll.Models.State", b =>

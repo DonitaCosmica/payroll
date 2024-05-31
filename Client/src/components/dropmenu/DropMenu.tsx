@@ -14,14 +14,12 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
   return (
     <div className='drop-menu' style={ directionStyle }>
       <ul>
-        {
-          menuOp.map((op: IconDefinition) => (
-            <li key={ op.label }>
-              { Object.keys(menuOp[0])[0] === 'icon' && ( op.icon ) }
-              { op.label }
-            </li>
-          ))
-        }
+        {menuOp.map((op: IconDefinition) => (
+          <li key={ op.label }>
+            { Object.keys(menuOp[0])[0] === 'icon' && ( op.icon ) }
+            { op.label }
+          </li>
+        ))}
       </ul>
     </div>
   )

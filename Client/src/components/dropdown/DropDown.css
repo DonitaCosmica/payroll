@@ -1,0 +1,4 @@
+.background > .form-container > .fields-container > .field > .input-container > select {
+  width: 90%;
+  padding: 5px;
+}

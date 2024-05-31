@@ -7,10 +7,15 @@ import { BsThreeDotsVertical } from "react-icons/bs"
 import { DropMenu } from "../dropmenu/DropMenu"
 import './Toolbar.css'
 
-const IconSection = ({ options }: { options: IconDefinition[] }): JSX.Element => (
+interface Props {
+  setShowForm: React.Dispatch<React.SetStateAction<Boolean>>
+  showForm: Boolean
+}
+
+const IconSection = ({ options, handleForm }: { options: IconDefinition[], handleForm: () => void }): JSX.Element => (
   <>
     { options.map((option) => (
-      <div className="option" key={ option.label }>
+      <div className="option" key={ option.label } onClick={handleForm}>
         { option.icon }
         <p>{ option.label }</p>
       </div>
@@ -18,7 +23,7 @@ const IconSection = ({ options }: { options: IconDefinition[] }): JSX.Element =>
   </>
 )
 
-export const Toolbar = (): JSX.Element => {
+export const Toolbar: React.FC<Props> = ({ setShowForm, showForm }): JSX.Element => {
   const { option } = useContext(NavigationContext)
   const [showDropMenu, setShowDropMenu] = useState<boolean>(false)
 
@@ -26,7 +31,8 @@ export const Toolbar = (): JSX.Element => {
     const commonOptions = ICON_OPTIONS.common
     const specialOptions = ICON_OPTIONS.special[option] || []
     const menuOptions = ICON_OPTIONS.menu[option] || []
-
+    setShowDropMenu(false)
+    
     return {
       options: [...commonOptions, ...specialOptions],
       menuOp : menuOptions,
@@ -39,6 +45,8 @@ export const Toolbar = (): JSX.Element => {
     NavigationActionKind.EMPLOYEES,
     NavigationActionKind.PROJECTCATALOG
   ].includes(option)
+
+  const handleForm = () => setShowForm(!showForm)
 
   return (
     <section className='toolbar' style={{ margin: `${ option === 1 ? '5px 0' : '0 0 5px 0' }` }}>
@@ -53,11 +61,11 @@ export const Toolbar = (): JSX.Element => {
           <AiFillHome fontSize='1.25rem' color="#333" />
         </div>
         <div className='main-options'>
-          <IconSection options={ showMoreOptions ? options.slice(0, end) : options } />
+          <IconSection options={ showMoreOptions ? options.slice(0, end) : options } handleForm={handleForm} />
         </div>
         {showMoreOptions && (
           <div className='other-options'>
-            <IconSection options={ options.slice(end) } />
+            <IconSection options={ options.slice(end) } handleForm={handleForm} />
           </div>
         )}
       </div>
