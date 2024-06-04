@@ -11,28 +11,17 @@ import './App.css'
 
 function App(): JSX.Element {
   const { option } = useContext(NavigationContext)
-  const [showForm, setShowForm] = useState<Boolean>(false)
+  const [showForm, setShowForm] = useState<boolean>(false)
 
   return (
     <main className='payroll'>
       <Titlebar />
       <Navbar />
-      {
-        option === 1 && (
-          <Filter />
-        )
-      }
-      <Toolbar 
-        setShowForm={setShowForm}
-        showForm={showForm}
-      />
+      { option === 1 && <Filter /> }
+      <Toolbar setShowForm={setShowForm} showForm={showForm} />
       <List />
       <Footer />
-      {
-        showForm && (
-          <Form />
-        )
-      }
+      { showForm && <Form setShowForm={setShowForm} /> }
     </main>
   )
 }

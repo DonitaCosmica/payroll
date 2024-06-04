@@ -75,7 +75,7 @@ namespace  Payroll.Controllers
       {
         CompanyId = Guid.NewGuid().ToString(),
         Name = companyCreate.Name,
-        TotalWorkers = companyCreate.TotalWorkers
+        TotalWorkers = 0
       };
 
       if(!companyRepository.CreateCompany(company))

@@ -8,14 +8,14 @@ import { DropMenu } from "../dropmenu/DropMenu"
 import './Toolbar.css'
 
 interface Props {
-  setShowForm: React.Dispatch<React.SetStateAction<Boolean>>
-  showForm: Boolean
+  setShowForm: React.Dispatch<React.SetStateAction<boolean>>
+  showForm: boolean
 }
 
-const IconSection = ({ options, handleForm }: { options: IconDefinition[], handleForm: () => void }): JSX.Element => (
+const IconSection = ({ options, handleForm }: { options: IconDefinition[], handleForm: (index: number) => void }): JSX.Element => (
   <>
-    { options.map((option) => (
-      <div className="option" key={ option.label } onClick={handleForm}>
+    { options.map((option: IconDefinition, index: number) => (
+      <div className="option" key={ option.label } onClick={() => handleForm(index)}>
         { option.icon }
         <p>{ option.label }</p>
       </div>
@@ -46,7 +46,10 @@ export const Toolbar: React.FC<Props> = ({ setShowForm, showForm }): JSX.Element
     NavigationActionKind.PROJECTCATALOG
   ].includes(option)
 
-  const handleForm = () => setShowForm(!showForm)
+  const handleForm = (index: number): void => {
+    setShowForm(!showForm)
+    console.log(index)
+  }
 
   return (
     <section className='toolbar' style={{ margin: `${ option === 1 ? '5px 0' : '0 0 5px 0' }` }}>
@@ -61,16 +64,16 @@ export const Toolbar: React.FC<Props> = ({ setShowForm, showForm }): JSX.Element
           <AiFillHome fontSize='1.25rem' color="#333" />
         </div>
         <div className='main-options'>
-          <IconSection options={ showMoreOptions ? options.slice(0, end) : options } handleForm={handleForm} />
+          <IconSection options={ showMoreOptions ? options.slice(0, end) : options } handleForm={ handleForm } />
         </div>
         {showMoreOptions && (
           <div className='other-options'>
-            <IconSection options={ options.slice(end) } handleForm={handleForm} />
+            <IconSection options={ options.slice(end) } handleForm={ handleForm } />
           </div>
         )}
       </div>
       <div className='search'>
-        <input type="text" placeholder="Busqueda..."></input>
+        <input type="text" placeholder="Busqueda..." autoComplete='off'></input>
         <AiOutlineSearch />
       </div>
       {

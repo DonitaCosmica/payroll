@@ -14,7 +14,7 @@ export const DropDown: React.FC<Props> = ({ options, selectedId }): JSX.Element 
     setSelectedValue(event.target.value)
 
   return (
-    <select id={`${options}-${selectedId}`} value={selectedValue} onChange={handleChange}>
+    <select id={`${selectedId}`} value={selectedValue} onChange={handleChange}>
       <option value='0'>Elije una opción...</option>
       {options.map((option: IDropDownMenu, index: number) => 
         <option key={`${selectedId}-${index}`} value={option.value}>{ option.name }</option>

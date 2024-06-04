@@ -16,6 +16,7 @@ export enum NavigationActionKind {
 }
 
 interface NavigationState {
+  title: string,
   option: NavigationActionKind,
   loading: boolean,
   url?: string
@@ -54,7 +55,22 @@ const urlMapping: Record<NavigationActionKind, string> = {
   [NavigationActionKind.ERROR]: ''
 }
 
+const titleMapping: Record<NavigationActionKind, string> = {
+  [NavigationActionKind.PAYROLLRECEIPTS]: 'Recibo',
+  [NavigationActionKind.EMPLOYEES]: 'Trabajador',
+  [NavigationActionKind.JOBPOSITIONS]: 'Puesto',
+  [NavigationActionKind.DEPARTMENTS]: 'Departamento',
+  [NavigationActionKind.COMMERCIALAREAS]: 'Area Comercial',
+  [NavigationActionKind.PERCEPTIONS]: 'Percepción',
+  [NavigationActionKind.DEDUCTIONS]: 'Deducción',
+  [NavigationActionKind.PROJECTCATALOG]: 'Proyecto',
+  [NavigationActionKind.COMPANIES]: 'Compañia',
+  [NavigationActionKind.UPDATEDATA]: '',
+  [NavigationActionKind.ERROR]: ''
+}
+
 const INITIAL_STATE: NavigationState = {
+  title: '',
   option: NavigationActionKind.PAYROLLRECEIPTS,
   loading: false,
   url: '',
@@ -73,10 +89,11 @@ const NavigationReducer = (state: NavigationState, action: NavigationAction): Na
 
   switch(type) {
     case NavigationActionKind.UPDATEDATA: {
+      const { columns = state.columnNames, newData = state.data } = payload || {}
       return {
         ...state,
-        columnNames: payload?.columns || state.columnNames,
-        data: payload?.newData || state.data,
+        columnNames: columns,
+        data: newData,
         loading: false
       }
     }
@@ -87,13 +104,14 @@ const NavigationReducer = (state: NavigationState, action: NavigationAction): Na
       }
     }
     default: {
+      const title: string = titleMapping[type]
+      const url: string = urlMapping[type]
       return {
         ...state,
-        option: type || state.option,
+        title,
+        option: type,
         loading: true,
-        url: urlMapping[type],
-        columnNames: [],
-        data: [[]],
+        url,
         error: null
       }
     }
@@ -117,6 +135,7 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
         }
       } catch (error) {
         console.error(error)
+        dispatch({ type: NavigationActionKind.ERROR })
       }
     }
 

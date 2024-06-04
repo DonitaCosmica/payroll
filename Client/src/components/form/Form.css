@@ -17,6 +17,10 @@
   padding: 25px;
 }
 
+.background > .form-container > svg {
+  cursor: pointer;
+}
+
 .background > .form-container > h2 {
   display: flex;
   justify-content: center;
@@ -27,16 +31,19 @@
 .background > .form-container > .fields-container {
   height: 92.5%;
   overflow-y: scroll;
+  padding-bottom: 30px;
 }
 
 .background > .form-container > .fields-container > .field {
   display: flex;
   flex-direction: column;
+  align-items: center;
   width: 90%;
   padding: 10px 0;
 }
 
 .background > .form-container > .fields-container > .field > label {
+  width: 90%;
   font-size: 0.9rem;
   margin-bottom: 10px;
 }
@@ -48,7 +55,43 @@
   width: 100%;
 }
 
-.background > .form-container > .fields-container > .field > .input-container > input[type="text"] {
+.background > .form-container > .fields-container > .field > .input-container > input {
   width: 90%;
   padding: 5px;
+  border: 1px solid #575252;
+  border-radius: 5px;
+}
+
+.background > .form-container > .fields-container > .field > .input-container > input:focus {
+  outline: none !important;
+  border: 1px solid #489aff;
+  transition: 0.35s ease;
+}
+
+.background > .form-container > .fields-container > .field > .input-container:has(input[type="checkbox"]) {
+  justify-content: flex-start;
+}
+
+.background > .form-container > .fields-container > .field > .input-container > input[type="checkbox"] {
+  width: 15%;
+  cursor: pointer;
+}
+
+.background > .form-container > .fields-container > .title {
+  width: 95%;
+  padding: 5px 10px;
+  background-color: #d6d6d6;
+  border-radius: 15px;
+  margin-top: 20px;
+}
+
+.background > .form-container > .fields-container > .title > h4 {
+  color: #fff;
+}
+
+.background > .form-container > .fields-container > .button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 95%;
 }
