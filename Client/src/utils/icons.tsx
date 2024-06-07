@@ -28,14 +28,12 @@ export const ICON_OPTIONS: {
       { icon: <TbReportSearch fontSize='1.2rem' color="#ffb380" />, label: 'Reportes' }
     ],
     [NavigationActionKind.EMPLOYEES]: [
-      { icon: <AiOutlinePrinter fontSize='1.2rem' color="#2c8efa" />, label: 'Imprimir' },
-      { icon: <AiFillFlag fontSize='1.2rem' color="#70b2fb" />, label: 'Descargar' },
-      { icon: <TbCalendarTime fontSize='1.2rem' color="#333" />, label: 'Tabla de trabajo' },
+      { icon: <AiFillFlag fontSize='1.2rem' color="#70b2fb" />, label: 'Status' },
+      { icon: <TbCalendarTime fontSize='1.2rem' color="#333" />, label: 'Historial' },
       { icon: <TbReportSearch fontSize='1.2rem' color="#ffb380" />, label: 'Reportes' }
     ],
     [NavigationActionKind.JOBPOSITIONS]: [
-      { icon: <AiOutlinePrinter fontSize='1.2rem' color="#2c8efa" />, label: 'Imprimir' },
-      { icon: <TbReportSearch fontSize='1.2rem' color="#ffb380" />, label: 'Reportes' }
+      { icon: <TbReportSearch fontSize='1.2rem' color="#ffb380" />, label: 'Prenomina' }
     ],
     [NavigationActionKind.DEPARTMENTS]: [],
     [NavigationActionKind.COMMERCIALAREAS]: [],

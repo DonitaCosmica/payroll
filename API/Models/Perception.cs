@@ -12,8 +12,8 @@ namespace Payroll.Models
     public ushort Key { get; set; }
 
     [Required]
-    [MaxLength(50)]
-    public string Name { get; set; } = default!;
+    [MaxLength(75)]
+    public string Description { get; set; } = default!;
 
     public bool IsHidden { get; set; }
   }

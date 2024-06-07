@@ -95,16 +95,16 @@ namespace API.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(75)
+                        .HasColumnType("nvarchar(75)");
+
                     b.Property<bool>("IsHidden")
                         .HasColumnType("bit");
 
                     b.Property<int>("Key")
                         .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("DeductionId");
 
@@ -122,6 +122,9 @@ namespace API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<bool>("SubContract")
+                        .HasColumnType("bit");
+
                     b.Property<int>("TotalEmployees")
                         .HasColumnType("int");
 
@@ -136,10 +139,16 @@ namespace API.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
+                    b.Property<decimal>("BankAccocunt")
+                        .HasColumnType("decimal(20,0)");
+
                     b.Property<string>("BankId")
                         .IsRequired()
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
+
+                    b.Property<decimal>("BankPortalID")
+                        .HasColumnType("decimal(20,0)");
 
                     b.Property<float>("BaseSalary")
                         .HasColumnType("real");
@@ -200,6 +209,9 @@ namespace API.Migrations
 
                     b.Property<decimal>("InterbankCode")
                         .HasColumnType("decimal(20,0)");
+
+                    b.Property<bool>("IsAStarter")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsProvider")
                         .HasColumnType("bit");
@@ -345,16 +357,16 @@ namespace API.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(75)
+                        .HasColumnType("nvarchar(75)");
+
                     b.Property<bool>("IsHidden")
                         .HasColumnType("bit");
 
                     b.Property<int>("Key")
                         .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("PerceptionId");
 

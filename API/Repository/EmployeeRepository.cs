@@ -9,7 +9,7 @@ namespace Payroll.Repository
   {
     private readonly DataContext context = context;
 
-    public ICollection<Employee> GetEmployees() => context.Employees.ToList();
+    public ICollection<Employee> GetEmployees() => [.. context.Employees];
     public Employee GetEmployee(string employeeId) => 
       context.Employees.Where(e => e.EmployeeId == employeeId).FirstOrDefault() ??
       throw new Exception("No Employee with the specified id was found");
@@ -18,7 +18,6 @@ namespace Payroll.Repository
       foreach(var projectId in projects)
       {
         var project = context.Projects.Where(p => p.ProjectId == projectId).FirstOrDefault();
-
         if (project == null || employee == null)
           return false;
         
@@ -36,7 +35,6 @@ namespace Payroll.Repository
       }
 
       context.Add(employee);
-
       return Save();
     }
     public bool UpdateEmployee(Employee employee) => context.UpdateEntity(employee);

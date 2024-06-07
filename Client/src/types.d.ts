@@ -13,10 +13,10 @@ export interface IDropDownMenu {
 }
 
 export interface FieldConfig {
-  type: 'input' | 'dropmenu' | 'section' | 'button',
+  type: 'input' | 'dropmenu' | 'section' | 'textarea',
   name: string,
   label?: string,
   inputType?: 'text' | 'tel' | 'number' | 'email' | 'date' | 'checkbox',
   fetchUrl?: string,
-  id?: string
+  id: string
 }

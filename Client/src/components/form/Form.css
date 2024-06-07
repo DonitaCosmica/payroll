@@ -11,7 +11,6 @@
 
 .background > .form-container {
   width: 40%;
-  height: 75%;
   background-color: #fff;
   border-radius: 15px;
   padding: 25px;
@@ -34,7 +33,14 @@
   padding-bottom: 30px;
 }
 
-.background > .form-container > .fields-container > .field {
+.background > .form-container > .fields-container > .input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.background > .form-container > .fields-container > .input-group > .field {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -42,39 +48,52 @@
   padding: 10px 0;
 }
 
-.background > .form-container > .fields-container > .field > label {
-  width: 90%;
+.input-group > .field > label {
+  width: 95%;
   font-size: 0.9rem;
   margin-bottom: 10px;
 }
 
-.background > .form-container > .fields-container > .field > .input-container {
+.input-group > .field > .input-container {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
 }
 
-.background > .form-container > .fields-container > .field > .input-container > input {
-  width: 90%;
-  padding: 5px;
+.input-group > .field > .input-container > input {
+  width: 100%;
+  padding: 7.5px 5px;
   border: 1px solid #575252;
   border-radius: 5px;
 }
 
-.background > .form-container > .fields-container > .field > .input-container > input:focus {
+.input-group > .field > .input-container > input:focus,
+.input-group > .field > .input-container > textarea:focus,
+.input-group > .field > .input-container > select:focus {
   outline: none !important;
   border: 1px solid #489aff;
   transition: 0.35s ease;
 }
 
-.background > .form-container > .fields-container > .field > .input-container:has(input[type="checkbox"]) {
+.input-group > .field > .input-container:has(input[type="checkbox"]) {
   justify-content: flex-start;
 }
 
-.background > .form-container > .fields-container > .field > .input-container > input[type="checkbox"] {
+.input-group > .field > .input-container > input[type="checkbox"] {
   width: 15%;
   cursor: pointer;
+}
+
+.input-group > .field > .input-container > input[type="date"] {
+  cursor: pointer;
+}
+
+.input-group > .field > .input-container > textarea {
+  width: 100%;
+  padding: 10px;
+  resize: none;
+  border-radius: 10px;
 }
 
 .background > .form-container > .fields-container > .title {
@@ -91,7 +110,24 @@
 
 .background > .form-container > .fields-container > .button-container {
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
   width: 95%;
+  padding: 40px 0 10px 0;
+}
+
+.fields-container > .button-container > button {
+  padding: 15px 30px;
+  border-radius: 10px;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.fields-container > .button-container > button:first-child {
+  background-color: #73ba69;
+}
+
+.fields-container > .button-container > button:last-child {
+  background-color: #de4645;
 }

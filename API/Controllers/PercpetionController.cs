@@ -20,7 +20,7 @@ namespace Payroll.Controllers
         {
           PerceptionId = p.PerceptionId,
           Key = p.Key,
-          Name = p.Name,
+          Description = p.Description,
           IsHidden = p.IsHidden
         }).ToList();
 
@@ -46,7 +46,7 @@ namespace Payroll.Controllers
       {
         PerceptionId = perception.PerceptionId,
         Key = perception.Key,
-        Name = perception.Name,
+        Description = perception.Description,
         IsHidden = perception.IsHidden
       };
 
@@ -68,7 +68,7 @@ namespace Payroll.Controllers
         return BadRequest();
 
       var existingPerception = perceptionRepository.GetPerceptions()
-        .FirstOrDefault(p => p.Name.Trim().Equals(perceptionCreate.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
+        .FirstOrDefault(p => p.Description.Trim().Equals(perceptionCreate.Description.Trim(), StringComparison.CurrentCultureIgnoreCase));
 
       if(existingPerception != null)
         return Conflict("Perception already exists");
@@ -77,8 +77,8 @@ namespace Payroll.Controllers
       {
         PerceptionId = Guid.NewGuid().ToString(),
         Key = perceptionCreate.Key,
-        Name = perceptionCreate.Name,
-        IsHidden = perceptionCreate.IsHidden
+        Description = perceptionCreate.Description,
+        IsHidden = false
       };
 
       if(!perceptionRepository.CreatePerception(perception))
@@ -101,9 +101,9 @@ namespace Payroll.Controllers
 
       var perception = perceptionRepository.GetPerception(perceptionId);
 
-      if(perceptionUpdate.Name != null && perceptionUpdate.Key >= 0)
+      if(perceptionUpdate.Description != null && perceptionUpdate.Key >= 0)
       {
-        perception.Name = perceptionUpdate.Name;
+        perception.Description = perceptionUpdate.Description;
         perception.Key = perceptionUpdate.Key;
         perception.IsHidden = perceptionUpdate.IsHidden;
       }

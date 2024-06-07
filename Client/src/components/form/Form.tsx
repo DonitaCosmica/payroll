@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { NavigationContext } from '../../context/Navigation'
 import { type IDropDownMenu, type FieldConfig } from '../../types'
 import { DropDown } from '../dropdown/DropDown'
@@ -11,7 +11,7 @@ interface Props {
 }
 
 export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
-  const { option, title } = useContext(NavigationContext)
+  const { option, title, formSize, url } = useContext(NavigationContext)
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
   const [formData, setFormData] = useState<{ [key: string]: string }>({})
 
@@ -42,7 +42,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     fetchDropdownData()
   }, [ option ])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>): void => {
     const { id, value } = e.target
     setFormData(prevFormData => ({
       ...prevFormData,
@@ -50,56 +50,86 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     }))
   }
 
-  const handleSubmit = (e: React.ChangeEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
-    console.log(formData)
+    const requestOptions = {
+       method: 'POST',
+       headers: {
+        'Content-Type': 'application/json'
+       },
+       body: JSON.stringify(formData)
+    }
+    const res: Response = await fetch(String(url), requestOptions)
+    const data = await res.json()
+    console.log(data)
   }
+
+  const handleCancel = (e: React.MouseEvent<HTMLButtonElement | SVGElement>): void => {
+    e.preventDefault()
+    setShowForm(false)
+  }
+
+  const elements = useMemo(() => {
+    return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType }: FieldConfig, index: number) => {
+      const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
+      const appendCurrentGroup = (group: JSX.Element[]) =>
+        group.length > 0 ? [...acc.slice(0, -1), <div key={`input-group-${index}`} className='input-group'>{group}</div>] : acc
+  
+      if (type === 'section') {
+        const updatedAcc = appendCurrentGroup(currentGroup)
+  
+        return [
+          ...updatedAcc,
+          <div key={`${ name }-${ index }`} className='title'>
+            <h4>{ name }</h4>
+          </div>,
+          <div key={`input-group-start-${index + 1}`} className='input-group'></div>
+        ]
+      } else {
+        const fieldElement = (
+          <div key={`${ name }-${index}-${ id }`} className='field'>
+            <label htmlFor={ id }>{ name }</label>
+            <div className='input-container'>
+              {type === 'input' ? (
+                <input
+                  type={ inputType }
+                  id={ id }
+                  name={ name }
+                  placeholder={ label }
+                  autoComplete='off'
+                  onChange={ handleChange }
+                />
+              ) : type === 'dropmenu' && Object.keys(dropdownData).length > 0 ? (
+                <DropDown options={dropdownData[id ?? '']} selectedId={id ?? name} />
+              ) : type === 'textarea' ? (
+                <textarea
+                  id={ id }
+                  rows={10}
+                  autoComplete='off'
+                  placeholder={ label }
+                  onChange={ handleChange }
+                />
+              ) : null}
+            </div>
+          </div>
+        )
+        
+        return [...acc.slice(0, -1), <div key={`input-group-${index}`} className='input-group'>{[...currentGroup, fieldElement]}</div>]
+      }
+    }, [])
+  }, [fieldsConfig, option, dropdownData])
 
   return (
     <section className='background'>
-      <div className='form-container'>
-        <FaArrowLeft onClick={() => setShowForm(false)} />
+      <div className='form-container' style={{ height: `${formSize}%` }}>
+        <FaArrowLeft onClick={ handleCancel } />
         <h2>{`Crear ${title}`}</h2>
         <form className='fields-container' onSubmit={handleSubmit}>
-          {fieldsConfig[option].map(({ type, name, inputType, id }: FieldConfig, index: number) => {
-            if(type === 'input') {
-              return (
-                <div key={ `${name}-${index}-${id}` } className='field'>
-                  <label htmlFor={ id }>{ name }</label>
-                  <div className='input-container'>
-                    <input 
-                      type={inputType} 
-                      id={ id } 
-                      name={ name } 
-                      autoComplete='off'
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-              )
-            } else if(type === 'dropmenu' && Object.keys(dropdownData).length > 0) {
-              return (
-                <div key={ `${name}-${index}-${id}` } className='field'>
-                  <label htmlFor={ id }>{ name }</label>
-                  <div className='input-container'>
-                    <DropDown options={ dropdownData[id ?? ''] } selectedId={ id ?? name } />
-                  </div>
-                </div>
-              )
-            } else if(type === 'section') {
-              return (
-                <div key={ `${name}-${index}-${id}` } className='title'>
-                  <h4>{ name }</h4>
-                </div>
-              )
-            } else {
-              return (
-                <div key={ `${name}-${index}-${id}` } className='button-container'>
-                  <button type='submit'>{ name }</button>
-                </div>
-              )
-            }
-          })}
+          {elements}
+          <div className='button-container'>
+            <button type='submit'>Crear</button>
+            <button onClick={ handleCancel }>Cancelar</button>
+          </div>
         </form>
       </div>
     </section>

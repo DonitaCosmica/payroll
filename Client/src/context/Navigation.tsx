@@ -22,6 +22,7 @@ interface NavigationState {
   url?: string
   columnNames: string[],
   data: (string | number)[][],
+  formSize: number,
   error: boolean | null
 }
 
@@ -41,32 +42,18 @@ interface Props {
   children: ReactNode
 }
 
-const urlMapping: Record<NavigationActionKind, string> = {
-  [NavigationActionKind.PAYROLLRECEIPTS]: 'a',
-  [NavigationActionKind.EMPLOYEES]: 'http://localhost:5239/api/Employee',
-  [NavigationActionKind.JOBPOSITIONS]: 'http://localhost:5239/api/JobPosition',
-  [NavigationActionKind.DEPARTMENTS]: 'http://localhost:5239/api/Department',
-  [NavigationActionKind.COMMERCIALAREAS]: 'http://localhost:5239/api/CommercialArea',
-  [NavigationActionKind.PERCEPTIONS]: 'http://localhost:5239/api/Perception',
-  [NavigationActionKind.DEDUCTIONS]: 'http://localhost:5239/api/Deduction',
-  [NavigationActionKind.PROJECTCATALOG]: 'http://localhost:5239/api/Project',
-  [NavigationActionKind.COMPANIES]: 'http://localhost:5239/api/Company',
-  [NavigationActionKind.UPDATEDATA]: '',
-  [NavigationActionKind.ERROR]: ''
-}
-
-const titleMapping: Record<NavigationActionKind, string> = {
-  [NavigationActionKind.PAYROLLRECEIPTS]: 'Recibo',
-  [NavigationActionKind.EMPLOYEES]: 'Trabajador',
-  [NavigationActionKind.JOBPOSITIONS]: 'Puesto',
-  [NavigationActionKind.DEPARTMENTS]: 'Departamento',
-  [NavigationActionKind.COMMERCIALAREAS]: 'Area Comercial',
-  [NavigationActionKind.PERCEPTIONS]: 'Percepción',
-  [NavigationActionKind.DEDUCTIONS]: 'Deducción',
-  [NavigationActionKind.PROJECTCATALOG]: 'Proyecto',
-  [NavigationActionKind.COMPANIES]: 'Compañia',
-  [NavigationActionKind.UPDATEDATA]: '',
-  [NavigationActionKind.ERROR]: ''
+const navigationConfig: Record<NavigationActionKind, { url: string, title: string, formSize: number }> = {
+  [NavigationActionKind.PAYROLLRECEIPTS]: { url: '', title: 'Recibo', formSize: 75 },
+  [NavigationActionKind.EMPLOYEES]: { url: 'http://localhost:5239/api/Employee', title: 'Trabajador', formSize: 75 },
+  [NavigationActionKind.JOBPOSITIONS]: { url: 'http://localhost:5239/api/JobPosition', title: 'Puesto', formSize: 40 },
+  [NavigationActionKind.DEPARTMENTS]: { url: 'http://localhost:5239/api/Department', title: 'Departamento', formSize: 40 },
+  [NavigationActionKind.COMMERCIALAREAS]: { url: 'http://localhost:5239/api/CommercialArea', title: 'Área Comercial', formSize: 30 },
+  [NavigationActionKind.PERCEPTIONS]: { url: 'http://localhost:5239/api/Perception', title: 'Percepción', formSize: 405 },
+  [NavigationActionKind.DEDUCTIONS]: { url: 'http://localhost:5239/api/Deduction', title: 'Deducción', formSize: 45 },
+  [NavigationActionKind.PROJECTCATALOG]: { url: 'http://localhost:5239/api/Project', title: 'Proyecto', formSize: 75 },
+  [NavigationActionKind.COMPANIES]: { url: 'http://localhost:5239/api/Company', title: 'Compañia', formSize: 30 },
+  [NavigationActionKind.UPDATEDATA]: { url: '', title: '', formSize: 0 },
+  [NavigationActionKind.ERROR]: { url: '', title: '', formSize: 0 }
 }
 
 const INITIAL_STATE: NavigationState = {
@@ -76,6 +63,7 @@ const INITIAL_STATE: NavigationState = {
   url: '',
   columnNames: [],
   data: [[]],
+  formSize: 75,
   error: null
 } as const
 
@@ -104,11 +92,11 @@ const NavigationReducer = (state: NavigationState, action: NavigationAction): Na
       }
     }
     default: {
-      const title: string = titleMapping[type]
-      const url: string = urlMapping[type]
+      const { url, title, formSize } = navigationConfig[type]
       return {
         ...state,
         title,
+        formSize,
         option: type,
         loading: true,
         url,

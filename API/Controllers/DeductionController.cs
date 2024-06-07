@@ -20,7 +20,7 @@ namespace Payroll.Controllers
         {
           DeductionId = d.DeductionId,
           Key = d.Key,
-          Name = d.Name,
+          Description = d.Description,
           IsHidden = d.IsHidden
         }).ToList();
 
@@ -46,7 +46,7 @@ namespace Payroll.Controllers
       {
         DeductionId = deduction.DeductionId,
         Key = deduction.Key,
-        Name = deduction.Name,
+        Description = deduction.Description,
         IsHidden = deduction.IsHidden
       };
 
@@ -68,7 +68,7 @@ namespace Payroll.Controllers
         return BadRequest();
 
       var existingDeduction = deductionRepository.GetDeductions()
-        .FirstOrDefault(d => d.Name.Trim().Equals(deductionCreate.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
+        .FirstOrDefault(d => d.Description.Trim().Equals(deductionCreate.Description.Trim(), StringComparison.CurrentCultureIgnoreCase));
     
       if(existingDeduction != null)
         return Conflict("Deduction already exists");
@@ -77,8 +77,8 @@ namespace Payroll.Controllers
       {
         DeductionId = Guid.NewGuid().ToString(),
         Key = deductionCreate.Key,
-        Name = deductionCreate.Name,
-        IsHidden = deductionCreate.IsHidden
+        Description = deductionCreate.Description,
+        IsHidden = false
       };
 
       if(!deductionRepository.CreateDeduction(deduction))
@@ -101,9 +101,9 @@ namespace Payroll.Controllers
 
       var deduction = deductionRepository.GetDeduction(deductionId);
 
-      if(deductionUpdate.Name != null && deductionUpdate.Key >= 0)
+      if(deductionUpdate.Description != null && deductionUpdate.Key >= 0)
       {
-        deduction.Name = deductionUpdate.Name;
+        deduction.Description = deductionUpdate.Description;
         deduction.Key = deductionUpdate.Key;
         deduction.IsHidden = deductionUpdate.IsHidden;
       }

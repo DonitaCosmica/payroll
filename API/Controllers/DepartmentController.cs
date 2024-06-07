@@ -20,7 +20,8 @@ namespace Payroll.Controllers
         {
           DepartmentId = d.DepartmentId,
           Name = d.Name,
-          TotalEmployees = d.TotalEmployees
+          TotalEmployees = d.TotalEmployees,
+          SubContract = d.SubContract
         }).ToList();
 
       var result = new
@@ -45,7 +46,8 @@ namespace Payroll.Controllers
       {
         DepartmentId = department.DepartmentId,
         Name = department.Name,
-        TotalEmployees = department.TotalEmployees
+        TotalEmployees = department.TotalEmployees,
+        SubContract = department.SubContract
       };
 
       var result = new
@@ -75,7 +77,8 @@ namespace Payroll.Controllers
       {
         DepartmentId = Guid.NewGuid().ToString(),
         Name = departmentCreate.Name,
-        TotalEmployees = departmentCreate.TotalEmployees
+        TotalEmployees = 0,
+        SubContract = departmentCreate.SubContract
       };
 
       if(!departmentRepository.CreateDepartment(department))
@@ -102,6 +105,7 @@ namespace Payroll.Controllers
       {
         department.Name = departmentUpdate.Name;
         department.TotalEmployees = departmentUpdate.TotalEmployees;
+        department.SubContract = departmentUpdate.SubContract;
       }
 
       if(!departmentRepository.UpdateDepartment(department))

@@ -1,4 +1,10 @@
-.background > .form-container > .fields-container > .field > .input-container > select {
-  width: 90%;
-  padding: 5px;
+.input-group > .field > .input-container > select {
+  width: 100%;
+  padding: 7.5px 5px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.input-group > .field > .input-container > select > option {
+  font-size: 0.9rem;
 }

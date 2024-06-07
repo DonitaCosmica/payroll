@@ -26,6 +26,10 @@ namespace Payroll.Models
     public Bank Bank { get; set; } = new();
     [Required]
     public ulong InterbankCode { get; set; }
+    public ulong BankAccocunt { get; set; }
+    [Required]
+    public ulong BankPortalID { get; set; }
+    public bool IsAStarter { get; set; }
     public ICollection<EmployeeProject> EmployeeProjects { get; set; } = [];
     [Required]
     [MaxLength(36)]
