@@ -8,6 +8,7 @@ import { DropMenu } from "../dropmenu/DropMenu"
 import './Toolbar.css'
 
 interface Props {
+  setToolbarOption: React.Dispatch<React.SetStateAction<number>>
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
   showForm: boolean
 }
@@ -23,7 +24,7 @@ const IconSection = ({ options, handleForm }: { options: IconDefinition[], handl
   </>
 )
 
-export const Toolbar: React.FC<Props> = ({ setShowForm, showForm }): JSX.Element => {
+export const Toolbar: React.FC<Props> = ({ setToolbarOption, setShowForm, showForm }): JSX.Element => {
   const { option } = useContext(NavigationContext)
   const [showDropMenu, setShowDropMenu] = useState<boolean>(false)
 
@@ -48,7 +49,7 @@ export const Toolbar: React.FC<Props> = ({ setShowForm, showForm }): JSX.Element
 
   const handleForm = (index: number): void => {
     setShowForm(!showForm)
-    console.log(index)
+    setToolbarOption(index)
   }
 
   return (

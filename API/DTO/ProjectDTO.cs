@@ -7,6 +7,7 @@ namespace Payroll.DTO
     public string Name { get; set; } = default!;
     public DateTime StartDate { get; set; }
     public string Status { get; set; } = default!;
+    public string Company { get; set; } = default!;
     public string? Description { get; set; }
   }
 }

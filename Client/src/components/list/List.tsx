@@ -5,6 +5,8 @@ import './List.css'
 
 export const List = (): JSX.Element => {
   const { columnNames, data } = useContext(NavigationContext)
+
+  const handleRaw = (index: number): void => console.log(index)
   
   return (
     <section className="list">
@@ -24,8 +26,9 @@ export const List = (): JSX.Element => {
             </tr>
           </thead>
           <tbody>
-            {data.map((row: (string | number)[], index: number) => (
-              <tr key={index}>
+            {data.map((row: (string | number)[], index: number) => {
+              return (
+                <tr key={index} onClick={ () => handleRaw(index) }>
                 {row.map((info: number | string, cellIndex: number) => (
                   <td key={`${info}-${cellIndex}`}>
                     {Array.isArray(info) ? (
@@ -36,7 +39,8 @@ export const List = (): JSX.Element => {
                   </td>
                 ))}
               </tr>
-            ))}
+              )
+            })}
           </tbody>
         </table>
       </div>

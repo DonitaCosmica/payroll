@@ -39,6 +39,11 @@ namespace Payroll.Data
         .WithMany(s => s.Projects)
         .HasForeignKey(p => p.StatusId)
         .OnDelete(DeleteBehavior.Restrict);
+      modelBuilder.Entity<Project>()
+        .HasOne(p => p.Company)
+        .WithMany(c => c.Projects)
+        .HasForeignKey(p => p.CompanyId)
+        .OnDelete(DeleteBehavior.Restrict);
 
       modelBuilder.Entity<Employee>(entity => entity.HasKey(e => e.EmployeeId));
       modelBuilder.Entity<Employee>()

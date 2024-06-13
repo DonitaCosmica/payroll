@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Payroll.Data;
 using Payroll.DTO;
 using Payroll.Interfaces;
 using Payroll.Models;
@@ -7,25 +8,49 @@ namespace Payroll.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
-  public class ProjectController(IProjectRepository projectRepository, IStatusRepository statusRepository) : Controller
+  public class ProjectController(DataContext context, IProjectRepository projectRepository) : Controller
   {
+    private readonly DataContext context = context;
     private readonly IProjectRepository projectRepository = projectRepository;
-    private readonly IStatusRepository statusRepository = statusRepository;
+    private ProjectDTO MapToProjectDTORequest(Project? project)
+    {
+      if (project == null)
+        return new ProjectDTO();
+
+      var projectDTO = new ProjectDTO();
+
+      var query = from p in context.Projects
+        join c in context.Companies on p.CompanyId equals c.CompanyId
+        join s in context.Statuses on p.StatusId equals s.StatusId
+        where p.ProjectId == project.ProjectId
+        select new
+        {
+          Project = p,
+          CompanyName = c.Name,
+          StatusName = s.Name
+        };
+
+      var result = query.FirstOrDefault();
+      if(result != null)
+      {
+        projectDTO.ProjectId = result.Project.ProjectId;
+        projectDTO.Code = result.Project.Code;
+        projectDTO.Name = result.Project.Name;
+        projectDTO.StartDate = result.Project.StartDate;
+        projectDTO.Status = result.StatusName;
+        projectDTO.Company = result.CompanyName;
+        projectDTO.Description = result.Project.Description;
+      }
+
+      return projectDTO;
+    }
 
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<ProjectDTO>))]
     public IActionResult GetProjects()
     {
       var projects = projectRepository.GetProjects()
-        .Select(p => new ProjectDTO
-        {
-          ProjectId = p.ProjectId,
-          Code = p.Code,
-          Name = p.Name,
-          StartDate = p.StartDate,
-          Status = statusRepository.GetStatus(p.StatusId).Name,
-          Description = p.Description
-        }).ToList();
+        .Select(MapToProjectDTORequest).ToList();
 
       var result = new
       {
@@ -45,16 +70,7 @@ namespace Payroll.Controllers
         return NotFound();
 
       var project = projectRepository.GetProject(projectId);
-      var projectDTO = new ProjectDTO
-      {
-        ProjectId = project.ProjectId,
-        Code = project.Code,
-        Name = project.Name,
-        StartDate = project.StartDate,
-        Status = statusRepository.GetStatus(project.StatusId).Name,
-        Description = project.Description
-      };
-
+      var projectDTO = MapToProjectDTORequest(project);
       var result = new
       {
         Columns = projectRepository.GetColumns(),
@@ -69,7 +85,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateProject([FromBody] ProjectDTO projectCreate)
     {
-      if(projectCreate == null || !statusRepository.StatusExists(projectCreate.Status))
+      if(projectCreate == null)
         return BadRequest();
 
       var existingProject = projectRepository.GetProjects()
@@ -78,16 +94,28 @@ namespace Payroll.Controllers
       if(existingProject != null)
         return Conflict("Project already exists");
 
-      var status = statusRepository.GetStatus(projectCreate.Status);
-
+      var query = from c in context.Companies
+        join s in context.Statuses on projectCreate.Status equals s.StatusId
+        select new
+        {
+          Company = c,
+          Status = s
+        };
+      
+      var result = query.FirstOrDefault();
+      if(result == null)
+        return StatusCode(500, "Something went wrong while fetching related data");
+      
       var project = new Project
       {
         ProjectId = Guid.NewGuid().ToString(),
         Code = projectCreate.Code,
         Name = projectCreate.Name,
-        StartDate = DateTime.Now,
+        StartDate = projectCreate.StartDate,
         StatusId = projectCreate.Status,
-        Status = status,
+        Status = result.Status,
+        CompanyId = projectCreate.Company,
+        Company = result.Company,
         Description = projectCreate.Description
       };
 
@@ -103,7 +131,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateProject(string projectId, [FromBody] Project projectUpdate)
     {
-      if(projectUpdate == null || !statusRepository.StatusExists(projectUpdate.StatusId))
+      if(projectUpdate == null)
         return BadRequest();
 
       if(!projectRepository.ProjectExists(projectId))

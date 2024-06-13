@@ -8,9 +8,10 @@ import './Form.css'
 
 interface Props {
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
+  toolbarOption: number
 }
 
-export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
+export const Form: React.FC<Props> = ({ setShowForm, toolbarOption }): JSX.Element => {
   const { option, title, formSize, url } = useContext(NavigationContext)
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
   const [formData, setFormData] = useState<{ [key: string]: string }>({})
@@ -59,9 +60,9 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
        },
        body: JSON.stringify(formData)
     }
-    const res: Response = await fetch(String(url), requestOptions)
-    const data = await res.json()
-    console.log(data)
+    console.log(formData)
+    await fetch(String(url), requestOptions)
+    setShowForm(false)
   }
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement | SVGElement>): void => {
@@ -100,7 +101,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   onChange={ handleChange }
                 />
               ) : type === 'dropmenu' && Object.keys(dropdownData).length > 0 ? (
-                <DropDown options={dropdownData[id ?? '']} selectedId={id ?? name} />
+                <DropDown options={dropdownData[id ?? '']} selectedId={id ?? name} setFormData={setFormData} />
               ) : type === 'textarea' ? (
                 <textarea
                   id={ id }
@@ -118,6 +119,8 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
       }
     }, [])
   }, [fieldsConfig, option, dropdownData])
+
+  console.log(toolbarOption)
 
   return (
     <section className='background'>

@@ -12,16 +12,21 @@ import './App.css'
 function App(): JSX.Element {
   const { option } = useContext(NavigationContext)
   const [showForm, setShowForm] = useState<boolean>(false)
+  const [toolbarOption, setToolbarOption] = useState<number>(0)
 
   return (
     <main className='payroll'>
       <Titlebar />
       <Navbar />
       { option === 1 && <Filter /> }
-      <Toolbar setShowForm={setShowForm} showForm={showForm} />
+      <Toolbar 
+        setToolbarOption={ setToolbarOption } 
+        setShowForm={ setShowForm } 
+        showForm={ showForm } 
+      />
       <List />
       <Footer />
-      { showForm && <Form setShowForm={setShowForm} /> }
+      { showForm && <Form setShowForm={setShowForm} toolbarOption={toolbarOption} /> }
     </main>
   )
 }

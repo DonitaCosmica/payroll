@@ -62,8 +62,8 @@ namespace API.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("TotalWorkers")
                         .HasColumnType("int");
@@ -384,6 +384,11 @@ namespace API.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("CompanyId")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
                     b.Property<string>("Description")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -402,6 +407,8 @@ namespace API.Migrations
                         .HasColumnType("nvarchar(36)");
 
                     b.HasKey("ProjectId");
+
+                    b.HasIndex("CompanyId");
 
                     b.HasIndex("StatusId");
 
@@ -623,11 +630,19 @@ namespace API.Migrations
 
             modelBuilder.Entity("Payroll.Models.Project", b =>
                 {
+                    b.HasOne("Payroll.Models.Company", "Company")
+                        .WithMany("Projects")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Payroll.Models.Status", "Status")
                         .WithMany("Projects")
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Company");
 
                     b.Navigation("Status");
                 });
@@ -656,6 +671,8 @@ namespace API.Migrations
             modelBuilder.Entity("Payroll.Models.Company", b =>
                 {
                     b.Navigation("Employees");
+
+                    b.Navigation("Projects");
                 });
 
             modelBuilder.Entity("Payroll.Models.Contract", b =>

@@ -4,20 +4,31 @@ import './DropDown.css'
 
 interface Props {
   options: IDropDownMenu[] | [],
-  selectedId: string
+  selectedId: string,
+  setFormData:(value:  React.SetStateAction<{ [key: string]: string }>) => void
 }
 
-export const DropDown: React.FC<Props> = ({ options, selectedId }): JSX.Element => {
+export const DropDown: React.FC<Props> = ({ options, selectedId, setFormData }): JSX.Element => {
   const [selectedValue, setSelectedValue] = useState<string>('0')
   
-  const handleChange = (event: ChangeEvent<HTMLSelectElement>): void => 
-    setSelectedValue(event.target.value)
+  const handleChange = (event: ChangeEvent<HTMLSelectElement>): void => {
+    const { id, value } = event.target
+    setSelectedValue(value)
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      [id]: value
+    }))
+  }
 
   return (
-    <select id={`${selectedId}`} value={selectedValue} onChange={handleChange}>
+    <select id={`${ selectedId }`} value={ selectedValue } onChange={ handleChange }>
       <option value='0'>Elije una opción...</option>
-      {options.map((option: IDropDownMenu, index: number) => 
-        <option key={`${selectedId}-${index}`} value={option.value}>{ option.name }</option>
+      {options.map((option: IDropDownMenu, index: number) => {
+        const value = Object.values(option)[0]
+        return (
+          <option key={`${ selectedId }-${ index }`} value={ value }>{ option.name }</option>
+        )
+      }
       )}
     </select>
   )

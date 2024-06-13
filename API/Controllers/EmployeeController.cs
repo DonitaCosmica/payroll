@@ -8,7 +8,7 @@ namespace Payroll.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
-  public class EmployeeController( DataContext context, IEmployeeRepository employeeRepository) : Controller
+  public class EmployeeController(DataContext context, IEmployeeRepository employeeRepository) : Controller
   {
     private readonly DataContext context = context;
     private readonly IEmployeeRepository employeeRepository = employeeRepository;
