@@ -13,6 +13,7 @@ function App(): JSX.Element {
   const { option } = useContext(NavigationContext)
   const [showForm, setShowForm] = useState<boolean>(false)
   const [toolbarOption, setToolbarOption] = useState<number>(0)
+  const [id, setId] = useState<string>('')
 
   return (
     <main className='payroll'>
@@ -24,9 +25,14 @@ function App(): JSX.Element {
         setShowForm={ setShowForm } 
         showForm={ showForm } 
       />
-      <List />
+      <List setId={ setId } />
       <Footer />
-      { showForm && <Form setShowForm={setShowForm} toolbarOption={toolbarOption} /> }
+      {showForm && 
+        <Form 
+          setShowForm={ setShowForm } 
+          toolbarOption={ toolbarOption }
+          idSelected={ id }
+        />}
     </main>
   )
 }

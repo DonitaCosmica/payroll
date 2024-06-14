@@ -22,6 +22,7 @@ interface NavigationState {
   url?: string
   columnNames: string[],
   data: (string | number)[][],
+  keys: string[],
   formSize: number,
   error: boolean | null
 }
@@ -31,6 +32,7 @@ interface NavigationAction {
   payload?: {
     columns: string[],
     newData: (number | string)[][]
+    fieldNames: string[]
   } 
 }
 
@@ -63,6 +65,7 @@ const INITIAL_STATE: NavigationState = {
   url: '',
   columnNames: [],
   data: [[]],
+  keys: [],
   formSize: 75,
   error: null
 } as const
@@ -77,11 +80,12 @@ const NavigationReducer = (state: NavigationState, action: NavigationAction): Na
 
   switch(type) {
     case NavigationActionKind.UPDATEDATA: {
-      const { columns = state.columnNames, newData = state.data } = payload || {}
+      const { columns = state.columnNames, newData = state.data, fieldNames = state.keys } = payload || {}
       return {
         ...state,
         columnNames: columns,
         data: newData,
+        keys: fieldNames,
         loading: false
       }
     }
@@ -119,7 +123,8 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
           const columns: string[] = Array.isArray(values[0]) ? values[0] : []
           const newData: (string | number)[][] = Array.isArray(values[1]) ?
             values[1].map((info: (string | number)) => Object.values(info)) : []
-          dispatch({ type: NavigationActionKind.UPDATEDATA, payload: { columns, newData } })
+          const fieldNames: string[] = Array.isArray(values[0]) ? values[0] : []
+          dispatch({ type: NavigationActionKind.UPDATEDATA, payload: { columns, newData, fieldNames } })
         }
       } catch (error) {
         console.error(error)

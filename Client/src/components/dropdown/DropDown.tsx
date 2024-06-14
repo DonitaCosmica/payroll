@@ -20,15 +20,16 @@ export const DropDown: React.FC<Props> = ({ options, selectedId, setFormData }):
     }))
   }
 
+  const filterAttributesContainingId = (obj: IDropDownMenu): string | undefined => {
+    const key = Object.keys(obj).find((key: string) => key.includes('Id'))
+    return key ? (obj as any)[key] : undefined
+  }
+
   return (
     <select id={`${ selectedId }`} value={ selectedValue } onChange={ handleChange }>
       <option value='0'>Elije una opción...</option>
-      {options.map((option: IDropDownMenu, index: number) => {
-        const value = Object.values(option)[0]
-        return (
-          <option key={`${ selectedId }-${ index }`} value={ value }>{ option.name }</option>
-        )
-      }
+      {options.map((option: IDropDownMenu, index: number) => 
+        <option key={`${ selectedId }-${ index }`} value={ filterAttributesContainingId(option) }>{ option.name }</option>
       )}
     </select>
   )

@@ -3,10 +3,18 @@ import { NavigationContext } from "../../context/Navigation"
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md"
 import './List.css'
 
-export const List = (): JSX.Element => {
+interface Props {
+  setId: React.Dispatch<React.SetStateAction<string>>
+}
+
+export const List: React.FC<Props> = ({ setId }): JSX.Element => {
   const { columnNames, data } = useContext(NavigationContext)
 
-  const handleRaw = (index: number): void => console.log(index)
+  const getIdSelected = (info: (number | string)[]): void => {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    const uuid = info.find(item => typeof item === 'string' && uuidRegex.test(item))
+    uuid ? setId(String(uuid)) : console.error('No valid UUID found in the provided info.')
+  }
   
   return (
     <section className="list">
@@ -28,9 +36,9 @@ export const List = (): JSX.Element => {
           <tbody>
             {data.map((row: (string | number)[], index: number) => {
               return (
-                <tr key={index} onClick={ () => handleRaw(index) }>
+                <tr key={ index } onClick={ () => getIdSelected(row) }>
                 {row.map((info: number | string, cellIndex: number) => (
-                  <td key={`${info}-${cellIndex}`}>
+                  <td key={`${ info }-${ cellIndex }`}>
                     {Array.isArray(info) ? (
                       <p>{ info.join(', ') }</p>
                     ) : (

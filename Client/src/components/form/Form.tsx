@@ -9,10 +9,11 @@ import './Form.css'
 interface Props {
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
   toolbarOption: number
+  idSelected: string | undefined
 }
 
-export const Form: React.FC<Props> = ({ setShowForm, toolbarOption }): JSX.Element => {
-  const { option, title, formSize, url } = useContext(NavigationContext)
+export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }): JSX.Element => {
+  const { option, title, formSize, url, data, keys } = useContext(NavigationContext)
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
   const [formData, setFormData] = useState<{ [key: string]: string }>({})
 
@@ -28,6 +29,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption }): JSX.Eleme
               .filter((key) => key !== 'columns')
               .map((key) => data[key])
               .flat()
+            console.log(dataOptions)
             return { [String(id)]: dataOptions }
           } catch (error) {
             console.error(`Error fetching dropdown data for ${id}`, error)
@@ -54,20 +56,32 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption }): JSX.Eleme
   const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
     const requestOptions = {
-       method: 'POST',
+       method: idSelected ? 'PATCH' : 'POST',
        headers: {
         'Content-Type': 'application/json'
        },
        body: JSON.stringify(formData)
     }
-    console.log(formData)
-    await fetch(String(url), requestOptions)
+
+    console.log(idSelected ? url + `/${idSelected}` : url)
+    //await fetch(String(url), requestOptions)
     setShowForm(false)
   }
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement | SVGElement>): void => {
     e.preventDefault()
     setShowForm(false)
+  }
+
+  const createObject = (data: (string | number)[][], keys: string[]): Array<{ [key: string]: string | number }> => {
+    return data.map((item: (string | number)[]) => {
+      const obj: { [key: string]: string | number } = {}
+      keys.map((key: string, index: number) => {
+        obj[key] = item[index]
+      })
+
+      return obj
+    })
   }
 
   const elements = useMemo(() => {
@@ -120,14 +134,12 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption }): JSX.Eleme
     }, [])
   }, [fieldsConfig, option, dropdownData])
 
-  console.log(toolbarOption)
-
   return (
     <section className='background'>
       <div className='form-container' style={{ height: `${formSize}%` }}>
         <FaArrowLeft onClick={ handleCancel } />
         <h2>{`Crear ${title}`}</h2>
-        <form className='fields-container' onSubmit={handleSubmit}>
+        <form className='fields-container' onSubmit={ handleSubmit }>
           {elements}
           <div className='button-container'>
             <button type='submit'>Crear</button>
