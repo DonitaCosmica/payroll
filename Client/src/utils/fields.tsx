@@ -65,7 +65,8 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
     { type: 'input', name: 'Clave', label: 'Clave...', inputType: 'text', id: 'code' },
     { type: 'input', name: 'Nombre', label: 'Nombre...', inputType: 'text', id: 'name' },
     { type: 'input', name: 'Fecha de inicio', label: '1/1/2000', inputType: 'date', id: 'startDate' },
-    { type: 'dropmenu', name: 'status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status' },
+    { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status' },
+    { type: 'dropmenu', name: 'Company', fetchUrl: 'http://localhost:5239/api/Company', id: 'company' },
     { type: 'textarea', name: 'Descripción', label: 'Descripción...', inputType: 'text', id: 'description' }
   ],
   [NavigationActionKind.COMPANIES]: [

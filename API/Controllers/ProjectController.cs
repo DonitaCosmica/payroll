@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using Payroll.Data;
 using Payroll.DTO;
@@ -12,38 +13,6 @@ namespace Payroll.Controllers
   {
     private readonly DataContext context = context;
     private readonly IProjectRepository projectRepository = projectRepository;
-    private ProjectDTO MapToProjectDTORequest(Project? project)
-    {
-      if (project == null)
-        return new ProjectDTO();
-
-      var projectDTO = new ProjectDTO();
-
-      var query = from p in context.Projects
-        join c in context.Companies on p.CompanyId equals c.CompanyId
-        join s in context.Statuses on p.StatusId equals s.StatusId
-        where p.ProjectId == project.ProjectId
-        select new
-        {
-          Project = p,
-          CompanyName = c.Name,
-          StatusName = s.Name
-        };
-
-      var result = query.FirstOrDefault();
-      if(result != null)
-      {
-        projectDTO.ProjectId = result.Project.ProjectId;
-        projectDTO.Code = result.Project.Code;
-        projectDTO.Name = result.Project.Name;
-        projectDTO.StartDate = result.Project.StartDate;
-        projectDTO.Status = result.StatusName;
-        projectDTO.Company = result.CompanyName;
-        projectDTO.Description = result.Project.Description;
-      }
-
-      return projectDTO;
-    }
 
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<ProjectDTO>))]
@@ -85,6 +54,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateProject([FromBody] ProjectDTO projectCreate)
     {
+      Console.WriteLine($"Project: {projectCreate.Code}, {projectCreate.Name}, {projectCreate.StartDate}, {projectCreate.Status}, {projectCreate.Company}, {projectCreate.Description}");
       if(projectCreate == null)
         return BadRequest();
 
@@ -111,7 +81,7 @@ namespace Payroll.Controllers
         ProjectId = Guid.NewGuid().ToString(),
         Code = projectCreate.Code,
         Name = projectCreate.Name,
-        StartDate = projectCreate.StartDate,
+        StartDate = DateTime.ParseExact(projectCreate.StartDate, "yyyy-MM-dd", CultureInfo.InvariantCulture),
         StatusId = projectCreate.Status,
         Status = result.Status,
         CompanyId = projectCreate.Company,
@@ -160,6 +130,39 @@ namespace Payroll.Controllers
         return StatusCode(500, "sOmething went wrong while deleting Project");
 
       return NoContent();
+    }
+
+    private ProjectDTO MapToProjectDTORequest(Project? project)
+    {
+      if (project == null)
+        return new ProjectDTO();
+
+      var projectDTO = new ProjectDTO();
+
+      var query = from p in context.Projects
+        join c in context.Companies on p.CompanyId equals c.CompanyId
+        join s in context.Statuses on p.StatusId equals s.StatusId
+        where p.ProjectId == project.ProjectId
+        select new
+        {
+          Project = p,
+          CompanyName = c.Name,
+          StatusName = s.Name
+        };
+
+      var result = query.FirstOrDefault();
+      if(result != null)
+      {
+        projectDTO.ProjectId = result.Project.ProjectId;
+        projectDTO.Code = result.Project.Code;
+        projectDTO.Name = result.Project.Name;
+        projectDTO.StartDate = result.Project.StartDate.ToString("yyyy-MM-dd");
+        projectDTO.Status = result.StatusName;
+        projectDTO.Company = result.CompanyName;
+        projectDTO.Description = result.Project.Description;
+      }
+
+      return projectDTO;
     }
   }
 }

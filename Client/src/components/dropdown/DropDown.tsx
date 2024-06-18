@@ -1,15 +1,21 @@
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { type IDropDownMenu } from '../../types'
 import './DropDown.css'
 
 interface Props {
   options: IDropDownMenu[] | [],
   selectedId: string,
+  value: string,
   setFormData:(value:  React.SetStateAction<{ [key: string]: string }>) => void
 }
 
-export const DropDown: React.FC<Props> = ({ options, selectedId, setFormData }): JSX.Element => {
+export const DropDown: React.FC<Props> = ({ options, selectedId, value, setFormData }): JSX.Element => {
   const [selectedValue, setSelectedValue] = useState<string>('0')
+
+  useEffect(() => {
+    const foundOption = options.find((opt: IDropDownMenu) => opt.name === value)
+    foundOption ? setSelectedValue(Object.values(foundOption)[0]) : setSelectedValue('0')
+  }, [ options, value ])
   
   const handleChange = (event: ChangeEvent<HTMLSelectElement>): void => {
     const { id, value } = event.target

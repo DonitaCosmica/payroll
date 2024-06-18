@@ -29,7 +29,6 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
               .filter((key) => key !== 'columns')
               .map((key) => data[key])
               .flat()
-            console.log(dataOptions)
             return { [String(id)]: dataOptions }
           } catch (error) {
             console.error(`Error fetching dropdown data for ${id}`, error)
@@ -62,9 +61,9 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
        },
        body: JSON.stringify(formData)
     }
-
-    console.log(idSelected ? url + `/${idSelected}` : url)
-    //await fetch(String(url), requestOptions)
+    console.log(formData)
+    //console.log(idSelected ? url + `/${idSelected}` : url)
+    await fetch(String(url), requestOptions)
     setShowForm(false)
   }
 
@@ -73,18 +72,35 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
     setShowForm(false)
   }
 
-  const createObject = (data: (string | number)[][], keys: string[]): Array<{ [key: string]: string | number }> => {
-    return data.map((item: (string | number)[]) => {
-      const obj: { [key: string]: string | number } = {}
+  /*const createObject = (data: (string | number)[][], keys: string[]): { [key: string]: string | number }[] => {
+    return data.reduce((acc: { [key: string]: string | number }[], item: (string | number)[]) => {
       keys.map((key: string, index: number) => {
+        const obj: { [key: string]: string | number } = {}
         obj[key] = item[index]
+        acc.push(obj)
       })
+      return acc
+    }, [])
+  }*/
+
+    const createObject = (data: (string | number)[][], keys: string[]) => {
+      const selectedObj = data.find((item: (string | number)[]) => item[0] === idSelected)
+      if (!selectedObj) return null
+
+      const selectedObjCopy = [...selectedObj]
+      const selectedKeysCopy = [...keys]
+
+      selectedObjCopy.shift()
+      selectedKeysCopy.shift()
+
+      const obj: { [key: string]: string | number } = {}
+      selectedKeysCopy.map((key: string, index: number) => obj[key.replace(/Id/i, '').toLowerCase()] = selectedObjCopy[index])
 
       return obj
-    })
-  }
+    }
 
   const elements = useMemo(() => {
+    const objectsForm = createObject(data, keys)
     return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType }: FieldConfig, index: number) => {
       const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
       const appendCurrentGroup = (group: JSX.Element[]) =>
@@ -113,9 +129,15 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
                   placeholder={ label }
                   autoComplete='off'
                   onChange={ handleChange }
+                  defaultValue={ toolbarOption === 1 && objectsForm ? objectsForm[id.toLowerCase()] : '' }
                 />
               ) : type === 'dropmenu' && Object.keys(dropdownData).length > 0 ? (
-                <DropDown options={dropdownData[id ?? '']} selectedId={id ?? name} setFormData={setFormData} />
+                <DropDown 
+                  options={ dropdownData[id ?? ''] } 
+                  selectedId={ id ?? '' }
+                  value={ toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : '0' }
+                  setFormData={ setFormData } 
+                />
               ) : type === 'textarea' ? (
                 <textarea
                   id={ id }
@@ -123,6 +145,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
                   autoComplete='off'
                   placeholder={ label }
                   onChange={ handleChange }
+                  defaultValue={ toolbarOption === 1 && objectsForm ? [id.toLowerCase()] : '' }
                 />
               ) : null}
             </div>
