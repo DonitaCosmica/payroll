@@ -8,9 +8,9 @@ import { DropMenu } from "../dropmenu/DropMenu"
 import './Toolbar.css'
 
 interface Props {
+  selectedId: string
   setToolbarOption: React.Dispatch<React.SetStateAction<number>>
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
-  showForm: boolean
 }
 
 const IconSection = ({ options, handleForm }: { options: IconDefinition[], handleForm: (index: number) => void }): JSX.Element => (
@@ -24,8 +24,8 @@ const IconSection = ({ options, handleForm }: { options: IconDefinition[], handl
   </>
 )
 
-export const Toolbar: React.FC<Props> = ({ setToolbarOption, setShowForm, showForm }): JSX.Element => {
-  const { option } = useContext(NavigationContext)
+export const Toolbar: React.FC<Props> = ({ selectedId, setToolbarOption, setShowForm }): JSX.Element => {
+  const { option, url } = useContext(NavigationContext)
   const [showDropMenu, setShowDropMenu] = useState<boolean>(false)
 
   const { options, menuOp, end } = useMemo(() => {
@@ -47,8 +47,24 @@ export const Toolbar: React.FC<Props> = ({ setToolbarOption, setShowForm, showFo
     NavigationActionKind.PROJECTCATALOG
   ].includes(option)
 
-  const handleForm = (index: number): void => {
-    setShowForm(!showForm)
+  const handleForm = async (index: number): Promise<void> => {
+    const isInvalidSelection = (index === 1 || index === 2) && selectedId === ''
+    if (isInvalidSelection) return
+
+
+    (index === 2) ? await deleteResource() : showFormAndSetToolbar(index)
+  }
+
+  const deleteResource = async (): Promise<void> => {
+    const requestOptions: { method: string } = {
+      method: 'DELETE'
+    }
+    
+    await fetch(`${url}/${selectedId}`, requestOptions)
+  }
+
+  const showFormAndSetToolbar = (index: number): void => {
+    setShowForm(true)
     setToolbarOption(index)
   }
 
@@ -65,11 +81,17 @@ export const Toolbar: React.FC<Props> = ({ setToolbarOption, setShowForm, showFo
           <AiFillHome fontSize='1.25rem' color="#333" />
         </div>
         <div className='main-options'>
-          <IconSection options={ showMoreOptions ? options.slice(0, end) : options } handleForm={ handleForm } />
+          <IconSection 
+            options={ showMoreOptions ? options.slice(0, end) : options }
+            handleForm={ handleForm } 
+          />
         </div>
         {showMoreOptions && (
           <div className='other-options'>
-            <IconSection options={ options.slice(end) } handleForm={ handleForm } />
+            <IconSection 
+              options={ options.slice(end) }
+              handleForm={ handleForm } 
+            />
           </div>
         )}
       </div>

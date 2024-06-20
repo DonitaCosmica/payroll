@@ -44,6 +44,19 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
     fetchDropdownData()
   }, [ option ])
 
+  useEffect(() => {
+    if (toolbarOption === 1 && idSelected) {
+      const objectsForm = createObject(data, keys)
+      if (objectsForm) {
+        const initialFormData = Object.keys(objectsForm).reduce((acc, key: string) => {
+          acc[key] = String(objectsForm[key])
+          return acc
+        }, {} as { [key: string]: string })
+        setFormData(initialFormData)
+      }
+    }
+  }, [ toolbarOption, idSelected, data, keys ])
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>): void => {
     const { id, value } = e.target
     setFormData(prevFormData => ({
@@ -61,9 +74,8 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
        },
        body: JSON.stringify(formData)
     }
-    console.log(formData)
-    //console.log(idSelected ? url + `/${idSelected}` : url)
-    await fetch(String(url), requestOptions)
+    
+    await fetch(idSelected ? `${String(url)}/${idSelected}` : String(url), requestOptions)
     setShowForm(false)
   }
 
@@ -72,32 +84,21 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
     setShowForm(false)
   }
 
-  /*const createObject = (data: (string | number)[][], keys: string[]): { [key: string]: string | number }[] => {
-    return data.reduce((acc: { [key: string]: string | number }[], item: (string | number)[]) => {
-      keys.map((key: string, index: number) => {
-        const obj: { [key: string]: string | number } = {}
-        obj[key] = item[index]
-        acc.push(obj)
-      })
-      return acc
-    }, [])
-  }*/
+  const createObject = (data: (string | number)[][], keys: string[]) => {
+    const selectedObj = data.find((item: (string | number)[]) => item[0] === idSelected)
+    if (!selectedObj) return null
 
-    const createObject = (data: (string | number)[][], keys: string[]) => {
-      const selectedObj = data.find((item: (string | number)[]) => item[0] === idSelected)
-      if (!selectedObj) return null
+    const selectedObjCopy = [...selectedObj]
+    const selectedKeysCopy = [...keys]
 
-      const selectedObjCopy = [...selectedObj]
-      const selectedKeysCopy = [...keys]
+    selectedObjCopy.shift()
+    selectedKeysCopy.shift()
 
-      selectedObjCopy.shift()
-      selectedKeysCopy.shift()
+    const obj: { [key: string]: string | number } = {}
+    selectedKeysCopy.map((key: string, index: number) => obj[key.replace(/Id/i, '').toLowerCase()] = selectedObjCopy[index])
 
-      const obj: { [key: string]: string | number } = {}
-      selectedKeysCopy.map((key: string, index: number) => obj[key.replace(/Id/i, '').toLowerCase()] = selectedObjCopy[index])
-
-      return obj
-    }
+    return obj
+  }
 
   const elements = useMemo(() => {
     const objectsForm = createObject(data, keys)
@@ -128,8 +129,8 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
                   name={ name }
                   placeholder={ label }
                   autoComplete='off'
-                  onChange={ handleChange }
-                  defaultValue={ toolbarOption === 1 && objectsForm ? objectsForm[id.toLowerCase()] : '' }
+                  onChange={ (e) => handleChange(e) }
+                  defaultValue={ toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : '' }
                 />
               ) : type === 'dropmenu' && Object.keys(dropdownData).length > 0 ? (
                 <DropDown 
@@ -144,8 +145,8 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
                   rows={10}
                   autoComplete='off'
                   placeholder={ label }
-                  onChange={ handleChange }
-                  defaultValue={ toolbarOption === 1 && objectsForm ? [id.toLowerCase()] : '' }
+                  onChange={ (e) => handleChange(e) }
+                  defaultValue={ toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : '' }
                 />
               ) : null}
             </div>
@@ -155,7 +156,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
         return [...acc.slice(0, -1), <div key={`input-group-${index}`} className='input-group'>{[...currentGroup, fieldElement]}</div>]
       }
     }, [])
-  }, [fieldsConfig, option, dropdownData])
+  }, [ fieldsConfig, option, dropdownData, toolbarOption, idSelected, data, keys ])
 
   return (
     <section className='background'>
@@ -166,7 +167,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
           {elements}
           <div className='button-container'>
             <button type='submit'>Crear</button>
-            <button onClick={ handleCancel }>Cancelar</button>
+            <button onClick={ (e) => handleCancel(e) }>Cancelar</button>
           </div>
         </form>
       </div>

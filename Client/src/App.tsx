@@ -12,7 +12,7 @@ import './App.css'
 function App(): JSX.Element {
   const { option } = useContext(NavigationContext)
   const [showForm, setShowForm] = useState<boolean>(false)
-  const [toolbarOption, setToolbarOption] = useState<number>(0)
+  const [toolbarOption, setToolbarOption] = useState<number>(-1)
   const [id, setId] = useState<string>('')
 
   return (
@@ -20,16 +20,20 @@ function App(): JSX.Element {
       <Titlebar />
       <Navbar />
       { option === 1 && <Filter /> }
-      <Toolbar 
-        setToolbarOption={ setToolbarOption } 
-        setShowForm={ setShowForm } 
-        showForm={ showForm } 
+      <Toolbar
+        selectedId={ id }
+        setToolbarOption={ setToolbarOption }
+        setShowForm={ setShowForm }
       />
-      <List setId={ setId } />
+      <List 
+        setId={ setId }
+        setShowForm={ setShowForm }
+        setToolbarOption={ setToolbarOption }
+      />
       <Footer />
       {showForm && 
         <Form 
-          setShowForm={ setShowForm } 
+          setShowForm={ setShowForm }
           toolbarOption={ toolbarOption }
           idSelected={ id }
         />}

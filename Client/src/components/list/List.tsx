@@ -5,15 +5,23 @@ import './List.css'
 
 interface Props {
   setId: React.Dispatch<React.SetStateAction<string>>
+  setShowForm: React.Dispatch<React.SetStateAction<boolean>>
+  setToolbarOption: React.Dispatch<React.SetStateAction<number>>
 }
 
-export const List: React.FC<Props> = ({ setId }): JSX.Element => {
+export const List: React.FC<Props> = ({ setId, setShowForm, setToolbarOption }): JSX.Element => {
   const { columnNames, data } = useContext(NavigationContext)
 
   const getIdSelected = (info: (number | string)[]): void => {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     const uuid = info.find(item => typeof item === 'string' && uuidRegex.test(item))
-    uuid ? setId(String(uuid)) : console.error('No valid UUID found in the provided info.')
+    uuid ? setId(uuid as string) : console.error('No valid UUID found in the provided info.')
+  }
+
+  const showFormDoubleClick = (info: (number | string)[]): void => {
+    getIdSelected(info)
+    setToolbarOption(1)
+    setShowForm(true)
   }
   
   return (
@@ -36,14 +44,10 @@ export const List: React.FC<Props> = ({ setId }): JSX.Element => {
           <tbody>
             {data.map((row: (string | number)[], index: number) => {
               return (
-                <tr key={ index } onClick={ () => getIdSelected(row) }>
+                <tr key={ index } onClick={ () => getIdSelected(row) } onDoubleClick={ () => showFormDoubleClick(row) }>
                 {row.map((info: number | string, cellIndex: number) => (
                   <td key={`${ info }-${ cellIndex }`}>
-                    {Array.isArray(info) ? (
-                      <p>{ info.join(', ') }</p>
-                    ) : (
-                      <p>{ info }</p>
-                    )}
+                    <p>{ Array.isArray(info) ? info.join(', ') : info }</p>
                   </td>
                 ))}
               </tr>
