@@ -1,0 +1,81 @@
+{
+  "1": {
+
+  },
+  "2": {
+    "EmployeeId": "ID del Trabajador",
+    "Key": "Clave",
+    "Name": "Nombre",
+    "RFC": "RFC",
+    "CURP": "CURP",
+    "BankId": "Banco",
+    "InterbankCode": "Código Interbancario",
+    "BankAccount": "Cuenta de Banco",
+    "Projects": "Proyectos",
+    "BankPortalID": "ID del portal bancario",
+    "IsAStarter": "Titular",
+    "RegimeId": "ID del Regimen",
+    "NSS": "NSS",
+    "DateAdmission": "Fecha de admision",
+    "JobPositionId": "Puesto de trabajo",
+    "CommercialAreaId": "Area Comercial",
+    "ContractId": "Contrato",
+    "BaseSalary": "Salario Base",
+    "DailySalary": "Salario Diario",
+    "ValuePerExtraHour": "Valor por Hora Extra",
+    "FederalEntityId": "Entidad Federal",
+    "Phone": "Celular",
+    "Email": "Correo",
+    "Direction": "Direccion",
+    "Suburb": "Colonia",
+    "PostalCode": "Codigo Postal",
+    "City": "Ciudad",
+    "StateId": "Estado",
+    "Country": "Pais",
+    "IsProvider": "Proveedor",
+    "Credit": "Credito",
+    "Contact": "Contacto",
+    "CompanyId": "Compañia"
+  },
+  "3": {
+    "JobPositionId": "ID del Puesto de Trabajo",
+    "Name": "Nombre",
+    "DepartmentId": "Departamento"
+  },
+  "4": {
+    "DepartmentId": "ID del Departamento",
+    "Name": "Nombre",
+    "TotalEmployees": "Total de empleados",
+    "SubContract": "Subcontrato"
+  },
+  "5": {
+    "CommercialAreaId": "ID del Area Comercial",
+    "Name": "Nombre"
+  },
+  "6": {
+    "PerceptionId": "ID de Percepcion",
+    "Key": "Clave",
+    "Description": "Descripcion",
+    "IsHidden": "Oculto"
+  },
+  "7": {
+    "DeductionId": "ID de Deduccion",
+    "Key": "Clave",
+    "Description": "Descripcion",
+    "IsHidden": "Oculto"
+  },
+  "8": {
+    "ProjectID": "ID del Proyecto",
+    "Code": "Codigo",
+    "Name": "Nombre",
+    "StartDate": "Fecha de Inicio",
+    "StatusId": "Estado",
+    "CompanyId": "Compañia",
+    "Description": "Descripcion"
+  },
+  "9": {
+    "CompanyId": "ID de la Compañia",
+    "Name": "Nombre",
+    "TotalWorkers": "Total de trabajadores"
+  }
+}

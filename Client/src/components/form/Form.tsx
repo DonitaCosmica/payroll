@@ -13,7 +13,7 @@ interface Props {
 }
 
 export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }): JSX.Element => {
-  const { option, title, formSize, url, data, keys } = useContext(NavigationContext)
+  const { option, title, formSize, url, data, columnNames } = useContext(NavigationContext)
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
   const [formData, setFormData] = useState<{ [key: string]: string }>({})
 
@@ -46,7 +46,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
 
   useEffect(() => {
     if (toolbarOption === 1 && idSelected) {
-      const objectsForm = createObject(data, keys)
+      const objectsForm = createObject(data, columnNames)
       if (objectsForm) {
         const initialFormData = Object.keys(objectsForm).reduce((acc, key: string) => {
           acc[key] = String(objectsForm[key])
@@ -55,7 +55,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
         setFormData(initialFormData)
       }
     }
-  }, [ toolbarOption, idSelected, data, keys ])
+  }, [ toolbarOption, idSelected, data, columnNames ])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>): void => {
     const { id, value } = e.target
@@ -101,7 +101,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
   }
 
   const elements = useMemo(() => {
-    const objectsForm = createObject(data, keys)
+    const objectsForm = createObject(data, columnNames)
     return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType }: FieldConfig, index: number) => {
       const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
       const appendCurrentGroup = (group: JSX.Element[]) =>
@@ -156,7 +156,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
         return [...acc.slice(0, -1), <div key={`input-group-${index}`} className='input-group'>{[...currentGroup, fieldElement]}</div>]
       }
     }, [])
-  }, [ fieldsConfig, option, dropdownData, toolbarOption, idSelected, data, keys ])
+  }, [ fieldsConfig, option, dropdownData, toolbarOption, idSelected, data, columnNames ])
 
   return (
     <section className='background'>

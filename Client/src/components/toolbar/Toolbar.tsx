@@ -2,7 +2,7 @@ import { useContext, useMemo, useState } from "react"
 import { type IconDefinition } from "../../types"
 import { ICON_OPTIONS } from "../../utils/icons"
 import { NavigationContext, NavigationActionKind } from "../../context/Navigation"
-import { AiFillHome, AiOutlineSearch } from "react-icons/ai"
+import { AiOutlineSearch } from "react-icons/ai"
 import { BsThreeDotsVertical } from "react-icons/bs"
 import { DropMenu } from "../dropmenu/DropMenu"
 import './Toolbar.css'
@@ -73,13 +73,10 @@ export const Toolbar: React.FC<Props> = ({ selectedId, setToolbarOption, setShow
       <div 
         className="container" 
         style={{ 
-          gridTemplateColumns: `${ showMoreOptions ? '10% auto auto': '15% auto' }`,
+          gridTemplateColumns: `${ showMoreOptions ? 'auto auto': 'auto' }`,
           width: `${ showMoreOptions ? '45%': '30%' }`
         }}
       >
-        <div className='home'>
-          <AiFillHome fontSize='1.25rem' color="#333" />
-        </div>
         <div className='main-options'>
           <IconSection 
             options={ showMoreOptions ? options.slice(0, end) : options }

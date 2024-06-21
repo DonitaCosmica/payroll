@@ -13,27 +13,6 @@
   height: 100%;
 }
 
-.toolbar > .container > .home {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.toolbar > .container > .home:hover > svg {
-  background-color: #0747A6;
-  color: #fff !important;
-  transition: all 0.5s ease;
-}
-
-.toolbar > .container > .home > svg {
-  width: 40%;
-  height: auto;
-  padding: 5px;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.5s ease;
-}
-
 .toolbar > .container > :where(.main-options, .other-options) {
   display: flex;
   justify-content: space-evenly;
@@ -41,7 +20,7 @@
   margin: 0 10px;
 }
 
-.toolbar > .container :where(.home, .main-options) {
+.toolbar > .container > .main-options {
   border-right: 1px solid #666565;
 }
 
@@ -108,6 +87,13 @@
   border: solid 1px #ddd;
   border-radius: 5px;
   padding: 5px;
+  transition: 0.5s ease-in-out;
+}
+
+.toolbar > .search > input[type='text']:focus {
+  outline: none !important;
+  border: 1px solid #0747A6;
+  transition: 0.5s ease-in-out;
 }
 
 .toolbar > .search > svg {
