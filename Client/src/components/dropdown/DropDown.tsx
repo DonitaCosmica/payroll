@@ -6,7 +6,7 @@ interface Props {
   options: IDropDownMenu[] | [],
   selectedId: string,
   value: string,
-  setFormData:(value:  React.SetStateAction<{ [key: string]: string }>) => void
+  setFormData: React.MutableRefObject<{ [key: string]: string }>
 }
 
 export const DropDown: React.FC<Props> = ({ options, selectedId, value, setFormData }): JSX.Element => {
@@ -20,10 +20,7 @@ export const DropDown: React.FC<Props> = ({ options, selectedId, value, setFormD
   const handleChange = (event: ChangeEvent<HTMLSelectElement>): void => {
     const { id, value } = event.target
     setSelectedValue(value)
-    setFormData(prevFormData => ({
-      ...prevFormData,
-      [id]: value
-    }))
+    setFormData.current[id] = value
   }
 
   const filterAttributesContainingId = (obj: IDropDownMenu): string | undefined => {

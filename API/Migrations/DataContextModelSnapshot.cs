@@ -139,7 +139,7 @@ namespace API.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
-                    b.Property<decimal>("BankAccocunt")
+                    b.Property<decimal>("BankAccount")
                         .HasColumnType("decimal(20,0)");
 
                     b.Property<string>("BankId")

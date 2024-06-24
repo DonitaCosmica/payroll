@@ -61,7 +61,7 @@ namespace Payroll.Controllers
           employeeDTO.Company = result.CompanyName;
           employeeDTO.Bank = result.BankName;
           employeeDTO.InterbankCode = result.Employee.InterbankCode;
-          employeeDTO.BankAccocunt =  result.Employee.BankAccocunt;
+          employeeDTO.BankAccount =  result.Employee.BankAccount;
           employeeDTO.BankPortalID = result.Employee.BankPortalID;
           employeeDTO.IsAStarter = result.Employee.IsAStarter;
           employeeDTO.Regime = result.RegimeName;
@@ -173,7 +173,7 @@ namespace Payroll.Controllers
         BankId = employeeCreate.Bank,
         Bank = result.Bank,
         InterbankCode = employeeCreate.InterbankCode,
-        BankAccocunt = employeeCreate.BankAccocunt,
+        BankAccount = employeeCreate.BankAccount,
         BankPortalID = employeeCreate.BankPortalID,
         IsAStarter = employeeCreate.IsAStarter,
         RegimeId = employeeCreate.Regime,

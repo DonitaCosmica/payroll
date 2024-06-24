@@ -26,7 +26,7 @@ namespace Payroll.Models
     public Bank Bank { get; set; } = new();
     [Required]
     public ulong InterbankCode { get; set; }
-    public ulong BankAccocunt { get; set; }
+    public ulong BankAccount { get; set; }
     [Required]
     public ulong BankPortalID { get; set; }
     public bool IsAStarter { get; set; }

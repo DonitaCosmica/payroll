@@ -20,6 +20,7 @@ interface NavigationState {
   option: NavigationActionKind,
   loading: boolean,
   url?: string
+  keys: string[],
   columnNames: string[],
   data: (string | number)[][],
   formSize: number,
@@ -29,8 +30,9 @@ interface NavigationState {
 interface NavigationAction {
   type: NavigationActionKind,
   payload?: {
-    columns: string[],
-    newData: (number | string)[][]
+    columns?: string[],
+    newData?: (number | string)[][],
+    names?: string[]
   } 
 }
 
@@ -61,6 +63,7 @@ const INITIAL_STATE: NavigationState = {
   option: NavigationActionKind.PAYROLLRECEIPTS,
   loading: false,
   url: '',
+  keys: [],
   columnNames: [],
   data: [[]],
   formSize: 75,
@@ -77,10 +80,11 @@ const NavigationReducer = (state: NavigationState, action: NavigationAction): Na
 
   switch(type) {
     case NavigationActionKind.UPDATEDATA: {
-      const { columns = state.columnNames, newData = state.data } = payload || {}
+      const { columns = state.keys, newData = state.data, names = state.columnNames } = payload || {}
       return {
         ...state,
-        columnNames: columns,
+        columnNames: names,
+        keys: columns,
         data: newData,
         loading: false
       }
@@ -110,6 +114,22 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
   const [state, dispatch] = useReducer(NavigationReducer, INITIAL_STATE)
 
   useEffect(() => {
+    const loadTranslations = async ({ opt }: { opt: NavigationActionKind }): Promise<Record<string, string>> => {
+      try {
+        const res: Response = await fetch('/src/utils/translations.json')
+        const data = await res.json()
+        return data[opt]
+      } catch (error) {
+        console.error('Error loading translations: ', error)
+        return {} as Record<string, string>
+      }
+    }
+
+    const translateColumns = async ({ opt, columns }: { opt: NavigationActionKind, columns: string[] }): Promise<string[]> => {
+      const columnsDictionary: Record<string, string> = await loadTranslations({ opt })
+      return columns.map((column: string) => columnsDictionary[column] || column)
+    }
+
     const fetchInfo = async (): Promise<void> => {
       try {
         if(state.url) {
@@ -117,10 +137,10 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
           const data: IdataResponse = await res.json()
           const values: IdataResponse[] = Object.values(data)
           const columns: string[] = Array.isArray(values[0]) ? values[0] : []
+          const names = await translateColumns({ opt: state.option, columns })
           const newData: (string | number)[][] = Array.isArray(values[1]) ?
             values[1].map((info: (string | number)) => Object.values(info)) : []
-          console.log({ columns })
-          dispatch({ type: NavigationActionKind.UPDATEDATA, payload: { columns, newData } })
+          dispatch({ type: NavigationActionKind.UPDATEDATA, payload: { columns, newData, names } })
         }
       } catch (error) {
         console.error(error)

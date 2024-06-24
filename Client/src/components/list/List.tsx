@@ -10,7 +10,7 @@ interface Props {
 }
 
 export const List: React.FC<Props> = ({ setId, setShowForm, setToolbarOption }): JSX.Element => {
-  const { columnNames, data } = useContext(NavigationContext)
+  const { keys, data, columnNames } = useContext(NavigationContext)
 
   const getIdSelected = (info: (number | string)[]): void => {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -30,9 +30,9 @@ export const List: React.FC<Props> = ({ setId, setShowForm, setToolbarOption }):
         <table className='content'>
           <thead>
             <tr>
-              {columnNames.map((filter: string) => (
+              {keys.map((filter: string, index: number) => (
                 <th key={filter}>
-                  <p>{ filter }</p>
+                  <p>{ columnNames[index] }</p>
                   <div className="filter-list">
                     <MdArrowDropUp />
                     <MdArrowDropDown />

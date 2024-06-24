@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { NavigationContext } from '../../context/Navigation'
 import { type IDropDownMenu, type FieldConfig } from '../../types'
 import { DropDown } from '../dropdown/DropDown'
@@ -13,9 +13,10 @@ interface Props {
 }
 
 export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }): JSX.Element => {
-  const { option, title, formSize, url, data, columnNames } = useContext(NavigationContext)
+  const { option, title, formSize, url, data, keys } = useContext(NavigationContext)
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
-  const [formData, setFormData] = useState<{ [key: string]: string }>({})
+  const formData = useRef<{ [key: string]: string }>({})
+  const [submitCount, setSubmitCount] = useState<number>(0)
 
   useEffect(() => {
     const fetchDropdownData = async (): Promise<void> => {
@@ -42,27 +43,24 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
     }
 
     fetchDropdownData()
-  }, [ option ])
+  }, [ option, submitCount ])
 
   useEffect(() => {
     if (toolbarOption === 1 && idSelected) {
-      const objectsForm = createObject(data, columnNames)
+      const objectsForm = createObject(data, keys)
       if (objectsForm) {
         const initialFormData = Object.keys(objectsForm).reduce((acc, key: string) => {
           acc[key] = String(objectsForm[key])
           return acc
         }, {} as { [key: string]: string })
-        setFormData(initialFormData)
+        formData.current = initialFormData
       }
     }
-  }, [ toolbarOption, idSelected, data, columnNames ])
+  }, [ toolbarOption, idSelected, data, keys ])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>): void => {
     const { id, value } = e.target
-    setFormData(prevFormData => ({
-      ...prevFormData,
-      [id]: value
-    }))
+    formData.current[id] = value
   }
 
   const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>): Promise<void> => {
@@ -72,11 +70,12 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
        headers: {
         'Content-Type': 'application/json'
        },
-       body: JSON.stringify(formData)
+       body: JSON.stringify(formData.current)
     }
-    
-    await fetch(idSelected ? `${String(url)}/${idSelected}` : String(url), requestOptions)
+
+    await fetch(idSelected && toolbarOption === 1 ? `${String(url)}/${idSelected}` : String(url), requestOptions)
     setShowForm(false)
+    setSubmitCount(submitCount + 1)
   }
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement | SVGElement>): void => {
@@ -101,7 +100,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
   }
 
   const elements = useMemo(() => {
-    const objectsForm = createObject(data, columnNames)
+    const objectsForm = createObject(data, keys)
     return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType }: FieldConfig, index: number) => {
       const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
       const appendCurrentGroup = (group: JSX.Element[]) =>
@@ -137,7 +136,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
                   options={ dropdownData[id ?? ''] } 
                   selectedId={ id ?? '' }
                   value={ toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : '0' }
-                  setFormData={ setFormData } 
+                  setFormData={ formData } 
                 />
               ) : type === 'textarea' ? (
                 <textarea
@@ -156,7 +155,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
         return [...acc.slice(0, -1), <div key={`input-group-${index}`} className='input-group'>{[...currentGroup, fieldElement]}</div>]
       }
     }, [])
-  }, [ fieldsConfig, option, dropdownData, toolbarOption, idSelected, data, columnNames ])
+  }, [ fieldsConfig, option, dropdownData, toolbarOption, idSelected, data, keys ])
 
   return (
     <section className='background'>

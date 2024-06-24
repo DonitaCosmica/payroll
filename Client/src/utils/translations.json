@@ -14,11 +14,11 @@
     "Projects": "Proyectos",
     "BankPortalID": "ID del portal bancario",
     "IsAStarter": "Titular",
-    "RegimeId": "ID del Regimen",
+    "RegimeId": "ID del Régimen",
     "NSS": "NSS",
-    "DateAdmission": "Fecha de admision",
+    "DateAdmission": "Fecha de admisión",
     "JobPositionId": "Puesto de trabajo",
-    "CommercialAreaId": "Area Comercial",
+    "CommercialAreaId": "Área Comercial",
     "ContractId": "Contrato",
     "BaseSalary": "Salario Base",
     "DailySalary": "Salario Diario",
@@ -26,14 +26,15 @@
     "FederalEntityId": "Entidad Federal",
     "Phone": "Celular",
     "Email": "Correo",
-    "Direction": "Direccion",
+    "Direction": "Dirección",
     "Suburb": "Colonia",
     "PostalCode": "Codigo Postal",
     "City": "Ciudad",
     "StateId": "Estado",
-    "Country": "Pais",
+    "Country": "País",
     "IsProvider": "Proveedor",
-    "Credit": "Credito",
+    "StatusId": "Estado",
+    "Credit": "Crédito",
     "Contact": "Contacto",
     "CompanyId": "Compañia"
   },
@@ -49,29 +50,29 @@
     "SubContract": "Subcontrato"
   },
   "5": {
-    "CommercialAreaId": "ID del Area Comercial",
+    "CommercialAreaId": "ID del Área Comercial",
     "Name": "Nombre"
   },
   "6": {
-    "PerceptionId": "ID de Percepcion",
+    "PerceptionId": "ID de Percepción",
     "Key": "Clave",
-    "Description": "Descripcion",
+    "Description": "Descripción",
     "IsHidden": "Oculto"
   },
   "7": {
-    "DeductionId": "ID de Deduccion",
+    "DeductionId": "ID de Deducción",
     "Key": "Clave",
-    "Description": "Descripcion",
+    "Description": "Descripción",
     "IsHidden": "Oculto"
   },
   "8": {
-    "ProjectID": "ID del Proyecto",
-    "Code": "Codigo",
+    "ProjectId": "ID del Proyecto",
+    "Code": "Código",
     "Name": "Nombre",
     "StartDate": "Fecha de Inicio",
     "StatusId": "Estado",
     "CompanyId": "Compañia",
-    "Description": "Descripcion"
+    "Description": "Descripción"
   },
   "9": {
     "CompanyId": "ID de la Compañia",

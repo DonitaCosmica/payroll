@@ -9,7 +9,7 @@ namespace Payroll.DTO
     public string CURP { get; set; } = default!;
     public string Bank { get; set; } = default!;
     public ulong InterbankCode { get; set; }
-    public ulong BankAccocunt { get; set; }
+    public ulong BankAccount { get; set; }
     public ulong BankPortalID { get; set; }
     public bool IsAStarter { get; set; }
     public List<string> Projects { get; set; } = [];
