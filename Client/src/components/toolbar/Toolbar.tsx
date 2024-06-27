@@ -1,10 +1,10 @@
 import { useContext, useMemo, useState } from "react"
-import { type IconDefinition } from "../../types"
 import { ICON_OPTIONS } from "../../utils/icons"
 import { NavigationContext, NavigationActionKind } from "../../context/Navigation"
 import { AiOutlineSearch } from "react-icons/ai"
 import { BsThreeDotsVertical } from "react-icons/bs"
 import { DropMenu } from "../dropmenu/DropMenu"
+import { IconSection } from "../iconSection/IconSection"
 import './Toolbar.css'
 
 interface Props {
@@ -12,17 +12,6 @@ interface Props {
   setToolbarOption: React.Dispatch<React.SetStateAction<number>>
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
 }
-
-const IconSection = ({ options, handleForm }: { options: IconDefinition[], handleForm: (index: number) => void }): JSX.Element => (
-  <>
-    { options.map((option: IconDefinition, index: number) => (
-      <div className="option" key={ option.label } onClick={() => handleForm(index)}>
-        { option.icon }
-        <p>{ option.label }</p>
-      </div>
-    )) }
-  </>
-)
 
 export const Toolbar: React.FC<Props> = ({ selectedId, setToolbarOption, setShowForm }): JSX.Element => {
   const { option, url } = useContext(NavigationContext)
@@ -47,19 +36,22 @@ export const Toolbar: React.FC<Props> = ({ selectedId, setToolbarOption, setShow
     NavigationActionKind.PROJECTCATALOG
   ].includes(option)
 
-  const handleForm = async (index: number): Promise<void> => {
+  const handleForm = async (index: number, label: string): Promise<void> => {
+    const isInvalidAction = label !== 'Nuevo' && label !== 'Editar' && label !== 'Eliminar'
+    if (isInvalidAction) return
+    
     const isInvalidSelection = (index === 1 || index === 2) && selectedId === ''
     if (isInvalidSelection) return
-
 
     (index === 2) ? await deleteResource() : showFormAndSetToolbar(index)
   }
 
   const deleteResource = async (): Promise<void> => {
+    if (!selectedId) return
     const requestOptions: { method: string } = {
       method: 'DELETE'
     }
-    
+      
     await fetch(`${url}/${selectedId}`, requestOptions)
   }
 
@@ -80,20 +72,21 @@ export const Toolbar: React.FC<Props> = ({ selectedId, setToolbarOption, setShow
         <div className='main-options'>
           <IconSection 
             options={ showMoreOptions ? options.slice(0, end) : options }
-            handleForm={ handleForm } 
+            handleForm={ handleForm }
           />
         </div>
         {showMoreOptions && (
           <div className='other-options'>
-            <IconSection 
+            <IconSection
+              action={ option }
               options={ options.slice(end) }
-              handleForm={ handleForm } 
+              handleForm={ handleForm }
             />
           </div>
         )}
       </div>
       <div className='search'>
-        <input type="text" placeholder="Busqueda..." autoComplete='off'></input>
+        <input type="text" name="search" id="search" placeholder="Busqueda..." autoComplete='off'></input>
         <AiOutlineSearch />
       </div>
       {

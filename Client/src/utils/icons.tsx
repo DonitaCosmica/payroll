@@ -71,7 +71,7 @@ export const ICON_OPTIONS: {
     [NavigationActionKind.UPDATEDATA]: [],
     [NavigationActionKind.ERROR]: []
   }
-}
+} as const
 
 export const MENU_ICONS: IconDefinition[] = [
   { icon: <BiBuildings color='#dd7e7b' />, label: 'Empresas' }, 
@@ -80,4 +80,4 @@ export const MENU_ICONS: IconDefinition[] = [
   { icon: <FiUsers color='#0747A6' />, label: 'Usuarios' }, 
   { icon: <FaComments color='#b123ae' />, label: 'Soporte' }, 
   { icon: <BiLogOut color='#d95a54' />, label: 'Cerrar Sesión' }
-]
+] as const

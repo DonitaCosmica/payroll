@@ -1,18 +1,7 @@
 import { useContext } from 'react'
 import { NavigationContext } from '../../context/Navigation'
+import { LINKS } from '../../consts'
 import './Navbar.css'
-
-const links: string[] = [
-  'RECIBOS DE NOMINA',
-  'TRABAJADORES',
-  'PUESTOS',
-  'DEPARTAMENTOS',
-  'AREAS COMERCIALES',
-  'PERCEPCIONES',
-  'DEDUCCIONES',
-  'CATALOGO DE PROYECTOS',
-  'EMPRESAS'
-]
 
 export const Navbar = (): JSX.Element => {
   const { dispatch, option } = useContext(NavigationContext)
@@ -20,7 +9,7 @@ export const Navbar = (): JSX.Element => {
   return (
     <nav className='navbar'>
       {
-        links.map((link: string, index: number) => (
+        LINKS.map((link: string, index: number) => (
           <div 
             className={`link ${ option === index + 1 ? 'selected' : '' }`} 
             key={ link } 

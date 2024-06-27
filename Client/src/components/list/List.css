@@ -12,38 +12,38 @@
   overflow-x: scroll;
 }
 
-.list-container > .content {
+.content {
   border-collapse: collapse;
   table-layout: fixed;
   width: max-content;
 }
 
-.list-container > .content > thead > tr {
+.content > thead > tr {
   background-color: #ededed;
   border: 1px solid #ddd;
 }
 
-.list-container > .content > tbody > tr:nth-child(even) {
+.content > tbody > tr:nth-child(even) {
   background-color: #f3f3f3;
 }
 
-.list-container > .content > :is(thead, tbody) > tr > :where(th, td) > p {
+.content > :is(thead, tbody) > tr > :where(th, td) > p {
   text-align: center;
   padding: 10px 20px;
   font-size: 0.8rem;
 }
 
-.list-container > .content > thead > tr > th {
+.content > thead > tr > th {
   position: relative;
   border-right: 1px solid #ddd;
   cursor: pointer;
 }
 
-.list-container > .content > thead > tr > th > p {
+.content > thead > tr > th > p {
   margin-right: 10px;
 }
 
-.list-container > .content > thead > tr > th > .filter-list {
+.content > thead > tr > th > .filter-list {
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -53,20 +53,31 @@
   top: 0;
 }
 
-.list-container > .content > thead > tr > th > .filter-list > svg:first-child {
+.content > thead > tr > th > .filter-list > svg:first-child {
   transform: translateY(35%);
 }
 
-.list-container > .content > thead > tr > th > .filter-list > svg:last-child {
+.content > thead > tr > th > .filter-list > svg:last-child {
   transform: translateY(-35%);
 }
 
-.list-container > .content > tbody > tr:hover {
+.content > tbody > tr {
+  cursor: pointer;
+  transition: all 0.35s ease-in;
+}
+
+.content > tbody > .selected-row {
+  background-color: #489aff !important;
+  color: #fff;
+  transition: all 0.35s ease-out;
+}
+
+.content > tbody > tr:hover {
   background-color: #489aff;
   color: #fff;
   transition: all 0.35s ease;
 }
 
-.list-container > .content > tbody > tr > td {
+.content > tbody > tr > td {
   text-align: left;
 }

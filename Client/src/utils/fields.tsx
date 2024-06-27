@@ -74,4 +74,4 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
   ],
   [NavigationActionKind.UPDATEDATA]: [],
   [NavigationActionKind.ERROR]: []
-}
+} as const

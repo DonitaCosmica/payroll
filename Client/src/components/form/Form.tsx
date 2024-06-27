@@ -13,10 +13,9 @@ interface Props {
 }
 
 export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }): JSX.Element => {
-  const { option, title, formSize, url, data, keys } = useContext(NavigationContext)
+  const { option, title, formSize, url, data, keys, submitCount, setSubmitCount } = useContext(NavigationContext)
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
   const formData = useRef<{ [key: string]: string }>({})
-  const [submitCount, setSubmitCount] = useState<number>(0)
 
   useEffect(() => {
     const fetchDropdownData = async (): Promise<void> => {
@@ -43,7 +42,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
     }
 
     fetchDropdownData()
-  }, [ option, submitCount ])
+  }, [ option ])
 
   useEffect(() => {
     if (toolbarOption === 1 && idSelected) {
@@ -161,7 +160,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
     <section className='background'>
       <div className='form-container' style={{ height: `${formSize}%` }}>
         <FaArrowLeft onClick={ handleCancel } />
-        <h2>{`Crear ${title}`}</h2>
+        <h2>{`${ toolbarOption === 0 ? 'Crear' :'Editar' } ${ title }`}</h2>
         <form className='fields-container' onSubmit={ handleSubmit }>
           {elements}
           <div className='button-container'>

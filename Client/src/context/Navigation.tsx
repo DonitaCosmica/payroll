@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useEffect, useReducer } from "react"
+import { createContext, ReactNode, useEffect, useReducer, useState } from "react"
 import { type IdataResponse } from "../types"
 
 export enum NavigationActionKind {
@@ -37,7 +37,9 @@ interface NavigationAction {
 }
 
 interface NavigationContextType extends NavigationState {
-  dispatch: React.Dispatch<NavigationAction>
+  dispatch: React.Dispatch<NavigationAction>,
+  submitCount: number,
+  setSubmitCount: React.Dispatch<React.SetStateAction<number>>
 }
 
 interface Props {
@@ -66,13 +68,32 @@ const INITIAL_STATE: NavigationState = {
   keys: [],
   columnNames: [],
   data: [[]],
-  formSize: 75,
+  formSize: 0,
   error: null
 } as const
 
+const loadStateFromLocalStorage = (): NavigationState => {
+  const storedState = localStorage.getItem('navigationState')
+  if (storedState) {
+    const savedState = JSON.parse(storedState)
+    return {
+      ...savedState,
+      keys: [],
+      columnNames: [],
+      data: [[]],
+      loading: false,
+      error: null
+    } as const
+  }
+
+  return INITIAL_STATE
+}
+
 export const NavigationContext: React.Context<NavigationContextType> = createContext<NavigationContextType>({
-  ...INITIAL_STATE, 
-  dispatch: () => {}
+  ...loadStateFromLocalStorage(), 
+  dispatch: () => {},
+  submitCount: 0,
+  setSubmitCount: () => {}
 })
 
 const NavigationReducer = (state: NavigationState, action: NavigationAction): NavigationState => {
@@ -111,7 +132,8 @@ const NavigationReducer = (state: NavigationState, action: NavigationAction): Na
 }
 
 export const NavigationProvider: React.FC<Props> = ({ children }) => {
-  const [state, dispatch] = useReducer(NavigationReducer, INITIAL_STATE)
+  const [state, dispatch] = useReducer(NavigationReducer, loadStateFromLocalStorage())
+  const [submitCount, setSubmitCount] = useState<number>(0)
 
   useEffect(() => {
     const loadTranslations = async ({ opt }: { opt: NavigationActionKind }): Promise<Record<string, string>> => {
@@ -130,6 +152,12 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
       return columns.map((column: string) => columnsDictionary[column] || column)
     }
 
+    const saveToLocalStorage = (): void => {
+      const { option, formSize, url, title } = state
+      const stateToSave = { option, formSize, url, title }
+      localStorage.setItem('navigationState', JSON.stringify(stateToSave))
+    }
+
     const fetchInfo = async (): Promise<void> => {
       try {
         if(state.url) {
@@ -141,6 +169,7 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
           const newData: (string | number)[][] = Array.isArray(values[1]) ?
             values[1].map((info: (string | number)) => Object.values(info)) : []
           dispatch({ type: NavigationActionKind.UPDATEDATA, payload: { columns, newData, names } })
+          saveToLocalStorage()
         }
       } catch (error) {
         console.error(error)
@@ -149,13 +178,15 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
     }
 
     fetchInfo()
-  }, [state.url])
+  }, [ state.url, submitCount ])
 
   return (
     <NavigationContext.Provider
       value={{
         ...state,
-        dispatch
+        dispatch,
+        submitCount,
+        setSubmitCount
       }}
     >
       { children }

@@ -1,17 +1,31 @@
 .drop-menu-dates > ul > .container > .year-filter {
+  display: flex;
+  align-items: center;
   padding: 5px;
   background-color: #e2e2e2;
   cursor: pointer;
+  transition: 0.5s ease-out;
+}
+
+.drop-menu-dates > ul > .container > .year-filter:hover {
+  background-color: #a5a5a5;
+  transition: 0.5s ease-in;
+}
+
+.drop-menu-dates > ul > .container > .year-filter > svg {
+  margin-right: 5px;
 }
 
 .drop-menu-dates > ul > .container > .accordion > li {
   font-size: 0.9rem;
   padding: 10px 15px;
   cursor: pointer;
+  transition: 0.5s ease-out;
 }
 
 .drop-menu-dates > ul > .container > .accordion > li:hover {
   background-color: #eee;
+  transition: 0.5s ease-in;
 }
 
 .drop-menu-dates > ul > .container > .accordion.collapsed {

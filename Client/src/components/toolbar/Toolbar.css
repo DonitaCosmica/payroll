@@ -24,53 +24,6 @@
   border-right: 1px solid #666565;
 }
 
-.toolbar > .container > :is(.main-options, .other-options) > .option {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.toolbar > .container > :is(.main-options, .other-options) > .option::before,
-.toolbar > .container > :is(.main-options, .other-options) > .option::after {
-  position: absolute;
-  content: '';
-  height: 50%;
-  width: 25%;
-  transition: all 0.35s ease;
-  opacity: 0;
-}
-
-.toolbar > .container > :is(.main-options, .other-options) > .option::before {
-  right: 0;
-  top: 0;
-  border-top: 2px solid #6c99dd;
-  border-right: 2px solid #0747A6;
-  transform: translate(-100%, 50%);
-}
-
-.toolbar > .container > :is(.main-options, .other-options) > .option::after {
-  left: 0;
-  bottom: 0;
-  border-bottom: 2px solid #6c99dd;
-  border-left: 2px solid #0747A6;
-  transform: translate(100%, -50%);
-}
-
-.toolbar > .container > :is(.main-options, .other-options) > .option:hover:before,
-.toolbar > .container > :is(.main-options, .other-options) > .option:hover:after {
-  transform: translate(0,0);
-  opacity: 1;
-}
-
-.toolbar > .container > :is(.main-options, .other-options) > .option > p {
-  font-size: 0.8rem;
-  margin-left: 5px;
-}
-
 .toolbar > .search {
   position: relative;
   display: flex;

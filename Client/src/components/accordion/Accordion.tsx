@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { IoIosArrowForward } from "react-icons/io"
 import './Accordion.css'
 
 interface Props {
@@ -16,6 +17,7 @@ export const Accordion: React.FC<Props> = ({ year }) => {
   return (
     <div className='container'>
       <li className='year-filter' onClick={ handleCollapsed }>
+        <IoIosArrowForward />
         <strong>{ year }</strong>
       </li>
       <ul className={`accordion ${ isCollapsed ? 'collapsed' : 'expanded' }`}>
