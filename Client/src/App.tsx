@@ -17,7 +17,7 @@ function App(): JSX.Element {
 
   return (
     <main className='payroll'>
-      <Titlebar />
+      <Titlebar action='print' />
       <Navbar />
       { option === 1 && <Filter /> }
       <Toolbar

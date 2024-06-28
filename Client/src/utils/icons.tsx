@@ -1,7 +1,7 @@
 import { type IconDefinition } from "../types"
 import { NavigationActionKind } from "../context/Navigation"
 import { AiOutlinePrinter, AiFillFlag, AiOutlineStop } from "react-icons/ai"
-import { BsBoxArrowInDownLeft, BsDownload } from "react-icons/bs"
+import { BsBoxArrowInDownLeft, BsDownload, BsArrowClockwise, BsFiletypePdf , BsFiletypeXls  } from "react-icons/bs"
 import { BiEditAlt, BiSolidCalculator, BiBuildings, BiSolidCheckShield, BiLogOut } from "react-icons/bi"
 import { TbReportSearch, TbCalendarTime } from "react-icons/tb"
 import { HiOutlineKey } from "react-icons/hi2"
@@ -9,6 +9,9 @@ import { GrAdd } from "react-icons/gr"
 import { RiDeleteBin6Line } from "react-icons/ri"
 import { FiSettings, FiUsers } from "react-icons/fi"
 import { FaComments } from "react-icons/fa6"
+import { MdOutlineEmail } from "react-icons/md"
+import { PiPrinter } from "react-icons/pi"
+import { TfiClose } from "react-icons/tfi"
 
 export const ICON_OPTIONS: {
   common: IconDefinition[]
@@ -81,3 +84,12 @@ export const MENU_ICONS: IconDefinition[] = [
   { icon: <FaComments color='#b123ae' />, label: 'Soporte' }, 
   { icon: <BiLogOut color='#d95a54' />, label: 'Cerrar Sesión' }
 ] as const
+
+export const PRINT_ICONS: IconDefinition[] = [
+  { icon: <TfiClose />, label: 'Cerrar' },
+  { icon: <BsArrowClockwise />, label: 'Recargar' },
+  { icon: <PiPrinter />, label: 'Imprimir' },
+  { icon: <MdOutlineEmail />, label: 'Enviar' },
+  { icon: <BsFiletypePdf />, label: 'Exportar a pdf' },
+  { icon: <BsFiletypeXls />, label: 'Exportar a Excel' },
+]
