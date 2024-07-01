@@ -86,10 +86,10 @@ export const MENU_ICONS: IconDefinition[] = [
 ] as const
 
 export const PRINT_ICONS: IconDefinition[] = [
-  { icon: <TfiClose />, label: 'Cerrar' },
-  { icon: <BsArrowClockwise />, label: 'Recargar' },
-  { icon: <PiPrinter />, label: 'Imprimir' },
-  { icon: <MdOutlineEmail />, label: 'Enviar' },
-  { icon: <BsFiletypePdf />, label: 'Exportar a pdf' },
-  { icon: <BsFiletypeXls />, label: 'Exportar a Excel' },
+  { icon: <TfiClose color="#fff" fontSize='1.3rem' />, label: 'Cerrar' },
+  { icon: <BsArrowClockwise color="#fff" fontSize='1.3rem' />, label: 'Recargar' },
+  { icon: <PiPrinter color="#fff" fontSize='1.3rem' />, label: 'Imprimir' },
+  { icon: <MdOutlineEmail color="#fff" fontSize='1.3rem' />, label: 'Enviar' },
+  { icon: <BsFiletypePdf color="#fff" fontSize='1.3rem' />, label: 'Exportar a pdf' },
+  { icon: <BsFiletypeXls color="#fff" fontSize='1.3rem' />, label: 'Exportar a Excel' },
 ]

@@ -1,9 +1,9 @@
 import React from 'react'
 import ReactDOMServer from 'react-dom/server'
+import { createRoot } from 'react-dom/client'
 import { type IconDefinition } from "../../types"
 import { Titlebar } from '../titlebar/Titlebar'
 import './DropMenu.css'
-import { createRoot } from 'react-dom/client'
 
 interface Props {
   menuOp: IconDefinition[],
@@ -23,11 +23,9 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
 
     const componentHTML = ReactDOMServer.renderToStaticMarkup(<Titlebar action='print' />)
     document.body.removeChild(container)
-    console.log(componentHTML)
 
     const dataToPrint = document.getElementById('data-list')
-    const titlebar = document.getElementById('table-options')
-    if (dataToPrint && titlebar) {
+    if (dataToPrint && componentHTML) {
       const newWin = window.open('', '_blank')
       if (newWin) {
         const styleSheets = Array.from(document.styleSheets).map((styleSheet: CSSStyleSheet) => {
@@ -42,22 +40,62 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
           }
         }).join('')
 
-        const styles = `<style>${styleSheets}</style>`
+        const styles = `<style>${ styleSheets }</style>`
         newWin.document.write(`
           <!DOCTYPE html>
           <html lang="en">
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>New Window</title>
+            <title>Reporte</title>
             ${ styles }
           </head>
-          <body>
-            ${ titlebar.outerHTML }
+          <body style="height: 100vh">
+            ${ componentHTML }
             ${ dataToPrint.outerHTML }
+            <iframe name="print-frame" width="0" height="0" frameborder="0" src="about:blank"></iframe>
             <script>
-              window.onload = function() {
-                console.log('Hola mundo');
+              const styleSheet = document.styleSheets[0].cssRules
+              const cssTextArr = []
+              for (const style of styleSheet) {
+                if (style.cssText.startsWith(".titlebar"))
+                  cssTextArr.push(style.cssText)
+              }
+
+              const closeWindow = () => {
+                console.log("Closing Window")
+              }
+
+              const reloadTable = () => {
+                console.log("Reloading Table")
+              }
+
+              const printTable = () => {
+                window.frames["print-frame"].document.body.innerHTML = document.getElementById("data-list").innerHTML
+                window.frames["print-frame"].window.focus()
+                window.frames["print-frame"].window.print()
+              }
+
+              const sendEmail = () => {
+                console.log("Sending Email")
+              }
+
+              const importPDF = () => {
+                console.log("Importing Table to PDF")
+              }
+
+              const importExcel = () => {
+                console.log("Importing Table to Excel")
+              }
+
+              const actions = [ closeWindow, reloadTable, printTable, sendEmail, importPDF, importExcel ]
+              const printIcons = document.getElementsByClassName("print-icon-container")
+              const actionIterator = actions[Symbol.iterator]()
+
+              for (const container of printIcons) {
+                const action = actionIterator.next().value
+                if (action)
+                  container.addEventListener("click", action)
               }
             </script>
           </body>
