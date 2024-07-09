@@ -57,7 +57,6 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
             </section>
             <iframe name="print-frame" id="print-frame" width="0" height="0" frameborder="0" src="about:blank"></iframe>
             <canvas id="canvas" style="display: none;"></canvas>
-            <img alt="Screenshot will appear here" id="screenshot">
             <script>
               const loadScript = (src) => {
                 return new Promise((resolve, reject) => {
@@ -70,8 +69,13 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
                 })
               }
 
-              loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js').then(() => {
-                console.log('Script loaded successfully.')
+              loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+              .then(() => {
+                console.log("jsPDF loaded successfully.")
+                return loadScript('https://smtpjs.com/v3/smtp.js')
+              })  
+              .then(() => {
+                console.log('All Scripts loaded successfully.')
 
                 const getStylesOfAnElement = ({ prefixes }) => {
                   const styleSheet = [...document.styleSheets[0].cssRules]
@@ -156,13 +160,9 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
                   return canvas.toDataURL("image/png")
                 }
 
-                const closeWindow = () => {
-                  console.log("Closing Window")
-                }
+                const closeWindow = () => window.close()
 
-                const reloadTable = () => {
-                  console.log("Reloading Table")
-                }
+                const reloadTable = () => location.reload()
 
                 const printTable = () => {
                   const cssText = getStylesOfAnElement({ prefixes: [".content", "*"] })
@@ -188,8 +188,6 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
                 };
 
                 const importPDF = () => {
-                  /*const dataURL = drawHTMLToCanvas(document.getElementById("content"))
-                  document.getElementById('screenshot').src = dataURL*/
                   const { jsPDF } = jspdf
                   const doc = new jsPDF()
                   const img = new Image()
@@ -208,7 +206,25 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
                 }
 
                 const importExcel = () => {
-                  console.log("Importing Table to Excel")
+                  const table = document.getElementById("data-list")
+                  const csvContent = Array.from(table.rows).reduce((csv, row) => {
+                    const rowData = Array.from(row.cells).reduce((data, cell) => {
+                      const cellText = Array.from(cell.children).map(child => child.innerText).join(',')
+                      return [...data, cellText]
+                    }, []).join(',')
+
+                    return \`\${ csv }\${ rowData }\n\`
+                  }, '')
+
+                  const blob = new Blob([csvContent], { type: 'text/csv' })
+                  const url = URL.createObjectURL(blob)
+                  const link = document.createElement('a')
+
+                  link.href = url
+                  link.download = 'table.csv'
+                  document.body.appendChild(link)
+                  link.click()
+                  document.body.removeChild(link)
                 }
 
                 const actions = [closeWindow, reloadTable, printTable, sendEmail, importPDF, importExcel]
