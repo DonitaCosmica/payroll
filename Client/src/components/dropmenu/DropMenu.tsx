@@ -49,11 +49,159 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Reporte</title>
             ${ styles }
+            <style>
+              #background {
+                position: absolute;
+                display: none;
+                justify-content: center;
+                align-items: center;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(rgba(0, 0, 0, .7), rgba(0, 0, 0, .7));
+              }
+
+              .mail-form-container {
+                width: 50%;
+                background-color: #fff;
+                border-radius: 15px;
+                padding: 25px;
+              }
+
+              .mail-form-container > h2 {
+                text-align: center;
+                margin-bottom: 15px;
+              }
+
+              .info {
+                display: flex;
+                align-items: flex-start;
+                width: 100%
+                padding: 15px;
+                margin: 10px 0;
+              }
+
+              .info > p {
+                width: 92%;
+                padding: 5px 0 5px 5px;
+                font-size: 0.8rem;
+                border-radius: 10px;
+                background-color: #f3f3f3;
+              }
+
+              .info > label {
+                width: 7%;
+                text-align: right;
+                margin-right: 1%;
+                font-size: 0.9rem;
+                padding: 5px 0;
+              }
+
+              .info > textarea {
+                resize: none;
+              }
+
+              .info > input {
+                font-size: 0.8rem;
+              }
+
+              .info > :where(textarea, input) {
+                width: 92%;
+                padding: 10px;
+                border-radius: 10px;
+                font-size: 0.8rem;
+                border: 1px solid #000;
+                transition: 0.35s ease;
+              }
+
+              .info > :where(textarea, input):focus {
+                outline: none !important;
+                border: 1px solid #489aff;
+                transition: 0.35s ease;
+              }
+
+              .send-data {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                padding: 20px;
+              }
+
+              .send-data > button {
+                margin: 0 10px;
+                border: none;
+                border-radius: 10px;
+                padding: 10px 20px;
+                color: #fff;
+                cursor: pointer;
+              }
+
+              .send-data > #send {
+                background-color: #73ba69;
+                transition: 0.4s ease;
+              }
+
+              .send-data > #cancel {
+                background-color: #de4645;
+                transition: 0.4s ease;
+              }
+
+              .send-data > #send:hover {
+                background-color: #5e9956;
+                transition: 0.4s ease;
+              }
+
+              .send-data > #cancel:hover {
+                background-color: #c92e2e;
+                transition: 0.4s ease;
+              }
+            </style>
           </head>
           <body style="position: relative; height: 100vh">
             ${ titlebar }
             <section id="content">
               ${ dataToPrint.outerHTML }
+            </section>
+            <section id="background">
+              <div class="mail-form-container">
+                <h2>Enviar Correo Electrónico</h2>
+                <form class="inputs-container">
+                  <h4>Archivo Adjunto: </h4>
+                  <div class="info">
+                    <label>De</label>
+                    <p class="email">example@gmail.com</p>
+                  </div>
+                  <div class="info">
+                    <label>Para</label>
+                    <textarea
+                      rows="4"
+                      autocomplete="off"
+                      placeholder="example@gmail.com"
+                    ></textarea>
+                  </div>
+                  <div class="info">
+                    <label>Asunto</label>
+                    <input 
+                      type="text"
+                      placeholder="Asunto..."
+                      autocomplete="off"
+                    />
+                  </div>
+                  <div class="info">
+                    <label>Mensaje</label>
+                    <textarea
+                      rows="4"
+                      autocomplete="off"
+                      placeholder="Mensaje..."
+                    ></textarea>
+                  </div>
+                  <div class="send-data">
+                    <button id="send">Enviar</button>
+                    <button id="cancel">Cancelar</button>
+                  </div>
+                </form>
+              </div>
             </section>
             <iframe name="print-frame" id="print-frame" width="0" height="0" frameborder="0" src="about:blank"></iframe>
             <canvas id="canvas" style="display: none;"></canvas>
@@ -183,9 +331,7 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
                   printFrame.window.print()
                 };
 
-                const sendEmail = () => {
-                  console.log("Sending Email")
-                };
+                const sendEmail = () => document.getElementById("background").style.display = "flex"
 
                 const importPDF = () => {
                   const { jsPDF } = jspdf

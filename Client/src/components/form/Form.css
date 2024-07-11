@@ -66,11 +66,10 @@
   padding: 7.5px 5px;
   border: 1px solid #575252;
   border-radius: 5px;
+  transition: 0.35s ease;
 }
 
-.input-group > .field > .input-container > input:focus,
-.input-group > .field > .input-container > textarea:focus,
-.input-group > .field > .input-container > select:focus {
+.input-group > .field > .input-container > :where(input, textarea, select):focus {
   outline: none !important;
   border: 1px solid #489aff;
   transition: 0.35s ease;
@@ -94,6 +93,7 @@
   padding: 10px;
   resize: none;
   border-radius: 10px;
+  transition: 0.35s ease;
 }
 
 .background > .form-container > .fields-container > .title {
@@ -126,8 +126,20 @@
 
 .fields-container > .button-container > button:first-child {
   background-color: #73ba69;
+  transition: 0.4s ease;
+}
+
+.fields-container > .button-container > button:first-child:hover {
+  background-color: #5e9956;
+  transition: 0.4s ease;
 }
 
 .fields-container > .button-container > button:last-child {
   background-color: #de4645;
+  transition: 0.4s ease;
+}
+
+.fields-container > .button-container > button:last-child:hover {
+  background-color: #c92e2e;
+  transition: 0.4s ease;
 }
