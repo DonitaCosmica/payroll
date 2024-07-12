@@ -110,7 +110,7 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
                 padding: 10px;
                 border-radius: 10px;
                 font-size: 0.8rem;
-                border: 1px solid #000;
+                border: 1px solid #333;
                 transition: 0.35s ease;
               }
 
@@ -166,7 +166,7 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
             <section id="background">
               <div class="mail-form-container">
                 <h2>Enviar Correo Electrónico</h2>
-                <form class="inputs-container">
+                <form id="send-email" class="inputs-container">
                   <h4>Archivo Adjunto: </h4>
                   <div class="info">
                     <label>De</label>
@@ -175,6 +175,8 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
                   <div class="info">
                     <label>Para</label>
                     <textarea
+                      id="receiver"
+                      name="receiver"
                       rows="4"
                       autocomplete="off"
                       placeholder="example@gmail.com"
@@ -182,7 +184,9 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
                   </div>
                   <div class="info">
                     <label>Asunto</label>
-                    <input 
+                    <input
+                      id="subject"
+                      name="subject"
                       type="text"
                       placeholder="Asunto..."
                       autocomplete="off"
@@ -191,14 +195,16 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
                   <div class="info">
                     <label>Mensaje</label>
                     <textarea
+                      id="msg"
+                      name="msg"
                       rows="4"
                       autocomplete="off"
                       placeholder="Mensaje..."
                     ></textarea>
                   </div>
                   <div class="send-data">
-                    <button id="send">Enviar</button>
-                    <button id="cancel">Cancelar</button>
+                    <button id="send" type="submit">Enviar</button>
+                    <button id="cancel" type="button">Cancelar</button>
                   </div>
                 </form>
               </div>
@@ -221,9 +227,87 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
               .then(() => {
                 console.log("jsPDF loaded successfully.")
                 return loadScript('https://smtpjs.com/v3/smtp.js')
-              })  
+              })
               .then(() => {
-                console.log('All Scripts loaded successfully.')
+                console.log("Google API loaded successfully")
+                return loadScript('https://apis.google.com/js/api.js')
+              })
+              .then(() => {
+                console.log("Google Account loaded successfully")
+                return loadScript('https://accounts.google.com/gsi/client')
+              })
+              .then(() => {
+                const formData = {
+                  receiver: "",
+                  subject: "",
+                  msg: ""
+                }
+                const state = {
+                  gapiInited: false,
+                  gisInited: false
+                }
+
+                const handleChange = (e) => {
+                  const { id, value } = e.target
+                  console.log({ id, value })
+                }
+
+                const handleCredentialResponse = () => {
+                  const client = google.accounts.oauth2.initTokenClient({
+                    client_id: '925640410639-8jn0svt6bcpcj3b2cv0a3d6j9nsn0sc5.apps.googleusercontent.com',
+                    scope: 'https://www.googleapis.com/auth/gmail.send',
+                    callback: (tokenResponse) => {
+                      gapi.client.setToken(tokenResponse)
+                      sendEmail()
+                    },
+                  })
+                  client.requestAccessToken()
+                }
+
+                const initializeGapiClient = () => {
+                  gapi.client.init({
+                    apiKey: 'AIzaSyAG_sYz5i3AWqCc77JazaR8saxrz8uQFsc',
+                    discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest"]
+                }).then(() => {
+                    state.gapiInited = true;
+                    maybeEnableButtons()
+                  })
+                }
+
+                const maybeEnableButtons = () => {
+                  if (state.gapiInited && state.gisInited)
+                    document.getElementById('send-email-button').style.display = 'block'
+                }
+
+                const gisLoaded = () => {
+                  state.gisInited = true
+                  maybeEnableButtons()
+                }
+
+                const sendEmail= () => {
+                  const email = \`From: "me"\r\n\` +
+                    \`To: \${ formData.receiver }\r\n\` +
+                    \`Subject: \${ formData.subject }\r\n\r\n\` +
+                    \`\${ formData.msg }\r\n\`
+
+                  const encodedEmail = encodeURIComponent(email);
+                  const escapedEmail = unescape(encodedEmail);
+                  const base64EncodedEmail = btoa(escapedEmail)
+                      .split('+').join('-')
+                      .split('/').join('_')
+                      .split('=').join('')
+
+                  gapi.client.gmail.users.messages.send({
+                    userId: 'me',
+                    resource: {
+                      raw: base64EncodedEmail,
+                    },
+                  }).then(response => {
+                    console.log('Email sent!', response)
+                  }).catch(error => {
+                    console.error('Error sending email', error)
+                  })
+                }
 
                 const getStylesOfAnElement = ({ prefixes }) => {
                   const styleSheet = [...document.styleSheets[0].cssRules]
@@ -331,7 +415,7 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
                   printFrame.window.print()
                 };
 
-                const sendEmail = () => document.getElementById("background").style.display = "flex"
+                const openEmailWindow = () => document.getElementById("background").style.display = "flex"
 
                 const importPDF = () => {
                   const { jsPDF } = jspdf
@@ -373,7 +457,10 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
                   document.body.removeChild(link)
                 }
 
-                const actions = [closeWindow, reloadTable, printTable, sendEmail, importPDF, importExcel]
+                window.onload = () => gisLoaded()
+                document.addEventListener('DOMContentLoaded', () => gapi.load('client', initializeGapiClient))
+
+                const actions = [closeWindow, reloadTable, printTable, openEmailWindow, importPDF, importExcel]
                 const printIcons = document.getElementsByClassName("print-icon-container")
                 const actionIterator = actions[Symbol.iterator]()
 
@@ -381,6 +468,21 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
                   const action = actionIterator.next().value
                   if (action) container.addEventListener("click", action)
                 }
+
+                document.getElementById("receiver").onchange = handleChange
+                document.getElementById("subject").onchange = handleChange
+                document.getElementById("msg").onchange = handleChange
+                document.getElementById("cancel").addEventListener("click", () => {
+                  document.getElementById("background").style.display = "none"
+                  Object.keys(formData).map(key => formData[key] = "")
+                  for (const element of document.querySelectorAll("#receiver, #subject, #msg"))
+                    element.value = ""
+                })
+                document.getElementById("send-email").addEventListener("submit", () => {
+                  event.preventDefault()
+                  handleCredentialResponse()
+                  document.getElementById("background").style.display = "none"
+                })
               }).catch((error) => {
                 console.error(error)
               })

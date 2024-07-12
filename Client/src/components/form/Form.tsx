@@ -165,7 +165,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
           {elements}
           <div className='button-container'>
             <button type='submit'>Crear</button>
-            <button onClick={ (e) => handleCancel(e) }>Cancelar</button>
+            <button onClick={ (e) => handleCancel(e) } type='button'>Cancelar</button>
           </div>
         </form>
       </div>
