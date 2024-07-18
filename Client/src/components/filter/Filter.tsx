@@ -47,7 +47,7 @@ export const Filter = (): JSX.Element => {
               <p>{ filter }</p>
               { index % 2 === 0 && <IoIosArrowDown /> }
               { index === 0 && showDropMenu.date && <DropMenuDates /> }
-              { index === 2 && showDropMenu.text && <DropMenu menuOp={ menuOp } dir={ 'left' } width={ 175 } /> }
+              { index === 2 && showDropMenu.text && <DropMenu menuOp={ menuOp } dir={ 'left' } width={ 175 } hasPrintWindow={ false } /> }
             </div>
           ))
         }

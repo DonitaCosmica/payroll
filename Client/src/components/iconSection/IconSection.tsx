@@ -40,6 +40,7 @@ export const IconSection: React.FC<Props> = ({ action, options, handleForm }): J
                 menuOp={ REPORTING_ACTIONS[action ?? NavigationActionKind.ERROR] } 
                 dir="right" 
                 width={ menuWidth } 
+                hasPrintWindow={ true }
               />}
           </div>
         )

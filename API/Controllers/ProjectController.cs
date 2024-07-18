@@ -101,6 +101,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateProject(string projectId, [FromBody] Project projectUpdate)
     {
+      Console.WriteLine($"ProjectId: {projectUpdate.ProjectId}, Name: {projectUpdate.Name}");
       if(projectUpdate == null)
         return BadRequest();
 
@@ -108,6 +109,19 @@ namespace Payroll.Controllers
         return NotFound();
 
       var project = projectRepository.GetProject(projectId);
+
+      if(projectUpdate.Code == null || projectUpdate.Name == null || projectUpdate.Status == null || 
+        projectUpdate.Company == null || projectUpdate.Description == null)
+        return BadRequest();
+
+      project.Code = projectUpdate.Code;
+      project.Name = projectUpdate.Name;
+      project.StartDate = projectUpdate.StartDate;
+      project.Status = projectUpdate.Status;
+      project.Company = projectUpdate.Company;
+      project.Description = projectUpdate.Description;
+
+      Console.WriteLine($"ProjectId: {project.ProjectId}, Name: {project.Name}");
 
       if(!projectRepository.UpdateProject(project))
         return StatusCode(500, "Something went wrong updating Project");

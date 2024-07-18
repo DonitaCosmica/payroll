@@ -23,12 +23,17 @@ export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
           </div>
         </div>
         <div className="titlebar-user">
-          <div className='user' onClick={() => setShowDropMenu(!showDropMenu)}>
+          <div className='user' onClick={ () => setShowDropMenu(!showDropMenu) }>
             <p>Jose Solis</p>
             <IoIosArrowDown />
             {
               showDropMenu && (
-                <DropMenu menuOp={ MENU_ICONS } dir={ 'right' } width={ 250 } />
+                <DropMenu 
+                  menuOp={ MENU_ICONS }
+                  dir={ 'right' }
+                  width={ 250 }
+                  hasPrintWindow={ false }
+                />
               )
             }
           </div>

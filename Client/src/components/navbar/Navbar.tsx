@@ -11,7 +11,7 @@ export const Navbar = (): JSX.Element => {
       {
         LINKS.map((link: string, index: number) => (
           <div 
-            className={`link ${ option === index + 1 ? 'selected' : '' }`} 
+            className={ `link ${ option === index + 1 ? 'selected' : '' }` } 
             key={ link } 
             onClick={ () => dispatch({ type: index + 1 }) }
           >

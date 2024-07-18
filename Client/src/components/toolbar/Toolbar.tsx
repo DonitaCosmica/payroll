@@ -14,7 +14,7 @@ interface Props {
 }
 
 export const Toolbar: React.FC<Props> = ({ selectedId, setToolbarOption, setShowForm }): JSX.Element => {
-  const { option, url } = useContext(NavigationContext)
+  const { option, url, submitCount, setSubmitCount } = useContext(NavigationContext)
   const [showDropMenu, setShowDropMenu] = useState<boolean>(false)
 
   const { options, menuOp, end } = useMemo(() => {
@@ -51,8 +51,17 @@ export const Toolbar: React.FC<Props> = ({ selectedId, setToolbarOption, setShow
     const requestOptions: { method: string } = {
       method: 'DELETE'
     }
-      
-    await fetch(`${url}/${selectedId}`, requestOptions)
+
+    try {
+      const res: Response = await fetch(`${url}/${selectedId}`, requestOptions)
+      if (!res.ok) {
+        const errorData = await res.json()
+        console.error('Request error: ', errorData)
+      } else
+        setSubmitCount(submitCount + 1)
+    } catch (error) {
+      console.error('Request error: ', error)
+    }
   }
 
   const showFormAndSetToolbar = (index: number): void => {
@@ -93,7 +102,7 @@ export const Toolbar: React.FC<Props> = ({ selectedId, setToolbarOption, setShow
         showMoreOptions && (
           <div className="more-options">
             <BsThreeDotsVertical onClick={ () => setShowDropMenu(!showDropMenu) } />
-            { showDropMenu && <DropMenu menuOp={ menuOp ?? [] } dir={ 'right' } width={ 35 } /> }
+            { showDropMenu && <DropMenu menuOp={ menuOp ?? [] } dir={ 'right' } width={ 35 } hasPrintWindow={ false } /> }
           </div>
         )
       }

@@ -64,17 +64,29 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
 
   const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
-    const requestOptions = {
-       method: idSelected ? 'PATCH' : 'POST',
+    console.log(formData.current)
+    /*const requestOptions = {
+       method: idSelected && toolbarOption === 1 ? 'PATCH' : 'POST',
        headers: {
         'Content-Type': 'application/json'
        },
        body: JSON.stringify(formData.current)
     }
-
-    await fetch(idSelected && toolbarOption === 1 ? `${String(url)}/${idSelected}` : String(url), requestOptions)
-    setShowForm(false)
-    setSubmitCount(submitCount + 1)
+    console.log(formData.current)
+    const urlToUse: string = idSelected && toolbarOption === 1 ? `${String(url)}/${idSelected}` : String(url)
+    
+    try {
+      const res: Response = await fetch(urlToUse, requestOptions)
+      if (!res.ok) {
+        const errorData = await res.json()
+        console.error('Request error: ', errorData)
+      } else {
+        setShowForm(false)
+        setSubmitCount(submitCount + 1)
+      }
+    } catch (error) {
+      console.error('Request error: ', error)
+    }*/
   }
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement | SVGElement>): void => {
@@ -164,7 +176,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
         <form className='fields-container' onSubmit={ handleSubmit }>
           {elements}
           <div className='button-container'>
-            <button type='submit'>Crear</button>
+            <button type='submit'>{ toolbarOption === 1 ? 'Actualizar' : 'Crear' }</button>
             <button onClick={ (e) => handleCancel(e) } type='button'>Cancelar</button>
           </div>
         </form>
