@@ -4,12 +4,12 @@ namespace Payroll.Interfaces
 {
   public interface IProjectRepository
   {
-    ICollection<Project> GetProjects();
-    Project GetProject(string projectId);
-    bool CreateProject(Project project);
-    bool UpdateProject(Project project);
-    bool DeleteProject(Project project);
-    List<string> GetColumns();
-    bool ProjectExists(string projectId);
+    Task<ICollection<Project>> GetProjects();
+    Task<Project> GetProject(string projectId);
+    Task<bool> CreateProject(Project project);
+    Task<bool> UpdateProject(Project project);
+    Task<bool> DeleteProject(Project project);
+    Task<List<string>> GetColumns();
+    Task<bool> ProjectExistsAsync(string projectId);
   }
 }

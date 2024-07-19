@@ -44,6 +44,19 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
     fetchDropdownData()
   }, [ option ])
 
+  const createObject = (data: (string | number)[][], keys: string[]): { [key: string]: string | number } | null => {
+    const selectedObj = data.find((item: (string | number)[]) => item[0] === idSelected)
+    if (!selectedObj) return null
+
+    return keys.slice(1).reduce((obj: { [key: string]: string | number }, key: string, index: number) => {
+      const newKey = key.replace(/Id/i, '').toLowerCase()
+      const value = selectedObj[index + 1]
+      const dropDownDataFound = dropdownData[newKey]?.find((dropData: IDropDownMenu) => dropData.name === value)
+      const newValue = dropDownDataFound ? dropDownDataFound[newKey + 'Id'] : value
+      return { ...obj, [newKey]: newValue }
+    }, {} as { [key: string]: string | number })
+  }
+
   useEffect(() => {
     if (toolbarOption === 1 && idSelected) {
       const objectsForm = createObject(data, keys)
@@ -55,7 +68,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
         formData.current = initialFormData
       }
     }
-  }, [ toolbarOption, idSelected, data, keys ])
+  }, [ toolbarOption, idSelected, data, keys, dropdownData ])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>): void => {
     const { id, value } = e.target
@@ -65,14 +78,14 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
   const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
     console.log(formData.current)
-    /*const requestOptions = {
+    const requestOptions = {
        method: idSelected && toolbarOption === 1 ? 'PATCH' : 'POST',
        headers: {
         'Content-Type': 'application/json'
        },
        body: JSON.stringify(formData.current)
     }
-    console.log(formData.current)
+
     const urlToUse: string = idSelected && toolbarOption === 1 ? `${String(url)}/${idSelected}` : String(url)
     
     try {
@@ -86,28 +99,12 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
       }
     } catch (error) {
       console.error('Request error: ', error)
-    }*/
+    }
   }
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement | SVGElement>): void => {
     e.preventDefault()
     setShowForm(false)
-  }
-
-  const createObject = (data: (string | number)[][], keys: string[]) => {
-    const selectedObj = data.find((item: (string | number)[]) => item[0] === idSelected)
-    if (!selectedObj) return null
-
-    const selectedObjCopy = [...selectedObj]
-    const selectedKeysCopy = [...keys]
-
-    selectedObjCopy.shift()
-    selectedKeysCopy.shift()
-
-    const obj: { [key: string]: string | number } = {}
-    selectedKeysCopy.map((key: string, index: number) => obj[key.replace(/Id/i, '').toLowerCase()] = selectedObjCopy[index])
-
-    return obj
   }
 
   const elements = useMemo(() => {

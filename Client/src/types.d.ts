@@ -9,7 +9,8 @@ export interface IdataResponse {
 
 export interface IDropDownMenu {
   value: string,
-  name: string
+  name: string,
+  [key: string]: string | number
 }
 
 export interface FieldConfig {

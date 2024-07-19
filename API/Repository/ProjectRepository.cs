@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Payroll.Data;
 using Payroll.Interfaces;
 using Payroll.Models;
@@ -8,14 +9,14 @@ namespace Payroll.Repository
   {
     private readonly DataContext context = context;
 
-    public ICollection<Project> GetProjects() => context.Projects.ToList();
-    public Project GetProject(string projectId) => 
-      context.Projects.Where(p => p.ProjectId == projectId).FirstOrDefault() ??
+    public async Task<ICollection<Project>> GetProjects() => await context.Projects.ToListAsync();
+    public async Task<Project> GetProject(string projectId) => 
+      await context.Projects.FirstOrDefaultAsync(p => p.ProjectId == projectId) ??
       throw new Exception("No Project with the specified id was found");
-    public bool CreateProject(Project project) => context.CreateEntity(project);
-    public bool UpdateProject(Project project) => context.UpdateEntity(project);
-    public bool DeleteProject(Project project) => context.DeleteEntity(project);
-    public List<string> GetColumns() => context.GetColumns<Project>();
-    public bool ProjectExists(string projectId) => context.Projects.Any(p => p.ProjectId == projectId);
+    public async Task<bool> CreateProject(Project project) => await context.CreateEntity(project);
+    public async Task<bool> UpdateProject(Project project) => await context.UpdateEntity(project);
+    public async Task<bool> DeleteProject(Project project) => await context.DeleteEntity(project);
+    public async Task<List<string>> GetColumns() => await context.GetColumns<Project>();
+    public async Task<bool> ProjectExistsAsync(string projectId) => await context.Projects.AnyAsync(p => p.ProjectId == projectId);
   }
 }

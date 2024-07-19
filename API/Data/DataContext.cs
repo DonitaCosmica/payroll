@@ -99,7 +99,7 @@ namespace Payroll.Data
       base.OnModelCreating(modelBuilder);
     }
 
-    public List<string> GetColumns<TEntity>() where TEntity : class
+    public async Task<List<string>> GetColumns<TEntity>() where TEntity : class
     {
       var entityType = Model.FindEntityType(typeof(TEntity));
       if(entityType == null)
@@ -116,13 +116,13 @@ namespace Payroll.Data
         WHERE TABLE_NAME = @TableName;
       ";
 
-      using(var command = Database.GetDbConnection().CreateCommand())
+      await using(var command = Database.GetDbConnection().CreateCommand())
       {
         command.CommandText = columnsQuery;
         command.Parameters.Add(new SqlParameter("@TableName", SqlDbType.NVarChar) { Value = entityType.GetTableName() });
-        Database.OpenConnection();
-        using var reader = command.ExecuteReader();
-        while (reader.Read())
+        await Database.OpenConnectionAsync();
+        await using var reader = await command.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
           columnNames.Add(reader.GetString(0));
       }
       
@@ -130,24 +130,24 @@ namespace Payroll.Data
       return columnNames;
     }
 
-    public bool CreateEntity<TEntity>(TEntity entity) where TEntity : class
+    public async Task<bool> CreateEntity<TEntity>(TEntity entity) where TEntity : class
     {
       Add(entity);
-      return Save();
+      return await SaveAsync();
     }
 
-    public bool UpdateEntity<TEntity>(TEntity entity) where TEntity : class
+    public async Task<bool> UpdateEntity<TEntity>(TEntity entity) where TEntity : class
     {
       Update(entity);
-      return Save();
+      return await SaveAsync();
     }
 
-    public bool DeleteEntity<TEntity>(TEntity entity) where TEntity : class
+    public async Task<bool> DeleteEntity<TEntity>(TEntity entity) where TEntity : class
     {
       Remove(entity);
-      return Save();
+      return await SaveAsync();
     } 
 
-    private bool Save() => SaveChanges() > 0; 
+    private async Task<bool> SaveAsync() => await SaveChangesAsync() > 0; 
   }
 }
