@@ -6,6 +6,7 @@ namespace Payroll.Interfaces
   {
     ICollection<Deduction> GetDeductions();
     Deduction GetDeduction(string deductionId);
+    Deduction? GetDeductionByName(string deductionName);
     bool CreateDeduction(Deduction deduction);
     bool UpdateDeduction(Deduction deduction);
     bool DeleteDeduction(Deduction deduction);

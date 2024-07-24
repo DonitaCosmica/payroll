@@ -64,13 +64,10 @@ namespace Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateDeduction([FromBody] DeductionDTO deductionCreate)
     {
-      if(deductionCreate == null)
+      if(deductionCreate == null || deductionCreate.Key < 0 || string.IsNullOrEmpty(deductionCreate.Description))
         return BadRequest();
-
-      var existingDeduction = deductionRepository.GetDeductions()
-        .FirstOrDefault(d => d.Description.Trim().Equals(deductionCreate.Description.Trim(), StringComparison.CurrentCultureIgnoreCase));
-    
-      if(existingDeduction != null)
+   
+      if(deductionRepository.GetDeductionByName(deductionCreate.Description.Trim()) != null)
         return Conflict("Deduction already exists");
 
       var deduction = new Deduction
@@ -93,20 +90,16 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateDeduction(string deductionId, [FromBody] DeductionDTO deductionUpdate)
     {
-      if(deductionId == null)
+      if(deductionId == null || deductionUpdate.Key < 0 || string.IsNullOrEmpty(deductionUpdate.Description))
         return BadRequest();
 
       if(!deductionRepository.DeductionExists(deductionId))
         return NotFound();
 
       var deduction = deductionRepository.GetDeduction(deductionId);
-
-      if(deductionUpdate.Description != null && deductionUpdate.Key >= 0)
-      {
-        deduction.Description = deductionUpdate.Description;
-        deduction.Key = deductionUpdate.Key;
-        deduction.IsHidden = deductionUpdate.IsHidden;
-      }
+      deduction.Description = deductionUpdate.Description;
+      deduction.Key = deductionUpdate.Key;
+      deduction.IsHidden = deductionUpdate.IsHidden;
 
       if(!deductionRepository.UpdateDeduction(deduction))
         return StatusCode(500, "Something went wrong updating deduction"); 
@@ -124,7 +117,6 @@ namespace Payroll.Controllers
         return NotFound();
 
       var deductionToDelete = deductionRepository.GetDeduction(deductionId);
-
       if(!deductionRepository.DeleteDeduction(deductionToDelete))
         return StatusCode(500, "Something went wrong deleting deduction");
 

@@ -67,10 +67,7 @@ namespace Payroll.Controllers
       if(perceptionCreate == null)
         return BadRequest();
 
-      var existingPerception = perceptionRepository.GetPerceptions()
-        .FirstOrDefault(p => p.Description.Trim().Equals(perceptionCreate.Description.Trim(), StringComparison.CurrentCultureIgnoreCase));
-
-      if(existingPerception != null)
+      if(perceptionRepository.GetPerceptionByName(perceptionCreate.Description.Trim()) != null)
         return Conflict("Perception already exists");
 
       var perception = new Perception
@@ -93,20 +90,16 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdatePerception(string perceptionId, [FromBody] PerceptionDTO perceptionUpdate)
     {
-      if(perceptionUpdate == null)
+      if(perceptionUpdate == null || perceptionUpdate.Key < 0 || string.IsNullOrEmpty(perceptionUpdate.Description))
         return BadRequest();
 
       if(!perceptionRepository.PerceptionExists(perceptionId))
         return NotFound();
 
       var perception = perceptionRepository.GetPerception(perceptionId);
-
-      if(perceptionUpdate.Description != null && perceptionUpdate.Key >= 0)
-      {
-        perception.Description = perceptionUpdate.Description;
-        perception.Key = perceptionUpdate.Key;
-        perception.IsHidden = perceptionUpdate.IsHidden;
-      }
+      perception.Description = perceptionUpdate.Description;
+      perception.Key = perceptionUpdate.Key;
+      perception.IsHidden = perceptionUpdate.IsHidden;
 
       if(!perceptionRepository.UpdatePerception(perception))
         return StatusCode(500, "Something went wrong updating perception");
@@ -124,7 +117,6 @@ namespace Payroll.Controllers
         return NotFound();
 
       var perceptionToDelete = perceptionRepository.GetPerception(perceptionId);
-
       if(!perceptionRepository.DeletePerception(perceptionToDelete))
         return StatusCode(500, "Something went wrong deleting perception");
 

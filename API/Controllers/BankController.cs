@@ -48,13 +48,10 @@ namespace Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateBank([FromBody] BankDTO bankCreate)
     {
-      if(bankCreate == null)
+      if(bankCreate == null || string.IsNullOrEmpty(bankCreate.Name))
         return BadRequest();
 
-      var existingBank = bankRepository.GetBanks()
-        .FirstOrDefault(b => b.Name.Trim().Equals(bankCreate.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
-
-      if(existingBank != null)
+      if(bankRepository.GetBankByName(bankCreate.Name.Trim()) != null)
         return Conflict("Bank already exists");
 
       var bank = new Bank
@@ -75,16 +72,14 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateBank(string bankId, [FromBody] BankDTO updateBank)
     {
-      if(updateBank == null)
+      if(updateBank == null || string.IsNullOrEmpty(updateBank.Name))
         return BadRequest();
 
       if(!bankRepository.BankExists(bankId))
         return NotFound();
 
       var bank = bankRepository.GetBank(bankId);
-
-      if(updateBank.Name != null)
-        bank.Name = updateBank.Name;
+      bank.Name = updateBank.Name;
 
       if(!bankRepository.UpdateBank(bank))
         return StatusCode(500, "Something went wrong updating bank");
@@ -102,7 +97,6 @@ namespace Payroll.Controllers
         return NotFound();
       
       var bankToDelete = bankRepository.GetBank(bankId);
-
       if(!bankRepository.DeleteBank(bankToDelete))
         return StatusCode(500, "Something went wrong deleting bank");
 

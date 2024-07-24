@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Payroll.DTO;
 using Payroll.Interfaces;
 using Payroll.Models;
-using Payroll.Repository;
 
 namespace Payroll.Controllers
 {
@@ -61,13 +60,10 @@ namespace Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateCommercialArea([FromBody] CommercialAreaDTO commercialAreaCreate)
     {
-      if(commercialAreaCreate == null)
+      if(commercialAreaCreate == null || string.IsNullOrEmpty(commercialAreaCreate.Name))
         return BadRequest();
 
-      var existingCommercialArea = commercialAreaRepository.GetCommercialAreas()
-        .FirstOrDefault(ca => ca.Name.Trim().Equals(commercialAreaCreate.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
-
-      if(existingCommercialArea != null)
+      if(commercialAreaRepository.GetCommercialAreaByName(commercialAreaCreate.Name.Trim()) != null)
         return Conflict("Commercial Area already exists");
 
       var commercialArea = new CommercialArea
@@ -88,16 +84,14 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateCommercialArea(string commercialAreaId, [FromBody] CommercialArea commercialAreaUpdate)
     {
-      if(commercialAreaUpdate == null)
+      if(commercialAreaUpdate == null || string.IsNullOrEmpty(commercialAreaUpdate.Name))
         return BadRequest();
       
       if(!commercialAreaRepository.CommercialAreaExists(commercialAreaId))
         return NotFound();
 
       var commercialArea = commercialAreaRepository.GetCommercialArea(commercialAreaId);
-
-      if(commercialAreaUpdate.Name != null)
-        commercialArea.Name = commercialAreaUpdate.Name;
+      commercialArea.Name = commercialAreaUpdate.Name;
 
       if(!commercialAreaRepository.UpdateCommercialArea(commercialArea))
         return StatusCode(500, "Something went wrong updating commercial area");
@@ -115,7 +109,6 @@ namespace Payroll.Controllers
         return NotFound();
 
       var commercialAreaToDelete = commercialAreaRepository.GetCommercialArea(commercialAreaId);
-
       if(!commercialAreaRepository.DeleteCommercialArea(commercialAreaToDelete))
         return StatusCode(500, "Something went wrong deleting commercial area");
 

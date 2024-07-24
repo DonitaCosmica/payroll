@@ -11,6 +11,7 @@ namespace Payroll.Repository
     public ICollection<Contract> GetContracts() => context.Contracts.ToList();
     public Contract GetContract(string contractId) => context.Contracts.Where(ct => ct.ContractId == contractId).FirstOrDefault() ??
       throw new Exception("No Contract with the specified id was found");
+    public Contract? GetContractByName(string contractName) => context.GetEntityByName<Contract>(contractName);
     public bool CreateContract(Contract contract) => context.CreateEntity(contract);
     public bool UpdateContract(Contract contract) => context.UpdateEntity(contract);
     public bool DeleteContract(Contract contract) => context.DeleteEntity(contract);

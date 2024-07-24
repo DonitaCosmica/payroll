@@ -6,6 +6,7 @@ namespace Payroll.Interfaces
   {
     ICollection<Company> GetCompanies();
     Company GetCompany(string companyId);
+    Company? GetCompanyByName(string companyName);
     bool CreateCompany(Company company);
     bool UpdateCompany(Company company);
     bool DeleteCompany(Company company);

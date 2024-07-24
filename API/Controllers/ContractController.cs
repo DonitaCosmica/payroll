@@ -48,13 +48,10 @@ namespace Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateContract([FromBody] ContractDTO contractCreate)
     {
-      if(contractCreate == null)
+      if(contractCreate == null || string.IsNullOrEmpty(contractCreate.Name))
         return BadRequest();
 
-      var existingContract = contractRepository.GetContracts()
-        .FirstOrDefault(ct => ct.Name.Trim().Equals(contractCreate.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
-
-      if(existingContract != null)
+      if(contractRepository.GetContractByName(contractCreate.Name.Trim()) != null)
         return Conflict("Contract already exists");
 
       var contract = new Contract
@@ -75,16 +72,14 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateContract(string contractId, [FromBody] ContractDTO updateContract)
     {
-      if(updateContract == null)
+      if(updateContract == null || string.IsNullOrEmpty(updateContract.Name))
         return BadRequest();
 
       if(!contractRepository.ContractExists(contractId))
         return NotFound();
 
       var contract = contractRepository.GetContract(contractId);
-
-      if(updateContract.Name != null)
-        contract.Name = updateContract.Name;
+      contract.Name = updateContract.Name;
 
       if(!contractRepository.UpdateContract(contract))
         return StatusCode(500, "Something went wrong updating contract");
@@ -102,7 +97,6 @@ namespace Payroll.Controllers
         return NotFound();
 
       var contractToDelete = contractRepository.GetContract(contractId);
-
       if(!contractRepository.DeleteContract(contractToDelete))
         return StatusCode(500, "Something went wrong deleting contract");
 

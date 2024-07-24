@@ -6,6 +6,7 @@ namespace Payroll.Interfaces
   {
     ICollection<Perception> GetPerceptions();
     Perception GetPerception(string perceptionId);
+    Perception? GetPerceptionByName(string perceptionName);
     bool CreatePerception(Perception perception);
     bool UpdatePerception(Perception perception);
     bool DeletePerception(Perception perception);

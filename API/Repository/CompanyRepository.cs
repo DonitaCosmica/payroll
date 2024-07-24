@@ -12,6 +12,7 @@ namespace Payroll.Repository
     public Company GetCompany(string companyId) => 
       context.Companies.Where(c => c.CompanyId == companyId).FirstOrDefault() ??
       throw new Exception("No Company with the specified id was found");
+    public Company? GetCompanyByName(string companyName) => context.GetEntityByName<Company>(companyName);
     public bool CreateCompany(Company company) => context.CreateEntity(company);
     public bool UpdateCompany(Company company) => context.UpdateEntity(company);
     public bool DeleteCompany(Company company) => context.DeleteEntity(company);

@@ -16,7 +16,8 @@ namespace Payroll.Controllers
     public IActionResult GetStates()
     {
       var states = stateRepository.GetStates()
-        .Select(s => new StateDTO{
+        .Select(s => new StateDTO 
+        {
           StateId = s.StateId,
           Name = s.Name,
           Abbreviation = s.Abbreviation
@@ -49,13 +50,10 @@ namespace Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateState([FromBody] StateDTO stateCreate)
     {
-      if(stateCreate == null)
+      if(stateCreate == null || string.IsNullOrEmpty(stateCreate.Name) || string.IsNullOrEmpty(stateCreate.Abbreviation))
         return BadRequest();
 
-      var existingState = stateRepository.GetStates()
-        .FirstOrDefault(s => s.Name.Trim().Equals(stateCreate.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
-
-      if(existingState != null)
+      if(stateRepository.GetStateByName(stateCreate.Name.Trim()) != null)
         return Conflict("State already exists");
 
       var state = new State
@@ -77,19 +75,15 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateState(string stateId, [FromBody] StateDTO stateUpdate)
     {
-      if(stateUpdate == null)
+      if(stateUpdate == null || string.IsNullOrEmpty(stateUpdate.Name) || string.IsNullOrEmpty(stateUpdate.Abbreviation))
         return BadRequest();
 
       if(!stateRepository.StateExists(stateId))
         return NotFound();
 
       var state = stateRepository.GetState(stateId);
-
-      if(stateUpdate.Name != null && stateUpdate.Abbreviation != null)
-      {
-        state.Name = stateUpdate.Name;
-        state.Abbreviation = stateUpdate.Abbreviation;
-      }
+      state.Name = stateUpdate.Name;
+      state.Abbreviation = stateUpdate.Abbreviation;
 
       if(!stateRepository.UpdateState(state))
         return StatusCode(500, "Something went wrong updating state");
@@ -107,7 +101,6 @@ namespace Payroll.Controllers
         return NotFound();
 
       var stateToDelete = stateRepository.GetState(stateId);
-
       if(!stateRepository.DeleteState(stateToDelete))
         return StatusCode(500, "Something went wrong deleting state");
 

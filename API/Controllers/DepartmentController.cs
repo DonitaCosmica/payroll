@@ -67,10 +67,7 @@ namespace Payroll.Controllers
       if(departmentCreate == null)
         return BadRequest();
 
-      var existingDepartment = departmentRepository.GetDepartments()
-        .FirstOrDefault(d => d.Name.Trim().Equals(departmentCreate.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
-
-      if(existingDepartment != null)
+      if(departmentRepository.GetDepartmentByName(departmentCreate.Name.Trim()) != null)
         return Conflict("Department already exists");
 
       var department = new Department
@@ -93,20 +90,16 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateDepartment(string departmentId, [FromBody] DepartmentDTO departmentUpdate)
     {
-      if(departmentUpdate == null)
+      if(departmentUpdate == null || departmentUpdate.TotalEmployees < 0 || string.IsNullOrEmpty(departmentUpdate.Name))
         return BadRequest();
 
       if(!departmentRepository.DepartmentExists(departmentId))
         return NotFound();
 
       var department = departmentRepository.GetDepartment(departmentId);
-
-      if(departmentUpdate.Name != null && departmentUpdate.TotalEmployees >= 0)
-      {
-        department.Name = departmentUpdate.Name;
-        department.TotalEmployees = departmentUpdate.TotalEmployees;
-        department.SubContract = departmentUpdate.SubContract;
-      }
+      department.Name = departmentUpdate.Name;
+      department.TotalEmployees = departmentUpdate.TotalEmployees;
+      department.SubContract = departmentUpdate.SubContract;
 
       if(!departmentRepository.UpdateDepartment(department))
         return StatusCode(500, "Something went wrong updating department");
@@ -124,7 +117,6 @@ namespace Payroll.Controllers
         return NotFound();
 
       var departmentToDelete = departmentRepository.GetDepartment(departmentId);
-
       if(!departmentRepository.DeleteDepartment(departmentToDelete))
         return StatusCode(500, "Something went wrong deleting department");
 

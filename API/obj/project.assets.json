@@ -4561,11 +4561,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\sistemas\\Documents\\Work\\website-tamyccc-nomina\\API\\API.csproj",
+      "projectUniqueName": "C:\\Users\\sistemas\\Documents\\Work\\nomina-tamyccc\\API\\API.csproj",
       "projectName": "API",
-      "projectPath": "C:\\Users\\sistemas\\Documents\\Work\\website-tamyccc-nomina\\API\\API.csproj",
+      "projectPath": "C:\\Users\\sistemas\\Documents\\Work\\nomina-tamyccc\\API\\API.csproj",
       "packagesPath": "C:\\Users\\sistemas\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\sistemas\\Documents\\Work\\website-tamyccc-nomina\\API\\obj\\",
+      "outputPath": "C:\\Users\\sistemas\\Documents\\Work\\nomina-tamyccc\\API\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\sistemas\\AppData\\Roaming\\NuGet\\NuGet.Config"

@@ -51,10 +51,7 @@ namespace Payroll.Controllers
       if(federalEntityCreate == null)
         return BadRequest();
 
-      var existingFederalEntity = federalEntityRepository.GetFederalsEntities()
-        .FirstOrDefault(fe => fe.Name.Trim().Equals(federalEntityCreate.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
-
-      if(existingFederalEntity != null)
+      if(federalEntityRepository.GetFederalEntityByName(federalEntityCreate.Name.Trim()) != null)
         return Conflict("Federal Entity already exists");
 
       var federalEntity = new FederalEntity
@@ -75,16 +72,14 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateFederalEntity(string federalEntityId, [FromBody] FederalEntityDTO updateFederalEntity)
     {
-      if(updateFederalEntity == null)
+      if(updateFederalEntity == null || string.IsNullOrEmpty(updateFederalEntity.Name))
         return BadRequest();
 
       if(!federalEntityRepository.FederalEntityExists(federalEntityId))
         return NotFound();
 
       var federalEntity = federalEntityRepository.GetFederalEntity(federalEntityId);
-
-      if(updateFederalEntity.Name != null)
-        federalEntity.Name = updateFederalEntity.Name;
+      federalEntity.Name = updateFederalEntity.Name;
 
       if(!federalEntityRepository.UpdateFederalEntity(federalEntity))
         return StatusCode(500, "Something went wrong updating Federal Entity");
@@ -102,7 +97,6 @@ namespace Payroll.Controllers
         return NotFound();
 
       var federalEntityToDelete = federalEntityRepository.GetFederalEntity(federalEntityId);
-      
       if(!federalEntityRepository.DeleteFederalEntity(federalEntityToDelete))
         return StatusCode(500, "Something went wrong deleting Federal Entity");
 

@@ -6,6 +6,7 @@ namespace Payroll.Interfaces
   {
     ICollection<Regime> GetRegimes();
     Regime GetRegime(string regimeId);
+    Regime? GetRegimeByName(string regimeName);
     bool CreateRegime(Regime regime);
     bool UpdateRegime(Regime regime);
     bool DeleteRegime(Regime regime);

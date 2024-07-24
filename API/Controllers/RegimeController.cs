@@ -51,10 +51,7 @@ namespace Payroll.Controllers
       if(regimeCreate == null)
         return BadRequest();
 
-      var existingRegime = regimeRepository.GetRegimes()
-        .FirstOrDefault(r => r.Name.Trim().Equals(regimeCreate.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
-
-      if(existingRegime != null)
+      if(regimeRepository.GetRegimeByName(regimeCreate.Name.Trim()) != null)
         return Conflict("Regime already exists");
 
       var regime = new Regime
@@ -75,16 +72,14 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateRegime(string regimeId, [FromBody] RegimeDTO updateRegime)
     {
-      if(updateRegime == null)
+      if(updateRegime == null || string.IsNullOrEmpty(updateRegime.Name))
         return BadRequest();
 
       if(!regimeRepository.RegimeExists(regimeId))
         return NotFound();
 
       var regime = regimeRepository.GetRegime(regimeId);
-
-      if(updateRegime.Name != null)
-        regime.Name = updateRegime.Name;
+      regime.Name = updateRegime.Name;
 
       if(!regimeRepository.UpdateRegime(regime))
         return StatusCode(500, "Something went wrong updating regime");
@@ -102,7 +97,6 @@ namespace Payroll.Controllers
         return NotFound();
 
       var regimeToDelete = regimeRepository.GetRegime(regimeId);
-
       if(!regimeRepository.DeleteRegime(regimeToDelete))
         return StatusCode(500, "Something went wrong deleting regime");
 

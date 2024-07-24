@@ -6,10 +6,10 @@ namespace Payroll.Interfaces
   {
     ICollection<State> GetStates();
     State GetState(string stateId);
+    State? GetStateByName(string stateName);
     bool CreateState(State state);
     bool UpdateState(State state);
     bool DeleteState(State state);
     bool StateExists(string stateId);
-    bool Save();
   }
 }

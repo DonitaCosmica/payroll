@@ -6,6 +6,7 @@ namespace Payroll.Interfaces
   {
     ICollection<Contract> GetContracts();
     Contract GetContract(string contractId);
+    Contract? GetContractByName(string contractName);
     bool CreateContract(Contract contract);
     bool UpdateContract(Contract contract);
     bool DeleteContract(Contract contract);

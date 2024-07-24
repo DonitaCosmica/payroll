@@ -12,6 +12,7 @@ namespace Payroll.Repository
     public CommercialArea GetCommercialArea(string commercialAreaId) => 
       context.CommercialAreas.Where(ca => ca.CommercialAreaId == commercialAreaId).FirstOrDefault() ??
       throw new Exception("No Commercial Area with the specified id was found");
+    public CommercialArea? GetCommercialAreaByName(string commercialAreaName) => context.GetEntityByName<CommercialArea>(commercialAreaName);
     public bool CreateCommercialArea(CommercialArea commercialArea) => context.CreateEntity(commercialArea);
     public bool UpdateCommercialArea(CommercialArea commercialArea) => context.UpdateEntity(commercialArea);
     public bool DeleteCommercialArea(CommercialArea commercialArea) => context.DeleteEntity(commercialArea);

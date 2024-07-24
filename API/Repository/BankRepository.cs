@@ -12,6 +12,7 @@ namespace Payroll.Repository
     public Bank GetBank(string bankId) =>
       context.Banks.Where(b => b.BankId == bankId).FirstOrDefault() ?? 
       throw new Exception("No Bank with the specified id was found.");
+    public Bank? GetBankByName(string bankName) => context.GetEntityByName<Bank>(bankName);
     public bool CreateBank(Bank bank) => context.CreateEntity(bank);
     public bool UpdateBank(Bank bank) => context.UpdateEntity(bank);
     public bool DeleteBank(Bank bank) => context.DeleteEntity(bank);

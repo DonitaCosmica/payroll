@@ -12,6 +12,7 @@ namespace Payroll.Repository
     public Department GetDepartment(string departmentId) => 
       context.Departments.Where(d => d.DepartmentId == departmentId).FirstOrDefault() ??
       throw new Exception("No Department with the specified id was found");
+    public Department? GetDepartmentByName(string departmentName) => context.GetEntityByName<Department>(departmentName);
     public bool CreateDepartment(Department department) => context.CreateEntity(department);
     public bool UpdateDepartment(Department department) => context.UpdateEntity(department);
     public bool DeleteDepartment(Department department) => context.DeleteEntity(department);

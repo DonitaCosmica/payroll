@@ -66,14 +66,10 @@ namespace Payroll.Controllers
       if(jobPositionCreate == null || !departmentRepository.DepartmentExists(jobPositionCreate.Department))
         return BadRequest();
 
-      var existingJobPosition = jobPositionRepository.GetJobPositions()
-        .FirstOrDefault(jp => jp.Name.Trim().Equals(jobPositionCreate.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
-
-      if(existingJobPosition != null)
+      if(jobPositionRepository.GetJobPositionByName(jobPositionCreate.Name.Trim()) != null)
         return Conflict("Job Position already exists");
 
       var department = departmentRepository.GetDepartment(jobPositionCreate.Department);
-
       var jobPosition = new JobPosition
       {
         JobPositionId = Guid.NewGuid().ToString(),
@@ -94,13 +90,17 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateJobPosition(string jobPositionId, [FromBody] JobPositionDTO jobPositionUpdate)
     {
-      if(jobPositionUpdate == null || !departmentRepository.DepartmentExists(jobPositionUpdate.Department))
+      if(jobPositionUpdate == null || !departmentRepository.DepartmentExists(jobPositionUpdate.Department) || string.IsNullOrEmpty(jobPositionUpdate.Name))
         return BadRequest();
 
       if(!jobPositionRepository.JobPositionExists(jobPositionId))
         return NotFound();
 
       var jobPosition = jobPositionRepository.GetJobPosition(jobPositionId);
+      var department = departmentRepository.GetDepartment(jobPositionUpdate.Department);
+      jobPosition.Name = jobPositionUpdate.Name;
+      jobPosition.DepartmentId = jobPositionUpdate.Department;
+      jobPosition.Department = department;
 
       if(!jobPositionRepository.UpdateJobPosition(jobPosition))
         return StatusCode(500, "Something went wrong updating Job Position");
@@ -118,7 +118,6 @@ namespace Payroll.Controllers
         return BadRequest();
       
       var jobPositionToDelete = jobPositionRepository.GetJobPosition(jobPositionId);
-
       if(!jobPositionRepository.DeleteJobPosition(jobPositionToDelete))
         return StatusCode(500, "Something went wrong while deleting Job Position");
 

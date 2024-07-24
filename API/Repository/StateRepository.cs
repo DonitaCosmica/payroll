@@ -12,22 +12,10 @@ namespace Payroll.Repository
     public State GetState(string stateId) =>
       context.States.Where(s => s.StateId == stateId).FirstOrDefault() ??
       throw new Exception("No State with the specified id was found");
-    public bool CreateState(State state)
-    {
-      context.Add(state);
-      return Save();
-    }
-    public bool UpdateState(State state)
-    {
-      context.Update(state);
-      return Save();
-    }
-    public bool DeleteState(State state)
-    {
-      context.Remove(state);
-      return Save();
-    }
+    public State? GetStateByName(string stateName) => context.GetEntityByName<State>(stateName);
+    public bool CreateState(State state) => context.CreateEntity(state);
+    public bool UpdateState(State state) => context.UpdateEntity(state);
+    public bool DeleteState(State state) => context.DeleteEntity(state);
     public bool StateExists(string stateId) => context.States.Any(s => s.StateId == stateId);
-    public bool Save() => context.SaveChanges() > 0;
   }
 }

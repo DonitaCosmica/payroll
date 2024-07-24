@@ -48,13 +48,10 @@ namespace Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateStatus([FromBody] StatusDTO statusCreate)
     {
-      if(statusCreate == null)
+      if(statusCreate == null || string.IsNullOrEmpty(statusCreate.Name))
         return BadRequest();
 
-      var existingStatus = statusRepository.GetStatuses()
-        .FirstOrDefault(s => s.Name.Trim().Equals(statusCreate.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
-
-      if(existingStatus != null)
+      if(statusRepository.GetStatusByName(statusCreate.Name.Trim()) != null)
         return Conflict("Status already exists");
 
       var status = new Status
@@ -75,16 +72,14 @@ namespace Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateStatus(string statusId, [FromBody] StatusDTO statusUpdate)
     {
-      if(statusUpdate == null)
+      if(statusUpdate == null || string.IsNullOrEmpty(statusUpdate.Name))
         return BadRequest();
 
       if(!statusRepository.StatusExists(statusId))
         return NotFound();
 
       var status = statusRepository.GetStatus(statusId);
-
-      if(statusUpdate.Name != null)
-        status.Name = statusUpdate.Name;
+      status.Name = statusUpdate.Name;
 
       if(!statusRepository.UpdateStatus(status))
         return StatusCode(500, "Something went wrong updating status");
@@ -102,7 +97,6 @@ namespace Payroll.Controllers
         return NotFound();
 
       var statusToDelete = statusRepository.GetStatus(statusId);
-
       if(!statusRepository.DeleteStatus(statusToDelete))
         return StatusCode(500, "Something went wrong deleting status");
 

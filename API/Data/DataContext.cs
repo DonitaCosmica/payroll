@@ -99,7 +99,7 @@ namespace Payroll.Data
       base.OnModelCreating(modelBuilder);
     }
 
-    public async Task<List<string>> GetColumns<TEntity>() where TEntity : class
+    public List<string> GetColumns<TEntity>() where TEntity : class
     {
       var entityType = Model.FindEntityType(typeof(TEntity));
       if(entityType == null)
@@ -116,13 +116,13 @@ namespace Payroll.Data
         WHERE TABLE_NAME = @TableName;
       ";
 
-      await using(var command = Database.GetDbConnection().CreateCommand())
+      using(var command = Database.GetDbConnection().CreateCommand())
       {
         command.CommandText = columnsQuery;
         command.Parameters.Add(new SqlParameter("@TableName", SqlDbType.NVarChar) { Value = entityType.GetTableName() });
-        await Database.OpenConnectionAsync();
-        await using var reader = await command.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
+        Database.OpenConnection();
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
           columnNames.Add(reader.GetString(0));
       }
       
@@ -130,24 +130,37 @@ namespace Payroll.Data
       return columnNames;
     }
 
-    public async Task<bool> CreateEntity<TEntity>(TEntity entity) where TEntity : class
+    public T? GetEntityByName<T>(string name) where T : class
+    {
+      var entitySet = Set<T>().AsEnumerable();
+      var nameProperty = typeof(T).GetProperty("Name") ?? 
+        throw new ArgumentException($"Type {typeof(T).Name} does not have 'Name' property");
+
+      return entitySet.FirstOrDefault(e => 
+      {
+        var propertyValue = nameProperty.GetValue(e)?.ToString();
+        return propertyValue?.Trim().Equals(name, StringComparison.CurrentCultureIgnoreCase) == true;
+      });
+    }
+
+    public bool CreateEntity<TEntity>(TEntity entity) where TEntity : class
     {
       Add(entity);
-      return await SaveAsync();
+      return Save();
     }
 
-    public async Task<bool> UpdateEntity<TEntity>(TEntity entity) where TEntity : class
+    public bool UpdateEntity<TEntity>(TEntity entity) where TEntity : class
     {
       Update(entity);
-      return await SaveAsync();
+      return Save();
     }
 
-    public async Task<bool> DeleteEntity<TEntity>(TEntity entity) where TEntity : class
+    public bool DeleteEntity<TEntity>(TEntity entity) where TEntity : class
     {
       Remove(entity);
-      return await SaveAsync();
+      return Save();
     } 
 
-    private async Task<bool> SaveAsync() => await SaveChangesAsync() > 0; 
+    private bool Save() => SaveChanges() > 0; 
   }
 }

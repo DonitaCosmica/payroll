@@ -6,6 +6,7 @@ namespace Payroll.Interfaces
   {
     ICollection<Department> GetDepartments();
     Department GetDepartment(string departmentId);
+    Department? GetDepartmentByName(string departmentName);
     bool CreateDepartment(Department department);
     bool UpdateDepartment(Department department);
     bool DeleteDepartment(Department department);

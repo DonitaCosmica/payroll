@@ -12,6 +12,7 @@ namespace Payroll.Repository
     public Perception GetPerception(string perceptionId) =>
       context.Perceptions.Where(p => p.PerceptionId == perceptionId).FirstOrDefault() ??
       throw new Exception("No Perception with the specified id was found");
+    public Perception? GetPerceptionByName(string perceptionName) => context.GetEntityByName<Perception>(perceptionName);
     public bool CreatePerception(Perception perception) => context.CreateEntity(perception);
     public bool UpdatePerception(Perception perception) => context.UpdateEntity(perception);
     public bool DeletePerception(Perception perception) => context.DeleteEntity(perception);

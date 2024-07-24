@@ -62,13 +62,10 @@ namespace  Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateCompany([FromBody] CompanyDTO companyCreate)
     {
-      if(companyCreate == null)
+      if(companyCreate == null ||  string.IsNullOrEmpty(companyCreate.Name))
         return BadRequest();
 
-      var existingCompany = companyRepository.GetCompanies()
-        .FirstOrDefault(c => c.Name.Trim().Equals(companyCreate.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
-
-      if(existingCompany != null)
+      if(companyRepository.GetCompanyByName(companyCreate.Name.Trim()) != null)
         return Conflict("Company already exists");
 
       var company = new Company
@@ -90,19 +87,15 @@ namespace  Payroll.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateCompany(string companyId, [FromBody] CompanyDTO companyUpdate)
     {
-      if(companyUpdate == null || companyUpdate.TotalWorkers <= 0)
+      if(companyUpdate == null || companyUpdate.TotalWorkers < 0 || string.IsNullOrEmpty(companyUpdate.Name))
         return BadRequest();
 
       if(!companyRepository.CompanyExists(companyId))
         return NotFound();
 
       var company = companyRepository.GetCompany(companyId);
-
-      if(companyUpdate.Name != null && companyUpdate.TotalWorkers >= 0)
-      {
-        company.Name = companyUpdate.Name;
-        company.TotalWorkers = companyUpdate.TotalWorkers;
-      }
+      company.Name = companyUpdate.Name;
+      company.TotalWorkers = companyUpdate.TotalWorkers;
 
       if(!companyRepository.UpdateCompany(company))
         return StatusCode(500, "Something went wrong updating company");
@@ -120,7 +113,6 @@ namespace  Payroll.Controllers
         return NotFound();
 
       var companyToDelete = companyRepository.GetCompany(companyId);
-
       if(!companyRepository.DeleteCompany(companyToDelete))
         return StatusCode(500, "Something went wrong deleting company");
 

@@ -1,6 +1,5 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Payroll.Data;
 using Payroll.DTO;
 using Payroll.Interfaces;
@@ -17,14 +16,14 @@ namespace Payroll.Controllers
 
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<ProjectDTO>))]
-    public async Task<IActionResult> GetProjects()
+    public IActionResult GetProjects()
     {
-      var projects = await projectRepository.GetProjects();
-      var projectDTOs = await Task.WhenAll(projects.Select(p => MapToProjectDTORequest(p)));
+      var projects = projectRepository.GetProjects()
+        .Select(MapToProjectDTORequest).ToList();
 
       var result = new
       {
-        Columns = await projectRepository.GetColumns(),
+        Columns = projectRepository.GetColumns(),
         Projects = projects
       };
 
@@ -34,16 +33,16 @@ namespace Payroll.Controllers
     [HttpGet("{projectId}")]
     [ProducesResponseType(200, Type = typeof(ProjectDTO))]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> GetProject(string projectId)
+    public IActionResult GetProject(string projectId)
     {
-      if(!await projectRepository.ProjectExistsAsync(projectId))
+      if(!projectRepository.ProjectExists(projectId))
         return NotFound();
 
-      var project = await projectRepository.GetProject(projectId);
-      var projectDTO = await MapToProjectDTORequest(project);
+      var project = projectRepository.GetProject(projectId);
+      var projectDTO = MapToProjectDTORequest(project);
       var result = new
       {
-        Columns = await projectRepository.GetColumns(),
+        Columns = projectRepository.GetColumns(),
         Project = projectDTO
       };
 
@@ -53,21 +52,18 @@ namespace Payroll.Controllers
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreateProject([FromBody] ProjectDTO projectCreate)
+    public IActionResult CreateProject([FromBody] ProjectDTO projectCreate)
     {
       if(projectCreate == null)
         return BadRequest();
 
-      var existingProjects = await projectRepository.GetProjects();
-      var existingProject = existingProjects.FirstOrDefault(c => c.Name.Trim().Equals(projectCreate.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
-
-      if(existingProject != null)
+      if(projectRepository.GetProjectByName(projectCreate.Name.Trim()) != null)
         return Conflict("Project already exists");
 
-      var result = await (from c in context.Companies
+      var result = (from c in context.Companies
         join s in context.Statuses on projectCreate.Status equals s.StatusId
         select new { Company = c, Status = s })
-        .FirstOrDefaultAsync();
+        .FirstOrDefault();
       
       if(result == null)
         return StatusCode(500, "Something went wrong while fetching related data");
@@ -85,7 +81,7 @@ namespace Payroll.Controllers
         Description = projectCreate.Description
       };
 
-      if(!await projectRepository.CreateProject(project))
+      if(!projectRepository.CreateProject(project))
         return StatusCode(500, "Something went wrong while saving");
 
       return NoContent();
@@ -95,25 +91,19 @@ namespace Payroll.Controllers
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> UpdateProject(string projectId, [FromBody] ProjectDTO projectUpdate)
+    public IActionResult UpdateProject(string projectId, [FromBody] ProjectDTO projectUpdate)
     {
-      if(projectUpdate == null)
+      if(projectUpdate == null || string.IsNullOrEmpty(projectUpdate.Code) || string.IsNullOrEmpty(projectUpdate.Name) || string.IsNullOrEmpty(projectUpdate.Description))
         return BadRequest();
 
-      if(string.IsNullOrEmpty(projectUpdate.Code) || string.IsNullOrEmpty(projectUpdate.Name) || string.IsNullOrEmpty(projectUpdate.Description))
-        return BadRequest();
-
-      if(!await projectRepository.ProjectExistsAsync(projectId))
-        return NotFound();
-
-      var project = await projectRepository.GetProject(projectId);
+      var project = projectRepository.GetProject(projectId);
       if (project == null)
         return NotFound("Project not found");
 
-      var result = await (from c in context.Companies
+      var result = (from c in context.Companies
         join s in context.Statuses on projectUpdate.Status equals s.StatusId
         select new { Company = c, Status = s })
-        .FirstOrDefaultAsync();
+        .FirstOrDefault();
 
       if(result == null)
         return StatusCode(500, "Something went wrong while fetching related data");
@@ -121,11 +111,13 @@ namespace Payroll.Controllers
       project.Code = projectUpdate.Code;
       project.Name = projectUpdate.Name;
       project.StartDate = DateTime.ParseExact(projectUpdate.StartDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+      project.StatusId = projectUpdate.Status;
       project.Status = result.Status;
+      project.CompanyId = projectUpdate.Company;
       project.Company = result.Company;
       project.Description = projectUpdate.Description;
 
-      if(!await projectRepository.UpdateProject(project))
+      if(!projectRepository.UpdateProject(project))
         return StatusCode(500, "Something went wrong updating Project");
 
       return NoContent();
@@ -135,32 +127,31 @@ namespace Payroll.Controllers
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> DeleteProject(string projectId)
+    public IActionResult DeleteProject(string projectId)
     {
-      if(!await projectRepository.ProjectExistsAsync(projectId))
+      if(!projectRepository.ProjectExists(projectId))
         return BadRequest();
 
-      var projectToDelete = await projectRepository.GetProject(projectId);
-
-      if(!await projectRepository.DeleteProject(projectToDelete))
+      var projectToDelete = projectRepository.GetProject(projectId);
+      if(!projectRepository.DeleteProject(projectToDelete))
         return StatusCode(500, "sOmething went wrong while deleting Project");
 
       return NoContent();
     }
 
-    private async Task<ProjectDTO> MapToProjectDTORequest(Project? project)
+    private ProjectDTO MapToProjectDTORequest(Project? project)
     {
       if (project == null)
         return new ProjectDTO();
 
       var projectDTO = new ProjectDTO();
 
-      var result = await (from p in context.Projects
+      var result = (from p in context.Projects
         join c in context.Companies on p.CompanyId equals c.CompanyId
         join s in context.Statuses on p.StatusId equals s.StatusId
         where p.ProjectId == project.ProjectId
         select new { Project = p, CompanyName = c.Name, StatusName = s.Name })
-        .FirstOrDefaultAsync();
+        .FirstOrDefault();
 
       if(result != null)
       {

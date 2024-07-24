@@ -12,6 +12,7 @@ namespace Payroll.Repository
     public FederalEntity GetFederalEntity(string federalEntityId) => 
       context.FederalEntities.Where(fe => fe.FederalEntityId == federalEntityId).FirstOrDefault() ?? 
       throw new Exception("No Federal Entity with the specified id was found");
+    public FederalEntity? GetFederalEntityByName(string federalEntityName) => context.GetEntityByName<FederalEntity>(federalEntityName);
     public bool CreateFederalEntity(FederalEntity federalEntity) => context.CreateEntity(federalEntity);
     public bool UpdateFederalEntity(FederalEntity federalEntity) => context.UpdateEntity(federalEntity);
     public bool DeleteFederalEntity(FederalEntity federalEntity) => context.DeleteEntity(federalEntity);
