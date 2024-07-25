@@ -9,18 +9,15 @@ namespace Payroll.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
-  public class ProjectController(DataContext context, IProjectRepository projectRepository) : Controller
+  public class ProjectController(IProjectRepository projectRepository) : Controller
   {
-    private readonly DataContext context = context;
     private readonly IProjectRepository projectRepository = projectRepository;
 
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<ProjectDTO>))]
     public IActionResult GetProjects()
     {
-      var projects = projectRepository.GetProjects()
-        .Select(MapToProjectDTORequest).ToList();
-
+      var projects = projectRepository.GetProjects().Select(MapToProjectDTORequest).ToList();
       var result = new
       {
         Columns = projectRepository.GetColumns(),
@@ -54,20 +51,17 @@ namespace Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateProject([FromBody] ProjectDTO projectCreate)
     {
-      if(projectCreate == null)
+      if(projectCreate == null || string.IsNullOrEmpty(projectCreate.Code) || string.IsNullOrEmpty(projectCreate.Name) || string.IsNullOrEmpty(projectCreate.Description))
         return BadRequest();
 
       if(projectRepository.GetProjectByName(projectCreate.Name.Trim()) != null)
         return Conflict("Project already exists");
 
-      var result = (from c in context.Companies
-        join s in context.Statuses on projectCreate.Status equals s.StatusId
-        select new { Company = c, Status = s })
-        .FirstOrDefault();
-      
-      if(result == null)
+      var relatedEntities = projectRepository.GetRelatedEntities(projectCreate.Company, projectCreate.Status);
+      if(relatedEntities == null)
         return StatusCode(500, "Something went wrong while fetching related data");
       
+      var (company, status) = relatedEntities.Value;
       var project = new Project
       {
         ProjectId = Guid.NewGuid().ToString(),
@@ -75,9 +69,9 @@ namespace Payroll.Controllers
         Name = projectCreate.Name,
         StartDate = DateTime.ParseExact(projectCreate.StartDate, "yyyy-MM-dd", CultureInfo.InvariantCulture),
         StatusId = projectCreate.Status,
-        Status = result.Status,
+        Status = status,
         CompanyId = projectCreate.Company,
-        Company = result.Company,
+        Company = company,
         Description = projectCreate.Description
       };
 
@@ -96,25 +90,25 @@ namespace Payroll.Controllers
       if(projectUpdate == null || string.IsNullOrEmpty(projectUpdate.Code) || string.IsNullOrEmpty(projectUpdate.Name) || string.IsNullOrEmpty(projectUpdate.Description))
         return BadRequest();
 
+      if(!projectRepository.EntitiesExist(projectUpdate.Company, projectUpdate.Status))
+        return BadRequest();
+
       var project = projectRepository.GetProject(projectId);
       if (project == null)
         return NotFound("Project not found");
 
-      var result = (from c in context.Companies
-        join s in context.Statuses on projectUpdate.Status equals s.StatusId
-        select new { Company = c, Status = s })
-        .FirstOrDefault();
-
-      if(result == null)
+      var relatedEntities = projectRepository.GetRelatedEntities(projectUpdate.Company, projectUpdate.Status);
+      if(relatedEntities == null)
         return StatusCode(500, "Something went wrong while fetching related data");
 
+      var (company, status) = relatedEntities.Value;
       project.Code = projectUpdate.Code;
       project.Name = projectUpdate.Name;
       project.StartDate = DateTime.ParseExact(projectUpdate.StartDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
       project.StatusId = projectUpdate.Status;
-      project.Status = result.Status;
+      project.Status = status;
       project.CompanyId = projectUpdate.Company;
-      project.Company = result.Company;
+      project.Company = company;
       project.Description = projectUpdate.Description;
 
       if(!projectRepository.UpdateProject(project))
@@ -143,28 +137,17 @@ namespace Payroll.Controllers
     {
       if (project == null)
         return new ProjectDTO();
-
-      var projectDTO = new ProjectDTO();
-
-      var result = (from p in context.Projects
-        join c in context.Companies on p.CompanyId equals c.CompanyId
-        join s in context.Statuses on p.StatusId equals s.StatusId
-        where p.ProjectId == project.ProjectId
-        select new { Project = p, CompanyName = c.Name, StatusName = s.Name })
-        .FirstOrDefault();
-
-      if(result != null)
+        
+      return new ProjectDTO
       {
-        projectDTO.ProjectId = result.Project.ProjectId;
-        projectDTO.Code = result.Project.Code;
-        projectDTO.Name = result.Project.Name;
-        projectDTO.StartDate = result.Project.StartDate.ToString("yyyy-MM-dd");
-        projectDTO.Status = result.StatusName;
-        projectDTO.Company = result.CompanyName;
-        projectDTO.Description = result.Project.Description;
-      }
-
-      return projectDTO;
+        ProjectId = project.ProjectId,
+        Code = project.Code,
+        Name = project.Name,
+        StartDate = project.StartDate.ToString("yyyy-MM-dd"),
+        Status = project.Status.Name,
+        Company = project.Company.Name,
+        Description = project.Description
+      };
     }
   }
 }

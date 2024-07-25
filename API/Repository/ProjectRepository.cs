@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Payroll.Data;
 using Payroll.Interfaces;
 using Payroll.Models;
@@ -8,15 +9,38 @@ namespace Payroll.Repository
   {
     private readonly DataContext context = context;
 
-    public ICollection<Project> GetProjects() => context.Projects.ToList();
+    public ICollection<Project> GetProjects() => 
+      context.Projects.Include(p => p.Company).Include(p => p.Status).ToList();
     public Project GetProject(string projectId) => 
-      context.Projects.Where(p => p.ProjectId == projectId).FirstOrDefault() ??
+      context.Projects.Include(p => p.Company).Include(p => p.Status)
+      .FirstOrDefault(p => p.ProjectId == projectId) ??
       throw new Exception("No Project with the specified id was found");
     public Project? GetProjectByName(string projectName) => context.GetEntityByName<Project>(projectName);
+    public (Company, Status)? GetRelatedEntities(string companyId, string statusId)
+    {
+      var result = (from c in context.Companies
+        join s in context.Statuses on statusId equals s.StatusId
+        where c.CompanyId == companyId
+        select new { Company = c, Status = s })
+        .FirstOrDefault();
+
+      if(result == null) return null;
+      return (result.Company, result.Status);
+    }
     public bool CreateProject(Project project) => context.CreateEntity(project);
     public bool UpdateProject(Project project) => context.UpdateEntity(project);
     public bool DeleteProject(Project project) => context.DeleteEntity(project);
     public List<string> GetColumns() => context.GetColumns<Project>();
     public bool ProjectExists(string projectId) => context.Projects.Any(p => p.ProjectId == projectId);
+    public bool EntitiesExist(string companyId, string statusId)
+    {
+      var exists = (from c in context.Companies
+        join s in context.Statuses on statusId equals s.StatusId
+        where c.CompanyId == companyId
+        select new { CompanyExists = c != null, StatusExists = s != null })
+        .FirstOrDefault();
+
+      return exists != null;
+    }
   }
 }

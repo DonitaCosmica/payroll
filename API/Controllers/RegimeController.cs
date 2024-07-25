@@ -48,7 +48,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateRegime([FromBody] RegimeDTO regimeCreate)
     {
-      if(regimeCreate == null)
+      if(regimeCreate == null || string.IsNullOrEmpty(regimeCreate.Name))
         return BadRequest();
 
       if(regimeRepository.GetRegimeByName(regimeCreate.Name.Trim()) != null)

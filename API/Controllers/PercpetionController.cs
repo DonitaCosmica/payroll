@@ -64,7 +64,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreatePerception([FromBody] PerceptionDTO perceptionCreate)
     {
-      if(perceptionCreate == null)
+      if(perceptionCreate == null || perceptionCreate.Key < 0 || string.IsNullOrEmpty(perceptionCreate.Description))
         return BadRequest();
 
       if(perceptionRepository.GetPerceptionByName(perceptionCreate.Description.Trim()) != null)

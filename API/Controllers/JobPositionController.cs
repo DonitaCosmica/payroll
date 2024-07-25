@@ -21,7 +21,7 @@ namespace Payroll.Controllers
         {
           JobPositionId = jp.JobPositionId,
           Name = jp.Name,
-          Department = departmentRepository.GetDepartment(jp.DepartmentId).Name
+          Department = jp.Department.Name
         }).ToList();
 
       var result = new
@@ -46,7 +46,7 @@ namespace Payroll.Controllers
       {
         JobPositionId = jobPosition.JobPositionId,
         Name = jobPosition.Name,
-        Department = departmentRepository.GetDepartment(jobPosition.DepartmentId).Name
+        Department = jobPosition.Department.Name
       };
 
       var result = new
@@ -63,19 +63,18 @@ namespace Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateJobPosition([FromBody] JobPositionDTO jobPositionCreate)
     {
-      if(jobPositionCreate == null || !departmentRepository.DepartmentExists(jobPositionCreate.Department))
+      if(jobPositionCreate == null || !departmentRepository.DepartmentExists(jobPositionCreate.Department) || string.IsNullOrEmpty(jobPositionCreate.Name))
         return BadRequest();
 
       if(jobPositionRepository.GetJobPositionByName(jobPositionCreate.Name.Trim()) != null)
         return Conflict("Job Position already exists");
 
-      var department = departmentRepository.GetDepartment(jobPositionCreate.Department);
       var jobPosition = new JobPosition
       {
         JobPositionId = Guid.NewGuid().ToString(),
         Name = jobPositionCreate.Name,
         DepartmentId = jobPositionCreate.Department,
-        Department = department
+        Department = departmentRepository.GetDepartment(jobPositionCreate.Department)
       };
 
       if(!jobPositionRepository.CreateJobPosition(jobPosition))
@@ -97,10 +96,11 @@ namespace Payroll.Controllers
         return NotFound();
 
       var jobPosition = jobPositionRepository.GetJobPosition(jobPositionId);
-      var department = departmentRepository.GetDepartment(jobPositionUpdate.Department);
       jobPosition.Name = jobPositionUpdate.Name;
       jobPosition.DepartmentId = jobPositionUpdate.Department;
-      jobPosition.Department = department;
+      
+      if(jobPosition.Department == null || jobPosition.Department.DepartmentId != jobPositionUpdate.Department)
+        jobPosition.Department = departmentRepository.GetDepartment(jobPositionUpdate.Department);
 
       if(!jobPositionRepository.UpdateJobPosition(jobPosition))
         return StatusCode(500, "Something went wrong updating Job Position");

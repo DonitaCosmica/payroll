@@ -12,5 +12,7 @@ namespace Payroll.Interfaces
     bool DeleteProject(Project project);
     List<string> GetColumns();
     bool ProjectExists(string projectId);
+    bool EntitiesExist(string companyId, string statusId);
+    (Company, Status)? GetRelatedEntities(string statusId, string companyId);
   }
 }

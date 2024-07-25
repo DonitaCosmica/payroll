@@ -6,6 +6,7 @@ namespace Payroll.Interfaces
   {
     ICollection<JobPosition> GetJobPositions();
     JobPosition GetJobPosition(string jobPositionId);
+    JobPosition GetJobPositionWithDepartment(string jobPositionId);
     JobPosition? GetJobPositionByName(string jobPositionName);
     bool JobPositionExists(string jobPositionId);
     bool CreateJobPosition(JobPosition jobPosition);

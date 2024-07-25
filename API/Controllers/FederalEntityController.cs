@@ -48,7 +48,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateFederalEntity([FromBody] FederalEntityDTO federalEntityCreate)
     {
-      if(federalEntityCreate == null)
+      if(federalEntityCreate == null || string.IsNullOrEmpty(federalEntityCreate.Name))
         return BadRequest();
 
       if(federalEntityRepository.GetFederalEntityByName(federalEntityCreate.Name.Trim()) != null)

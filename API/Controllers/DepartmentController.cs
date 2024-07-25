@@ -64,7 +64,7 @@ namespace Payroll.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateDepartment([FromBody] DepartmentDTO departmentCreate)
     {
-      if(departmentCreate == null)
+      if(departmentCreate == null || departmentCreate.TotalEmployees < 0 || string.IsNullOrEmpty(departmentCreate.Name))
         return BadRequest();
 
       if(departmentRepository.GetDepartmentByName(departmentCreate.Name.Trim()) != null)
