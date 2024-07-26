@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Payroll.Data;
+using Payroll.DTO;
 using Payroll.Interfaces;
 using Payroll.Models;
 
@@ -16,11 +17,11 @@ namespace Payroll.Repository
       .FirstOrDefault(p => p.ProjectId == projectId) ??
       throw new Exception("No Project with the specified id was found");
     public Project? GetProjectByName(string projectName) => context.GetEntityByName<Project>(projectName);
-    public (Company, Status)? GetRelatedEntities(string companyId, string statusId)
+    public (Company, Status)? GetRelatedEntities(ProjectDTO projectDTO)
     {
       var result = (from c in context.Companies
-        join s in context.Statuses on statusId equals s.StatusId
-        where c.CompanyId == companyId
+        join s in context.Statuses on projectDTO.Status equals s.StatusId
+        where c.CompanyId == projectDTO.Company
         select new { Company = c, Status = s })
         .FirstOrDefault();
 
@@ -32,15 +33,5 @@ namespace Payroll.Repository
     public bool DeleteProject(Project project) => context.DeleteEntity(project);
     public List<string> GetColumns() => context.GetColumns<Project>();
     public bool ProjectExists(string projectId) => context.Projects.Any(p => p.ProjectId == projectId);
-    public bool EntitiesExist(string companyId, string statusId)
-    {
-      var exists = (from c in context.Companies
-        join s in context.Statuses on statusId equals s.StatusId
-        where c.CompanyId == companyId
-        select new { CompanyExists = c != null, StatusExists = s != null })
-        .FirstOrDefault();
-
-      return exists != null;
-    }
   }
 }

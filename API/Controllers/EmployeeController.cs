@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Payroll.Data;
 using Payroll.DTO;
 using Payroll.Interfaces;
 using Payroll.Models;
@@ -8,89 +7,9 @@ namespace Payroll.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
-  public class EmployeeController(DataContext context, IEmployeeRepository employeeRepository) : Controller
+  public class EmployeeController(IEmployeeRepository employeeRepository) : Controller
   {
-    private readonly DataContext context = context;
     private readonly IEmployeeRepository employeeRepository = employeeRepository;
-
-    private EmployeeDTO MapToEmployeeDTORequest(Employee? employee)
-    {
-      if (employee == null)
-        return new EmployeeDTO();
-
-      var employeeDTO = new EmployeeDTO();
-
-      var query = from e in context.Employees
-        join b in context.Banks on e.BankId equals b.BankId
-        join c in context.Companies on e.CompanyId equals c.CompanyId
-        join ca in context.CommercialAreas on e.CommercialAreaId equals ca.CommercialAreaId
-        join ct in context.Contracts on e.ContractId equals ct.ContractId
-        join fe in context.FederalEntities on e.FederalEntityId equals fe.FederalEntityId
-        join jp in context.JobPositions on e.JobPositionId equals jp.JobPositionId
-        join r in context.Regimes on e.RegimeId equals r.RegimeId
-        join s in context.Statuses on e.StatusId equals s.StatusId
-        join st in context.States on e.StateId equals st.StateId
-        where e.EmployeeId == employee.EmployeeId
-        select new
-        {
-          Employee = e,
-          BankName = b.Name,
-          CompanyName = c.Name,
-          CommercialAreaName = ca.Name,
-          ContractName = ct.Name,
-          FederalEntityName = fe.Name,
-          JobPositionName = jp.Name,
-          RegimeName = r.Name,
-          StatusName = s.Name,
-          StateName = st.Name,
-          Projects = (from ep in context.EmployeeProjects
-            where ep.EmployeeId == e.EmployeeId
-            from p in context.Projects
-            where p.ProjectId == ep.ProjectId
-            select p.Name).ToList()
-        };
-
-        var result = query.FirstOrDefault();
-        if(result != null)
-        {
-          employeeDTO.EmployeeId = result.Employee.EmployeeId;
-          employeeDTO.Key = result.Employee.Key;
-          employeeDTO.Name = result.Employee.Name;
-          employeeDTO.RFC = result.Employee.RFC;
-          employeeDTO.CURP = result.Employee.CURP;
-          employeeDTO.Company = result.CompanyName;
-          employeeDTO.Bank = result.BankName;
-          employeeDTO.InterbankCode = result.Employee.InterbankCode;
-          employeeDTO.BankAccount =  result.Employee.BankAccount;
-          employeeDTO.BankPortalID = result.Employee.BankPortalID;
-          employeeDTO.IsAStarter = result.Employee.IsAStarter;
-          employeeDTO.Regime = result.RegimeName;
-          employeeDTO.NSS = result.Employee.NSS;
-          employeeDTO.DateAdmission = result.Employee.DateAdmission;
-          employeeDTO.JobPosition = result.JobPositionName;
-          employeeDTO.CommercialArea = result.CommercialAreaName;
-          employeeDTO.Contract = result.ContractName;
-          employeeDTO.BaseSalary = result.Employee.BaseSalary;
-          employeeDTO.DailySalary = result.Employee.DailySalary;
-          employeeDTO.ValuePerExtraHour = result.Employee.ValuePerExtraHour;
-          employeeDTO.FederalEntity = result.FederalEntityName;
-          employeeDTO.Phone = result.Employee.Phone;
-          employeeDTO.Email = result.Employee.Email;
-          employeeDTO.Direction = result.Employee.Direction;
-          employeeDTO.Suburb = result.Employee.Suburb;
-          employeeDTO.PostalCode = result.Employee.PostalCode;
-          employeeDTO.City = result.Employee.City;
-          employeeDTO.State = result.StateName;
-          employeeDTO.Country = result.Employee.Country;
-          employeeDTO.Status = result.StatusName;
-          employeeDTO.IsProvider = result.Employee.IsProvider;
-          employeeDTO.Credit = result.Employee.Credit;
-          employeeDTO.Contact = result.Employee.Contact;
-          employeeDTO.Projects = result.Projects;
-        }
-
-      return employeeDTO;
-    }
 
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Employee>))]
@@ -101,7 +20,7 @@ namespace Payroll.Controllers
 
       var result = new
       {
-        Columns = employeeRepository.GetColumns(),
+        Columns = GetEmployeeColumns(),
         Employees = employees
       };
 
@@ -121,7 +40,7 @@ namespace Payroll.Controllers
       var employeeDTO = MapToEmployeeDTORequest(employee);
       var result = new
       {
-        Columns = employeeRepository.GetColumns(),
+        Columns = GetEmployeeColumns(),
         Employee = employeeDTO
       };
 
@@ -137,80 +56,37 @@ namespace Payroll.Controllers
       if(employeeCreate == null)
         return BadRequest();
 
-      var query = from c in context.Companies
-        join b in context.Banks on employeeCreate.Bank equals b.BankId
-        join ca in context.CommercialAreas on employeeCreate.CommercialArea equals ca.CommercialAreaId
-        join ct in context.Contracts on employeeCreate.Contract equals ct.ContractId
-        join fe in context.FederalEntities on employeeCreate.FederalEntity equals fe.FederalEntityId
-        join jp in context.JobPositions on employeeCreate.JobPosition equals jp.JobPositionId
-        join r in context.Regimes on employeeCreate.Regime equals r.RegimeId
-        join s in context.Statuses on employeeCreate.Status equals s.StatusId
-        join st in context.States on employeeCreate.State equals st.StateId
-        select new
-        {
-          Bank = b,
-          Company = c,
-          CommercialArea = ca,
-          Contract = ct,
-          FederalEntity = fe,
-          JobPosition = jp,
-          Regime = r,
-          Status = s,
-          State = st
-        };
-
-      var result = query.FirstOrDefault();
-      if(result == null)
+      var relatedEntities = employeeRepository.GetRelatedEntities(employeeCreate);
+      if(relatedEntities == null)
         return StatusCode(500, "Something went wrong while fetching related data");
 
-      var employee = new Employee
-      {
-        EmployeeId = Guid.NewGuid().ToString(),
-        Key = employeeCreate.Key,
-        Name = employeeCreate.Name,
-        RFC = employeeCreate.RFC,
-        CURP = employeeCreate.CURP,
-        BankId = employeeCreate.Bank,
-        Bank = result.Bank,
-        InterbankCode = employeeCreate.InterbankCode,
-        BankAccount = employeeCreate.BankAccount,
-        BankPortalID = employeeCreate.BankPortalID,
-        IsAStarter = employeeCreate.IsAStarter,
-        RegimeId = employeeCreate.Regime,
-        Regime = result.Regime,
-        NSS = employeeCreate.NSS,
-        DateAdmission = employeeCreate.DateAdmission,
-        JobPositionId = employeeCreate.JobPosition,
-        JobPosition = result.JobPosition,
-        CommercialAreaId = employeeCreate.CommercialArea,
-        CommercialArea = result.CommercialArea,
-        ContractId = employeeCreate.Contract,
-        Contract = result.Contract,
-        BaseSalary = employeeCreate.BaseSalary,
-        DailySalary = employeeCreate.DailySalary,
-        ValuePerExtraHour = employeeCreate.ValuePerExtraHour,
-        FederalEntityId = employeeCreate.FederalEntity,
-        FederalEntity = result.FederalEntity,
-        Phone = employeeCreate.Phone,
-        Email = employeeCreate.Email,
-        Direction = employeeCreate.Direction,
-        Suburb = employeeCreate.Suburb,
-        PostalCode = employeeCreate.PostalCode,
-        City = employeeCreate.City,
-        StateId = employeeCreate.State,
-        State = result.State,
-        Country = employeeCreate.Country,
-        StatusId = employeeCreate.Status,
-        Status = result.Status,
-        IsProvider = employeeCreate.IsProvider,
-        Credit = employeeCreate.Credit,
-        Contact = employeeCreate.Contact,
-        CompanyId = employeeCreate.Company,
-        Company = result.Company,
-      };
-
+      var employee = MapToEmployeeModel(employeeCreate, relatedEntities);
       if(!employeeRepository.CreateEmployee(employeeCreate.Projects, employee))
         return StatusCode(500, "Something went wrong while saving");
+
+      return NoContent();
+    }
+
+    [HttpPatch("{employeeId}")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public IActionResult UpdateEmployee(string employeeId, [FromBody] EmployeeDTO updateEmployee)
+    {
+      if(updateEmployee == null)
+        return BadRequest();
+
+      var employee = employeeRepository.GetEmployee(employeeId);
+      if(employee == null)
+        return NotFound();
+
+      var relatedEntities = employeeRepository.GetRelatedEntities(updateEmployee);
+      if(relatedEntities == null)
+        return StatusCode(500, "Something went wrong while fetching related data");
+
+            MapToUpdateEmployeeModel(employee, updateEmployee, relatedEntities);
+      if(!employeeRepository.UpdateEmployee(employee))
+        return StatusCode(500, "Something went wrong updating Employee");
 
       return NoContent();
     }
@@ -230,6 +106,152 @@ namespace Payroll.Controllers
         return StatusCode(500, "Something went wrong deleting employee");
 
       return NoContent();
+    }
+
+    private List<string> GetEmployeeColumns()
+    {
+      var columns = employeeRepository.GetColumns();
+      columns.Insert(8, "Projects");
+      return columns;
+    }
+
+    private static Employee MapToEmployeeModel(EmployeeDTO employeeCreate, EmployeeRelatedEntitiesDTO relatedEntities)
+    {
+      return new Employee
+      {
+        EmployeeId = Guid.NewGuid().ToString(),
+        Key = employeeCreate.Key,
+        Name = employeeCreate.Name,
+        RFC = employeeCreate.RFC,
+        CURP = employeeCreate.CURP,
+        BankId = employeeCreate.Bank,
+        Bank = relatedEntities.Bank,
+        InterbankCode = employeeCreate.InterbankCode,
+        BankAccount = employeeCreate.BankAccount,
+        BankPortalID = employeeCreate.BankPortalID,
+        IsAStarter = employeeCreate.IsAStarter,
+        RegimeId = employeeCreate.Regime,
+        Regime = relatedEntities.Regime,
+        NSS = employeeCreate.NSS,
+        DateAdmission = employeeCreate.DateAdmission,
+        JobPositionId = employeeCreate.JobPosition,
+        JobPosition = relatedEntities.JobPosition,
+        CommercialAreaId = employeeCreate.CommercialArea,
+        CommercialArea = relatedEntities.CommercialArea,
+        ContractId = employeeCreate.Contract,
+        Contract = relatedEntities.Contract,
+        BaseSalary = employeeCreate.BaseSalary,
+        DailySalary = employeeCreate.DailySalary,
+        ValuePerExtraHour = employeeCreate.ValuePerExtraHour,
+        FederalEntityId = employeeCreate.FederalEntity,
+        FederalEntity = relatedEntities.FederalEntity,
+        Phone = employeeCreate.Phone,
+        Email = employeeCreate.Email,
+        Direction = employeeCreate.Direction,
+        Suburb = employeeCreate.Suburb,
+        PostalCode = employeeCreate.PostalCode,
+        City = employeeCreate.City,
+        StateId = employeeCreate.State,
+        State = relatedEntities.State,
+        Country = employeeCreate.Country,
+        StatusId = employeeCreate.Status,
+        Status = relatedEntities.Status,
+        IsProvider = employeeCreate.IsProvider,
+        Credit = employeeCreate.Credit,
+        Contact = employeeCreate.Contact,
+        CompanyId = employeeCreate.Company,
+        Company = relatedEntities.Company
+      };
+    }
+
+    private static void MapToUpdateEmployeeModel(Employee employee, EmployeeDTO updateEmployee, EmployeeRelatedEntitiesDTO relatedEntities)
+    {
+      employee.Key = updateEmployee.Key;
+      employee.Name = updateEmployee.Name;
+      employee.RFC = updateEmployee.RFC;
+      employee.CURP = updateEmployee.CURP;
+      employee.BankId = updateEmployee.Bank;
+      employee.Bank = relatedEntities.Bank;
+      employee.InterbankCode = updateEmployee.InterbankCode;
+      employee.BankAccount = updateEmployee.BankAccount;
+      employee.BankPortalID = updateEmployee.BankPortalID;
+      employee.IsAStarter = updateEmployee.IsAStarter;
+      employee.RegimeId = updateEmployee.Regime;
+      employee.Regime = relatedEntities.Regime;
+      employee.NSS = updateEmployee.NSS;
+      employee.DateAdmission = updateEmployee.DateAdmission;
+      employee.JobPositionId = updateEmployee.JobPosition;
+      employee.JobPosition = relatedEntities.JobPosition;
+      employee.CommercialAreaId = updateEmployee.CommercialArea;
+      employee.CommercialArea = relatedEntities.CommercialArea;
+      employee.ContractId = updateEmployee.Contract;
+      employee.Contract = relatedEntities.Contract;
+      employee.BaseSalary = updateEmployee.BaseSalary;
+      employee.DailySalary = updateEmployee.DailySalary;
+      employee.ValuePerExtraHour = updateEmployee.ValuePerExtraHour;
+      employee.FederalEntityId = updateEmployee.FederalEntity;
+      employee.FederalEntity = relatedEntities.FederalEntity;
+      employee.Phone = updateEmployee.Phone;
+      employee.Email = updateEmployee.Email;
+      employee.Direction = updateEmployee.Direction;
+      employee.Suburb = updateEmployee.Suburb;
+      employee.PostalCode = updateEmployee.PostalCode;
+      employee.City = updateEmployee.City;
+      employee.StateId = updateEmployee.State;
+      employee.State = relatedEntities.State;
+      employee.Country = updateEmployee.Country;
+      employee.StatusId = updateEmployee.Status;
+      employee.Status = relatedEntities.Status;
+      employee.IsProvider = updateEmployee.IsProvider;
+      employee.Credit = updateEmployee.Credit;
+      employee.Contact = updateEmployee.Contact;
+      employee.CompanyId = updateEmployee.Company;
+      employee.Company = relatedEntities.Company;
+    }
+
+    private EmployeeDTO MapToEmployeeDTORequest(Employee? employee)
+    {
+      if (employee == null)
+        return new EmployeeDTO();
+
+      return new EmployeeDTO()
+      {
+        EmployeeId = employee.EmployeeId,
+        Key = employee.Key,
+        Name = employee.Name,
+        RFC = employee.RFC,
+        CURP = employee.CURP,
+        Company = employee.Company.Name,
+        Bank = employee.Bank.Name,
+        InterbankCode = employee.InterbankCode,
+        BankAccount =  employee.BankAccount,
+        BankPortalID = employee.BankPortalID,
+        IsAStarter = employee.IsAStarter,
+        Regime = employee.Regime.Name,
+        NSS = employee.NSS,
+        DateAdmission = employee.DateAdmission,
+        JobPosition = employee.JobPosition.Name,
+        CommercialArea = employee.CommercialArea.Name,
+        Contract = employee.Contract.Name,
+        BaseSalary = employee.BaseSalary,
+        DailySalary = employee.DailySalary,
+        ValuePerExtraHour = employee.ValuePerExtraHour,
+        FederalEntity = employee.FederalEntity.Name,
+        Phone = employee.Phone,
+        Email = employee.Email,
+        Direction = employee.Direction,
+        Suburb = employee.Suburb,
+        PostalCode = employee.PostalCode,
+        City = employee.City,
+        State = employee.State.Name,
+        Country = employee.Country,
+        Status = employee.Status.Name,
+        IsProvider = employee.IsProvider,
+        Credit = employee.Credit,
+        Contact = employee.Contact,
+        Projects = employee.EmployeeProjects
+          .Select(ep => ep.Project.Name).ToList()
+      };
     }
   }
 }

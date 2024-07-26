@@ -1,6 +1,5 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
-using Payroll.Data;
 using Payroll.DTO;
 using Payroll.Interfaces;
 using Payroll.Models;
@@ -57,8 +56,8 @@ namespace Payroll.Controllers
       if(projectRepository.GetProjectByName(projectCreate.Name.Trim()) != null)
         return Conflict("Project already exists");
 
-      var relatedEntities = projectRepository.GetRelatedEntities(projectCreate.Company, projectCreate.Status);
-      if(relatedEntities == null)
+      var relatedEntities = projectRepository.GetRelatedEntities(projectCreate);
+      if(relatedEntities == null  && !relatedEntities.HasValue)
         return StatusCode(500, "Something went wrong while fetching related data");
       
       var (company, status) = relatedEntities.Value;
@@ -90,15 +89,12 @@ namespace Payroll.Controllers
       if(projectUpdate == null || string.IsNullOrEmpty(projectUpdate.Code) || string.IsNullOrEmpty(projectUpdate.Name) || string.IsNullOrEmpty(projectUpdate.Description))
         return BadRequest();
 
-      if(!projectRepository.EntitiesExist(projectUpdate.Company, projectUpdate.Status))
-        return BadRequest();
-
       var project = projectRepository.GetProject(projectId);
       if (project == null)
         return NotFound("Project not found");
 
-      var relatedEntities = projectRepository.GetRelatedEntities(projectUpdate.Company, projectUpdate.Status);
-      if(relatedEntities == null)
+      var relatedEntities = projectRepository.GetRelatedEntities(projectUpdate);
+      if(relatedEntities == null && !relatedEntities.HasValue)
         return StatusCode(500, "Something went wrong while fetching related data");
 
       var (company, status) = relatedEntities.Value;

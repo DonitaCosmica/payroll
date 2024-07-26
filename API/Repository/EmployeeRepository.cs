@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Payroll.Data;
 using Payroll.DTO;
 using Payroll.Interfaces;
@@ -9,15 +10,52 @@ namespace Payroll.Repository
   {
     private readonly DataContext context = context;
 
-    public ICollection<Employee> GetEmployees() => [.. context.Employees];
+    public ICollection<Employee> GetEmployees() => 
+      context.Employees
+      .Include(e => e.Bank).Include(e => e.Company).Include(e => e.CommercialArea)
+      .Include(e => e.Contract).Include(e => e.FederalEntity).Include(e => e.JobPosition)
+      .Include(e => e.Regime).Include(e => e.Status).Include(e => e.State)
+      .Include(e => e.EmployeeProjects).ThenInclude(ep => ep.Project)
+      .ToList();
     public Employee GetEmployee(string employeeId) => 
-      context.Employees.Where(e => e.EmployeeId == employeeId).FirstOrDefault() ??
+      context.Employees
+      .Include(e => e.Bank).Include(e => e.Company).Include(e => e.CommercialArea)
+      .Include(e => e.Contract).Include(e => e.FederalEntity).Include(e => e.JobPosition)
+      .Include(e => e.Regime).Include(e => e.Status).Include(e => e.State)
+      .Include(e => e.EmployeeProjects).ThenInclude(ep => ep.Project)
+      .FirstOrDefault(e => e.EmployeeId == employeeId) ??
       throw new Exception("No Employee with the specified id was found");
+    public EmployeeRelatedEntitiesDTO? GetRelatedEntities(EmployeeDTO employeeDTO)
+    {
+      var result = (from c in context.Companies
+        join b in context.Banks on employeeDTO.Bank equals b.BankId
+        join ca in context.CommercialAreas on employeeDTO.CommercialArea equals ca.CommercialAreaId
+        join ct in context.Contracts on employeeDTO.Contract equals ct.ContractId
+        join fe in context.FederalEntities on employeeDTO.FederalEntity equals fe.FederalEntityId
+        join jp in context.JobPositions on employeeDTO.JobPosition equals jp.JobPositionId
+        join r in context.Regimes on employeeDTO.Regime equals r.RegimeId
+        join s in context.Statuses on employeeDTO.Status equals s.StatusId
+        join st in context.States on employeeDTO.State equals st.StateId
+        select new EmployeeRelatedEntitiesDTO
+        {
+          Bank = b,
+          Company = c,
+          CommercialArea = ca,
+          Contract = ct,
+          FederalEntity = fe,
+          JobPosition = jp,
+          Regime = r,
+          Status = s,
+          State = st
+        }).FirstOrDefault();
+
+      return result ?? null;
+    }
     public bool CreateEmployee(List<string> projects, Employee employee)
     {
       foreach(var projectId in projects)
       {
-        var project = context.Projects.Where(p => p.ProjectId == projectId).FirstOrDefault();
+        var project = context.Projects.FirstOrDefault(p => p.ProjectId == projectId);
         if (project == null || employee == null)
           return false;
         
