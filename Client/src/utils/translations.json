@@ -1,6 +1,7 @@
 {
   "1": {
-
+    "TicketId": "ID del Recibo",
+    "EmployeeId": "Trabajador"
   },
   "2": {
     "EmployeeId": "ID del Trabajador",
