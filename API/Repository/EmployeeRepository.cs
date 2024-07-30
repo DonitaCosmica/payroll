@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using Payroll.Data;
-using Payroll.DTO;
-using Payroll.Interfaces;
-using Payroll.Models;
+using API.Data;
+using API.DTO;
+using API.Interfaces;
+using API.Models;
 
-namespace Payroll.Repository
+namespace API.Repository
 {
   public class EmployeeRepository(DataContext context) : IEmployeeRepository
   {
@@ -49,15 +49,16 @@ namespace Payroll.Repository
           State = st
         }).FirstOrDefault();
 
-      return result ?? null;
+      return result;
     }
     public bool CreateEmployee(List<string> projects, Employee employee)
     {
+      if(employee == null) return false;
+
       foreach(var projectId in projects)
       {
         var project = context.Projects.FirstOrDefault(p => p.ProjectId == projectId);
-        if (project == null || employee == null)
-          return false;
+        if (project == null) return false;
         
         var employeeProject = new EmployeeProject
         {

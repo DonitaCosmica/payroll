@@ -1,6 +1,6 @@
-using Payroll.Models;
+using API.Models;
 
-namespace Payroll.DTO
+namespace API.DTO
 {
   public class EmployeeRelatedEntitiesDTO
   {

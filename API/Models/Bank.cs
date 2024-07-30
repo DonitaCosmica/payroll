@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Payroll.Models
+namespace API.Models
 {
   public class Bank
   {

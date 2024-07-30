@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using Payroll.Data;
-using Payroll.DTO;
-using Payroll.Interfaces;
-using Payroll.Models;
+using API.Data;
+using API.DTO;
+using API.Interfaces;
+using API.Models;
 
-namespace Payroll.Repository
+namespace API.Repository
 {
   public class ProjectRepository(DataContext context) : IProjectRepository
   {

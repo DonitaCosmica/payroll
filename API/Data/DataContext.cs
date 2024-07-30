@@ -1,9 +1,9 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Payroll.Models;
+using API.Models;
 
-namespace Payroll.Data
+namespace API.Data
 {
   public class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
   {
@@ -19,6 +19,7 @@ namespace Payroll.Data
     public virtual DbSet<FederalEntity> FederalEntities { get; set; }
     public virtual DbSet<JobPosition> JobPositions { get; set; }
     public virtual DbSet<Perception> Perceptions { get; set; }
+    public virtual DbSet<Period> Periods { get; set; }
     public virtual DbSet<Project> Projects { get; set; }
     public virtual DbSet<Regime> Regimes { get; set; }
     public virtual DbSet<State> States { get; set; }
@@ -94,6 +95,13 @@ namespace Payroll.Data
         .HasOne(p => p.Project)
         .WithMany(ep => ep.EmployeeProjects)
         .HasForeignKey(p => p.ProjectId)
+        .OnDelete(DeleteBehavior.Restrict);
+
+      modelBuilder.Entity<Ticket>(entity => entity.HasKey(t => t.TicketId));
+      modelBuilder.Entity<Ticket>()
+        .HasOne(t => t.Period)
+        .WithMany(pr => pr.Tickets)
+        .HasForeignKey(t => t.PeriodId)
         .OnDelete(DeleteBehavior.Restrict);
 
       base.OnModelCreating(modelBuilder);

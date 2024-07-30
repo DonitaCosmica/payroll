@@ -1,8 +1,8 @@
-using Payroll.Models;
-using Payroll.Data;
-using Payroll.Interfaces;
+using API.Models;
+using API.Data;
+using API.Interfaces;
 
-namespace Payroll.Repository
+namespace API.Repository
 {
   public class ContractRepository(DataContext context) : IContractRepository
   {

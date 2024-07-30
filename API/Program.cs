@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Payroll.Data;
-using Payroll.Interfaces;
-using Payroll.Repository;
+using API.Data;
+using API.Interfaces;
+using API.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,11 +16,13 @@ builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IFederalEntityRepository, FederalEntityRepository>();
 builder.Services.AddScoped<IJobPositionRepository, JobPositionRepository>();
 builder.Services.AddScoped<IPerceptionRepository, PerceptionRepository>();
+builder.Services.AddScoped<IPeriodRepository, PeriodRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<IRegimeRepository, RegimeRepository>();
 builder.Services.AddScoped<IStateReporitory, StateRepository>();
 builder.Services.AddScoped<IStatusRepository, StatusRepository>();
 builder.Services.AddScoped<IEmployeeProjectsRepository, EmployeeProjectsRepository>();
+builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {

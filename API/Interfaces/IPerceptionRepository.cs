@@ -1,6 +1,6 @@
-using Payroll.Models;
+using API.Models;
 
-namespace Payroll.Interfaces
+namespace API.Interfaces
 {
   public interface IPerceptionRepository
   {

@@ -1,4 +1,4 @@
-namespace Payroll.DTO
+namespace API.DTO
 {
   public class BankDTO
   {

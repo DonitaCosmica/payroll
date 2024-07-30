@@ -1,4 +1,4 @@
-namespace Payroll.DTO
+namespace API.DTO
 {
   public class TicketDTO
   {
@@ -20,5 +20,6 @@ namespace Payroll.DTO
     public float Total { get; set; }
     public string? Observations { get; set; }
     public string Project { get; set; } = default!;
+    public string Period { get; set; } = default!;
   }
 }

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Payroll.Models
+namespace API.Models
 {
   public class Ticket
   {
@@ -28,5 +28,11 @@ namespace Payroll.Models
     public float LoanDiscount { get; set; }
     public float Total { get; set; }
     public string? Observations { get; set; }
+    public string Project { get; set; } = default!;
+    [Required]
+    [MaxLength(36)]
+    [ForeignKey("Period")]
+    public string PeriodId { get; set; } = default!;
+    public Period Period { get; set; } = new();
   }
 }

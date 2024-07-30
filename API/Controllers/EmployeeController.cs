@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using Payroll.DTO;
-using Payroll.Interfaces;
-using Payroll.Models;
+using API.DTO;
+using API.Interfaces;
+using API.Models;
 
-namespace Payroll.Controllers
+namespace API.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
@@ -24,7 +24,6 @@ namespace Payroll.Controllers
         Employees = employees
       };
 
-      result.Columns.Insert(8, "Projects");
       return Ok(result);
     }
 
@@ -44,7 +43,6 @@ namespace Payroll.Controllers
         Employee = employeeDTO
       };
 
-      result.Columns.Insert(8, "Projects");
       return Ok(result);
     }
 

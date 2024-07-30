@@ -1,10 +1,10 @@
 using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
-using Payroll.DTO;
-using Payroll.Interfaces;
-using Payroll.Models;
+using API.DTO;
+using API.Interfaces;
+using API.Models;
 
-namespace Payroll.Controllers
+namespace API.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
@@ -29,17 +29,17 @@ namespace Payroll.Controllers
     [HttpGet("{projectId}")]
     [ProducesResponseType(200, Type = typeof(ProjectDTO))]
     [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
     public IActionResult GetProject(string projectId)
     {
       if(!projectRepository.ProjectExists(projectId))
         return NotFound();
 
-      var project = projectRepository.GetProject(projectId);
-      var projectDTO = MapToProjectDTORequest(project);
+      var project = MapToProjectDTORequest(projectRepository.GetProject(projectId));
       var result = new
       {
         Columns = projectRepository.GetColumns(),
-        Project = projectDTO
+        Project = project
       };
 
       return Ok(result);
@@ -122,8 +122,7 @@ namespace Payroll.Controllers
       if(!projectRepository.ProjectExists(projectId))
         return BadRequest();
 
-      var projectToDelete = projectRepository.GetProject(projectId);
-      if(!projectRepository.DeleteProject(projectToDelete))
+      if(!projectRepository.DeleteProject(projectRepository.GetProject(projectId)))
         return StatusCode(500, "sOmething went wrong while deleting Project");
 
       return NoContent();
@@ -131,8 +130,7 @@ namespace Payroll.Controllers
 
     private ProjectDTO MapToProjectDTORequest(Project? project)
     {
-      if (project == null)
-        return new ProjectDTO();
+      if(project == null) return new ProjectDTO();
         
       return new ProjectDTO
       {

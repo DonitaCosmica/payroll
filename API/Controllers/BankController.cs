@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using Payroll.DTO;
-using Payroll.Interfaces;
-using Payroll.Models;
+using API.DTO;
+using API.Interfaces;
+using API.Models;
 
-namespace Payroll.Controllers
+namespace API.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
@@ -75,10 +75,10 @@ namespace Payroll.Controllers
       if(updateBank == null || string.IsNullOrEmpty(updateBank.Name))
         return BadRequest();
 
-      if(!bankRepository.BankExists(bankId))
+      var bank = bankRepository.GetBank(bankId);
+      if(bank == null)
         return NotFound();
 
-      var bank = bankRepository.GetBank(bankId);
       bank.Name = updateBank.Name;
 
       if(!bankRepository.UpdateBank(bank))
@@ -96,8 +96,7 @@ namespace Payroll.Controllers
       if(!bankRepository.BankExists(bankId))
         return NotFound();
       
-      var bankToDelete = bankRepository.GetBank(bankId);
-      if(!bankRepository.DeleteBank(bankToDelete))
+      if(!bankRepository.DeleteBank(bankRepository.GetBank(bankId)))
         return StatusCode(500, "Something went wrong deleting bank");
 
       return NoContent();

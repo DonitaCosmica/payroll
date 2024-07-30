@@ -1,7 +1,7 @@
-using Payroll.DTO;
-using Payroll.Models;
+using API.DTO;
+using API.Models;
 
-namespace Payroll.Interfaces
+namespace API.Interfaces
 {
   public interface IProjectRepository
   {
