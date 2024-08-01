@@ -9,13 +9,13 @@ import './Form.css'
 interface Props {
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
   toolbarOption: number
-  idSelected: string | undefined
+  idSelected?: string
 }
 
 export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }): JSX.Element => {
   const { option, title, formSize, url, data, keys, submitCount, setSubmitCount } = useContext(NavigationContext)
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
-  const formData = useRef<{ [key: string]: string }>({})
+  const formData = useRef<{ [key: string]: string | string[] | boolean | number }>({})
 
   useEffect(() => {
     const fetchDropdownData = async (): Promise<void> => {
@@ -31,7 +31,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
               .flat()
             return { [String(id)]: dataOptions }
           } catch (error) {
-            console.error(`Error fetching dropdown data for ${id}`, error)
+            console.error(`Error fetching dropdown data for ${ id }`, error)
             return { [String(id)]: [] }
           }
         })
@@ -44,17 +44,20 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
     fetchDropdownData()
   }, [ option ])
 
-  const createObject = (data: (string | number)[][], keys: string[]): { [key: string]: string | number } | null => {
-    const selectedObj = data.find((item: (string | number)[]) => item[0] === idSelected)
+  const createObject = (data: (string | number)[][], keys: string[]): { [key: string]: string | string[] | boolean | number } | null => {
+    const selectedObj = data.find((item: (string | number | boolean)[]) => item[0] === idSelected)
     if (!selectedObj) return null
 
-    return keys.slice(1).reduce((obj: { [key: string]: string | number }, key: string, index: number) => {
-      const newKey = key.replace(/Id/i, '').toLowerCase()
+    return keys.slice(1).reduce((obj: { [key: string]: string | string[] | boolean | number }, key: string, index: number) => {
+      const auxKey = key.replace(/Id/i, '')
+      const dropDownKey = auxKey.charAt(0).toLowerCase() + auxKey.slice(1)
+      const newKey = auxKey.toLowerCase()
       const value = selectedObj[index + 1]
-      const dropDownDataFound = dropdownData[newKey]?.find((dropData: IDropDownMenu) => dropData.name === value)
-      const newValue = dropDownDataFound ? dropDownDataFound[newKey + 'Id'] : value
+      const dropDownDataFound = dropdownData[dropDownKey]?.find((dropData: IDropDownMenu) => dropData.name === value)
+      const newValue: string | string[] | boolean | number = dropDownDataFound ? dropDownDataFound[dropDownKey + 'Id'] : value
+      console.log({ key, dropdownData, newKey, value, dropDownDataFound, newValue })
       return { ...obj, [newKey]: newValue }
-    }, {} as { [key: string]: string | number })
+    }, {} as { [key: string]: string | string[] | boolean | number })
   }
 
   useEffect(() => {
@@ -64,15 +67,21 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
         const initialFormData = Object.keys(objectsForm).reduce((acc, key: string) => {
           acc[key] = String(objectsForm[key])
           return acc
-        }, {} as { [key: string]: string })
+        }, {} as { [key: string]: string | string[] })
         formData.current = initialFormData
       }
     }
   }, [ toolbarOption, idSelected, data, keys, dropdownData ])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>): void => {
-    const { id, value } = e.target
-    formData.current[id] = value
+    const { id, value, type } = e.target
+
+    if (type === 'checkbox') 
+      formData.current[id] = (e.target as HTMLInputElement).checked
+    else if (type === 'number')
+      formData.current[id] = Number(value)
+    else
+      formData.current[id] = value
   }
 
   const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>): Promise<void> => {
@@ -109,6 +118,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
 
   const elements = useMemo(() => {
     const objectsForm = createObject(data, keys)
+    console.log({objectsForm})
     return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType }: FieldConfig, index: number) => {
       const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
       const appendCurrentGroup = (group: JSX.Element[]) =>
@@ -143,7 +153,9 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
                 <DropDown 
                   options={ dropdownData[id ?? ''] } 
                   selectedId={ id ?? '' }
-                  value={ toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : '0' }
+                  value={ id === 'projects' 
+                    ? (objectsForm ? objectsForm[id.toLowerCase()] : []) 
+                    : (toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : '0') }
                   setFormData={ formData } 
                 />
               ) : type === 'textarea' ? (

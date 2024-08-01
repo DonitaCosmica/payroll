@@ -5,17 +5,23 @@ import './DropDown.css'
 interface Props {
   options: IDropDownMenu[] | [],
   selectedId: string,
-  value: string,
-  setFormData: React.MutableRefObject<{ [key: string]: string }>
+  value: string | string[] | boolean | number,
+  setFormData: React.MutableRefObject<{ [key: string]: string | number | boolean | string[] }>
 }
 
 export const DropDown: React.FC<Props> = ({ options, selectedId, value, setFormData }): JSX.Element => {
-  const [selectedValue, setSelectedValue] = useState<string>(value)
+  const [selectedValue, setSelectedValue] = useState<string | readonly string[]>(typeof value === 'string' ? value : Array.isArray(value) ? value : [])
+  const isMultiSelect = selectedId === 'projects'
+  const sortedOptions = [...options].sort((a, b) => a.name.localeCompare(b.name))
   
   const handleChange = (event: ChangeEvent<HTMLSelectElement>): void => {
-    const { id, value } = event.target
-    setSelectedValue(value)
-    setFormData.current[id] = value
+    const { id, value, selectedOptions } = event.target
+    const newValue: string | string[] = isMultiSelect 
+      ? Array.from(selectedOptions).map((opt: HTMLOptionElement) => opt.value)
+      : value
+
+    setSelectedValue(newValue)
+    setFormData.current[id] = newValue
   }
 
   const filterAttributesContainingId = (obj: IDropDownMenu): string | undefined => {
@@ -24,9 +30,9 @@ export const DropDown: React.FC<Props> = ({ options, selectedId, value, setFormD
   }
 
   return (
-    <select id={`${ selectedId }`} value={ selectedValue } onChange={ handleChange }>
+    <select id={`${ selectedId }`} value={ selectedValue } onChange={ handleChange } multiple={ isMultiSelect }>
       <option value='0'>Elije una opción...</option>
-      {options.map((option: IDropDownMenu, index: number) => 
+      {sortedOptions.map((option: IDropDownMenu, index: number) => 
         <option key={`${ selectedId }-${ index }`} value={ filterAttributesContainingId(option) }>{ option.name }</option>
       )}
     </select>

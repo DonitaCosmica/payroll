@@ -141,9 +141,9 @@ namespace API.Data
     public T? GetEntityByName<T>(string name) where T : class
     {
       var entitySet = Set<T>().AsEnumerable();
-      var nameProperty = typeof(T).GetProperty("Name") ?? 
-        throw new ArgumentException($"Type {typeof(T).Name} does not have 'Name' property");
+      var nameProperty = typeof(T).GetProperty("Name") ?? typeof(T).GetProperty("Description");
 
+      if(nameProperty == null) return null;
       return entitySet.FirstOrDefault(e => 
       {
         var propertyValue = nameProperty.GetValue(e)?.ToString();

@@ -10,12 +10,12 @@ namespace API.DTO
     public string Bank { get; set; } = default!;
     public ulong InterbankCode { get; set; }
     public ulong BankAccount { get; set; }
-    public ulong BankPortalID { get; set; }
+    public ulong BankPortal { get; set; }
     public bool IsAStarter { get; set; }
     public List<string> Projects { get; set; } = [];
     public string Regime { get; set; } = default!;
     public uint NSS { get; set; }
-    public DateTime DateAdmission { get; set; }
+    public string DateAdmission { get; set; } = default!;
     public string JobPosition { get; set; } = default!;
     public string CommercialArea { get; set; } = default!;
     public string Contract { get; set; } = default!;

@@ -31,6 +31,21 @@ export const List: React.FC<Props> = ({ setId, setShowForm, setToolbarOption }):
     setToolbarOption(1)
     setShowForm(true)
   }, [ getIdSelected, setToolbarOption, setShowForm ])
+
+  const renderCellContent = (info: number | string | boolean | string[]): number | string => {
+    switch (typeof info) {
+      case 'boolean':
+        return info ? 'Verdadero' : 'Falso'
+      case 'object':
+        if (Array.isArray(info))
+          return info.sort((a, b) => a.localeCompare(b)).join(', ')
+        break;
+      default:
+        return info
+    }
+
+    return info
+  }
   
   return (
     <section className="list">
@@ -60,7 +75,7 @@ export const List: React.FC<Props> = ({ setId, setShowForm, setToolbarOption }):
                 >
                 {row.map((info: number | string, cellIndex: number) => (
                   <td key={`${ info }-${ cellIndex }`}>
-                    <p>{ Array.isArray(info) ? info.join(', ') : info }</p>
+                    <p>{ renderCellContent(info) }</p>
                   </td>
                 ))}
               </tr>

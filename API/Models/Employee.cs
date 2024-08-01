@@ -28,7 +28,7 @@ namespace API.Models
     public ulong InterbankCode { get; set; }
     public ulong BankAccount { get; set; }
     [Required]
-    public ulong BankPortalID { get; set; }
+    public ulong BankPortal { get; set; }
     public bool IsAStarter { get; set; }
     public ICollection<EmployeeProject> EmployeeProjects { get; set; } = [];
     [Required]

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using API.DTO;
 using API.Interfaces;
 using API.Models;
+using System.Globalization;
 
 namespace API.Controllers
 {
@@ -109,7 +110,7 @@ namespace API.Controllers
     private List<string> GetEmployeeColumns()
     {
       var columns = employeeRepository.GetColumns();
-      columns.Insert(8, "Projects");
+      columns.Insert(10, "Projects");
       return columns;
     }
 
@@ -126,12 +127,12 @@ namespace API.Controllers
         Bank = relatedEntities.Bank,
         InterbankCode = employeeCreate.InterbankCode,
         BankAccount = employeeCreate.BankAccount,
-        BankPortalID = employeeCreate.BankPortalID,
+        BankPortal = employeeCreate.BankPortal,
         IsAStarter = employeeCreate.IsAStarter,
         RegimeId = employeeCreate.Regime,
         Regime = relatedEntities.Regime,
         NSS = employeeCreate.NSS,
-        DateAdmission = employeeCreate.DateAdmission,
+        DateAdmission = DateTime.ParseExact(employeeCreate.DateAdmission, "yyyy-MM-dd", CultureInfo.InvariantCulture),
         JobPositionId = employeeCreate.JobPosition,
         JobPosition = relatedEntities.JobPosition,
         CommercialAreaId = employeeCreate.CommercialArea,
@@ -172,12 +173,12 @@ namespace API.Controllers
       employee.Bank = relatedEntities.Bank;
       employee.InterbankCode = updateEmployee.InterbankCode;
       employee.BankAccount = updateEmployee.BankAccount;
-      employee.BankPortalID = updateEmployee.BankPortalID;
+      employee.BankPortal = updateEmployee.BankPortal;
       employee.IsAStarter = updateEmployee.IsAStarter;
       employee.RegimeId = updateEmployee.Regime;
       employee.Regime = relatedEntities.Regime;
       employee.NSS = updateEmployee.NSS;
-      employee.DateAdmission = updateEmployee.DateAdmission;
+      employee.DateAdmission = DateTime.ParseExact(updateEmployee.DateAdmission, "yyyy-MM-dd", CultureInfo.InvariantCulture);
       employee.JobPositionId = updateEmployee.JobPosition;
       employee.JobPosition = relatedEntities.JobPosition;
       employee.CommercialAreaId = updateEmployee.CommercialArea;
@@ -223,11 +224,11 @@ namespace API.Controllers
         Bank = employee.Bank.Name,
         InterbankCode = employee.InterbankCode,
         BankAccount =  employee.BankAccount,
-        BankPortalID = employee.BankPortalID,
+        BankPortal = employee.BankPortal,
         IsAStarter = employee.IsAStarter,
         Regime = employee.Regime.Name,
         NSS = employee.NSS,
-        DateAdmission = employee.DateAdmission,
+        DateAdmission = employee.DateAdmission.ToString("yyyy-MM-dd"),
         JobPosition = employee.JobPosition.Name,
         CommercialArea = employee.CommercialArea.Name,
         Contract = employee.Contract.Name,

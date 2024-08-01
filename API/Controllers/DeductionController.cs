@@ -75,7 +75,7 @@ namespace API.Controllers
         DeductionId = Guid.NewGuid().ToString(),
         Key = deductionCreate.Key,
         Description = deductionCreate.Description,
-        IsHidden = false
+        IsHidden = deductionCreate.IsHidden
       };
 
       if(!deductionRepository.CreateDeduction(deduction))

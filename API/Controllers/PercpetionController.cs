@@ -75,7 +75,7 @@ namespace API.Controllers
         PerceptionId = Guid.NewGuid().ToString(),
         Key = perceptionCreate.Key,
         Description = perceptionCreate.Description,
-        IsHidden = false
+        IsHidden = perceptionCreate.IsHidden
       };
 
       if(!perceptionRepository.CreatePerception(perception))

@@ -136,6 +136,9 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
   const [submitCount, setSubmitCount] = useState<number>(0)
 
   useEffect(() => {
+    const getValue = (value: string | number): number | string => 
+      typeof value === 'string' ? (isNaN(parseInt(value, 10)) ? value : parseInt(value, 10)) : value
+
     const loadTranslations = async ({ opt }: { opt: NavigationActionKind }): Promise<Record<string, string>> => {
       try {
         const res: Response = await fetch('/src/utils/translations.json')
@@ -176,9 +179,15 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
           values[1].map((info: (string | number)) => Object.values(info)) : []
         if (columns.includes('Code') || columns.includes('Key')) {
           newData.sort((a: (string | number)[], b: (string | number)[]) => {
-            const aValue: number = typeof a[1] === 'string' ? parseInt(a[1], 10) : a[1]
-            const bValue: number = typeof b[1] === 'string' ? parseInt(b[1], 10) : b[1]
-            return aValue - bValue
+            const aValue = getValue(a[1])
+            const bValue = getValue(b[1])
+            return (aValue as number) - (bValue as number)
+          })
+        } else if (columns.includes('Name')) {
+          newData.sort((a: (string | number)[], b: (string | number)[]) => {
+            const aValue = getValue(a[1])
+            const bValue = getValue(b[1])
+            return (aValue as string).localeCompare(bValue as string)
           })
         }
         dispatch({ 
