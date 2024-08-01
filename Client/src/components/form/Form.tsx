@@ -55,7 +55,6 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
       const value = selectedObj[index + 1]
       const dropDownDataFound = dropdownData[dropDownKey]?.find((dropData: IDropDownMenu) => dropData.name === value)
       const newValue: string | string[] | boolean | number = dropDownDataFound ? dropDownDataFound[dropDownKey + 'Id'] : value
-      console.log({ key, dropdownData, newKey, value, dropDownDataFound, newValue })
       return { ...obj, [newKey]: newValue }
     }, {} as { [key: string]: string | string[] | boolean | number })
   }
@@ -86,7 +85,6 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
 
   const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
-    console.log(formData.current)
     const requestOptions = {
        method: idSelected && toolbarOption === 1 ? 'PATCH' : 'POST',
        headers: {
@@ -118,7 +116,6 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
 
   const elements = useMemo(() => {
     const objectsForm = createObject(data, keys)
-    console.log({objectsForm})
     return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType }: FieldConfig, index: number) => {
       const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
       const appendCurrentGroup = (group: JSX.Element[]) =>
