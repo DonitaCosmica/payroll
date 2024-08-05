@@ -14,14 +14,18 @@ function App(): JSX.Element {
   const [showForm, setShowForm] = useState<boolean>(false)
   const [toolbarOption, setToolbarOption] = useState<number>(-1)
   const [id, setId] = useState<string>('')
+  const [searchFilter, setSearchFilter] = useState<string>('')
 
   return (
     <main className='payroll'>
       <Titlebar action='payroll' />
-      <Navbar />
+      <Navbar 
+        setId={ setId }
+      />
       { option === 1 && <Filter /> }
       <Toolbar
         selectedId={ id }
+        setSearchFilter={ setSearchFilter }
         setToolbarOption={ setToolbarOption }
         setShowForm={ setShowForm }
       />
@@ -29,6 +33,7 @@ function App(): JSX.Element {
         setId={ setId }
         setShowForm={ setShowForm }
         setToolbarOption={ setToolbarOption }
+        searchFilter={ searchFilter }
       />
       <Footer />
       {showForm && 

@@ -3,7 +3,11 @@ import { NavigationContext } from '../../context/Navigation'
 import { LINKS } from '../../consts'
 import './Navbar.css'
 
-export const Navbar = (): JSX.Element => {
+interface Props {
+  setId: React.Dispatch<React.SetStateAction<string>>
+}
+
+export const Navbar: React.FC<Props> = ({ setId }): JSX.Element => {
   const { dispatch, option } = useContext(NavigationContext)
 
   return (
@@ -13,7 +17,10 @@ export const Navbar = (): JSX.Element => {
           <div 
             className={ `link ${ option === index + 1 ? 'selected' : '' }` } 
             key={ link } 
-            onClick={ () => dispatch({ type: index + 1 }) }
+            onClick={ () => {
+              dispatch({ type: index + 1 })
+              setId('')
+            } }
           >
             <p>{ link }</p>
           </div>

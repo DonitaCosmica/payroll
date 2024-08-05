@@ -4,7 +4,7 @@ export interface IconDefinition {
 }
 export interface IdataResponse {
   columns: string[],
-  data: (string | number)[]
+  data: (string | number | boolean)[]
 }
 
 export interface IDropDownMenu {
@@ -14,7 +14,7 @@ export interface IDropDownMenu {
 }
 
 export interface FieldConfig {
-  type: 'input' | 'dropmenu' | 'section' | 'textarea',
+  type: 'input' | 'dropmenu' | 'section' | 'textarea' | 'multi-option',
   name: string,
   label?: string,
   inputType?: 'text' | 'tel' | 'number' | 'email' | 'date' | 'checkbox',

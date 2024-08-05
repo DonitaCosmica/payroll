@@ -9,11 +9,12 @@ import './Toolbar.css'
 
 interface Props {
   selectedId: string
+  setSearchFilter: React.Dispatch<React.SetStateAction<string>>
   setToolbarOption: React.Dispatch<React.SetStateAction<number>>
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const Toolbar: React.FC<Props> = ({ selectedId, setToolbarOption, setShowForm }): JSX.Element => {
+export const Toolbar: React.FC<Props> = ({ selectedId, setSearchFilter, setToolbarOption, setShowForm }): JSX.Element => {
   const { option, url, submitCount, setSubmitCount } = useContext(NavigationContext)
   const [showDropMenu, setShowDropMenu] = useState<boolean>(false)
 
@@ -35,6 +36,9 @@ export const Toolbar: React.FC<Props> = ({ selectedId, setToolbarOption, setShow
     NavigationActionKind.EMPLOYEES,
     NavigationActionKind.PROJECTCATALOG
   ].includes(option)
+
+  const handleChangeSearch = (e: React.ChangeEvent<HTMLInputElement>): void =>
+    setSearchFilter(e.target.value)
 
   const handleForm = async (index: number, label: string): Promise<void> => {
     const isInvalidAction = label !== 'Nuevo' && label !== 'Editar' && label !== 'Eliminar'
@@ -95,7 +99,14 @@ export const Toolbar: React.FC<Props> = ({ selectedId, setToolbarOption, setShow
         )}
       </div>
       <div className='search'>
-        <input type="text" name="search" id="search" placeholder="Busqueda..." autoComplete='off'></input>
+        <input
+          type="text"
+          name="search"
+          id="search"
+          placeholder="Busqueda..."
+          autoComplete='off'
+          onChange={ handleChangeSearch }
+        />
         <AiOutlineSearch />
       </div>
       {

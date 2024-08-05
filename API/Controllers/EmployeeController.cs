@@ -73,18 +73,18 @@ namespace API.Controllers
     public IActionResult UpdateEmployee(string employeeId, [FromBody] EmployeeDTO updateEmployee)
     {
       if(updateEmployee == null)
-        return BadRequest();
+        return BadRequest("Employee can not be null");
 
       var employee = employeeRepository.GetEmployee(employeeId);
       if(employee == null)
-        return NotFound();
+        return NotFound("Employee Not Found");
 
       var relatedEntities = employeeRepository.GetRelatedEntities(updateEmployee);
       if(relatedEntities == null)
         return StatusCode(500, "Something went wrong while fetching related data");
 
-            MapToUpdateEmployeeModel(employee, updateEmployee, relatedEntities);
-      if(!employeeRepository.UpdateEmployee(employee))
+      MapToUpdateEmployeeModel(employee, updateEmployee, relatedEntities);
+      if(!employeeRepository.UpdateEmployee(updateEmployee.Projects, employee))
         return StatusCode(500, "Something went wrong updating Employee");
 
       return NoContent();
@@ -111,6 +111,7 @@ namespace API.Controllers
     {
       var columns = employeeRepository.GetColumns();
       columns.Insert(10, "Projects");
+      columns.Insert(15, "Department");
       return columns;
     }
 
@@ -230,6 +231,7 @@ namespace API.Controllers
         NSS = employee.NSS,
         DateAdmission = employee.DateAdmission.ToString("yyyy-MM-dd"),
         JobPosition = employee.JobPosition.Name,
+        Department = employee.JobPosition.Department.Name,
         CommercialArea = employee.CommercialArea.Name,
         Contract = employee.Contract.Name,
         BaseSalary = employee.BaseSalary,

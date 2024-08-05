@@ -22,11 +22,11 @@ namespace API.Repository
       var result = (from c in context.Companies
         join s in context.Statuses on projectDTO.Status equals s.StatusId
         where c.CompanyId == projectDTO.Company
-        select new { Company = c, Status = s })
+        select new { c, s })
         .FirstOrDefault();
 
       if(result == null) return null;
-      return (result.Company, result.Status);
+      return (result.c, result.s);
     }
     public bool CreateProject(Project project) => context.CreateEntity(project);
     public bool UpdateProject(Project project) => context.UpdateEntity(project);

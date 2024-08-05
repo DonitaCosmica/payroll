@@ -147,7 +147,7 @@ namespace API.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
-                    b.Property<decimal>("BankPortalID")
+                    b.Property<decimal>("BankPortal")
                         .HasColumnType("decimal(20,0)");
 
                     b.Property<float>("BaseSalary")
@@ -532,6 +532,10 @@ namespace API.Migrations
                         .IsRequired()
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("Project")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Tickets")
                         .HasColumnType("int");

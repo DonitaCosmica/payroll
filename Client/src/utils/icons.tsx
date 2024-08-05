@@ -2,13 +2,12 @@ import { type IconDefinition } from "../types"
 import { NavigationActionKind } from "../context/Navigation"
 import { AiOutlinePrinter, AiFillFlag, AiOutlineStop } from "react-icons/ai"
 import { BsBoxArrowInDownLeft, BsDownload, BsArrowClockwise, BsFiletypePdf , BsFiletypeXls  } from "react-icons/bs"
-import { BiEditAlt, BiSolidCalculator, BiBuildings, BiSolidCheckShield, BiLogOut } from "react-icons/bi"
+import { BiEditAlt, BiSolidCalculator, BiLogOut } from "react-icons/bi"
 import { TbReportSearch, TbCalendarTime } from "react-icons/tb"
 import { HiOutlineKey } from "react-icons/hi2"
 import { GrAdd } from "react-icons/gr"
 import { RiDeleteBin6Line } from "react-icons/ri"
 import { FiSettings, FiUsers } from "react-icons/fi"
-import { FaComments } from "react-icons/fa6"
 import { MdOutlineEmail } from "react-icons/md"
 import { PiPrinter } from "react-icons/pi"
 import { TfiClose } from "react-icons/tfi"
@@ -77,11 +76,8 @@ export const ICON_OPTIONS: {
 } as const
 
 export const MENU_ICONS: IconDefinition[] = [
-  { icon: <BiBuildings color='#dd7e7b' />, label: 'Empresas' }, 
-  { icon: <BiSolidCheckShield color='#73ba69' />, label: 'Mi Cuenta' }, 
   { icon: <FiSettings />, label: 'Configuración Avanzada' },
   { icon: <FiUsers color='#0747A6' />, label: 'Usuarios' }, 
-  { icon: <FaComments color='#b123ae' />, label: 'Soporte' }, 
   { icon: <BiLogOut color='#d95a54' />, label: 'Cerrar Sesión' }
 ] as const
 

@@ -10,21 +10,11 @@ namespace API.Repository
   {
     private readonly DataContext context = context;
 
-    public ICollection<Employee> GetEmployees() => 
-      context.Employees
-      .Include(e => e.Bank).Include(e => e.Company).Include(e => e.CommercialArea)
-      .Include(e => e.Contract).Include(e => e.FederalEntity).Include(e => e.JobPosition)
-      .Include(e => e.Regime).Include(e => e.Status).Include(e => e.State)
-      .Include(e => e.EmployeeProjects).ThenInclude(ep => ep.Project)
-      .ToList();
-    public Employee GetEmployee(string employeeId) => 
-      context.Employees
-      .Include(e => e.Bank).Include(e => e.Company).Include(e => e.CommercialArea)
-      .Include(e => e.Contract).Include(e => e.FederalEntity).Include(e => e.JobPosition)
-      .Include(e => e.Regime).Include(e => e.Status).Include(e => e.State)
-      .Include(e => e.EmployeeProjects).ThenInclude(ep => ep.Project)
-      .FirstOrDefault(e => e.EmployeeId == employeeId) ??
-      throw new Exception("No Employee with the specified id was found");
+    public ICollection<Employee> GetEmployees() =>
+      IncludeRelatedEntities(context.Employees).ToList();
+    public Employee GetEmployee(string employeeId) =>
+      IncludeRelatedEntities(context.Employees).FirstOrDefault(e => e.EmployeeId == employeeId)
+      ?? throw new Exception("No Employee with the specified id was found");
     public EmployeeRelatedEntitiesDTO? GetRelatedEntities(EmployeeDTO employeeDTO)
     {
       var result = (from c in context.Companies
@@ -55,6 +45,71 @@ namespace API.Repository
     {
       if(employee == null) return false;
 
+      var numberOfEmployeesEntities = GetNumberOfEmployeesEntities(employee);
+      if(numberOfEmployeesEntities == null && !numberOfEmployeesEntities.HasValue)
+        return false;
+
+      if(!AddProjectsToEmployee(employee, projects))
+        return false;
+
+      var (company, department) = numberOfEmployeesEntities.Value;
+      company.TotalWorkers++;
+      department.TotalEmployees++;
+
+      context.Add(employee);
+      context.Update(company);
+      context.Update(department);
+      return Save();
+    }
+    public bool UpdateEmployee(List<string> projects, Employee employee)
+    {
+      if(employee == null || !RemoveEmployeeProjects(employee.EmployeeId)) 
+        return false;
+
+      if(!AddProjectsToEmployee(employee, projects))
+        return false;
+
+      context.Update(employee);
+      return Save();
+    }
+    public bool DeleteEmployee(Employee employee)
+    {
+      var numberOfEmployeesEntities = GetNumberOfEmployeesEntities(employee);
+      if(numberOfEmployeesEntities == null && !numberOfEmployeesEntities.HasValue)
+        return false;
+
+      var (company, department) = numberOfEmployeesEntities.Value;
+      company.TotalWorkers--;
+      department.TotalEmployees--;
+
+      context.Update(company);
+      context.Update(department);
+      context.Remove(employee);
+      return RemoveEmployeeProjects(employee.EmployeeId);
+    }
+    public List<string> GetColumns() => context.GetColumns<Employee>();
+    public bool EmployeeExists(string employeeId) => context.Employees.Any(e => e.EmployeeId == employeeId);
+    private (Company, Department)? GetNumberOfEmployeesEntities(Employee employee)
+    {
+      var result = (from c in context.Companies
+        join jp in context.JobPositions on employee.JobPositionId equals jp.JobPositionId
+        join d in context.Departments on jp.DepartmentId equals d.DepartmentId
+        where jp.JobPositionId == employee.JobPositionId && c.CompanyId == employee.CompanyId
+        select new { c, d })
+        .FirstOrDefault();
+
+      if(result == null) return null;
+      return (result.c, result.d);
+    }
+    private static IQueryable<Employee> IncludeRelatedEntities(IQueryable<Employee> query) =>
+      query
+        .Include(e => e.Bank).Include(e => e.Company).Include(e => e.CommercialArea)
+        .Include(e => e.Contract).Include(e => e.FederalEntity)
+        .Include(e => e.JobPosition).ThenInclude(jp => jp.Department)
+        .Include(e => e.Regime).Include(e => e.Status).Include(e => e.State)
+        .Include(e => e.EmployeeProjects).ThenInclude(ep => ep.Project);
+    private bool AddProjectsToEmployee(Employee employee, List<string> projects)
+    {
       foreach(var projectId in projects)
       {
         var project = context.Projects.FirstOrDefault(p => p.ProjectId == projectId);
@@ -65,6 +120,7 @@ namespace API.Repository
           EmployeeProjectId = Guid.NewGuid().ToString(),
           EmployeeId = employee.EmployeeId,
           ProjectId = project.ProjectId,
+          AssignedDate = employee.DateAdmission,
           Employee = employee,
           Project = project
         };
@@ -73,13 +129,18 @@ namespace API.Repository
         context.Add(employeeProject);
       }
 
-      context.Add(employee);
+      return true;
+    }
+    private bool RemoveEmployeeProjects(string employeeId)
+    {
+      var employee = context.Employees
+        .Include(e => e.EmployeeProjects)
+        .FirstOrDefault(e => e.EmployeeId == employeeId);
+
+      if(employee == null) return false;
+      context.EmployeeProjects.RemoveRange(employee.EmployeeProjects);
       return Save();
     }
-    public bool UpdateEmployee(Employee employee) => context.UpdateEntity(employee);
-    public bool DeleteEmployee(Employee employee) => context.DeleteEntity(employee);
-    public List<string> GetColumns() => context.GetColumns<Employee>();
-    public bool EmployeeExists(string employeeId) => context.Employees.Any(e => e.EmployeeId == employeeId);
-    public bool Save() => context.SaveChanges() > 0;
+    private bool Save() => context.SaveChanges() > 0;
   }
 }

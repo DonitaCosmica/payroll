@@ -22,7 +22,7 @@ interface NavigationState {
   url?: string
   keys: string[],
   columnNames: string[],
-  data: (string | number)[][],
+  data: (string | number | boolean)[][],
   formSize: number,
   error: boolean | null
 }
@@ -31,7 +31,7 @@ interface NavigationAction {
   type: NavigationActionKind,
   payload?: {
     columns?: string[],
-    newData?: (number | string)[][],
+    newData?: (number | string | boolean)[][],
     names?: string[]
   } 
 }
@@ -175,18 +175,18 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
         const values: IdataResponse[] = Object.values(data)
         const columns: string[] = Array.isArray(values[0]) ? values[0] : []
         const names: string[] = await translateColumns({ opt: state.option, columns })
-        const newData: (string | number)[][] = Array.isArray(values[1]) ?
+        const newData: (string | number | boolean)[][] = Array.isArray(values[1]) ?
           values[1].map((info: (string | number)) => Object.values(info)) : []
         if (columns.includes('Code') || columns.includes('Key')) {
-          newData.sort((a: (string | number)[], b: (string | number)[]) => {
-            const aValue = getValue(a[1])
-            const bValue = getValue(b[1])
+          newData.sort((a: (string | number | boolean)[], b: (string | number | boolean)[]): number => {
+            const aValue = getValue(a[1] as number)
+            const bValue = getValue(b[1] as number)
             return (aValue as number) - (bValue as number)
           })
         } else if (columns.includes('Name')) {
-          newData.sort((a: (string | number)[], b: (string | number)[]) => {
-            const aValue = getValue(a[1])
-            const bValue = getValue(b[1])
+          newData.sort((a: (string | number | boolean)[], b: (string | number | boolean)[]): number => {
+            const aValue = getValue(a[1] as string)
+            const bValue = getValue(b[1] as string)
             return (aValue as string).localeCompare(bValue as string)
           })
         }

@@ -15,12 +15,12 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
     { type: 'input', name: 'ID Portal Banco', label: 'Portal ID...', id: 'bankPortal' },
     { type: 'input', name: 'Titular', inputType: 'checkbox', id: 'isAStarter' },
     { type: 'section', name: 'Datos Laborales', id: 'labor-data' },
-    { type: 'dropmenu', name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', id: 'projects' },
+    { type: 'multi-option', name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', id: 'projects' },
     { type: 'dropmenu', name: 'Régimen', fetchUrl: 'http://localhost:5239/api/Regime', id: 'regime' },
     { type: 'input', name: 'NSS', label: 'NSS...', inputType: 'number', id: 'nss' },
     { type: 'input', name: 'Fecha de Ingreso', label: '1/1/2000', inputType: 'date', id: 'dateAdmission' },
     { type: 'dropmenu', name: 'Puesto', fetchUrl: 'http://localhost:5239/api/JobPosition', id: 'jobPosition' },
-    { type: 'dropmenu', name: 'Departamento', fetchUrl: 'http://localhost:5239/api/Department', id: 'department' },
+    { type: 'input', name: 'Departamento', label: 'Departmento...', id: 'department' },
     { type: 'dropmenu', name: 'Area Comercial', fetchUrl: 'http://localhost:5239/api/CommercialArea', id: 'commercialArea' },
     { type: 'dropmenu', name: 'Contrato', fetchUrl: 'http://localhost:5239/api/Contract', id: 'contract' },
     { type: 'input', name: 'Salario Semanal', label: '0.00', inputType: 'number', id: 'baseSalary' },
@@ -41,7 +41,7 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
     { type: 'input', name: 'Proveedor', inputType: 'checkbox', id: 'isProvider' },
     { type: 'input', name: 'Crédito', label: 'Crédito...', inputType: 'text', id: 'credit' },
     { type: 'input', name: 'Contacto', label: '0', inputType: 'number', id: 'contact' },
-    { type: 'dropmenu', name: 'Company', fetchUrl: 'http://localhost:5239/api/Company', id: 'company' }
+    { type: 'dropmenu', name: 'Empresa', fetchUrl: 'http://localhost:5239/api/Company', id: 'company' }
   ],
   [NavigationActionKind.JOBPOSITIONS]: [
     { type: 'input', name: 'Puesto', label: 'Puesto...', inputType: 'text', id: 'name' },

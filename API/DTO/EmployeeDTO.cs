@@ -13,10 +13,12 @@ namespace API.DTO
     public ulong BankPortal { get; set; }
     public bool IsAStarter { get; set; }
     public List<string> Projects { get; set; } = [];
+    public List<string> ProjectDates { get; set; } = [];
     public string Regime { get; set; } = default!;
     public uint NSS { get; set; }
     public string DateAdmission { get; set; } = default!;
     public string JobPosition { get; set; } = default!;
+    public string? Department { get; set; }
     public string CommercialArea { get; set; } = default!;
     public string Contract { get; set; } = default!;
     public float BaseSalary { get; set; }

@@ -1,9 +1,10 @@
 import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { NavigationContext } from '../../context/Navigation'
 import { type IDropDownMenu, type FieldConfig } from '../../types'
-import { DropDown } from '../dropdown/DropDown'
 import { fieldsConfig } from '../../utils/fields'
 import { FaArrowLeft } from "react-icons/fa"
+import { DropDown } from '../dropdown/DropDown'
+import { MultiDropDown } from '../multiDropDown/MultiDropDown'
 import './Form.css'
 
 interface Props {
@@ -20,7 +21,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
   useEffect(() => {
     const fetchDropdownData = async (): Promise<void> => {
       const fetchPromises = fieldsConfig[option]
-        .filter(({ type, fetchUrl }: FieldConfig) => type === 'dropmenu' && fetchUrl)
+        .filter(({ type, fetchUrl }: FieldConfig) => (type === 'dropmenu' || type === 'multi-option') && fetchUrl)
         .map(async ({ fetchUrl, id }: FieldConfig) => {
           try {
             const res: Response = await fetch(fetchUrl ?? '')
@@ -44,12 +45,12 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
     fetchDropdownData()
   }, [ option ])
 
-  const createObject = (data: (string | number)[][], keys: string[]): { [key: string]: string | string[] | boolean | number } | null => {
+  const createObject = (data: (string | number | boolean)[][], keys: string[]): { [key: string]: string | string[] | boolean | number } | null => {
     const selectedObj = data.find((item: (string | number | boolean)[]) => item[0] === idSelected)
     if (!selectedObj) return null
 
     return keys.slice(1).reduce((obj: { [key: string]: string | string[] | boolean | number }, key: string, index: number) => {
-      const auxKey = key.replace(/Id/i, '')
+      const auxKey = key.replace(/Id$/i, '')
       const dropDownKey = auxKey.charAt(0).toLowerCase() + auxKey.slice(1)
       const newKey = auxKey.toLowerCase()
       const value = selectedObj[index + 1]
@@ -64,9 +65,9 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
       const objectsForm = createObject(data, keys)
       if (objectsForm) {
         const initialFormData = Object.keys(objectsForm).reduce((acc, key: string) => {
-          acc[key] = String(objectsForm[key])
+          acc[key] = objectsForm[key]
           return acc
-        }, {} as { [key: string]: string | string[] })
+        }, {} as { [key: string]: string | number | boolean | string[] })
         formData.current = initialFormData
       }
     }
@@ -75,16 +76,15 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>): void => {
     const { id, value, type } = e.target
 
-    if (type === 'checkbox') 
-      formData.current[id] = (e.target as HTMLInputElement).checked
-    else if (type === 'number')
-      formData.current[id] = Number(value)
-    else
-      formData.current[id] = value
+    if (type === 'checkbox') formData.current[id] = (e.target as HTMLInputElement).checked
+    else if (type === 'number') formData.current[id] = Number(value)
+    else if (Array.isArray(formData.current[id])) formData.current[id] = value.split(',')
+    else formData.current[id] = value
   }
 
   const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
+    console.log({ formData: formData.current })
     const requestOptions = {
        method: idSelected && toolbarOption === 1 ? 'PATCH' : 'POST',
        headers: {
@@ -93,7 +93,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
        body: JSON.stringify(formData.current)
     }
 
-    const urlToUse: string = idSelected && toolbarOption === 1 ? `${String(url)}/${idSelected}` : String(url)
+    const urlToUse: string = idSelected && toolbarOption === 1 ? `${ String(url) }/${ idSelected } ` : String(url)
     
     try {
       const res: Response = await fetch(urlToUse, requestOptions)
@@ -119,7 +119,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
     return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType }: FieldConfig, index: number) => {
       const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
       const appendCurrentGroup = (group: JSX.Element[]) =>
-        group.length > 0 ? [...acc.slice(0, -1), <div key={`input-group-${index}`} className='input-group'>{group}</div>] : acc
+        group.length > 0 ? [...acc.slice(0, -1), <div key={ `input-group-${ index }` } className='input-group'>{ group }</div>] : acc
   
       if (type === 'section') {
         const updatedAcc = appendCurrentGroup(currentGroup)
@@ -129,56 +129,68 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
           <div key={`${ name }-${ index }`} className='title'>
             <h4>{ name }</h4>
           </div>,
-          <div key={`input-group-start-${index + 1}`} className='input-group'></div>
+          <div key={ `input-group-start-${ index + 1 }` } className='input-group'></div>
         ]
       } else {
+        const fieldId = id || `field-${index}`
         const fieldElement = (
-          <div key={`${ name }-${index}-${ id }`} className='field'>
-            <label htmlFor={ id }>{ name }</label>
+          <div key={`${ name }-${ index }-${ id }`} className='field'>
+            <label htmlFor={ fieldId }>{ name }</label>
             <div className='input-container'>
               {type === 'input' ? (
                 <input
                   type={ inputType }
-                  id={ id }
+                  id={ fieldId }
                   name={ name }
                   placeholder={ label }
                   autoComplete='off'
                   onChange={ (e) => handleChange(e) }
                   defaultValue={ toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : '' }
+                  readOnly={ objectsForm && id.toLowerCase() === 'department' ? true : undefined }
+                  checked={ toolbarOption === 1 
+                    && objectsForm 
+                    && typeof objectsForm[String(id.toLocaleLowerCase())] === 'boolean' 
+                    ? objectsForm[String(id.toLocaleLowerCase())] as boolean 
+                    : undefined }
                 />
               ) : type === 'dropmenu' && Object.keys(dropdownData).length > 0 ? (
                 <DropDown 
                   options={ dropdownData[id ?? ''] } 
-                  selectedId={ id ?? '' }
-                  value={ id === 'projects' 
-                    ? (objectsForm ? objectsForm[id.toLowerCase()] : []) 
-                    : (toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : '0') }
+                  selectedId={ fieldId }
+                  value={ toolbarOption === 1 && objectsForm ? String(objectsForm[String(id.toLowerCase())]) : '0' }
                   setFormData={ formData } 
+                />
+              ) : type === 'multi-option' ? (
+                <MultiDropDown
+                  id={ fieldId }
+                  options={ dropdownData[id ?? ''] }
+                  value={ toolbarOption === 1 && objectsForm ? (objectsForm[String(id.toLowerCase())] as string[]) : [] }
+                  setFormData={ formData }
                 />
               ) : type === 'textarea' ? (
                 <textarea
-                  id={ id }
+                  id={ fieldId }
                   rows={10}
                   autoComplete='off'
                   placeholder={ label }
                   onChange={ (e) => handleChange(e) }
-                  defaultValue={ toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : '' }
+                  defaultValue={ toolbarOption === 1 && objectsForm ? String(objectsForm[String(id.toLowerCase())]) : '' }
                 />
               ) : null}
             </div>
           </div>
         )
         
-        return [...acc.slice(0, -1), <div key={`input-group-${index}`} className='input-group'>{[...currentGroup, fieldElement]}</div>]
+        return [...acc.slice(0, -1), <div key={`input-group-${ index }`} className='input-group'>{ [...currentGroup, fieldElement] }</div>]
       }
     }, [])
   }, [ fieldsConfig, option, dropdownData, toolbarOption, idSelected, data, keys ])
 
   return (
     <section className='background'>
-      <div className='form-container' style={{ height: `${formSize}%` }}>
+      <div className='form-container' style={{ height: `${ formSize }%` }}>
         <FaArrowLeft onClick={ handleCancel } />
-        <h2>{`${ toolbarOption === 0 ? 'Crear' :'Editar' } ${ title }`}</h2>
+        <h2>{`${ toolbarOption === 0 ? 'Crear' : 'Editar' } ${ title }`}</h2>
         <form className='fields-container' onSubmit={ handleSubmit }>
           {elements}
           <div className='button-container'>

@@ -9,10 +9,9 @@ namespace API.Interfaces
     Employee GetEmployee(string employeeId);
     public EmployeeRelatedEntitiesDTO? GetRelatedEntities(EmployeeDTO employeeDTO);
     bool CreateEmployee(List<string> projects, Employee employee);
-    bool UpdateEmployee(Employee employee);
+    bool UpdateEmployee(List<string> projects, Employee employee);
     bool DeleteEmployee(Employee employee);
     bool EmployeeExists(string employeeId);
     List<string> GetColumns();
-    bool Save();
   }
 }
