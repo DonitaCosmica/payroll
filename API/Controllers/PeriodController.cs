@@ -16,10 +16,14 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<PeriodDTO>))]
     public IActionResult GetPeriods()
     {
-      var periods = periodRepository.GetPeriods()
-        .Select(MapToPeriodDTORequest);
+      var periods = periodRepository.GetPeriods().Select(MapToPeriodDTORequest);
+      var result = new
+      {
+        Periods = periods,
+        Years = periodRepository.GetYears()
+      };
 
-        return Ok(periods);
+      return Ok(result);
     }
 
     [HttpGet("{periodId}")]
@@ -40,20 +44,16 @@ namespace API.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreatePeriod([FromBody] PeriodDTO createPeriod)
     {
-      if(createPeriod == null || createPeriod.PeriodNumber < 0 || string.IsNullOrEmpty(createPeriod.StartDate) || string.IsNullOrEmpty(createPeriod.EndDate) || createPeriod.Year < 2024)
+      if(createPeriod == null || createPeriod.PeriodNumber < 0)
         return BadRequest();
-        
-      var startDate = DateTime.ParseExact(createPeriod.StartDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
-      var endDate = DateTime.ParseExact(createPeriod.EndDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
-      if(periodRepository.GetPeriodByDate(startDate, endDate, createPeriod.Year) != null)
+      
+      if(periodRepository.GetPeriodByWeekYear(createPeriod.PeriodNumber, createPeriod.Year) != null)
         return Conflict("Period already exist");
 
       var period = new Period
       {
         PeriodId = Guid.NewGuid().ToString(),
         PeriodNumber = createPeriod.PeriodNumber,
-        StartDate = startDate,
-        EndDate = endDate,
         Year = createPeriod.Year
       };
 
@@ -69,7 +69,7 @@ namespace API.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdatePeriod(string periodId, [FromBody] PeriodDTO updatePeriod)
     {
-      if(updatePeriod == null || updatePeriod.PeriodNumber < 0 || string.IsNullOrEmpty(updatePeriod.StartDate) || string.IsNullOrEmpty(updatePeriod.EndDate) || updatePeriod.Year < 2024)
+      if(updatePeriod == null || updatePeriod.PeriodNumber < 0 || updatePeriod.Year < 2024)
         return BadRequest();
 
       var period = periodRepository.GetPeriod(periodId);
@@ -77,8 +77,6 @@ namespace API.Controllers
         return NotFound("Period Not Found");
 
       period.PeriodNumber = updatePeriod.PeriodNumber;
-      period.StartDate = DateTime.ParseExact(updatePeriod.StartDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
-      period.EndDate = DateTime.ParseExact(updatePeriod.EndDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
       period.Year = updatePeriod.Year;
 
       if(!periodRepository.UpdatePeriod(period))
@@ -110,9 +108,7 @@ namespace API.Controllers
       {
         PeriodId = period.PeriodId,
         PeriodNumber = period.PeriodNumber,
-        StartDate = period.StartDate.ToString("yyyy-MM-dd"),
-        EndDate = period.EndDate.ToString("yyyy-MM-dd"),
-        Year = period.Year
+        Year = period.Year,
       };
     }
   }

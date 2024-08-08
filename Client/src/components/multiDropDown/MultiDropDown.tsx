@@ -22,11 +22,17 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, setFormData
   )
 
   useEffect(() => {
-    const selected = sortedOptions.map((project: IDropDownMenu) => value.includes(project.name))
-    const filteredValues = sortedOptions.filter((project: IDropDownMenu) => value.includes(project.name))
-    const allSelected = selected.every(Boolean)
+    const getIdString = (project: IDropDownMenu): string => 
+      Object.keys(project)
+        .filter(key => key.endsWith('Id'))
+        .map(idKey => project[idKey])
+        .join('')
 
-    setIsOptionSelected(selected)
+    const selectedIds = sortedOptions.map(project => getIdString(project)).map(id => value.includes(id))
+    const filteredValues = sortedOptions.filter((project: IDropDownMenu) => value.includes(getIdString(project)))
+    const allSelected = selectedIds.every(Boolean)
+
+    setIsOptionSelected(selectedIds)
     setSelectedProjects(filteredValues)
     setIsAllOptionsSelected(allSelected)
     setFilteredOptions(sortedOptions)

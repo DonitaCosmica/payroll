@@ -1,5 +1,5 @@
-import { useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { NavigationContext } from '../../context/Navigation'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigationContext } from '../../context/Navigation'
 import { type IDropDownMenu, type FieldConfig } from '../../types'
 import { fieldsConfig } from '../../utils/fields'
 import { FaArrowLeft } from "react-icons/fa"
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }): JSX.Element => {
-  const { option, title, formSize, url, data, keys, submitCount, setSubmitCount } = useContext(NavigationContext)
+  const { option, title, formSize, url, data, keys, submitCount, setSubmitCount } = useNavigationContext()
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
   const formData = useRef<{ [key: string]: string | string[] | boolean | number }>({})
 
@@ -54,9 +54,21 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
       const dropDownKey = auxKey.charAt(0).toLowerCase() + auxKey.slice(1)
       const newKey = auxKey.toLowerCase()
       const value = selectedObj[index + 1]
-      const dropDownDataFound = dropdownData[dropDownKey]?.find((dropData: IDropDownMenu) => dropData.name === value)
-      const newValue: string | string[] | boolean | number = dropDownDataFound ? dropDownDataFound[dropDownKey + 'Id'] : value
-      return { ...obj, [newKey]: newValue }
+      const dropDownDataFound = dropdownData[dropDownKey]?.filter((dropData: IDropDownMenu) => Array.isArray(value) ? value.includes(dropData.name) : dropData.name === value)
+      
+      const newValue = dropDownDataFound 
+        ? dropDownDataFound.length === 1
+          ? dropDownDataFound[0][dropDownKey + 'Id']
+          : dropDownDataFound.map(dataFound => dataFound[dropDownKey.replace(/s$/i, '') + 'Id'])
+        : value
+
+      const finalValue: string | string[] | boolean | number = Array.isArray(newValue)
+        ? newValue.map(val => typeof val === 'string' ? val : String(val)) // Convertir números a strings
+        : (typeof newValue === 'string' || typeof newValue === 'number' || typeof newValue === 'boolean'
+          ? newValue
+          : value)
+
+      return { ...obj, [newKey]: finalValue }
     }, {} as { [key: string]: string | string[] | boolean | number })
   }
 
@@ -84,7 +96,6 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
 
   const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
-    console.log({ formData: formData.current })
     const requestOptions = {
        method: idSelected && toolbarOption === 1 ? 'PATCH' : 'POST',
        headers: {
@@ -94,7 +105,6 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
     }
 
     const urlToUse: string = idSelected && toolbarOption === 1 ? `${ String(url) }/${ idSelected } ` : String(url)
-    
     try {
       const res: Response = await fetch(urlToUse, requestOptions)
       if (!res.ok) {
@@ -163,7 +173,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
               ) : type === 'multi-option' ? (
                 <MultiDropDown
                   id={ fieldId }
-                  options={ dropdownData[id ?? ''] }
+                  options={ dropdownData[id ?? ''] || [] }
                   value={ toolbarOption === 1 && objectsForm ? (objectsForm[String(id.toLowerCase())] as string[]) : [] }
                   setFormData={ formData }
                 />

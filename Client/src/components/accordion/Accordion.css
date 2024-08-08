@@ -17,8 +17,9 @@
 }
 
 .drop-menu-dates > ul > .container > .accordion > li {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   padding: 10px 15px;
+  font-weight: 500;
   cursor: pointer;
   transition: 0.5s ease-out;
 }

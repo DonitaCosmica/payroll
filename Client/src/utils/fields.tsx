@@ -33,7 +33,7 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
     { type: 'section', name: 'Otros', id: 'other-data' },
     { type: 'input', name: 'Dirección', label: 'Dirección...', inputType: 'text', id: 'direction' },
     { type: 'input', name: 'Colonia', label: 'Colonia...', inputType: 'text', id: 'suburb' },
-    { type: 'input', name: 'CP', label: 'Código Postal...', inputType: 'number', id: 'postalCode' },
+    { type: 'input', name: 'Codigo Postal', label: 'Código Postal...', inputType: 'number', id: 'postalCode' },
     { type: 'input', name: 'Ciudad', label: 'Ciudad...', inputType: 'text', id: 'city' },
     { type: 'dropmenu', name: 'Estado', fetchUrl: 'http://localhost:5239/api/State', id: 'state' },
     { type: 'input', name: 'País', label: 'País...', inputType: 'text', id: 'country' },

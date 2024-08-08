@@ -5,8 +5,9 @@ namespace API.Interfaces
   public interface IPeriodRepository
   {
     ICollection<Period> GetPeriods();
+    List<ushort> GetYears();
     Period GetPeriod(string periodId);
-    Period? GetPeriodByDate(DateTime start, DateTime end, ushort year);
+    Period? GetPeriodByWeekYear(ushort PeriodNumber, ushort year);
     bool CreatePeriod(Period period);
     bool UpdatePeriod(Period period);
     bool DeletePeriod(Period period);

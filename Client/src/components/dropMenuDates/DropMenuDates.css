@@ -16,6 +16,39 @@
   border-bottom: 1px solid #eee;
 }
 
+.drop-menu-dates > .title-menu > p {
+  display: flex;
+  align-items: center;
+  width: 50%;
+  font-size: 0.8rem;
+}
+
+.drop-menu-dates > .title-menu > .title-menu-options {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 50%;
+}
+
+.drop-menu-dates > .title-menu > .title-menu-options > .title-menu-option-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.drop-menu-dates > .title-menu > .title-menu-options > .title-menu-option-box > svg {
+  margin: 0 7.5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.35s ease;
+}
+
+.drop-menu-dates > .title-menu > .title-menu-options > .title-menu-option-box > svg:hover {
+  transform: scale(1.2);
+  transition: 0.35s ease;
+}
+
 .drop-menu-dates > ul {
   height: 85%;
   overflow-y: scroll;

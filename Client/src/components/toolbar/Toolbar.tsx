@@ -1,6 +1,6 @@
-import { useContext, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { ICON_OPTIONS } from "../../utils/icons"
-import { NavigationContext, NavigationActionKind } from "../../context/Navigation"
+import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
 import { AiOutlineSearch } from "react-icons/ai"
 import { BsThreeDotsVertical } from "react-icons/bs"
 import { DropMenu } from "../dropmenu/DropMenu"
@@ -15,7 +15,7 @@ interface Props {
 }
 
 export const Toolbar: React.FC<Props> = ({ selectedId, setSearchFilter, setToolbarOption, setShowForm }): JSX.Element => {
-  const { option, url, submitCount, setSubmitCount } = useContext(NavigationContext)
+  const { option, url, submitCount, setSubmitCount } = useNavigationContext()
   const [showDropMenu, setShowDropMenu] = useState<boolean>(false)
 
   const { options, menuOp, end } = useMemo(() => {
@@ -109,14 +109,12 @@ export const Toolbar: React.FC<Props> = ({ selectedId, setSearchFilter, setToolb
         />
         <AiOutlineSearch />
       </div>
-      {
-        showMoreOptions && (
-          <div className="more-options">
-            <BsThreeDotsVertical onClick={ () => setShowDropMenu(!showDropMenu) } />
-            { showDropMenu && <DropMenu menuOp={ menuOp ?? [] } dir={ 'right' } width={ 35 } hasPrintWindow={ false } /> }
-          </div>
-        )
-      }
+      {showMoreOptions && (
+        <div className="more-options">
+          <BsThreeDotsVertical onClick={ () => setShowDropMenu(!showDropMenu) } />
+          { showDropMenu && <DropMenu menuOp={ menuOp ?? [] } dir={ 'right' } width={ 35 } /> }
+        </div>
+      )}
     </section>
   )
 }

@@ -1,5 +1,5 @@
-import { createContext, ReactNode, useEffect, useReducer, useState } from "react"
-import { type IdataResponse } from "../types"
+import { createContext, ReactNode, useContext, useEffect, useReducer, useState } from "react"
+import { type NavigationAction, type NavigationState, type IdataResponse } from "../types"
 
 export enum NavigationActionKind {
   PAYROLLRECEIPTS = 1,
@@ -12,28 +12,8 @@ export enum NavigationActionKind {
   PROJECTCATALOG,
   COMPANIES,
   UPDATEDATA,
+  UPDATEPAYROLL,
   ERROR
-}
-
-interface NavigationState {
-  title: string,
-  option: NavigationActionKind,
-  loading: boolean,
-  url?: string
-  keys: string[],
-  columnNames: string[],
-  data: (string | number | boolean)[][],
-  formSize: number,
-  error: boolean | null
-}
-
-interface NavigationAction {
-  type: NavigationActionKind,
-  payload?: {
-    columns?: string[],
-    newData?: (number | string | boolean)[][],
-    names?: string[]
-  } 
 }
 
 interface NavigationContextType extends NavigationState {
@@ -57,10 +37,12 @@ const navigationConfig: Record<NavigationActionKind, { url: string, title: strin
   [NavigationActionKind.PROJECTCATALOG]: { url: 'http://localhost:5239/api/Project', title: 'Proyecto', formSize: 75 },
   [NavigationActionKind.COMPANIES]: { url: 'http://localhost:5239/api/Company', title: 'Compañia', formSize: 30 },
   [NavigationActionKind.UPDATEDATA]: { url: '', title: '', formSize: 0 },
+  [NavigationActionKind.UPDATEPAYROLL]: { url: '', title: '', formSize: 0 },
   [NavigationActionKind.ERROR]: { url: '', title: '', formSize: 0 }
 }
 
 const INITIAL_STATE: NavigationState = {
+  payroll: 'Ordinario',
   title: '',
   option: NavigationActionKind.PAYROLLRECEIPTS,
   loading: false,
@@ -89,7 +71,7 @@ const loadStateFromLocalStorage = (): NavigationState => {
   return INITIAL_STATE
 }
 
-export const NavigationContext: React.Context<NavigationContextType> = createContext<NavigationContextType>({
+const NavigationContext: React.Context<NavigationContextType> = createContext<NavigationContextType>({
   ...loadStateFromLocalStorage(), 
   dispatch: () => {},
   submitCount: 0,
@@ -110,9 +92,19 @@ const NavigationReducer = (state: NavigationState, action: NavigationAction): Na
         loading: false
       }
     }
+    case NavigationActionKind.UPDATEPAYROLL: {
+      const { payrollType = state.payroll } = payload || {}
+      return {
+        ...state,
+        payroll: payrollType,
+        loading: false,
+        error: null
+      }
+    }
     case NavigationActionKind.ERROR: {
       return {
         ...INITIAL_STATE,
+        loading: false,
         error: true
       }
     }
@@ -161,7 +153,7 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
       localStorage.setItem('navigationState', JSON.stringify(stateToSave))
     }
 
-    const fetchInfo = async (): Promise<void> => {
+    const fetchData = async (): Promise<void> => {
       try {
         if(!state.url) return
         
@@ -201,8 +193,15 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
       }
     }
 
-    fetchInfo()
+    fetchData()
   }, [ state.url, submitCount ])
+
+  useEffect(() => {
+    dispatch({
+      type: NavigationActionKind.UPDATEPAYROLL,
+      payload: { payrollType: 'Ordinario' }
+    })
+  }, [])
 
   return (
     <NavigationContext.Provider
@@ -216,4 +215,10 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
       { children }
     </NavigationContext.Provider>
   )
+}
+
+export const useNavigationContext = (): NavigationContextType => {
+  const context = useContext(NavigationContext)
+  if (!context) throw new Error('useNavigationContext must be used within a NavigationProvider')
+  return context
 }

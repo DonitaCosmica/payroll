@@ -13,6 +13,11 @@ export const LINKS: string[] = [
   'EMPRESAS'
 ] as const
 
+export const PAYROLL_TYPE_OP: IconDefinition[] = [
+  { label: 'Ordinario' }, 
+  { label: 'ExtraOrdinario' }
+] as const
+
 export const REPORTING_ACTIONS: Record<NavigationActionKind, IconDefinition[]> = {
   [NavigationActionKind.PAYROLLRECEIPTS]: [
     { label: 'Recibos del Periodo' }, { label: 'Recibos del Periodo (det)' },
@@ -33,5 +38,6 @@ export const REPORTING_ACTIONS: Record<NavigationActionKind, IconDefinition[]> =
   ],
   [NavigationActionKind.COMPANIES]: [],
   [NavigationActionKind.UPDATEDATA]: [],
+  [NavigationActionKind.UPDATEPAYROLL]: [],
   [NavigationActionKind.ERROR]: []
 } as const

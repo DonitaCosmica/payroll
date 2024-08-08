@@ -1,5 +1,4 @@
-import { useContext } from 'react'
-import { NavigationContext } from '../../context/Navigation'
+import { useNavigationContext } from '../../context/Navigation'
 import { LINKS } from '../../consts'
 import './Navbar.css'
 
@@ -8,7 +7,7 @@ interface Props {
 }
 
 export const Navbar: React.FC<Props> = ({ setId }): JSX.Element => {
-  const { dispatch, option } = useContext(NavigationContext)
+  const { dispatch, option } = useNavigationContext()
 
   return (
     <nav className='navbar'>

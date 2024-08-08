@@ -1,5 +1,5 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react"
-import { NavigationContext } from "../../context/Navigation"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { useNavigationContext } from "../../context/Navigation"
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md"
 import './List.css'
 
@@ -11,7 +11,7 @@ interface Props {
 }
 
 export const List: React.FC<Props> = ({ setId, setShowForm, setToolbarOption, searchFilter }): JSX.Element => {
-  const { option, keys, data, columnNames } = useContext(NavigationContext)
+  const { option, keys, data, columnNames } = useNavigationContext()
   const [filteredValues, setFilteredValues] = useState<(string | number | boolean)[][]>(data)
   const rowSelected = useRef<number>(-1)
   const columnCountSelected = useRef<number>(0)

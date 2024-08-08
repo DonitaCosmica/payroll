@@ -1,10 +1,9 @@
 import { type IconDefinition } from "../types"
 import { NavigationActionKind } from "../context/Navigation"
-import { AiOutlinePrinter, AiFillFlag, AiOutlineStop } from "react-icons/ai"
-import { BsBoxArrowInDownLeft, BsDownload, BsArrowClockwise, BsFiletypePdf , BsFiletypeXls  } from "react-icons/bs"
+import { AiFillFlag, AiOutlineStop } from "react-icons/ai"
+import { BsBoxArrowInDownLeft, BsArrowClockwise, BsFiletypePdf , BsFiletypeXls  } from "react-icons/bs"
 import { BiEditAlt, BiSolidCalculator, BiLogOut } from "react-icons/bi"
 import { TbReportSearch, TbCalendarTime } from "react-icons/tb"
-import { HiOutlineKey } from "react-icons/hi2"
 import { GrAdd } from "react-icons/gr"
 import { RiDeleteBin6Line } from "react-icons/ri"
 import { FiSettings, FiUsers } from "react-icons/fi"
@@ -20,12 +19,10 @@ export const ICON_OPTIONS: {
   common: [
     { icon: <GrAdd fontSize='1.2rem' color="#73ba69" />, label: 'Nuevo' },
     { icon: <BiEditAlt fontSize='1.2rem' color="#e5ac3b" />, label: 'Editar' },
-    { icon: <RiDeleteBin6Line color="#de4645" />, label: 'Eliminar' }
+    { icon: <RiDeleteBin6Line fontSize='1.2rem' color="#de4645" />, label: 'Eliminar' }
   ],
   special: {
     [NavigationActionKind.PAYROLLRECEIPTS]: [
-      { icon: <AiOutlinePrinter fontSize='1.2rem' color="#2c8efa" />, label: 'Imprimir' },
-      { icon: <BsDownload fontSize='1.2rem' color="#70b2fb" />, label: 'Descargar' },
       { icon: <BiSolidCalculator fontSize='1.2rem' color="#dd7e7b" />, label: 'Tabla de trabajo' },
       { icon: <TbReportSearch fontSize='1.2rem' color="#ffb380" />, label: 'Reportes' }
     ],
@@ -46,11 +43,11 @@ export const ICON_OPTIONS: {
       { icon: <AiOutlineStop fontSize='1.2rem' color="#d92928" />, label: 'Ocultar' }
     ],
     [NavigationActionKind.PROJECTCATALOG]: [
-      { icon: <HiOutlineKey fontSize='1.2rem' color="#585858" />, label: 'Permisos' },
       { icon: <TbReportSearch fontSize='1.2rem' color="#ffb380" />, label: 'Reportes' }
     ],
     [NavigationActionKind.COMPANIES]: [],
     [NavigationActionKind.UPDATEDATA]: [],
+    [NavigationActionKind.UPDATEPAYROLL]: [],
     [NavigationActionKind.ERROR]: []
   },
   menu: {
@@ -71,6 +68,7 @@ export const ICON_OPTIONS: {
     ],
     [NavigationActionKind.COMPANIES]: [],
     [NavigationActionKind.UPDATEDATA]: [],
+    [NavigationActionKind.UPDATEPAYROLL]: [],
     [NavigationActionKind.ERROR]: []
   }
 } as const

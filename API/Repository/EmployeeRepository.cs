@@ -112,6 +112,7 @@ namespace API.Repository
     {
       foreach(var projectId in projects)
       {
+        System.Console.WriteLine($"Project: { projectId }");
         var project = context.Projects.FirstOrDefault(p => p.ProjectId == projectId);
         if (project == null) return false;
         

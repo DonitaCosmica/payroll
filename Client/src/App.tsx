@@ -1,5 +1,6 @@
-import { useContext, useState } from 'react'
-import { NavigationContext } from './context/Navigation'
+import { useState } from 'react'
+import { PeriodProvider } from './context/Period'
+import { useNavigationContext } from './context/Navigation'
 import { Titlebar } from './components/titlebar/Titlebar'
 import { Navbar } from './components/navbar/Navbar'
 import { Filter } from './components/filter/Filter'
@@ -10,7 +11,7 @@ import { Form } from './components/form/Form'
 import './App.css'
 
 function App(): JSX.Element {
-  const { option } = useContext(NavigationContext)
+  const { option } = useNavigationContext()
   const [showForm, setShowForm] = useState<boolean>(false)
   const [toolbarOption, setToolbarOption] = useState<number>(-1)
   const [id, setId] = useState<string>('')
@@ -22,7 +23,11 @@ function App(): JSX.Element {
       <Navbar 
         setId={ setId }
       />
-      { option === 1 && <Filter /> }
+      {option === 1 &&  
+        <PeriodProvider>
+          <Filter setShowForm={ setShowForm } />
+        </PeriodProvider>
+      }
       <Toolbar
         selectedId={ id }
         setSearchFilter={ setSearchFilter }
