@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useReducer, useState } from "react"
-import { type IFilterPeriod, type IDates, type IPeriod, type IWeekYear } from "../types"
+import { type IFilterPeriod, type IDates, type IWeekYear } from "../types"
 
 interface PeriodState extends IDates {
   selectedPeriod: IWeekYear,
@@ -90,8 +90,8 @@ export const PeriodProvider: React.FC<Props> = ({ children }) => {
         (currentDate > nextMonday ? Math.ceil((currentDate.getTime() - nextMonday.getTime()) / (24 * 3600 * 1000) / 7) : 1)
     }
 
-    const createYearlyPeriodArray = (filterPeriod: IFilterPeriod): IPeriod[][] => {
-      const periodsByYear: Record<number, IPeriod[]> = {}
+    const createYearlyPeriodArray = (filterPeriod: IFilterPeriod): IWeekYear[][] => {
+      const periodsByYear: Record<number, IWeekYear[]> = {}
 
       filterPeriod.periods.map(period => {
         if (!periodsByYear[period.year]) 
@@ -109,8 +109,8 @@ export const PeriodProvider: React.FC<Props> = ({ children }) => {
         const data: IFilterPeriod = await res.json()
         data.years.sort((a: number, b: number) => b - a)
         
-        const periods: IPeriod[][] = createYearlyPeriodArray(data)
-        periods.map(period => period.sort((a, b) => a.periodNumber - b.periodNumber))
+        const periods: IWeekYear[][] = createYearlyPeriodArray(data)
+        periods.map(period => period.sort((a, b) => a.week - b.week))
         dispatch({ type: "SET_DATES", payload: { years: data.years, dates: periods } })
       } catch (error) {
         console.error(error)

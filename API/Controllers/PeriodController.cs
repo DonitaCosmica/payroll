@@ -44,16 +44,16 @@ namespace API.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreatePeriod([FromBody] PeriodDTO createPeriod)
     {
-      if(createPeriod == null || createPeriod.PeriodNumber < 0)
+      if(createPeriod == null || createPeriod.Week < 0)
         return BadRequest();
       
-      if(periodRepository.GetPeriodByWeekYear(createPeriod.PeriodNumber, createPeriod.Year) != null)
+      if(periodRepository.GetPeriodByWeekYear(createPeriod.Week, createPeriod.Year) != null)
         return Conflict("Period already exist");
 
       var period = new Period
       {
         PeriodId = Guid.NewGuid().ToString(),
-        PeriodNumber = createPeriod.PeriodNumber,
+        Week = createPeriod.Week,
         Year = createPeriod.Year
       };
 
@@ -69,14 +69,14 @@ namespace API.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdatePeriod(string periodId, [FromBody] PeriodDTO updatePeriod)
     {
-      if(updatePeriod == null || updatePeriod.PeriodNumber < 0 || updatePeriod.Year < 2024)
+      if(updatePeriod == null || updatePeriod.Week < 0 || updatePeriod.Year < 2024)
         return BadRequest();
 
       var period = periodRepository.GetPeriod(periodId);
       if (period == null)
         return NotFound("Period Not Found");
 
-      period.PeriodNumber = updatePeriod.PeriodNumber;
+      period.Week = updatePeriod.Week;
       period.Year = updatePeriod.Year;
 
       if(!periodRepository.UpdatePeriod(period))
@@ -107,7 +107,7 @@ namespace API.Controllers
       return new PeriodDTO
       {
         PeriodId = period.PeriodId,
-        PeriodNumber = period.PeriodNumber,
+        Week = period.Week,
         Year = period.Year,
       };
     }

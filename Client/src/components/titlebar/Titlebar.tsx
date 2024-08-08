@@ -32,7 +32,6 @@ export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
                   menuOp={ MENU_ICONS }
                   dir={ 'right' }
                   width={ 250 }
-                  hasPrintWindow={ false }
                 />
               )
             }

@@ -10,6 +10,7 @@ export interface IWeek {
   sunday: string
 }
 export interface IWeekYear {
+  periodId?: string,
   week: number,
   year: number
 }
@@ -57,12 +58,6 @@ export interface NavigationAction {
     newData?: (number | string | boolean)[][],
     names?: string[]
   } 
-}
-
-export interface IPeriod {
-  periodId?: string,
-  periodNumber: number,
-  year: number
 }
 
 export interface IFilterPeriod {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { usePeriodContext } from '../../context/Period'
 import { useCurrentWeek } from '../../hooks/useCurrentWeek'
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
@@ -15,14 +15,14 @@ interface Props {
 
 export const Filter: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const { payroll, dispatch } = useNavigationContext()
-  const { selectedPeriod: { year, week } } = usePeriodContext()
+  const { selectedPeriod } = usePeriodContext()
   const [showDropMenu, setShowDropMenu] = useState<IMenuState>({ date: false, text: false })
   const [filterData, setFilterData] = useState<string[]>([])
-  const input = useMemo(() => ({ year, week }), [year, week])
-  const { weekRanges } = useCurrentWeek({ input })
+  const { weekRanges } = useCurrentWeek({ input: selectedPeriod })
 
   useEffect(() => {
     const { monday, sunday } = weekRanges[0] || { monday: 'No Data', sunday: 'No Data' }
+    const { week, year } = selectedPeriod
     setFilterData([
       `${ year } - Periodo ${ week }`,
       `${ monday } a ${ sunday }`

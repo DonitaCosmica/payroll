@@ -17,7 +17,7 @@ namespace API.Repository
       ?? throw new Exception("No Period with the specified id was found");
     public Period? GetPeriodByWeekYear(ushort PeriodNumber, ushort year) => 
       context.Periods.FirstOrDefault(pr => 
-      pr.PeriodNumber == PeriodNumber && 
+      pr.Week == PeriodNumber && 
       pr.Year == year);
     public bool CreatePeriod(Period period) => context.CreateEntity(period);
     public bool UpdatePeriod(Period period) => context.UpdateEntity(period);

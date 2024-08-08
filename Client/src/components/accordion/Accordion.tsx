@@ -1,18 +1,17 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { usePeriodContext } from '../../context/Period'
 import { useCurrentWeek } from '../../hooks/useCurrentWeek'
-import { type IWeekYear, type IPeriod } from '../../types'
+import { type IWeekYear } from '../../types'
 import { IoIosArrowForward } from "react-icons/io"
 import './Accordion.css'
 
 interface Props {
   year: number,
-  period: IPeriod[]
+  period: IWeekYear[]
 }
 
 export const Accordion: React.FC<Props> = ({ year, period }) => {
-  const weeks: IWeekYear[] = useMemo(() => period.map(pr => ({ year: pr.year, week: pr.periodNumber })), [period])
-  const { weekRanges } = useCurrentWeek({ input: weeks })
+  const { weekRanges } = useCurrentWeek({ input: period })
   const { dispatch, setActionType } = usePeriodContext()
   const [isCollapsed, setIsCollapsed] = useState(true)
 
@@ -23,10 +22,10 @@ export const Accordion: React.FC<Props> = ({ year, period }) => {
     setIsCollapsed(!isCollapsed)
   }
 
-  const getPeriodSelected = (period: IPeriod): void => 
+  const getPeriodSelected = (period: IWeekYear): void => 
     dispatch({
       type: 'SET_WEEK',
-      payload: { week: period.periodNumber, year: period.year }
+      payload: { week: period.week, year: period.year }
     })
 
   return (
@@ -36,12 +35,12 @@ export const Accordion: React.FC<Props> = ({ year, period }) => {
         <strong>{ year }</strong>
       </li>
       <ul className={`accordion ${ isCollapsed ? 'collapsed' : 'expanded' }`}>
-        {period.map((pr: IPeriod, index: number) => {
+        {period.map((pr: IWeekYear, index: number) => {
           const { monday, sunday } = weekRanges[index] || { monday: 'No Data', sunday: 'No Data' }
 
           return (
             <li key={ pr.periodId } onClick={ () => getPeriodSelected(pr) }>
-              { `${ pr.periodNumber } [ ${ monday } - ${ sunday } ]` }
+              { `${ pr.week } [ ${ monday } - ${ sunday } ]` }
             </li>
           )
         })}
