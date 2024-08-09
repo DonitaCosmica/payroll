@@ -1,17 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import { useNavigationContext } from "../../context/Navigation"
+import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md"
 import './List.css'
 
 interface Props {
-  setId: React.Dispatch<React.SetStateAction<string>>
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
-  setToolbarOption: React.Dispatch<React.SetStateAction<number>>
   searchFilter: string
 }
 
-export const List: React.FC<Props> = ({ setId, setShowForm, setToolbarOption, searchFilter }): JSX.Element => {
-  const { option, keys, data, columnNames } = useNavigationContext()
+export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Element => {
+  const { option, keys, data, columnNames, dispatch } = useNavigationContext()
   const [filteredValues, setFilteredValues] = useState<(string | number | boolean)[][]>(data)
   const rowSelected = useRef<number>(-1)
   const columnCountSelected = useRef<number>(0)
@@ -40,8 +38,11 @@ export const List: React.FC<Props> = ({ setId, setShowForm, setToolbarOption, se
   const getIdSelected = useCallback((info: (string)[]): void => {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     const uuid = info.find(item => typeof item === 'string' && uuidRegex.test(item))
-    uuid ? setId(uuid as string) : console.error('No valid UUID found in the provided info.')
-  }, [ setId ])
+    uuid ? dispatch({
+      type: NavigationActionKind.UPDATESELECTEDID,
+      payload: { selectedId: uuid as string }
+    }) : console.error('No valid UUID found in the provided info.')
+  }, [ dispatch ])
 
   const selectedRow = useCallback((row: string[], index: number): void => {
     getIdSelected(row)
@@ -82,9 +83,12 @@ export const List: React.FC<Props> = ({ setId, setShowForm, setToolbarOption, se
 
   const showFormDoubleClick = useCallback((info: string[]): void => {
     getIdSelected(info)
-    setToolbarOption(1)
+    dispatch({
+      type: NavigationActionKind.UPDATETOOLBAROPT,
+      payload: { toolbarOption: 1 }
+    })
     setShowForm(true)
-  }, [ getIdSelected, setToolbarOption, setShowForm ])
+  }, [ getIdSelected, dispatch, setShowForm ])
 
   const renderCellContent = (info: number | string | boolean | string[]): number | string => {
     if (typeof info === 'boolean') return info ? 'Verdadero' : 'Falso'

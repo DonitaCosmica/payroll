@@ -14,7 +14,7 @@ export const useGeneratePrintPage = ({ titlebar, tableId }: Props): { [key: stri
   
   useEffect(() => {
     const getHtmlText = async (): Promise<void> => {
-      const res: Response = await fetch('/src/html/print.html')
+      const res: Response = await fetch('/src/pages/print.html')
       const text: string = await res.text()
       setHtmlText(text)
     }

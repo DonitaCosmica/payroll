@@ -9,12 +9,10 @@ import './Form.css'
 
 interface Props {
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
-  toolbarOption: number
-  idSelected?: string
 }
 
-export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }): JSX.Element => {
-  const { option, title, formSize, url, data, keys, submitCount, setSubmitCount } = useNavigationContext()
+export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
+  const { option, title, formSize, url, data, keys, submitCount, selectedId, toolbarOption, setSubmitCount } = useNavigationContext()
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
   const formData = useRef<{ [key: string]: string | string[] | boolean | number }>({})
 
@@ -46,7 +44,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
   }, [ option ])
 
   const createObject = (data: (string | number | boolean)[][], keys: string[]): { [key: string]: string | string[] | boolean | number } | null => {
-    const selectedObj = data.find((item: (string | number | boolean)[]) => item[0] === idSelected)
+    const selectedObj = data.find((item: (string | number | boolean)[]) => item[0] === selectedId)
     if (!selectedObj) return null
 
     return keys.slice(1).reduce((obj: { [key: string]: string | string[] | boolean | number }, key: string, index: number) => {
@@ -73,7 +71,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
   }
 
   useEffect(() => {
-    if (toolbarOption === 1 && idSelected) {
+    if (toolbarOption === 1 && selectedId) {
       const objectsForm = createObject(data, keys)
       if (objectsForm) {
         const initialFormData = Object.keys(objectsForm).reduce((acc, key: string) => {
@@ -83,7 +81,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
         formData.current = initialFormData
       }
     }
-  }, [ toolbarOption, idSelected, data, keys, dropdownData ])
+  }, [ toolbarOption, selectedId, data, keys, dropdownData ])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>): void => {
     const { id, value, type } = e.target
@@ -97,14 +95,14 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
   const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
     const requestOptions = {
-       method: idSelected && toolbarOption === 1 ? 'PATCH' : 'POST',
+       method: selectedId && toolbarOption === 1 ? 'PATCH' : 'POST',
        headers: {
         'Content-Type': 'application/json'
        },
        body: JSON.stringify(formData.current)
     }
 
-    const urlToUse: string = idSelected && toolbarOption === 1 ? `${ String(url) }/${ idSelected } ` : String(url)
+    const urlToUse: string = selectedId && toolbarOption === 1 ? `${ String(url) }/${ selectedId } ` : String(url)
     try {
       const res: Response = await fetch(urlToUse, requestOptions)
       if (!res.ok) {
@@ -194,7 +192,7 @@ export const Form: React.FC<Props> = ({ setShowForm, toolbarOption, idSelected }
         return [...acc.slice(0, -1), <div key={`input-group-${ index }`} className='input-group'>{ [...currentGroup, fieldElement] }</div>]
       }
     }, [])
-  }, [ fieldsConfig, option, dropdownData, toolbarOption, idSelected, data, keys ])
+  }, [ fieldsConfig, option, dropdownData, toolbarOption, selectedId, data, keys ])
 
   return (
     <section className='background'>

@@ -36,9 +36,10 @@ export interface FieldConfig {
   fetchUrl?: string,
   id: string
 }
-
 export interface NavigationState {
   payroll: 'Ordinario' | 'ExtraOrdinario',
+  selectedId: string,
+  toolbarOption: number,
   title: string,
   option: NavigationActionKind,
   loading: boolean,
@@ -49,22 +50,21 @@ export interface NavigationState {
   formSize: number,
   error: boolean | null
 }
-
 export interface NavigationAction {
   type: NavigationActionKind,
   payload?: {
     payrollType?: 'Ordinario' | 'ExtraOrdinario',
+    selectedId?: string,
+    toolbarOption?: number,
     columns?: string[],
     newData?: (number | string | boolean)[][],
     names?: string[]
   } 
 }
-
 export interface IFilterPeriod {
   periods: IPeriod[],
   years: number[]
 }
-
 export interface IDates {
   years: number[],
   dates: IPeriod[][]

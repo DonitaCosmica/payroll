@@ -1,32 +1,154 @@
-import { useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { usePeriodContext } from '../../context/Period'
-import { type IconDefinition } from '../../types'
+import { IWeekYear, type IconDefinition } from '../../types'
 import { ICON_OPTIONS } from '../../utils/icons'
 import { Accordion } from '../accordion/Accordion'
+import { FaCheck } from "react-icons/fa"
 import './DropMenuDates.css'
 
-interface Props {
-  setShowForm: React.Dispatch<React.SetStateAction<boolean>>
+export const DropMenuDates = ({  }): JSX.Element => {
+  const { years, dates, selectedPeriod, setActionType } = usePeriodContext()
+  const [showOptionsPeriod, setShowOptionsPeriod] = useState<boolean>(false)
+  const selectedOption = useRef<number>(-1)
+  const period = useRef<IWeekYear>({ week: 0, year: 0 })
+
+  useEffect(() => {
+    if (!ICON_OPTIONS.common.some(icon => Object.values(icon).includes('Enviar')))
+      ICON_OPTIONS.common.push({ label: 'Enviar', icon: <FaCheck fontSize='1rem' color='#73ba69' /> })
+    setActionType('FETCH_DATA')
+  }, [])
+
+  const getWeekNumber = (date: Date): number => {
+    const currentDate = (typeof date === 'object') ? date : new Date()
+    const januaryFirst = new Date(currentDate.getFullYear(), 0, 1)
+    const daysToNextMonday = (januaryFirst.getDay() === 1) ? 0 :
+      (7 - januaryFirst.getDay()) % 7
+    const nextMonday = new Date(currentDate.getFullYear(), 0, januaryFirst.getDate() + daysToNextMonday)
+  
+    return (currentDate < nextMonday) ? 52 :
+      (currentDate > nextMonday ? Math.ceil((currentDate.getTime() - nextMonday.getTime()) / (24 * 3600 * 1000) / 7) : 1)
+  }
+
+  const getMondayOfWeek = ({ week, year }: IWeekYear): string => {
+    const janFirst = new Date(year, 0, 1)
+    const firstMonday = janFirst.getDay() <= 1 
+        ? new Date(year, 0, 1 + (1 - janFirst.getDay())) 
+        : new Date(year, 0, 1 + (8 - janFirst.getDay()))
+    const targetMonday = new Date(firstMonday)
+    targetMonday.setDate(firstMonday.getDate() + (week - 1) * 7)
+    
+    const yearStr = targetMonday.getFullYear()
+    const monthStr = String(targetMonday.getMonth() + 1).padStart(2, '0')
+    const dayStr = String(targetMonday.getDate()).padStart(2, '0')
+    
+    return `${yearStr}-${monthStr}-${dayStr}`
 }
 
-export const DropMenuDates: React.FC<Props> = ({  }): JSX.Element => {
-  const { years, dates, setActionType } = usePeriodContext()
+  const handleForm = async (e: React.MouseEvent<HTMLDivElement>, index: number): Promise<void> => {
+    e.stopPropagation()
+    const isInvalidSelection = (index === 1 || index === 2) && !selectedPeriod.periodId
+    if (isInvalidSelection) return
+    if (index === 3) {
+      await handleSubmit()
+      return
+    }
 
-  useEffect(() => setActionType('FETCH_DATA'), [])
+    (index === 2) ? await deletePeriod() : showFormAndSetOption(index)
+  }
+
+  const showFormAndSetOption = (index: number): void => {
+    setShowOptionsPeriod(true)
+    selectedOption.current = index
+  }
+
+  const handleSubmit = async (): Promise<void> => {
+    const requestOptions = {
+      method: period.current.periodId && selectedOption.current === 1 ? 'PATCH' : 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(period.current)
+    }
+
+    const urlToUse: string = period.current.periodId && selectedOption.current === 1 
+      ? `http://localhost:5239/api/Period/${ selectedPeriod.periodId }`
+      : 'http://localhost:5239/api/Period/${ selectedPeriod.periodId }'
+
+    console.log({ requestOptions, urlToUse })
+
+    /*try {
+      const res: Response = await fetch(urlToUse, requestOptions)
+      if (!res.ok) {
+        const errorData = await res.json()
+        console.error('Request error: ', errorData)
+      } else {
+        setShowOptionsPeriod(false)
+        setActionType('FETCH_DATA')
+      }
+    } catch (error) {
+      console.error('Request error: ', error)
+    }*/
+  }
+
+  const deletePeriod = async (): Promise<void> => {
+    if (!selectedPeriod.periodId) return
+    const requestOptions: { method: string } = {
+      method: 'DELETE'
+    }
+
+    try {
+      const res: Response = await fetch(`http://localhost:5239/api/Period/${ selectedPeriod.periodId }`, requestOptions)
+      if (!res.ok) {
+        const errorData = await res.json()
+        console.error('Request error: ', errorData)
+      } else
+        setActionType('FETCH_DATA')
+    } catch (error) {
+      console.error('Request error: ', error)
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    e.stopPropagation()
+    period.current = {
+      periodId: selectedPeriod.periodId,
+      week: getWeekNumber(new Date(e.target.value)), 
+      year: new Date(e.target.value).getFullYear()
+    }
+  }
   
   return (
-    <div className='drop-menu-dates'>
+    <div className='drop-menu-dates' style={{ height: showOptionsPeriod ? '1225%' : '1000%' }}>
       <div className='title-menu'>
         <p>Seleccionar Periodo</p>
         <div className='title-menu-options'>
-          {ICON_OPTIONS.common.map((iconOption: IconDefinition) => (
-            <div key={ iconOption.label } className='title-menu-option-box'>
+          {ICON_OPTIONS.common.map((iconOption: IconDefinition, index: number) => (
+            <div
+              key={ iconOption.label }
+              className='title-menu-option-box'
+              onClick={ (e) => handleForm(e, index) }
+            >
               { iconOption.icon }
             </div>
           ))}
         </div>
       </div>
-      <ul>
+      <div className='set-date-box' style={{ display: showOptionsPeriod ? 'flex' : 'none' }}>
+        <label htmlFor='period'>Ingrese Fecha</label>
+        <input
+          id='period'
+          name='period'
+          type='date'
+          autoComplete='off'
+          onChange={ (e) => handleChange(e) }
+          onClick={ (e) => e.stopPropagation() }
+          defaultValue={ 
+            selectedOption.current === 1 && selectedPeriod.periodId 
+            ? getMondayOfWeek({ week: selectedPeriod.week, year: selectedPeriod.year })
+            : undefined}
+        />
+      </div>
+      <ul style={{ height: showOptionsPeriod ? '75%' : '85%' }}>
         {years.map((year: number, index: number) => 
           <Accordion 
             key={ year }

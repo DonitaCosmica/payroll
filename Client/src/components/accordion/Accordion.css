@@ -24,6 +24,10 @@
   transition: 0.5s ease-out;
 }
 
+.drop-menu-dates > ul > .container > .accordion > li.selected {
+  background-color: #eee;
+}
+
 .drop-menu-dates > ul > .container > .accordion > li:hover {
   background-color: #eee;
   transition: 0.5s ease-in;

@@ -48,6 +48,8 @@ export const ICON_OPTIONS: {
     [NavigationActionKind.COMPANIES]: [],
     [NavigationActionKind.UPDATEDATA]: [],
     [NavigationActionKind.UPDATEPAYROLL]: [],
+    [NavigationActionKind.UPDATESELECTEDID]: [],
+    [NavigationActionKind.UPDATETOOLBAROPT]: [],
     [NavigationActionKind.ERROR]: []
   },
   menu: {
@@ -69,6 +71,8 @@ export const ICON_OPTIONS: {
     [NavigationActionKind.COMPANIES]: [],
     [NavigationActionKind.UPDATEDATA]: [],
     [NavigationActionKind.UPDATEPAYROLL]: [],
+    [NavigationActionKind.UPDATESELECTEDID]: [],
+    [NavigationActionKind.UPDATETOOLBAROPT]: [],
     [NavigationActionKind.ERROR]: []
   }
 } as const

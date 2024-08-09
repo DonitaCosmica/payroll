@@ -8,14 +8,12 @@ import { IconSection } from "../iconSection/IconSection"
 import './Toolbar.css'
 
 interface Props {
-  selectedId: string
   setSearchFilter: React.Dispatch<React.SetStateAction<string>>
-  setToolbarOption: React.Dispatch<React.SetStateAction<number>>
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const Toolbar: React.FC<Props> = ({ selectedId, setSearchFilter, setToolbarOption, setShowForm }): JSX.Element => {
-  const { option, url, submitCount, setSubmitCount } = useNavigationContext()
+export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm }): JSX.Element => {
+  const { option, url, submitCount, selectedId, setSubmitCount, dispatch } = useNavigationContext()
   const [showDropMenu, setShowDropMenu] = useState<boolean>(false)
 
   const { options, menuOp, end } = useMemo(() => {
@@ -43,7 +41,7 @@ export const Toolbar: React.FC<Props> = ({ selectedId, setSearchFilter, setToolb
   const handleForm = async (index: number, label: string): Promise<void> => {
     const isInvalidAction = label !== 'Nuevo' && label !== 'Editar' && label !== 'Eliminar'
     if (isInvalidAction) return
-    
+
     const isInvalidSelection = (index === 1 || index === 2) && selectedId === ''
     if (isInvalidSelection) return
 
@@ -70,7 +68,10 @@ export const Toolbar: React.FC<Props> = ({ selectedId, setSearchFilter, setToolb
 
   const showFormAndSetToolbar = (index: number): void => {
     setShowForm(true)
-    setToolbarOption(index)
+    dispatch({
+      type: NavigationActionKind.UPDATETOOLBAROPT,
+      payload: { toolbarOption: index }
+    })
   }
 
   return (

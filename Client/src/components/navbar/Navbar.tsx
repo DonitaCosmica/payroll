@@ -1,12 +1,8 @@
-import { useNavigationContext } from '../../context/Navigation'
+import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
 import { LINKS } from '../../consts'
 import './Navbar.css'
 
-interface Props {
-  setId: React.Dispatch<React.SetStateAction<string>>
-}
-
-export const Navbar: React.FC<Props> = ({ setId }): JSX.Element => {
+export const Navbar = (): JSX.Element => {
   const { dispatch, option } = useNavigationContext()
 
   return (
@@ -18,7 +14,10 @@ export const Navbar: React.FC<Props> = ({ setId }): JSX.Element => {
             key={ link } 
             onClick={ () => {
               dispatch({ type: index + 1 })
-              setId('')
+              dispatch({ 
+                type: NavigationActionKind.UPDATESELECTEDID,
+                payload: { selectedId: '' }
+              })
             } }
           >
             <p>{ link }</p>

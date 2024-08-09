@@ -1,20 +1,17 @@
-import { useEffect, useState } from "react"
-import { type IWeekYear, type IWeek } from "../types"
-
-interface IWeekRange {
-  monday: string;
-  sunday: string;
-}
+import { useEffect, useRef } from "react"
+import { type IWeek, type IWeekYear } from "../types"
 
 interface Props {
   input: IWeekYear | IWeekYear[]
 }
 
-export const useCurrentWeek = ({ input }: Props): { weekRanges: IWeekRange[] } => {
-  const [weekRanges, setWeekRanges] = useState<IWeek[]>([])
+export const useCurrentWeek = ({ input }: Props): { weekRanges: IWeek[] } => {
+  const weekRanges = useRef<IWeek[]>([])
 
   useEffect(() => {
     const weeks = Array.isArray(input) ? input : [input]
+    if (weeks.some(week => Object.values(week).includes(0))) return
+
     const newWeekRanges = weeks.map(({ year, week }) => {
       const { monday, sunday } = getDatesOfWeek(year, week)
       return {
@@ -22,7 +19,7 @@ export const useCurrentWeek = ({ input }: Props): { weekRanges: IWeekRange[] } =
         sunday: formatDate(sunday)
       }
     })
-    setWeekRanges(newWeekRanges)
+    weekRanges.current = newWeekRanges
   }, [ input ])
 
   const getDatesOfWeek = (year: number, weekNUmber: number): { monday: Date, sunday: Date } => {
@@ -47,5 +44,5 @@ export const useCurrentWeek = ({ input }: Props): { weekRanges: IWeekRange[] } =
         year: 'numeric'
       }).format(date).replace(',', '')
 
-  return { weekRanges }
+  return { weekRanges: weekRanges.current }
 }

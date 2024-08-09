@@ -13,40 +13,28 @@ import './App.css'
 function App(): JSX.Element {
   const { option } = useNavigationContext()
   const [showForm, setShowForm] = useState<boolean>(false)
-  const [toolbarOption, setToolbarOption] = useState<number>(-1)
-  const [id, setId] = useState<string>('')
   const [searchFilter, setSearchFilter] = useState<string>('')
 
   return (
     <main className='payroll'>
       <Titlebar action='payroll' />
-      <Navbar 
-        setId={ setId }
-      />
+      <Navbar />
       {option === 1 &&  
         <PeriodProvider>
-          <Filter setShowForm={ setShowForm } />
+          <Filter />
         </PeriodProvider>
       }
       <Toolbar
-        selectedId={ id }
         setSearchFilter={ setSearchFilter }
-        setToolbarOption={ setToolbarOption }
         setShowForm={ setShowForm }
       />
       <List 
-        setId={ setId }
         setShowForm={ setShowForm }
-        setToolbarOption={ setToolbarOption }
         searchFilter={ searchFilter }
       />
       <Footer />
       {showForm && 
-        <Form 
-          setShowForm={ setShowForm }
-          toolbarOption={ toolbarOption }
-          idSelected={ id }
-        />}
+        <Form setShowForm={ setShowForm } />}
     </main>
   )
 }

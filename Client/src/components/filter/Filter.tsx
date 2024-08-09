@@ -9,25 +9,23 @@ import { DropMenuDates } from '../dropMenuDates/DropMenuDates'
 import { IoIosArrowDown } from "react-icons/io"
 import './Filter.css'
 
-interface Props {
-  setShowForm: React.Dispatch<React.SetStateAction<boolean>>
-}
-
-export const Filter: React.FC<Props> = ({ setShowForm }): JSX.Element => {
+export const Filter = ({  }): JSX.Element => {
   const { payroll, dispatch } = useNavigationContext()
   const { selectedPeriod } = usePeriodContext()
   const [showDropMenu, setShowDropMenu] = useState<IMenuState>({ date: false, text: false })
-  const [filterData, setFilterData] = useState<string[]>([])
   const { weekRanges } = useCurrentWeek({ input: selectedPeriod })
+  const [filterData, setFilterData] = useState<string[]>([])
 
   useEffect(() => {
-    const { monday, sunday } = weekRanges[0] || { monday: 'No Data', sunday: 'No Data' }
+    if (selectedPeriod.week === 0 || selectedPeriod.year === 0) return
+
+    const { monday, sunday } = weekRanges[0] || { monday: '', sunday: '' }
     const { week, year } = selectedPeriod
     setFilterData([
       `${ year } - Periodo ${ week }`,
       `${ monday } a ${ sunday }`
     ])
-  }, [ weekRanges ])
+  }, [ weekRanges, selectedPeriod ])
 
   const handleDropMenu = (value: number | string): void => {
     const key: string = typeof value === 'number' ? 'date' : 'text'
@@ -46,10 +44,12 @@ export const Filter: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     <section className='filters'>
       <div className='container'>
         {filterData.map((filter: string, index: number) => (
-          <div className='filter' key={ filter } onClick={() => handleDropMenu(index)}>
+          <div className='filter' key={ filter } onClick={() => {
+            if (index === 0) handleDropMenu(index)
+          }}>
             <p>{ filter }</p>
-            { index % 2 === 0 && <IoIosArrowDown /> }
-            { index === 0 && showDropMenu.date && <DropMenuDates setShowForm={ setShowForm } /> }
+            { index === 0 && <IoIosArrowDown /> }
+            { index === 0 && showDropMenu.date && <DropMenuDates /> }
           </div>
         ))}
         <div className='filter' onClick={ () => handleDropMenu(payroll) }>
@@ -57,10 +57,10 @@ export const Filter: React.FC<Props> = ({ setShowForm }): JSX.Element => {
           <IoIosArrowDown />
           {showDropMenu.text && 
             <DropMenu
-              menuOp={ PAYROLL_TYPE_OP.map(op => ({
+              menuOp={PAYROLL_TYPE_OP.map(op => ({
                 ...op,
                 onClick: () => setPayrollType(op.label)
-              })) }
+              }))}
               dir={ 'left' }
               width={ 175 }
             />}

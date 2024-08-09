@@ -21,7 +21,7 @@ interface PeriodContextType extends PeriodState {
 const INITIAL_STATE: PeriodState = {
   years: [],
   dates: [[]],
-  selectedPeriod: { week: 0, year: 0 },
+  selectedPeriod: { periodId: '', week: 0, year: 0 },
   loading: false,
   error: null,
 } as const

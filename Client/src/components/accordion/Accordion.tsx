@@ -12,7 +12,7 @@ interface Props {
 
 export const Accordion: React.FC<Props> = ({ year, period }) => {
   const { weekRanges } = useCurrentWeek({ input: period })
-  const { dispatch, setActionType } = usePeriodContext()
+  const { selectedPeriod, dispatch, setActionType } = usePeriodContext()
   const [isCollapsed, setIsCollapsed] = useState(true)
 
   useEffect(() => setActionType('SET_PERIOD'), [ setActionType ])
@@ -22,11 +22,13 @@ export const Accordion: React.FC<Props> = ({ year, period }) => {
     setIsCollapsed(!isCollapsed)
   }
 
-  const getPeriodSelected = (period: IWeekYear): void => 
+  const getPeriodSelected = (e: React.MouseEvent<HTMLLIElement>, period: IWeekYear): void => {
+    e.stopPropagation()
     dispatch({
       type: 'SET_WEEK',
-      payload: { week: period.week, year: period.year }
+      payload: { periodId: period.periodId, week: period.week, year: period.year }
     })
+  }
 
   return (
     <div className='container'>
@@ -37,9 +39,15 @@ export const Accordion: React.FC<Props> = ({ year, period }) => {
       <ul className={`accordion ${ isCollapsed ? 'collapsed' : 'expanded' }`}>
         {period.map((pr: IWeekYear, index: number) => {
           const { monday, sunday } = weekRanges[index] || { monday: 'No Data', sunday: 'No Data' }
+          const selectedWeek = pr.week === selectedPeriod.week && 
+            pr.year === selectedPeriod.year
 
           return (
-            <li key={ pr.periodId } onClick={ () => getPeriodSelected(pr) }>
+            <li
+              className={ selectedWeek ? 'selected' : '' }
+              key={ pr.periodId }
+              onClick={ (e) => getPeriodSelected(e, pr) }
+            >
               { `${ pr.week } [ ${ monday } - ${ sunday } ]` }
             </li>
           )

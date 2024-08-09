@@ -13,6 +13,8 @@ export enum NavigationActionKind {
   COMPANIES,
   UPDATEDATA,
   UPDATEPAYROLL,
+  UPDATESELECTEDID,
+  UPDATETOOLBAROPT,
   ERROR
 }
 
@@ -27,7 +29,7 @@ interface Props {
 }
 
 const navigationConfig: Record<NavigationActionKind, { url: string, title: string, formSize: number }> = {
-  [NavigationActionKind.PAYROLLRECEIPTS]: { url: 'http://localhost:5239/api/Ticket', title: 'Recibo', formSize: 75 },
+  [NavigationActionKind.PAYROLLRECEIPTS]: { url: 'http://localhost:5239/api/Ticket', title: 'Periodo', formSize: 75 },
   [NavigationActionKind.EMPLOYEES]: { url: 'http://localhost:5239/api/Employee', title: 'Trabajador', formSize: 75 },
   [NavigationActionKind.JOBPOSITIONS]: { url: 'http://localhost:5239/api/JobPosition', title: 'Puesto', formSize: 40 },
   [NavigationActionKind.DEPARTMENTS]: { url: 'http://localhost:5239/api/Department', title: 'Departamento', formSize: 40 },
@@ -38,11 +40,15 @@ const navigationConfig: Record<NavigationActionKind, { url: string, title: strin
   [NavigationActionKind.COMPANIES]: { url: 'http://localhost:5239/api/Company', title: 'Compañia', formSize: 30 },
   [NavigationActionKind.UPDATEDATA]: { url: '', title: '', formSize: 0 },
   [NavigationActionKind.UPDATEPAYROLL]: { url: '', title: '', formSize: 0 },
+  [NavigationActionKind.UPDATESELECTEDID]: { url: '', title: '', formSize: 0 },
+  [NavigationActionKind.UPDATETOOLBAROPT]: { url: '', title: '', formSize: 0 },
   [NavigationActionKind.ERROR]: { url: '', title: '', formSize: 0 }
 }
 
 const INITIAL_STATE: NavigationState = {
   payroll: 'Ordinario',
+  selectedId: '',
+  toolbarOption: -1,
   title: '',
   option: NavigationActionKind.PAYROLLRECEIPTS,
   loading: false,
@@ -101,6 +107,24 @@ const NavigationReducer = (state: NavigationState, action: NavigationAction): Na
         error: null
       }
     }
+    case NavigationActionKind.UPDATESELECTEDID: {
+      const { selectedId = state.selectedId } = payload || {}
+      return {
+        ...state,
+        selectedId,
+        loading: false,
+        error: null
+      }
+    }
+    case NavigationActionKind.UPDATETOOLBAROPT: {
+      const { toolbarOption = state.toolbarOption } = payload || {}
+      return {
+        ...state,
+        toolbarOption,
+        loading: false,
+        error: null
+      }
+    }
     case NavigationActionKind.ERROR: {
       return {
         ...INITIAL_STATE,
@@ -133,7 +157,7 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
 
     const loadTranslations = async ({ opt }: { opt: NavigationActionKind }): Promise<Record<string, string>> => {
       try {
-        const res: Response = await fetch('/src/utils/translations.json')
+        const res: Response = await fetch('/src/data/translations.json')
         const data = await res.json()
         return data[opt]
       } catch (error) {

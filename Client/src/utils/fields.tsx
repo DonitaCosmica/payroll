@@ -74,5 +74,8 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
     { type: 'input', name: 'Nombre', label: 'Nombre...', inputType: 'text', id: 'name' }
   ],
   [NavigationActionKind.UPDATEDATA]: [],
+  [NavigationActionKind.UPDATEPAYROLL]: [],
+  [NavigationActionKind.UPDATESELECTEDID]: [],
+  [NavigationActionKind.UPDATETOOLBAROPT]: [],
   [NavigationActionKind.ERROR]: []
 } as const
