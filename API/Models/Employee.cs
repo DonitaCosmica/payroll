@@ -111,5 +111,6 @@ namespace API.Models
     [ForeignKey("Company")]
     public string CompanyId { get; set; } = default!;
     public Company Company { get; set; } = new();
+    public ICollection<Ticket> Tickets { get; set; } = [];
   }
 }

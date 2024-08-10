@@ -20,9 +20,14 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     const fetchDropdownData = async (): Promise<void> => {
       const fetchPromises = fieldsConfig[option]
         .filter(({ type, fetchUrl }: FieldConfig) => (type === 'dropmenu' || type === 'multi-option') && fetchUrl)
-        .map(async ({ fetchUrl, id }: FieldConfig) => {
+        .map(async ({ fetchUrl, id, uriComponent }: FieldConfig) => {
           try {
-            const res: Response = await fetch(fetchUrl ?? '')
+            const urlToUse: string = uriComponent
+              ? `${ fetchUrl }/byType?type=${ encodeURIComponent(uriComponent) }`
+              : fetchUrl
+                ? fetchUrl
+                : ''
+            const res: Response = await fetch(urlToUse)
             const data = await res.json()
             const dataOptions = Object.keys(data)
               .filter((key) => key !== 'columns')

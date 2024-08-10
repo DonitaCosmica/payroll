@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using API.DTO;
 using API.Interfaces;
 using API.Models;
+using API.Helpers;
 using System.Globalization;
 
 namespace API.Controllers
@@ -100,7 +101,6 @@ namespace API.Controllers
         return NotFound();
 
       var employeeToDelete = employeeRepository.GetEmployee(employeeId);
-
       if(!employeeRepository.DeleteEmployee(employeeToDelete))
         return StatusCode(500, "Something went wrong deleting employee");
 
@@ -115,7 +115,7 @@ namespace API.Controllers
       return columns;
     }
 
-    private static Employee MapToEmployeeModel(EmployeeDTO employeeCreate, EmployeeRelatedEntitiesDTO relatedEntities)
+    private static Employee MapToEmployeeModel(EmployeeDTO employeeCreate, EmployeeRelatedEntities relatedEntities)
     {
       return new Employee
       {
@@ -164,7 +164,7 @@ namespace API.Controllers
       };
     }
 
-    private static void MapToUpdateEmployeeModel(Employee employee, EmployeeDTO updateEmployee, EmployeeRelatedEntitiesDTO relatedEntities)
+    private static void MapToUpdateEmployeeModel(Employee employee, EmployeeDTO updateEmployee, EmployeeRelatedEntities relatedEntities)
     {
       employee.Key = updateEmployee.Key;
       employee.Name = updateEmployee.Name;

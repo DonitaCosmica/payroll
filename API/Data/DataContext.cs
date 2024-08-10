@@ -2,6 +2,7 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using API.Models;
+using API.Enums;
 
 namespace API.Data
 {
@@ -25,9 +26,15 @@ namespace API.Data
     public virtual DbSet<State> States { get; set; }
     public virtual DbSet<Status> Statuses { get; set; }
     public virtual DbSet<Ticket> Tickets { get; set; }
+    public virtual DbSet<TicketPerception> TicketPerceptions { get; set; }
+    public virtual DbSet<TicketDeduction> TicketDeductions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+      modelBuilder.Entity<Status>()
+        .Property(s => s.StatusType)
+        .HasConversion(v => v.ToString(), v => (StatusType)Enum.Parse(typeof(StatusType), v));
+
       modelBuilder.Entity<JobPosition>(entity => entity.HasKey(j => j.JobPositionId));
       modelBuilder.Entity<JobPosition>()
         .HasOne(j => j.Department)
@@ -58,7 +65,8 @@ namespace API.Data
       modelBuilder.Entity<Employee>()
         .HasOne(e => e.Company)
         .WithMany(c => c.Employees)
-        .HasForeignKey(e => e.CompanyId);
+        .HasForeignKey(e => e.CompanyId)
+        .OnDelete(DeleteBehavior.Restrict);
       modelBuilder.Entity<Employee>()
         .HasOne(e => e.Contract)
         .WithMany(ct => ct.Employees)
@@ -70,7 +78,8 @@ namespace API.Data
       modelBuilder.Entity<Employee>()
         .HasOne(e => e.JobPosition)
         .WithMany(jp => jp.Employees)
-        .HasForeignKey(e => e.JobPositionId);
+        .HasForeignKey(e => e.JobPositionId)
+        .OnDelete(DeleteBehavior.Restrict);
       modelBuilder.Entity<Employee>()
         .HasOne(e => e.Regime)
         .WithMany(r => r.Employees)
@@ -82,7 +91,8 @@ namespace API.Data
       modelBuilder.Entity<Employee>()
         .HasOne(e => e.Status)
         .WithMany(s => s.Employees)
-        .HasForeignKey(e => e.StatusId);
+        .HasForeignKey(e => e.StatusId)
+        .OnDelete(DeleteBehavior.Restrict);
 
       modelBuilder.Entity<EmployeeProject>()
         .HasKey(ep => new { ep.EmployeeId, ep.ProjectId });
@@ -99,10 +109,47 @@ namespace API.Data
 
       modelBuilder.Entity<Ticket>(entity => entity.HasKey(t => t.TicketId));
       modelBuilder.Entity<Ticket>()
+        .Property(t => t.PayrollType)
+        .HasConversion(v => v.ToString(), v => (PayrollType)Enum.Parse(typeof(PayrollType), v));
+      modelBuilder.Entity<Ticket>()
+        .HasOne(t => t.Employee)
+        .WithMany(e => e.Tickets)
+        .HasForeignKey(t => t.EmployeeId);
+      modelBuilder.Entity<Ticket>()
+        .HasOne(t => t.Status)
+        .WithMany(s => s.Tickets)
+        .HasForeignKey(t => t.StatusId)
+        .OnDelete(DeleteBehavior.Restrict);
+      modelBuilder.Entity<Ticket>()
         .HasOne(t => t.Period)
         .WithMany(pr => pr.Tickets)
-        .HasForeignKey(t => t.PeriodId)
-        .OnDelete(DeleteBehavior.Restrict);
+        .HasForeignKey(t => t.PeriodId);
+
+      modelBuilder.Entity<TicketPerception>()
+        .HasKey(tp => new { tp.TicketId, tp.PerceptionId });
+      modelBuilder.Entity<TicketPerception>()
+        .HasOne(tp => tp.Ticket)
+        .WithMany(t => t.TicketPerceptions)
+        .HasForeignKey(tp => tp.TicketId)
+        .OnDelete(DeleteBehavior.Cascade);
+      modelBuilder.Entity<TicketPerception>()
+        .HasOne(tp => tp.Perception)
+        .WithMany(p => p.TicketPerceptions)
+        .HasForeignKey(tp => tp.PerceptionId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+      modelBuilder.Entity<TicketDeduction>()
+        .HasKey(td => new { td.TicketId, td.DeductionId });
+      modelBuilder.Entity<TicketDeduction>()
+        .HasOne(td => td.Ticket)
+        .WithMany(t => t.TicketDeductions)
+        .HasForeignKey(td => td.TicketId)
+        .OnDelete(DeleteBehavior.Cascade);
+      modelBuilder.Entity<TicketDeduction>()
+        .HasOne(td => td.Deduction)
+        .WithMany(t => t.TicketDeductions)
+        .HasForeignKey(td => td.DeductionId)
+        .OnDelete(DeleteBehavior.Cascade);
 
       base.OnModelCreating(modelBuilder);
     }

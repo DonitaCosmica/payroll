@@ -1,4 +1,5 @@
 using API.Data;
+using API.Enums;
 using API.Interfaces;
 using API.Models;
 
@@ -9,6 +10,8 @@ namespace API.Repository
     private readonly DataContext context = context;
 
     public ICollection<Status> GetStatuses() => context.Statuses.ToList();
+    public ICollection<Status> GetStatusesByType(StatusType type) => 
+      context.Statuses.Where(s => s.StatusType == type).ToList();
     public Status GetStatus(string statusId) => 
       context.Statuses.Where(s => s.StatusId == statusId).FirstOrDefault() ??
       throw new Exception("No Status with the specified id was found");

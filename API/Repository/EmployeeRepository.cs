@@ -3,6 +3,7 @@ using API.Data;
 using API.DTO;
 using API.Interfaces;
 using API.Models;
+using API.Helpers;
 
 namespace API.Repository
 {
@@ -15,9 +16,8 @@ namespace API.Repository
     public Employee GetEmployee(string employeeId) =>
       IncludeRelatedEntities(context.Employees).FirstOrDefault(e => e.EmployeeId == employeeId)
       ?? throw new Exception("No Employee with the specified id was found");
-    public EmployeeRelatedEntitiesDTO? GetRelatedEntities(EmployeeDTO employeeDTO)
-    {
-      var result = (from c in context.Companies
+    public EmployeeRelatedEntities? GetRelatedEntities(EmployeeDTO employeeDTO) =>
+      (from c in context.Companies
         join b in context.Banks on employeeDTO.Bank equals b.BankId
         join ca in context.CommercialAreas on employeeDTO.CommercialArea equals ca.CommercialAreaId
         join ct in context.Contracts on employeeDTO.Contract equals ct.ContractId
@@ -26,7 +26,16 @@ namespace API.Repository
         join r in context.Regimes on employeeDTO.Regime equals r.RegimeId
         join s in context.Statuses on employeeDTO.Status equals s.StatusId
         join st in context.States on employeeDTO.State equals st.StateId
-        select new EmployeeRelatedEntitiesDTO
+        where employeeDTO.Company == c.CompanyId &&
+          b.BankId == employeeDTO.Bank &&
+          ca.CommercialAreaId == employeeDTO.CommercialArea &&
+          ct.ContractId == employeeDTO.Contract &&
+          fe.FederalEntityId == employeeDTO.FederalEntity &&
+          jp.JobPositionId == employeeDTO.JobPosition &&
+          r.RegimeId == employeeDTO.Regime &&
+          s.StatusId == employeeDTO.Status &&
+          st.StateId == employeeDTO.State
+        select new EmployeeRelatedEntities
         {
           Bank = b,
           Company = c,
@@ -38,9 +47,6 @@ namespace API.Repository
           Status = s,
           State = st
         }).FirstOrDefault();
-
-      return result;
-    }
     public bool CreateEmployee(List<string> projects, Employee employee)
     {
       if(employee == null) return false;
@@ -112,7 +118,6 @@ namespace API.Repository
     {
       foreach(var projectId in projects)
       {
-        System.Console.WriteLine($"Project: { projectId }");
         var project = context.Projects.FirstOrDefault(p => p.ProjectId == projectId);
         if (project == null) return false;
         

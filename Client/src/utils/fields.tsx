@@ -37,7 +37,7 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
     { type: 'input', name: 'Ciudad', label: 'Ciudad...', inputType: 'text', id: 'city' },
     { type: 'dropmenu', name: 'Estado', fetchUrl: 'http://localhost:5239/api/State', id: 'state' },
     { type: 'input', name: 'País', label: 'País...', inputType: 'text', id: 'country' },
-    { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status' },
+    { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status', uriComponent: 'Employee' },
     { type: 'input', name: 'Proveedor', inputType: 'checkbox', id: 'isProvider' },
     { type: 'input', name: 'Crédito', label: 'Crédito...', inputType: 'text', id: 'credit' },
     { type: 'input', name: 'Contacto', label: '0', inputType: 'number', id: 'contact' },
@@ -66,7 +66,7 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
     { type: 'input', name: 'Clave', label: 'Clave...', inputType: 'text', id: 'code' },
     { type: 'input', name: 'Nombre', label: 'Nombre...', inputType: 'text', id: 'name' },
     { type: 'input', name: 'Fecha de inicio', label: '1/1/2000', inputType: 'date', id: 'startDate' },
-    { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status' },
+    { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status', uriComponent: 'Project' },
     { type: 'dropmenu', name: 'Company', fetchUrl: 'http://localhost:5239/api/Company', id: 'company' },
     { type: 'textarea', name: 'Descripción', label: 'Descripción...', inputType: 'text', id: 'description' }
   ],

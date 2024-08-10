@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using API.DTO;
 using API.Interfaces;
 using API.Models;
+using API.Enums;
 
 namespace API.Controllers
 {
@@ -16,6 +17,23 @@ namespace API.Controllers
     public IActionResult GetStatuses()
     {
       var statuses = statusRepository.GetStatuses()
+        .Select(s => new StatusDTO
+        {
+          StatusId = s.StatusId,
+          Name = s.Name
+        }).ToList();
+
+      return Ok(statuses);
+    }
+
+    [HttpGet("byType")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<StatusDTO>))]
+    public IActionResult GetStatusesByType([FromQuery] string type)
+    {
+      if(string.IsNullOrEmpty(type) || !TryConvertToStatusType(type, out StatusType statusType))
+        statusType = StatusType.Error;
+
+      var statuses = statusRepository.GetStatusesByType(statusType)
         .Select(s => new StatusDTO
         {
           StatusId = s.StatusId,
@@ -54,10 +72,14 @@ namespace API.Controllers
       if(statusRepository.GetStatusByName(statusCreate.Name.Trim()) != null)
         return Conflict("Status already exists");
 
+      if(string.IsNullOrEmpty(statusCreate.StatusType) || !TryConvertToStatusType(statusCreate.StatusType, out StatusType statusType))
+        statusType = StatusType.Error;
+
       var status = new Status
       {
         StatusId = Guid.NewGuid().ToString(),
-        Name = statusCreate.Name
+        Name = statusCreate.Name,
+        StatusType = statusType
       };
 
       if(!statusRepository.CreateStatus(status))
@@ -78,9 +100,13 @@ namespace API.Controllers
       if(!statusRepository.StatusExists(statusId))
         return NotFound();
 
+      if(string.IsNullOrEmpty(statusUpdate.StatusType) || !TryConvertToStatusType(statusUpdate.StatusType, out StatusType statusType))
+        statusType = StatusType.Error;
+
       var status = statusRepository.GetStatus(statusId);
       status.Name = statusUpdate.Name;
-
+      status.StatusType = statusType;
+      
       if(!statusRepository.UpdateStatus(status))
         return StatusCode(500, "Something went wrong updating status");
 
@@ -102,5 +128,8 @@ namespace API.Controllers
 
       return NoContent();
     }
+
+    private static bool TryConvertToStatusType<TEnum>(string value, out TEnum enumValue) where TEnum : struct, Enum =>
+      Enum.TryParse(value, ignoreCase: true, out enumValue);
   }
 }

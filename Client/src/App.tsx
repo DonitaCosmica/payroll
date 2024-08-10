@@ -34,7 +34,10 @@ function App(): JSX.Element {
       />
       <Footer />
       {showForm && 
-        <Form setShowForm={ setShowForm } />}
+        <PeriodProvider>
+          <Form setShowForm={ setShowForm } />  
+        </PeriodProvider>
+      }
     </main>
   )
 }

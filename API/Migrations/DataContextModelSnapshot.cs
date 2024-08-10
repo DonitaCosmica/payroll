@@ -379,15 +379,8 @@ namespace API.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PeriodNumber")
-                        .HasMaxLength(30)
+                    b.Property<int>("Week")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("Year")
                         .HasColumnType("int");
@@ -487,6 +480,10 @@ namespace API.Migrations
                         .HasMaxLength(15)
                         .HasColumnType("nvarchar(15)");
 
+                    b.Property<string>("StatusType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("StatusId");
 
                     b.ToTable("Statuses");
@@ -498,34 +495,22 @@ namespace API.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
-                    b.Property<string>("Bill")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float>("Discount")
-                        .HasColumnType("real");
+                    b.Property<int>("Bill")
+                        .HasColumnType("int");
 
                     b.Property<string>("EmployeeId")
                         .IsRequired()
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
-                    b.Property<int>("ExtraHours")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ExtraTime")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Faults")
-                        .HasColumnType("int");
-
-                    b.Property<float>("LoanDiscount")
-                        .HasColumnType("real");
-
-                    b.Property<float>("MissingDiscount")
-                        .HasColumnType("real");
-
                     b.Property<string>("Observations")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PayrollType")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PeriodId")
@@ -533,20 +518,26 @@ namespace API.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
-                    b.Property<string>("Project")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("ReceiptOfDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<int>("Tickets")
-                        .HasColumnType("int");
+                    b.Property<string>("Serie")
+                        .IsRequired()
+                        .HasMaxLength(1)
+                        .HasColumnType("nvarchar(1)");
+
+                    b.Property<string>("StatusId")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
 
                     b.Property<float>("Total")
                         .HasColumnType("real");
 
-                    b.Property<float>("TravelExpenses")
+                    b.Property<float>("TotalDeductions")
                         .HasColumnType("real");
 
-                    b.Property<float>("ValuePerExtraHour")
+                    b.Property<float>("TotalPerceptions")
                         .HasColumnType("real");
 
                     b.HasKey("TicketId");
@@ -555,7 +546,57 @@ namespace API.Migrations
 
                     b.HasIndex("PeriodId");
 
+                    b.HasIndex("StatusId");
+
                     b.ToTable("Tickets");
+                });
+
+            modelBuilder.Entity("API.Models.TicketDeduction", b =>
+                {
+                    b.Property<string>("TicketId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("DeductionId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("TicketDeductionId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<float>("Total")
+                        .HasColumnType("real");
+
+                    b.HasKey("TicketId", "DeductionId");
+
+                    b.HasIndex("DeductionId");
+
+                    b.ToTable("TicketDeductions");
+                });
+
+            modelBuilder.Entity("API.Models.TicketPerception", b =>
+                {
+                    b.Property<string>("TicketId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("PerceptionId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("TicketPerceptionId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<float>("Total")
+                        .HasColumnType("real");
+
+                    b.HasKey("TicketId", "PerceptionId");
+
+                    b.HasIndex("PerceptionId");
+
+                    b.ToTable("TicketPerceptions");
                 });
 
             modelBuilder.Entity("API.Models.Employee", b =>
@@ -575,7 +616,7 @@ namespace API.Migrations
                     b.HasOne("API.Models.Company", "Company")
                         .WithMany("Employees")
                         .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("API.Models.Contract", "Contract")
@@ -593,7 +634,7 @@ namespace API.Migrations
                     b.HasOne("API.Models.JobPosition", "JobPosition")
                         .WithMany("Employees")
                         .HasForeignKey("JobPositionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("API.Models.Regime", "Regime")
@@ -611,7 +652,7 @@ namespace API.Migrations
                     b.HasOne("API.Models.Status", "Status")
                         .WithMany("Employees")
                         .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Bank");
@@ -685,7 +726,7 @@ namespace API.Migrations
             modelBuilder.Entity("API.Models.Ticket", b =>
                 {
                     b.HasOne("API.Models.Employee", "Employee")
-                        .WithMany()
+                        .WithMany("Tickets")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -693,12 +734,58 @@ namespace API.Migrations
                     b.HasOne("API.Models.Period", "Period")
                         .WithMany("Tickets")
                         .HasForeignKey("PeriodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.Status", "Status")
+                        .WithMany("Tickets")
+                        .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Employee");
 
                     b.Navigation("Period");
+
+                    b.Navigation("Status");
+                });
+
+            modelBuilder.Entity("API.Models.TicketDeduction", b =>
+                {
+                    b.HasOne("API.Models.Deduction", "Deduction")
+                        .WithMany("TicketDeductions")
+                        .HasForeignKey("DeductionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.Ticket", "Ticket")
+                        .WithMany("TicketDeductions")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Deduction");
+
+                    b.Navigation("Ticket");
+                });
+
+            modelBuilder.Entity("API.Models.TicketPerception", b =>
+                {
+                    b.HasOne("API.Models.Perception", "Perception")
+                        .WithMany("TicketPerceptions")
+                        .HasForeignKey("PerceptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.Ticket", "Ticket")
+                        .WithMany("TicketPerceptions")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Perception");
+
+                    b.Navigation("Ticket");
                 });
 
             modelBuilder.Entity("API.Models.Bank", b =>
@@ -723,6 +810,11 @@ namespace API.Migrations
                     b.Navigation("Employees");
                 });
 
+            modelBuilder.Entity("API.Models.Deduction", b =>
+                {
+                    b.Navigation("TicketDeductions");
+                });
+
             modelBuilder.Entity("API.Models.Department", b =>
                 {
                     b.Navigation("JobPositions");
@@ -731,6 +823,8 @@ namespace API.Migrations
             modelBuilder.Entity("API.Models.Employee", b =>
                 {
                     b.Navigation("EmployeeProjects");
+
+                    b.Navigation("Tickets");
                 });
 
             modelBuilder.Entity("API.Models.FederalEntity", b =>
@@ -741,6 +835,11 @@ namespace API.Migrations
             modelBuilder.Entity("API.Models.JobPosition", b =>
                 {
                     b.Navigation("Employees");
+                });
+
+            modelBuilder.Entity("API.Models.Perception", b =>
+                {
+                    b.Navigation("TicketPerceptions");
                 });
 
             modelBuilder.Entity("API.Models.Period", b =>
@@ -768,6 +867,15 @@ namespace API.Migrations
                     b.Navigation("Employees");
 
                     b.Navigation("Projects");
+
+                    b.Navigation("Tickets");
+                });
+
+            modelBuilder.Entity("API.Models.Ticket", b =>
+                {
+                    b.Navigation("TicketDeductions");
+
+                    b.Navigation("TicketPerceptions");
                 });
 #pragma warning restore 612, 618
         }

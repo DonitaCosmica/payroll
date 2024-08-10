@@ -1,8 +1,8 @@
 using API.Models;
 
-namespace API.DTO
+namespace API.Helpers
 {
-  public class EmployeeRelatedEntitiesDTO
+  public class EmployeeRelatedEntities
   {
     public Company Company { get; set; } = new();
     public Bank Bank { get; set; } = new();
