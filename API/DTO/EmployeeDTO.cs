@@ -1,3 +1,5 @@
+using API.Helpers;
+
 namespace API.DTO
 {
   public class EmployeeDTO
@@ -12,7 +14,7 @@ namespace API.DTO
     public ulong BankAccount { get; set; }
     public ulong BankPortal { get; set; }
     public bool IsAStarter { get; set; }
-    public List<string> Projects { get; set; } = [];
+    public HashSet<EmployeeProjectRelatedEntities> Projects { get; set; } = [];
     public string Regime { get; set; } = default!;
     public uint NSS { get; set; }
     public string DateAdmission { get; set; } = default!;

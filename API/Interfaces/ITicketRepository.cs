@@ -7,9 +7,14 @@ namespace API.Interfaces
   public interface ITicketRepository
   {
     ICollection<Ticket> GetTickets();
-    ICollection<Ticket> GetTicketsByWeekAndYear(int week, int year);
+    ICollection<Ticket> GetTicketsByWeekAndYear(ushort week, ushort year);
     Ticket GetTicket(string ticketId);
     TicketRelatedEntities? GetRelatedEntities(TicketDTO ticketDTO);
+    bool CreateTicket(HashSet<TicketPerceptionRelatedEntities> perceptions, 
+      HashSet<TicketDeductionRelatedEntities> deductions, Ticket ticket);
+    bool UpdateTicket(HashSet<TicketPerceptionRelatedEntities> perceptions, 
+      HashSet<TicketDeductionRelatedEntities> deductions, Ticket ticket);
+    bool DeleteTicket(Ticket ticket);
     List<string> GetColumns();
     bool TicketExists(string ticketId);
   }

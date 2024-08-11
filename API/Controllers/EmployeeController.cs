@@ -32,6 +32,7 @@ namespace API.Controllers
     [HttpGet("{employeeId}")]
     [ProducesResponseType(200, Type = typeof(EmployeeDTO))]
     [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
     public IActionResult GetEmployee(string employeeId)
     {
       if(!employeeRepository.EmployeeExists(employeeId))
@@ -74,7 +75,7 @@ namespace API.Controllers
     public IActionResult UpdateEmployee(string employeeId, [FromBody] EmployeeDTO updateEmployee)
     {
       if(updateEmployee == null)
-        return BadRequest("Employee can not be null");
+        return BadRequest("Employee cannot be null");
 
       var employee = employeeRepository.GetEmployee(employeeId);
       if(employee == null)
@@ -250,8 +251,13 @@ namespace API.Controllers
         IsProvider = employee.IsProvider,
         Credit = employee.Credit,
         Contact = employee.Contact,
-        Projects = employee.EmployeeProjects
-          .Select(ep => ep.Project.Name).ToList()
+        Projects = new HashSet<EmployeeProjectRelatedEntities>(employee.EmployeeProjects.Select(ep => 
+          new EmployeeProjectRelatedEntities
+          {
+            ProjectId = ep.ProjectId,
+            Value = ep.Project.Name,
+            AssignedDate = ep.AssignedDate.ToString("yyyy-MM-dd")
+          }))
       };
     }
   }

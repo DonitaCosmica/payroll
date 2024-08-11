@@ -1,5 +1,8 @@
 import { NavigationActionKind } from "./context/Navigation"
 
+export interface ListObject {
+  value: string | number
+}
 export interface IMenuState {
   date: boolean,
   text: boolean,

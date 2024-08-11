@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { IDropDownMenu } from "../../types"
+import { type IDropDownMenu } from "../../types"
 import './MultiDropDown.css'
 
 interface Props {

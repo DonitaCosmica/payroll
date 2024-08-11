@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
+import { type ListObject } from "../../types"
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md"
 import './List.css'
 
@@ -90,11 +91,27 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
     setShowForm(true)
   }, [ getIdSelected, dispatch, setShowForm ])
 
-  const renderCellContent = (info: number | string | boolean | string[]): number | string => {
+  const renderCellContent = (info: number | string | boolean | ListObject[]): number | string => {
     if (typeof info === 'boolean') return info ? 'Verdadero' : 'Falso'
-    if (Array.isArray(info)) return info.sort((a: string, b: string) => a.localeCompare(b)).join(', ')
+    if (Array.isArray(info)) {
+      if (info.length > 0 && typeof info[0] === 'object' && 'value' in info[0]) {
+        return (info as ListObject[]).sort((a, b) => {
+          if (typeof a.value === 'string' && typeof b.value === 'string')
+            return a.value.localeCompare(b.value)
+          else if (typeof a.value === 'number' && typeof b.value === 'number')
+            return a.value - b.value
+          else
+            return 0
+        }).map(obj => obj.value).join(', ')
+      }
+
+      if (info.every(item => typeof item === 'string'))
+        return (info as string[]).join(', ')
+    }
     return info.toString()
   }
+
+  console.log({ filteredValues })
   
   return (
     <section className="list">
@@ -122,7 +139,7 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
                   onClick={ () => selectedRow(row as string[], index) } 
                   onDoubleClick={ () => showFormDoubleClick(row as string[]) }
                 >
-                {row.map((info: number | string | boolean, cellIndex: number) => (
+                {row.map((info: number | string | boolean | ListObject[], cellIndex: number) => (
                   <td key={`${ info }-${ cellIndex }`}>
                     <p>{ renderCellContent(info) }</p>
                   </td>

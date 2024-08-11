@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using API.Models;
 using API.Enums;
+using System.Linq.Expressions;
 
 namespace API.Data
 {
@@ -157,8 +158,7 @@ namespace API.Data
     public List<string> GetColumns<TEntity>() where TEntity : class
     {
       var entityType = Model.FindEntityType(typeof(TEntity));
-      if(entityType == null)
-        return [];
+      if(entityType == null) return [];
 
       var entityTypeClrType = entityType.ClrType;
       if(cachedColumns.TryGetValue(entityTypeClrType, out List<string>? value))
@@ -198,6 +198,34 @@ namespace API.Data
       });
     }
 
+    public bool AddRelatedEntities<TEntity ,TItemIdentifier, TDatabaseItem, TItem>(
+      TEntity entity, HashSet<TItemIdentifier> itemIds,
+      DbSet<TDatabaseItem> dbSet,
+      Func<TEntity, TDatabaseItem, TItemIdentifier, TItem> createEntityItemFunc,
+      ICollection<TItem> ticketItems)
+      where TItemIdentifier : class
+      where TDatabaseItem : class
+      where TItem : class
+      where TEntity : class
+    {
+      foreach (var item in itemIds)
+      {
+        var itemId = item.GetType().GetProperties()
+          .FirstOrDefault(prop => prop.Name.Contains("Id"))
+          ?.GetValue(item);
+
+        if(itemId == null) return false;
+        var dbItem = dbSet.Find(itemId);
+        if (dbItem == null) return false;
+
+        var entityItem = createEntityItemFunc(entity, dbItem, item);
+        ticketItems.Add(entityItem);
+        Add(entityItem);
+      }
+
+      return true;
+    }
+
     public bool CreateEntity<TEntity>(TEntity entity) where TEntity : class
     {
       Add(entity);
@@ -208,6 +236,32 @@ namespace API.Data
     {
       Update(entity);
       return Save();
+    }
+
+    public bool RemoveRelatedEntities<TEntity, TRelatedEntity>(
+      string entityId,
+      Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationPropertySelector, 
+      DbSet<TEntity> entitySet,
+      DbSet<TRelatedEntity> relatedEntitySet)
+      where TEntity : class
+      where TRelatedEntity : class
+    {
+      var mainEntity = entitySet
+        .Include(navigationPropertySelector)
+        .AsEnumerable()
+        .FirstOrDefault(e =>
+        {
+          var idProperty = e.GetType().GetProperties()
+            .FirstOrDefault(prop => prop.Name.Contains("Id"));
+
+          var id = idProperty?.GetValue(e)?.ToString();
+          return id == entityId;
+        });
+
+      if(mainEntity == null) return false;
+      var relatedEntities = navigationPropertySelector.Compile()(mainEntity);
+      relatedEntitySet.RemoveRange(relatedEntities);
+      return true;
     }
 
     public bool DeleteEntity<TEntity>(TEntity entity) where TEntity : class

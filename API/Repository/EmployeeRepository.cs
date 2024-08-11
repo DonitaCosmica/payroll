@@ -4,6 +4,7 @@ using API.DTO;
 using API.Interfaces;
 using API.Models;
 using API.Helpers;
+using System.Globalization;
 
 namespace API.Repository
 {
@@ -47,7 +48,7 @@ namespace API.Repository
           Status = s,
           State = st
         }).FirstOrDefault();
-    public bool CreateEmployee(List<string> projects, Employee employee)
+    public bool CreateEmployee(HashSet<EmployeeProjectRelatedEntities> projects, Employee employee)
     {
       if(employee == null) return false;
 
@@ -55,31 +56,62 @@ namespace API.Repository
       if(numberOfEmployeesEntities == null && !numberOfEmployeesEntities.HasValue)
         return false;
 
-      if(!AddProjectsToEmployee(employee, projects))
-        return false;
+      bool addProjectsSuccess = context.AddRelatedEntities(
+        employee, projects, context.Projects,
+        (e, p, i) => new EmployeeProject
+        {
+          EmployeeProjectId = Guid.NewGuid().ToString(),
+          EmployeeId = e.EmployeeId,
+          ProjectId = p.ProjectId,
+          AssignedDate = DateTime.ParseExact(i.AssignedDate, "yyyy-MM-dd", CultureInfo.InvariantCulture),
+          Employee = e,
+          Project = p
+        },
+        employee.EmployeeProjects
+        );
 
+      if(!addProjectsSuccess) return false;
       var (company, department) = numberOfEmployeesEntities.Value;
       company.TotalWorkers++;
       department.TotalEmployees++;
 
-      context.Add(employee);
       context.Update(company);
       context.Update(department);
-      return Save();
+      return context.CreateEntity(employee);
     }
-    public bool UpdateEmployee(List<string> projects, Employee employee)
+    public bool UpdateEmployee(HashSet<EmployeeProjectRelatedEntities> projects, Employee employee)
     {
-      if(employee == null || !RemoveEmployeeProjects(employee.EmployeeId)) 
+      if(employee == null) 
         return false;
 
-      if(!AddProjectsToEmployee(employee, projects))
-        return false;
+      bool projectsRemoved = context.RemoveRelatedEntities(
+        employee.EmployeeId,
+        e => e.EmployeeProjects,
+        context.Employees,
+        context.EmployeeProjects);
 
-      context.Update(employee);
-      return Save();
+      if(!projectsRemoved) return false;
+
+      bool addProjectsSuccess = context.AddRelatedEntities(
+        employee, projects, context.Projects,
+        (e, p, i) => new EmployeeProject
+        {
+          EmployeeProjectId = Guid.NewGuid().ToString(),
+          EmployeeId = e.EmployeeId,
+          ProjectId = p.ProjectId,
+          AssignedDate = DateTime.ParseExact(i.AssignedDate, "yyyy-MM-dd", CultureInfo.InvariantCulture),
+          Employee = e,
+          Project = p
+        },
+        employee.EmployeeProjects
+        );
+
+      return addProjectsSuccess && context.UpdateEntity(employee);
     }
     public bool DeleteEmployee(Employee employee)
     {
+      if(employee == null) return false;
+
       var numberOfEmployeesEntities = GetNumberOfEmployeesEntities(employee);
       if(numberOfEmployeesEntities == null && !numberOfEmployeesEntities.HasValue)
         return false;
@@ -88,10 +120,16 @@ namespace API.Repository
       company.TotalWorkers--;
       department.TotalEmployees--;
 
+      bool projectsRemoved = context.RemoveRelatedEntities(
+        employee.EmployeeId,
+        e => e.EmployeeProjects,
+        context.Employees,
+        context.EmployeeProjects);
+
+      if(!projectsRemoved) return false;
       context.Update(company);
       context.Update(department);
-      context.Remove(employee);
-      return RemoveEmployeeProjects(employee.EmployeeId);
+      return context.DeleteEntity(employee);
     }
     public List<string> GetColumns() => context.GetColumns<Employee>();
     public bool EmployeeExists(string employeeId) => context.Employees.Any(e => e.EmployeeId == employeeId);
@@ -114,39 +152,5 @@ namespace API.Repository
         .Include(e => e.JobPosition).ThenInclude(jp => jp.Department)
         .Include(e => e.Regime).Include(e => e.Status).Include(e => e.State)
         .Include(e => e.EmployeeProjects).ThenInclude(ep => ep.Project);
-    private bool AddProjectsToEmployee(Employee employee, List<string> projects)
-    {
-      foreach(var projectId in projects)
-      {
-        var project = context.Projects.FirstOrDefault(p => p.ProjectId == projectId);
-        if (project == null) return false;
-        
-        var employeeProject = new EmployeeProject
-        {
-          EmployeeProjectId = Guid.NewGuid().ToString(),
-          EmployeeId = employee.EmployeeId,
-          ProjectId = project.ProjectId,
-          AssignedDate = employee.DateAdmission,
-          Employee = employee,
-          Project = project
-        };
-
-        employee.EmployeeProjects.Add(employeeProject);
-        context.Add(employeeProject);
-      }
-
-      return true;
-    }
-    private bool RemoveEmployeeProjects(string employeeId)
-    {
-      var employee = context.Employees
-        .Include(e => e.EmployeeProjects)
-        .FirstOrDefault(e => e.EmployeeId == employeeId);
-
-      if(employee == null) return false;
-      context.EmployeeProjects.RemoveRange(employee.EmployeeProjects);
-      return Save();
-    }
-    private bool Save() => context.SaveChanges() > 0;
   }
 }

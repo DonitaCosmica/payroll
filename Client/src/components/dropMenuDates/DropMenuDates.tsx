@@ -72,11 +72,11 @@ export const DropMenuDates = ({  }): JSX.Element => {
 
     const urlToUse: string = period.current.periodId && selectedOption.current === 1 
       ? `http://localhost:5239/api/Period/${ selectedPeriod.periodId }`
-      : 'http://localhost:5239/api/Period/${ selectedPeriod.periodId }'
+      : 'http://localhost:5239/api/Period/'
 
     console.log({ requestOptions, urlToUse })
 
-    /*try {
+    try {
       const res: Response = await fetch(urlToUse, requestOptions)
       if (!res.ok) {
         const errorData = await res.json()
@@ -87,7 +87,7 @@ export const DropMenuDates = ({  }): JSX.Element => {
       }
     } catch (error) {
       console.error('Request error: ', error)
-    }*/
+    }
   }
 
   const deletePeriod = async (): Promise<void> => {
