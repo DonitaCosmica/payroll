@@ -19,7 +19,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, setF
 
   const sortedOptions = useMemo(() =>
     Array.isArray(options) ? [...options].sort((a, b) => a.name.localeCompare(b.name)) : [],
-    [options])
+    [ options ])
 
   useEffect(() => {
     const selectedIds = sortedOptions.map(item => item[idKey] as string)

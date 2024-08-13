@@ -10,6 +10,7 @@ namespace API.DTO
     public string Employee { get; set; } = default!;
     public string? JobPosition { get; set; } = default!;
     public string? Department { get; set; } = default!;
+    //public Dictionary<string, object> AdditionalProperties { get; set; } = [];
     public HashSet<TicketPerceptionRelatedEntities> Perceptions { get; set; } = [];
     public HashSet<TicketDeductionRelatedEntities> Deductions { get; set; } = [];
     public float Total { get; set; }

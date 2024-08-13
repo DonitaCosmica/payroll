@@ -4,7 +4,7 @@ namespace API.DTO
   {
     public string? DepartmentId { get; set; }
     public string Name { get; set;} = default!;
-    public ushort TotalEmployees { get; set; }
+    public ushort? TotalEmployees { get; set; }
     public bool SubContract { get; set; }
   }
 }

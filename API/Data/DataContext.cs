@@ -37,121 +37,119 @@ namespace API.Data
         .Property(s => s.StatusType)
         .HasConversion(v => v.ToString(), v => (StatusType)Enum.Parse(typeof(StatusType), v));
 
-      modelBuilder.Entity<JobPosition>(entity => entity.HasKey(j => j.JobPositionId));
-      modelBuilder.Entity<JobPosition>()
-        .HasOne(j => j.Department)
-        .WithMany(d => d.JobPositions)
-        .HasForeignKey(j => j.DepartmentId);
+      modelBuilder.Entity<JobPosition>(entity =>
+      {
+        entity.HasKey(j => j.JobPositionId);
+        entity.HasOne(j => j.Department)
+          .WithMany(d => d.JobPositions)
+          .HasForeignKey(j => j.DepartmentId);
+      });
       
-      modelBuilder.Entity<Project>(entity => entity.HasKey(p => p.ProjectId));
-      modelBuilder.Entity<Project>()
-        .HasOne(p => p.Status)
-        .WithMany(s => s.Projects)
-        .HasForeignKey(p => p.StatusId)
-        .OnDelete(DeleteBehavior.Restrict);
-      modelBuilder.Entity<Project>()
-        .HasOne(p => p.Company)
-        .WithMany(c => c.Projects)
-        .HasForeignKey(p => p.CompanyId)
-        .OnDelete(DeleteBehavior.Restrict);
+      modelBuilder.Entity<Project>(entity =>
+      {
+        entity.HasKey(p => p.ProjectId);
+        entity.HasOne(p => p.Status)
+          .WithMany(s => s.Projects)
+          .HasForeignKey(p => p.StatusId)
+          .OnDelete(DeleteBehavior.Restrict);
+        entity.HasOne(p => p.Company)
+          .WithMany(c => c.Projects)
+          .HasForeignKey(p => p.CompanyId)
+          .OnDelete(DeleteBehavior.Restrict);
+      });
 
-      modelBuilder.Entity<Employee>(entity => entity.HasKey(e => e.EmployeeId));
-      modelBuilder.Entity<Employee>()
-        .HasOne(e => e.Bank)
-        .WithMany(b => b.Employees)
-        .HasForeignKey(e => e.BankId);
-      modelBuilder.Entity<Employee>()
-        .HasOne(e => e.CommercialArea)
-        .WithMany(ca => ca.Employees)
-        .HasForeignKey(e => e.CommercialAreaId);
-      modelBuilder.Entity<Employee>()
-        .HasOne(e => e.Company)
-        .WithMany(c => c.Employees)
-        .HasForeignKey(e => e.CompanyId)
-        .OnDelete(DeleteBehavior.Restrict);
-      modelBuilder.Entity<Employee>()
-        .HasOne(e => e.Contract)
-        .WithMany(ct => ct.Employees)
-        .HasForeignKey(e => e.ContractId);
-      modelBuilder.Entity<Employee>()
-        .HasOne(e => e.FederalEntity)
-        .WithMany(fe => fe.Employees)
-        .HasForeignKey(e => e.FederalEntityId);
-      modelBuilder.Entity<Employee>()
-        .HasOne(e => e.JobPosition)
-        .WithMany(jp => jp.Employees)
-        .HasForeignKey(e => e.JobPositionId)
-        .OnDelete(DeleteBehavior.Restrict);
-      modelBuilder.Entity<Employee>()
-        .HasOne(e => e.Regime)
-        .WithMany(r => r.Employees)
-        .HasForeignKey(e => e.RegimeId);
-      modelBuilder.Entity<Employee>()
-        .HasOne(e => e.State)
-        .WithMany(s => s.Employees)
-        .HasForeignKey(e => e.StateId);
-      modelBuilder.Entity<Employee>()
-        .HasOne(e => e.Status)
-        .WithMany(s => s.Employees)
-        .HasForeignKey(e => e.StatusId)
-        .OnDelete(DeleteBehavior.Restrict);
+      modelBuilder.Entity<Employee>(entity =>
+      {
+        entity.HasKey(e => e.EmployeeId);
+        entity.HasOne(e => e.Bank)
+          .WithMany(b => b.Employees)
+          .HasForeignKey(e => e.BankId);
+        entity.HasOne(e => e.CommercialArea)
+          .WithMany(ca => ca.Employees)
+          .HasForeignKey(e => e.CommercialAreaId);
+        entity.HasOne(e => e.Company)
+          .WithMany(c => c.Employees)
+          .HasForeignKey(e => e.CompanyId)
+          .OnDelete(DeleteBehavior.Restrict);
+        entity.HasOne(e => e.Contract)
+          .WithMany(ct => ct.Employees)
+          .HasForeignKey(e => e.ContractId);
+        entity.HasOne(e => e.FederalEntity)
+          .WithMany(fe => fe.Employees)
+          .HasForeignKey(e => e.FederalEntityId);
+        entity.HasOne(e => e.JobPosition)
+          .WithMany(jp => jp.Employees)
+          .HasForeignKey(e => e.JobPositionId)
+          .OnDelete(DeleteBehavior.Restrict);
+        entity.HasOne(e => e.Regime)
+          .WithMany(r => r.Employees)
+          .HasForeignKey(e => e.RegimeId);
+        entity.HasOne(e => e.State)
+          .WithMany(s => s.Employees)
+          .HasForeignKey(e => e.StateId);
+        entity.HasOne(e => e.Status)
+          .WithMany(s => s.Employees)
+          .HasForeignKey(e => e.StatusId)
+          .OnDelete(DeleteBehavior.Restrict);
+      });
 
-      modelBuilder.Entity<EmployeeProject>()
-        .HasKey(ep => new { ep.EmployeeId, ep.ProjectId });
-      modelBuilder.Entity<EmployeeProject>()
-        .HasOne(e => e.Employee)
-        .WithMany(ep => ep.EmployeeProjects)
-        .HasForeignKey(e => e.EmployeeId)
-        .OnDelete(DeleteBehavior.Cascade);
-      modelBuilder.Entity<EmployeeProject>()
-        .HasOne(p => p.Project)
-        .WithMany(ep => ep.EmployeeProjects)
-        .HasForeignKey(p => p.ProjectId)
-        .OnDelete(DeleteBehavior.Restrict);
+      modelBuilder.Entity<EmployeeProject>(entity =>
+      {
+        entity.HasKey(ep => new { ep.EmployeeId, ep.ProjectId });
+        entity.HasOne(e => e.Employee)
+          .WithMany(ep => ep.EmployeeProjects)
+          .HasForeignKey(e => e.EmployeeId)
+          .OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne(p => p.Project)
+          .WithMany(ep => ep.EmployeeProjects)
+          .HasForeignKey(p => p.ProjectId)
+          .OnDelete(DeleteBehavior.Restrict);
+      });
 
-      modelBuilder.Entity<Ticket>(entity => entity.HasKey(t => t.TicketId));
-      modelBuilder.Entity<Ticket>()
-        .Property(t => t.PayrollType)
-        .HasConversion(v => v.ToString(), v => (PayrollType)Enum.Parse(typeof(PayrollType), v));
-      modelBuilder.Entity<Ticket>()
-        .HasOne(t => t.Employee)
-        .WithMany(e => e.Tickets)
-        .HasForeignKey(t => t.EmployeeId);
-      modelBuilder.Entity<Ticket>()
-        .HasOne(t => t.Status)
-        .WithMany(s => s.Tickets)
-        .HasForeignKey(t => t.StatusId)
-        .OnDelete(DeleteBehavior.Restrict);
-      modelBuilder.Entity<Ticket>()
-        .HasOne(t => t.Period)
-        .WithMany(pr => pr.Tickets)
-        .HasForeignKey(t => t.PeriodId);
+      modelBuilder.Entity<Ticket>(entity =>
+      {
+        entity.HasKey(t => t.TicketId);
+        entity.Property(t => t.PayrollType)
+          .HasConversion(
+            v => v.ToString(),
+            v => (PayrollType)Enum.Parse(typeof(PayrollType), v));
+        entity.HasOne(t => t.Employee)
+          .WithMany(e => e.Tickets)
+          .HasForeignKey(t => t.EmployeeId);
+        entity.HasOne(t => t.Status)
+          .WithMany(s => s.Tickets)
+          .HasForeignKey(t => t.StatusId)
+          .OnDelete(DeleteBehavior.Restrict);
+        entity.HasOne(t => t.Period)
+          .WithMany(pr => pr.Tickets)
+          .HasForeignKey(t => t.PeriodId);
+      });
 
-      modelBuilder.Entity<TicketPerception>()
-        .HasKey(tp => new { tp.TicketId, tp.PerceptionId });
-      modelBuilder.Entity<TicketPerception>()
-        .HasOne(tp => tp.Ticket)
-        .WithMany(t => t.TicketPerceptions)
-        .HasForeignKey(tp => tp.TicketId)
-        .OnDelete(DeleteBehavior.Cascade);
-      modelBuilder.Entity<TicketPerception>()
-        .HasOne(tp => tp.Perception)
-        .WithMany(p => p.TicketPerceptions)
-        .HasForeignKey(tp => tp.PerceptionId)
-        .OnDelete(DeleteBehavior.Cascade);
+      modelBuilder.Entity<TicketPerception>(entity =>
+      {
+        entity.HasKey(tp => new { tp.TicketId, tp.PerceptionId });
+        entity.HasOne(tp => tp.Ticket)
+          .WithMany(t => t.TicketPerceptions)
+          .HasForeignKey(tp => tp.TicketId)
+          .OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne(tp => tp.Perception)
+          .WithMany(p => p.TicketPerceptions)
+          .HasForeignKey(tp => tp.PerceptionId)
+          .OnDelete(DeleteBehavior.Cascade);
+      });
 
-      modelBuilder.Entity<TicketDeduction>()
-        .HasKey(td => new { td.TicketId, td.DeductionId });
-      modelBuilder.Entity<TicketDeduction>()
-        .HasOne(td => td.Ticket)
-        .WithMany(t => t.TicketDeductions)
-        .HasForeignKey(td => td.TicketId)
-        .OnDelete(DeleteBehavior.Cascade);
-      modelBuilder.Entity<TicketDeduction>()
-        .HasOne(td => td.Deduction)
-        .WithMany(t => t.TicketDeductions)
-        .HasForeignKey(td => td.DeductionId)
-        .OnDelete(DeleteBehavior.Cascade);
+      modelBuilder.Entity<TicketDeduction>(entity =>
+      {
+        entity.HasKey(td => new { td.TicketId, td.DeductionId });
+        entity.HasOne(td => td.Ticket)
+          .WithMany(t => t.TicketDeductions)
+          .HasForeignKey(td => td.TicketId)
+          .OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne(td => td.Deduction)
+          .WithMany(t => t.TicketDeductions)
+          .HasForeignKey(td => td.DeductionId)
+          .OnDelete(DeleteBehavior.Cascade);
+      });
 
       base.OnModelCreating(modelBuilder);
     }
@@ -194,7 +192,8 @@ namespace API.Data
         if(property.PropertyType.IsGenericType
           && typeof(IEnumerable<>).MakeGenericType(property.PropertyType.GetGenericArguments()).IsAssignableFrom(property.PropertyType) 
           && property.PropertyType != typeof(string)
-          && property.Name != "Projects")
+          && property.Name != "Projects"
+          && property.Name != "AdditionalProperties")
         {
           var value = property.GetValue(ticket);
           if (value is IEnumerable<object> relatedEntityList)

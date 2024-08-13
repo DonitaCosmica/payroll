@@ -74,8 +74,6 @@ export const DropMenuDates = ({  }): JSX.Element => {
       ? `http://localhost:5239/api/Period/${ selectedPeriod.periodId }`
       : 'http://localhost:5239/api/Period/'
 
-    console.log({ requestOptions, urlToUse })
-
     try {
       const res: Response = await fetch(urlToUse, requestOptions)
       if (!res.ok) {

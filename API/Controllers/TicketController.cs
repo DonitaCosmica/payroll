@@ -18,9 +18,8 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<TicketDTO>))]
     public IActionResult GetTickets()
     {
-      HashSet<string> columns = [];
       var tickets = ticketRepository.GetTickets().Select(MapToTicketDTORequest);
-      var result = CreateResult(tickets, columns);
+      var result = CreateResult(tickets);
 
       return Ok(result);
     }
@@ -29,9 +28,8 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<TicketDTO>))]
     public IActionResult GetTicketsByWeekAndYear([FromQuery] ushort week, [FromQuery] ushort year)
     {
-      HashSet<string> columns = [];
       var tickets = ticketRepository.GetTicketsByWeekAndYear(week, year).Select(MapToTicketDTORequest);
-      var result = CreateResult(tickets, columns);
+      var result = CreateResult(tickets);
 
       return Ok(result);
     }
@@ -203,8 +201,9 @@ namespace API.Controllers
       return ticketDTO;
     }
 
-    private object CreateResult(IEnumerable<TicketDTO> tickets, HashSet<string> columns)
+    private object CreateResult(IEnumerable<TicketDTO> tickets)
     {
+      HashSet<string> columns = [];
       var auxTickets = tickets.Select(t =>
       {
         var ticket = new TicketListDTO
@@ -221,7 +220,16 @@ namespace API.Controllers
           Observations = t.Observations,
           Company = t.Company,
           Projects = t.Projects,
-          Status = t.Status
+          Status = t.Status,
+          /*AdditionalProperties = t.Perceptions
+            .Where(p => p.Value > 0)
+            .ToDictionary(p => p.Name ?? "Unknown Perception", p => (object)p.Value)
+            .Concat(
+              t.Deductions
+                .Where(d => d.Value > 0)
+                .ToDictionary(d => d.Name ?? "Unknown Deduction", d => (object)d.Value)
+            )
+            .ToDictionary(kv => kv.Key, kv => kv.Value)*/
         };
 
         ticketRepository.GetColumnsFromRelatedEntity(ticket, columns);

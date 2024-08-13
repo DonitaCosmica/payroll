@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ocLlHDxzVLoVGsrmryCgQ7YBTvGQw2rpyvSy6TgcOS7YHlro0irEx4csCGq9mA4vUxGLuSkeTovzD7mIgipKbg==",
+  "dgSpecHash": "A8zatq9+zd9k/h63Y2z5gg0q/S++Shv8c//yPwNLrW1Rh3hotoWnWIkUxQASg9so4IK51A/9LkjoMDXeEfZ7Ig==",
   "success": true,
-  "projectFilePath": "C:\\Users\\sistemas\\Documents\\Work\\nomina-tamyccc\\API\\API.csproj",
+  "projectFilePath": "C:\\Users\\sistemas\\Documents\\Work\\payroll\\API\\API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\sistemas\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\sistemas\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",

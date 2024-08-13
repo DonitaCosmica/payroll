@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\sistemas\\Documents\\Work\\nomina-tamyccc\\API\\API.csproj": {}
+    "C:\\Users\\sistemas\\Documents\\Work\\payroll\\API\\API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\sistemas\\Documents\\Work\\nomina-tamyccc\\API\\API.csproj": {
+    "C:\\Users\\sistemas\\Documents\\Work\\payroll\\API\\API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\sistemas\\Documents\\Work\\nomina-tamyccc\\API\\API.csproj",
+        "projectUniqueName": "C:\\Users\\sistemas\\Documents\\Work\\payroll\\API\\API.csproj",
         "projectName": "API",
-        "projectPath": "C:\\Users\\sistemas\\Documents\\Work\\nomina-tamyccc\\API\\API.csproj",
+        "projectPath": "C:\\Users\\sistemas\\Documents\\Work\\payroll\\API\\API.csproj",
         "packagesPath": "C:\\Users\\sistemas\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\sistemas\\Documents\\Work\\nomina-tamyccc\\API\\obj\\",
+        "outputPath": "C:\\Users\\sistemas\\Documents\\Work\\payroll\\API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\sistemas\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -32,11 +32,6 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -91,7 +86,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.206/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.107/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

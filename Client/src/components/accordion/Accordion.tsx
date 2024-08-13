@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { usePeriodContext } from '../../context/Period'
 import { useCurrentWeek } from '../../hooks/useCurrentWeek'
 import { type IWeekYear } from '../../types'
@@ -13,7 +13,11 @@ interface Props {
 export const Accordion: React.FC<Props> = ({ year, period }) => {
   const { weekRanges } = useCurrentWeek({ input: period })
   const { selectedPeriod, dispatch, setActionType } = usePeriodContext()
-  const [isCollapsed, setIsCollapsed] = useState(true)
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(true)
+
+  const sortedPeriods = useMemo(() =>
+    Array.isArray(period) ? [...period].sort((a, b) => b.week - a.week) : [],
+    [ period ])
 
   useEffect(() => setActionType('SET_PERIOD'), [ setActionType ])
 
@@ -37,7 +41,7 @@ export const Accordion: React.FC<Props> = ({ year, period }) => {
         <strong>{ year }</strong>
       </li>
       <ul className={`accordion ${ isCollapsed ? 'collapsed' : 'expanded' }`}>
-        {period.map((pr: IWeekYear, index: number) => {
+        {sortedPeriods.map((pr: IWeekYear, index: number) => {
           const { monday, sunday } = weekRanges[index] || { monday: 'No Data', sunday: 'No Data' }
           const selectedWeek = pr.week === selectedPeriod.week && 
             pr.year === selectedPeriod.year

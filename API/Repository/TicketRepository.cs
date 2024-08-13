@@ -18,10 +18,16 @@ namespace API.Repository
       var tickets = GetTicketsByWeekAndYear(currentWeek, currentYear);
       if(tickets.Count > 0) return tickets;
 
-      var newPeriod = CreateNewPeriod(currentWeek, currentYear);
-      if(newPeriod == null) return [];
+      var period = context.Periods
+        .FirstOrDefault(pr => pr.Week == currentWeek && pr.Year == currentYear);
 
-      var newTickets = CopyTicketsFromPreviousPeriod(previousWeek, previousYear, newPeriod);
+      if(period == null)
+      {
+        period = CreateNewPeriod(currentWeek, currentYear);
+        if(period == null) return Enumerable.Empty<Ticket>().ToList();
+      }
+
+      var newTickets = CopyTicketsFromPreviousPeriod(previousWeek, previousYear, period);
       return newTickets;
     }
     public ICollection<Ticket> GetTicketsByWeekAndYear(ushort week, ushort year) =>
@@ -186,9 +192,8 @@ namespace API.Repository
     }
     private List<Ticket> CopyTicketsFromPreviousPeriod(ushort previousWeek, ushort previousYear, Period newPeriod)
     {
-      var tickets = GetTicketsByWeekAndYear(previousWeek, previousYear);
+      var tickets = GetTicketsByWeekAndYear(previousWeek, previousYear) ?? [];
       var newTickets = new List<Ticket>();
-
       foreach(var ticket in tickets)
       {
         var newTicket = CreateNewTicketFromExisting(ticket, newPeriod);

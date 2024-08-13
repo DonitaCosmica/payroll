@@ -95,7 +95,7 @@ namespace API.Controllers
 
       var department = departmentRepository.GetDepartment(departmentId);
       department.Name = departmentUpdate.Name;
-      department.TotalEmployees = departmentUpdate.TotalEmployees;
+      department.TotalEmployees = departmentUpdate.TotalEmployees ?? 0;
       department.SubContract = departmentUpdate.SubContract;
 
       if(!departmentRepository.UpdateDepartment(department))
