@@ -63,7 +63,7 @@ namespace API.Repository
           EmployeeProjectId = Guid.NewGuid().ToString(),
           EmployeeId = e.EmployeeId,
           ProjectId = p.ProjectId,
-          AssignedDate = DateTime.ParseExact(i.AssignedDate, "yyyy-MM-dd", CultureInfo.InvariantCulture),
+          AssignedDate = DateTime.ParseExact(i.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture),
           Employee = e,
           Project = p
         },
@@ -99,7 +99,7 @@ namespace API.Repository
           EmployeeProjectId = Guid.NewGuid().ToString(),
           EmployeeId = e.EmployeeId,
           ProjectId = p.ProjectId,
-          AssignedDate = DateTime.ParseExact(i.AssignedDate, "yyyy-MM-dd", CultureInfo.InvariantCulture),
+          AssignedDate = DateTime.ParseExact(i.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture),
           Employee = e,
           Project = p
         },
@@ -131,6 +131,7 @@ namespace API.Repository
       context.Update(department);
       return context.DeleteEntity(employee);
     }
+    public void GetColumnsFromRelatedEntity(EmployeeListDTO employee, HashSet<string> columns) => context.GetColumns(employee, columns);
     public List<string> GetColumns() => context.GetColumns<Employee>();
     public bool EmployeeExists(string employeeId) => context.Employees.Any(e => e.EmployeeId == employeeId);
     private (Company, Department)? GetNumberOfEmployeesEntities(Employee employee)

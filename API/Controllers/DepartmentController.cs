@@ -24,10 +24,13 @@ namespace API.Controllers
           SubContract = d.SubContract
         }).ToList();
 
+      var columns = departmentRepository.GetColumns();
       var result = new
       {
-        Columns = departmentRepository.GetColumns(),
-        Departments = departments
+        Columns = columns,
+        FormColumns = columns,
+        Data = departments,
+        FormData = departments
       };
 
       return Ok(result);
@@ -50,13 +53,7 @@ namespace API.Controllers
         SubContract = department.SubContract
       };
 
-      var result = new
-      {
-        Columns = departmentRepository.GetColumns(),
-        Department = departmentDTO
-      };
-
-      return Ok(result);
+      return Ok(departmentDTO);
     }
 
     [HttpPost]

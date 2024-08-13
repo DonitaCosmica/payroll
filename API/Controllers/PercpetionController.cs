@@ -24,10 +24,13 @@ namespace API.Controllers
           IsHidden = p.IsHidden
         }).ToList();
 
+      var columns = perceptionRepository.GetColumns();
       var result = new
       {
-        Columns = perceptionRepository.GetColumns(),
-        Perceptions = perceptions
+        Columns = columns,
+        FormColumns = columns,
+        Data = perceptions,
+        FormData = perceptions
       };
 
       return Ok(result);
@@ -50,13 +53,7 @@ namespace API.Controllers
         IsHidden = perception.IsHidden
       };
 
-      var result = new
-      {
-        Columns = perceptionRepository.GetColumns(),
-        Perception = perceptionDTO
-      };
-
-      return Ok(result);
+      return Ok(perceptionDTO);
     }
 
     [HttpPost]

@@ -17,10 +17,13 @@ namespace API.Controllers
     public IActionResult GetProjects()
     {
       var projects = projectRepository.GetProjects().Select(MapToProjectDTORequest).ToList();
+      var columns = projectRepository.GetColumns();
       var result = new
       {
-        Columns = projectRepository.GetColumns(),
-        Projects = projects
+        Columns = columns,
+        FormColumns = columns,
+        Data = projects,
+        FormData = projects
       };
 
       return Ok(result);
@@ -36,13 +39,7 @@ namespace API.Controllers
         return NotFound();
 
       var project = MapToProjectDTORequest(projectRepository.GetProject(projectId));
-      var result = new
-      {
-        Columns = projectRepository.GetColumns(),
-        Project = project
-      };
-
-      return Ok(result);
+      return Ok(project);
     }
 
     [HttpPost]

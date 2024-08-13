@@ -13,6 +13,7 @@ namespace API.Interfaces
     bool UpdateEmployee(HashSet<EmployeeProjectRelatedEntities> projects, Employee employee);
     bool DeleteEmployee(Employee employee);
     bool EmployeeExists(string employeeId);
+    public void GetColumnsFromRelatedEntity(EmployeeListDTO employee, HashSet<string> columns);
     List<string> GetColumns();
   }
 }

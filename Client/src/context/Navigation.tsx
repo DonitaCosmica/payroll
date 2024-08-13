@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useReducer, useState } from "react"
-import { type NavigationAction, type NavigationState, type IdataResponse } from "../types"
+import { type NavigationAction, type NavigationState, type IDataResponse, type DataObject } from "../types"
 
 export enum NavigationActionKind {
   PAYROLLRECEIPTS = 1,
@@ -55,7 +55,8 @@ const INITIAL_STATE: NavigationState = {
   url: '',
   keys: [],
   columnNames: [],
-  data: [[]],
+  data: [],
+  formData: [],
   formSize: 0,
   error: null
 } as const
@@ -68,7 +69,8 @@ const loadStateFromLocalStorage = (): NavigationState => {
       ...savedState,
       keys: [],
       columnNames: [],
-      data: [[]],
+      data: [],
+      formColumns: [],
       loading: false,
       error: null
     } as const
@@ -89,12 +91,13 @@ const NavigationReducer = (state: NavigationState, action: NavigationAction): Na
 
   switch(type) {
     case NavigationActionKind.UPDATEDATA: {
-      const { columns = state.keys, newData = state.data, names = state.columnNames } = payload || {}
+      const { columns = state.columnNames, newData = state.data, names = state.columnNames, formData = state.formData } = payload || {}
       return {
         ...state,
         columnNames: names,
         keys: columns,
         data: newData,
+        formData,
         loading: false
       }
     }
@@ -166,9 +169,9 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
       }
     }
 
-    const translateColumns = async ({ opt, columns }: { opt: NavigationActionKind, columns: string[] }): Promise<string[]> => {
+    const translateColumns = async ({ opt, columnsNames }: { opt: NavigationActionKind, columnsNames: string[] }): Promise<string[]> => {
       const columnsDictionary: Record<string, string> = await loadTranslations({ opt })
-      return columns.map((column: string) => columnsDictionary[column] || column)
+      return columnsNames.map((column: string) => columnsDictionary[column] || column)
     }
 
     const saveToLocalStorage = (): void => {
@@ -182,33 +185,33 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
         if(!state.url) return
         
         const res: Response = await fetch(state.url)
-        const data: IdataResponse = await res.json()
+        const dataResponse: IDataResponse = await res.json()
         if (!res.ok) {
-          console.error('Response Error: ', data)
+          console.error('Response Error: ', dataResponse)
           return
         }
 
-        const values: IdataResponse[] = Object.values(data)
-        const columns: string[] = Array.isArray(values[0]) ? values[0] : []
-        const names: string[] = await translateColumns({ opt: state.option, columns })
-        const newData: (string | number | boolean)[][] = Array.isArray(values[1]) ?
-          values[1].map((info: (string | number)) => Object.values(info)) : []
+        const columns: string[] = dataResponse.formColumns
+        const names: string[] = await translateColumns({ opt: state.option, columnsNames: dataResponse.columns })
+        const newData: DataObject[] = dataResponse.data
         if (columns.includes('Code') || columns.includes('Key')) {
-          newData.sort((a: (string | number | boolean)[], b: (string | number | boolean)[]): number => {
-            const aValue = getValue(a[1] as number)
-            const bValue = getValue(b[1] as number)
+          newData.sort((a: DataObject, b: DataObject): number => {
+            const aValue = getValue((a['code'] || a['key']) as number)
+            const bValue = getValue((b['code'] || b['key']) as number)
             return (aValue as number) - (bValue as number)
           })
         } else if (columns.includes('Name')) {
-          newData.sort((a: (string | number | boolean)[], b: (string | number | boolean)[]): number => {
-            const aValue = getValue(a[1] as string)
-            const bValue = getValue(b[1] as string)
+          newData.sort((a: DataObject, b: DataObject): number => {
+            const aValue = getValue(a['name'] as string)
+            const bValue = getValue(b['name'] as string)
             return (aValue as string).localeCompare(bValue as string)
           })
         }
+        const formData: DataObject[] = dataResponse.formData
+
         dispatch({ 
           type: NavigationActionKind.UPDATEDATA, 
-          payload: { columns, newData, names } 
+          payload: { columns, newData, formData, names } 
         })
         saveToLocalStorage()
       } catch (error) {

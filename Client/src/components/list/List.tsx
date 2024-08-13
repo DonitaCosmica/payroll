@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
-import { type ListObject } from "../../types"
+import { type DataObject, type ListObject } from "../../types"
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md"
 import './List.css'
 
@@ -10,8 +10,8 @@ interface Props {
 }
 
 export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Element => {
-  const { option, keys, data, columnNames, dispatch } = useNavigationContext()
-  const [filteredValues, setFilteredValues] = useState<(string | number | boolean)[][]>(data)
+  const { option, data, columnNames, dispatch } = useNavigationContext()
+  const [filteredValues, setFilteredValues] = useState<DataObject[]>(data)
   const rowSelected = useRef<number>(-1)
   const columnCountSelected = useRef<number>(0)
 
@@ -21,7 +21,7 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
   }, [ option, data ])
 
   useEffect(() => {
-    const filtered = data.filter((value: (string | number | boolean)[]) =>
+    const filtered = data.filter((value: DataObject) =>
       Object.values(value).some((val) => {
         const newVal = typeof val === 'boolean' 
           ? (val ? 'Verdadero' : 'Falso') 
@@ -36,7 +36,7 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
     setFilteredValues(filtered)
   }, [ searchFilter, data ])
 
-  const getIdSelected = useCallback((info: (string)[]): void => {
+  const getIdSelected = useCallback((info: (string | number | boolean)[]): void => {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     const uuid = info.find(item => typeof item === 'string' && uuidRegex.test(item))
     uuid ? dispatch({
@@ -45,19 +45,19 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
     }) : console.error('No valid UUID found in the provided info.')
   }, [ dispatch ])
 
-  const selectedRow = useCallback((row: string[], index: number): void => {
+  const selectedRow = useCallback((row: (string | number | boolean)[], index: number): void => {
     getIdSelected(row)
     rowSelected.current = index
   }, [ getIdSelected ])
 
   const selectedColumn = useCallback((index: number): void => {
     const newDataOrder = [...data]
-    const columnType = typeof data[0][index]
+    const columnType = typeof Object.values(data[0])[index]
     
     columnCountSelected.current++
-    const compareValues = (a: (string | number | boolean)[], b: (string | number | boolean)[]): number => {
-      const aValue = a[index]
-      const bValue = b[index]
+    const compareValues = (a: DataObject, b: DataObject): number => {
+      const aValue = Object.values(a)[index]
+      const bValue = Object.values(b)[index]
       const isAsc = columnCountSelected.current % 2 === 0
 
       if (columnType === 'string')
@@ -69,11 +69,6 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
         return isAsc ?
           (bValue as number) - (aValue as number) :
           (aValue as number) - (bValue as number)
-
-      if (columnType === 'boolean')
-        return isAsc ?
-          (aValue === bValue ? 0 : (aValue ? 1 : -1)) :
-          (aValue === bValue ? 0 : (aValue ? -1 : 1))
       
       return 0
     } 
@@ -82,7 +77,7 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
     setFilteredValues(newDataOrder)
   }, [ data ])
 
-  const showFormDoubleClick = useCallback((info: string[]): void => {
+  const showFormDoubleClick = useCallback((info: (string | number | boolean)[]): void => {
     getIdSelected(info)
     dispatch({
       type: NavigationActionKind.UPDATETOOLBAROPT,
@@ -108,10 +103,8 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
       if (info.every(item => typeof item === 'string'))
         return (info as string[]).join(', ')
     }
-    return info.toString()
+    return info.toString() ?? ''
   }
-
-  console.log({ filteredValues })
   
   return (
     <section className="list">
@@ -119,9 +112,9 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
         <table id='data-list' className='content'>
           <thead>
             <tr>
-              {keys.map((filter: string, index: number) => (
-                <th key={ filter } onClick={ () => selectedColumn(index) }>
-                  <p>{ columnNames[index] }</p>
+              {columnNames.map((column: string, index: number) => (
+                <th key={ column } onClick={ () => selectedColumn(index) }>
+                  <p>{ column }</p>
                   <div className="filter-list">
                     <MdArrowDropUp />
                     <MdArrowDropDown />
@@ -131,15 +124,17 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
             </tr>
           </thead>
           <tbody>
-            {filteredValues.map((row: (string | number | boolean)[], index: number) => {
+            {filteredValues.map((row: DataObject, index: number) => {
+              const rowInfo = Object.values(row)
+
               return (
                 <tr 
                   key={ index }
                   className={ rowSelected.current === index ? 'selected-row' : '' }
-                  onClick={ () => selectedRow(row as string[], index) } 
-                  onDoubleClick={ () => showFormDoubleClick(row as string[]) }
+                  onClick={ () => selectedRow(rowInfo, index) } 
+                  onDoubleClick={ () => showFormDoubleClick(rowInfo) }
                 >
-                {row.map((info: number | string | boolean | ListObject[], cellIndex: number) => (
+                {rowInfo.map((info: number | string | boolean | ListObject[], cellIndex: number) => (
                   <td key={`${ info }-${ cellIndex }`}>
                     <p>{ renderCellContent(info) }</p>
                   </td>

@@ -1,7 +1,17 @@
 import { NavigationActionKind } from "./context/Navigation"
 
+interface DataObject {
+  [key: string]: string | number | boolean;
+}
+export interface IDataResponse {
+  columns: string[],
+  data: DataObject[],
+  formData: DataObject[],
+  formColumns: string[]
+}
 export interface ListObject {
-  value: string | number
+  value: string | number,
+  [key: string]: string | number
 }
 export interface IMenuState {
   date: boolean,
@@ -21,10 +31,6 @@ export interface IconDefinition {
   icon?: JSX.Element,
   label: string,
   onClick?: () => void
-}
-export interface IdataResponse {
-  columns: string[],
-  data: (string | number | boolean)[]
 }
 export interface IDropDownMenu {
   value: string,
@@ -50,7 +56,8 @@ export interface NavigationState {
   url?: string
   keys: string[],
   columnNames: string[],
-  data: (string | number | boolean)[][],
+  data: DataObject[],
+  formData: DataObject[],
   formSize: number,
   error: boolean | null
 }
@@ -61,7 +68,9 @@ export interface NavigationAction {
     selectedId?: string,
     toolbarOption?: number,
     columns?: string[],
-    newData?: (number | string | boolean)[][],
+    newData?: DataObject[],
+    formData?: DataObject[],
+    formColumns?: string[],
     names?: string[]
   } 
 }

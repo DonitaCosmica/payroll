@@ -22,10 +22,13 @@ namespace API.Controllers
           Name = ca.Name
         }).ToList();
 
+      var columns = commercialAreaRepository.GetColumns();
       var result = new
       {
-        Columns = commercialAreaRepository.GetColumns(),
-        CommercialAreas = commercialAreas
+        Columns = columns,
+        FormColumns = columns,
+        Data = commercialAreas,
+        FormData = commercialAreas
       };
 
       return Ok(result);
@@ -46,13 +49,7 @@ namespace API.Controllers
         Name = commercialArea.Name
       };
 
-      var result = new
-      {
-        Columns = commercialAreaRepository.GetColumns(),
-        CommercialArea = commercialAreaDTO
-      };
-
-      return Ok(result);
+      return Ok(commercialAreaDTO);
     }
 
     [HttpPost]

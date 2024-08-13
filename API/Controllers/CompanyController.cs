@@ -23,10 +23,13 @@ namespace  API.Controllers
           TotalWorkers = c.TotalWorkers
         }).ToList();
 
+      var columns = companyRepository.GetColumns();
       var result = new
       {
-        Columns = companyRepository.GetColumns(),
-        Companyies = companies
+        Columns = columns,
+        FormColumns = columns,
+        Data = companies,
+        FormData = companies
       };
 
       return Ok(result);
@@ -47,14 +50,7 @@ namespace  API.Controllers
         Name = company.Name,
         TotalWorkers = company.TotalWorkers
       };
-
-      var result = new
-      {
-        Columns = companyRepository.GetColumns(),
-        Company = companyDTO
-      };
-
-      return Ok(result);
+      return Ok(companyDTO);
     }
 
     [HttpPost]

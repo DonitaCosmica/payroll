@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using API.Models;
 using API.Enums;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace API.Data
 {
@@ -185,6 +186,32 @@ namespace API.Data
       return columnNames;
     }
 
+    public void GetColumns<TEntity>(TEntity ticket, HashSet<string> columns) where TEntity : class
+    {
+      PropertyInfo[] properties = typeof(TEntity).GetProperties();
+      foreach(var property in properties)
+      {
+        if(property.PropertyType.IsGenericType
+          && typeof(IEnumerable<>).MakeGenericType(property.PropertyType.GetGenericArguments()).IsAssignableFrom(property.PropertyType) 
+          && property.PropertyType != typeof(string)
+          && property.Name != "Projects")
+        {
+          var value = property.GetValue(ticket);
+          if (value is IEnumerable<object> relatedEntityList)
+          {
+            var method = typeof(DataContext).GetMethod("GetColumnsFromRelatedEntity", BindingFlags.NonPublic | BindingFlags.Static);
+            if (method != null)
+            {
+              var genericMethod = method.MakeGenericMethod(property.PropertyType.GetGenericArguments()[0]);
+              genericMethod.Invoke(null, [relatedEntityList, columns]);
+            }
+          }
+        }
+        else
+          columns.Add(property.Name);
+      }
+    }
+
     public T? GetEntityByName<T>(string name) where T : class
     {
       var entitySet = Set<T>().AsEnumerable();
@@ -268,7 +295,25 @@ namespace API.Data
     {
       Remove(entity);
       return Save();
-    } 
+    }
+
+    private static void GetColumnsFromRelatedEntity<T>(HashSet<T> relatedEntityList, HashSet<string> columns) where T : class
+    {
+      foreach(var entity in relatedEntityList)
+      {
+        var columnNameProperty = entity.GetType().GetProperties()
+          .FirstOrDefault(prop => prop.Name == "Name");
+        var columnValueProperty = entity.GetType().GetProperties()
+          .FirstOrDefault(prop => prop.Name == "Value");
+
+        var columnValue = columnValueProperty?.GetValue(entity);
+        if (columnValue is float floatValue && floatValue > 0)
+        {
+          if(columnNameProperty?.GetValue(entity) is string columnName)
+            columns.Add(columnName);
+        }
+      }
+    }
 
     private bool Save() => SaveChanges() > 0; 
   }

@@ -24,10 +24,13 @@ namespace API.Controllers
           IsHidden = d.IsHidden
         }).ToList();
 
+      var columns = deductionRepository.GetColumns();
       var result = new
       {
-        Columns = deductionRepository.GetColumns(),
-        Deductions = deductions
+        Columns = columns,
+        FormColumns = columns,
+        Data = deductions,
+        FormData = deductions
       };
 
       return Ok(result);
@@ -50,13 +53,7 @@ namespace API.Controllers
         IsHidden = deduction.IsHidden
       };
 
-      var result = new
-      {
-        Columns = deductionRepository.GetColumns(),
-        Deduction = deductionDTO
-      };
-
-      return Ok(result);
+      return Ok(deductionDTO);
     }
 
     [HttpPost]

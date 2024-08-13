@@ -18,12 +18,9 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<TicketDTO>))]
     public IActionResult GetTickets()
     {
+      HashSet<string> columns = [];
       var tickets = ticketRepository.GetTickets().Select(MapToTicketDTORequest);
-      var result = new
-      {
-        Columns = GetTicketColumns(),
-        Tickets = tickets
-      };
+      var result = CreateResult(tickets, columns);
 
       return Ok(result);
     }
@@ -32,14 +29,9 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<TicketDTO>))]
     public IActionResult GetTicketsByWeekAndYear([FromQuery] ushort week, [FromQuery] ushort year)
     {
-      var tickets = ticketRepository.GetTicketsByWeekAndYear(week, year)
-        .Select(MapToTicketDTORequest);
-      
-      var result = new
-      {
-        Columns = GetTicketColumns(),
-        Tickets = tickets
-      };
+      HashSet<string> columns = [];
+      var tickets = ticketRepository.GetTicketsByWeekAndYear(week, year).Select(MapToTicketDTORequest);
+      var result = CreateResult(tickets, columns);
 
       return Ok(result);
     }
@@ -54,13 +46,7 @@ namespace API.Controllers
         return NotFound();
       
       var ticket = MapToTicketDTORequest(ticketRepository.GetTicket(ticketId));
-      var result = new
-      {
-        Columns = GetTicketColumns(),
-        Ticket = ticket
-      };
-
-      return Ok(result);
+      return Ok(ticket);
     }
 
     [HttpPost]
@@ -122,12 +108,6 @@ namespace API.Controllers
       return NoContent();
     }
 
-    private List<string> GetTicketColumns()
-    {
-      var columns = ticketRepository.GetColumns();
-      return columns;
-    }
-
     private static Ticket MapToTicketModel(TicketDTO createTicket, TicketRelatedEntities relatedEntities)
     {
       if(string.IsNullOrEmpty(createTicket.PayrollType) || !TryConvertToStatusType(createTicket.PayrollType, out PayrollType payrollType))
@@ -180,7 +160,7 @@ namespace API.Controllers
     {
       if(ticket == null) return new TicketDTO();
 
-      return new TicketDTO
+      var ticketDTO = new TicketDTO
       {
         TicketId = ticket.TicketId,
         Serie = ticket.Serie,
@@ -198,7 +178,7 @@ namespace API.Controllers
           {
             ProjectId = ep.ProjectId,
             Value = ep.Project.Name,
-            AssignedDate = ep.AssignedDate.ToString("yyyy-MM-dd")
+            Date = ep.AssignedDate.ToString("yyyy-MM-dd")
           })),
         PayrollType = ticket.PayrollType.ToString(),
         Status = ticket.Status.Name,
@@ -218,6 +198,42 @@ namespace API.Controllers
             Name = d.Deduction.Description,
             Value = d.Total
           }))
+      };
+      
+      return ticketDTO;
+    }
+
+    private object CreateResult(IEnumerable<TicketDTO> tickets, HashSet<string> columns)
+    {
+      var auxTickets = tickets.Select(t =>
+      {
+        var ticket = new TicketListDTO
+        {
+          TicketId = t.TicketId,
+          Serie = t.Serie,
+          Bill = t.Bill,
+          Employee = t.Employee,
+          JobPosition = t.JobPosition,
+          Department = t.Department,
+          Perceptions = t.Perceptions,
+          Deductions = t.Deductions,
+          Total = t.Total,
+          Observations = t.Observations,
+          Company = t.Company,
+          Projects = t.Projects,
+          Status = t.Status
+        };
+
+        ticketRepository.GetColumnsFromRelatedEntity(ticket, columns);
+        return ticket;
+      }).ToList();
+
+      return new
+      {
+        Columns = columns,
+        FormColumns = ticketRepository.GetColumns(),
+        Data = auxTickets,
+        FormData = tickets
       };
     }
 

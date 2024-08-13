@@ -2,7 +2,9 @@ import { NavigationActionKind } from "../context/Navigation"
 import { type FieldConfig } from "../types" 
 
 export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
-  [NavigationActionKind.PAYROLLRECEIPTS]: [],
+  [NavigationActionKind.PAYROLLRECEIPTS]: [
+    
+  ],
   [NavigationActionKind.EMPLOYEES]: [
     { type: 'section', name: 'Datos Generales', id: 'general-data' },
     { type: 'input', name: 'Código', label: '0', inputType: 'number', id: 'key' },

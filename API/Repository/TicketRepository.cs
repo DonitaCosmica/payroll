@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Linq.Expressions;
 using API.Data;
 using API.DTO;
 using API.Helpers;
@@ -15,40 +14,15 @@ namespace API.Repository
 
     public ICollection<Ticket> GetTickets()
     {
-      DateTime today = DateTime.Now;
-      CultureInfo culture = new("es-MX");
-      Calendar calendar = culture.Calendar;
-      DateTime startOfWeek = today.AddDays(-(int)today.DayOfWeek + (int)DayOfWeek.Monday);
-      DateTime startOfPreviousWeek = startOfWeek.AddDays(-8);
-
-      ushort currentWeek = (ushort)calendar.GetWeekOfYear(today, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
-      ushort currentYear = (ushort)today.Year;
-      ushort previousWeek = (ushort)calendar.GetWeekOfYear(startOfPreviousWeek, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
-      ushort previousYear = (ushort)startOfPreviousWeek.Year;
-      if(previousWeek > currentWeek && previousYear == currentWeek)
-        previousYear--;
-
+      var (currentWeek, currentYear, previousWeek, previousYear) = GetWeekAndYearInfo();
       var tickets = GetTicketsByWeekAndYear(currentWeek, currentYear);
       if(tickets.Count > 0) return tickets;
 
-      var newPeriod = new Period
-      {
-        PeriodId = Guid.NewGuid().ToString(),
-        Week = currentWeek,
-        Year = currentYear
-      };
+      var newPeriod = CreateNewPeriod(currentWeek, currentYear);
+      if(newPeriod == null) return [];
 
-      if(!context.CreateEntity(newPeriod)) return [];
-      tickets = GetTicketsByWeekAndYear(previousWeek, previousYear);
-
-      foreach(var ticket in tickets)
-      {
-        ticket.PeriodId = newPeriod.PeriodId;
-        ticket.Period = newPeriod;
-        if(!context.UpdateEntity(ticket)) return [];
-      }
-
-      return tickets;
+      var newTickets = CopyTicketsFromPreviousPeriod(previousWeek, previousYear, newPeriod);
+      return newTickets;
     }
     public ICollection<Ticket> GetTicketsByWeekAndYear(ushort week, ushort year) =>
       IncludeRelatedEntities(context.Tickets)
@@ -178,8 +152,115 @@ namespace API.Repository
       
       return perceptionsRemoved && deductionsRemoved && context.DeleteEntity(ticket);
     }
+    public void GetColumnsFromRelatedEntity(TicketListDTO ticket, HashSet<string> columns) => context.GetColumns(ticket, columns);
     public List<string> GetColumns() => context.GetColumns<Ticket>();
     public bool TicketExists(string ticketId) => context.Tickets.Any(t => t.TicketId == ticketId);
+    private static (ushort currentWeek, ushort currentYear, ushort previousWeek, ushort previousYear) GetWeekAndYearInfo()
+    {
+      DateTime today = DateTime.Now;
+      CultureInfo culture = new("es-MX");
+      Calendar calendar = culture.Calendar;
+      DateTime startOfWeek = today.AddDays(-(int)today.DayOfWeek + (int)DayOfWeek.Monday);
+      DateTime startOfPreviousWeek = startOfWeek.AddDays(-8);
+
+      ushort currentWeek = (ushort)calendar.GetWeekOfYear(today, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
+      ushort currentYear = (ushort)today.Year;
+      ushort previousWeek = (ushort)calendar.GetWeekOfYear(startOfPreviousWeek, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
+      ushort previousYear = (ushort)startOfPreviousWeek.Year;
+
+      if (previousWeek > currentWeek && previousYear == currentYear)
+        previousYear--;
+
+      return (currentWeek, currentYear, previousWeek, previousYear);
+    }
+    private Period? CreateNewPeriod(ushort week, ushort year)
+    {
+      var newPeriod = new Period
+      {
+        PeriodId = Guid.NewGuid().ToString(),
+        Week = week,
+        Year = year
+      };
+
+      return context.CreateEntity(newPeriod) ? newPeriod : null;
+    }
+    private List<Ticket> CopyTicketsFromPreviousPeriod(ushort previousWeek, ushort previousYear, Period newPeriod)
+    {
+      var tickets = GetTicketsByWeekAndYear(previousWeek, previousYear);
+      var newTickets = new List<Ticket>();
+
+      foreach(var ticket in tickets)
+      {
+        var newTicket = CreateNewTicketFromExisting(ticket, newPeriod);
+        if(context.CreateEntity(newTicket))
+          newTickets.Add(newTicket);
+      }
+
+      return newTickets;
+    }
+    private Ticket CreateNewTicketFromExisting(Ticket ticket, Period newPeriod)
+    {
+      var newTicket = new Ticket
+      {
+        TicketId = Guid.NewGuid().ToString(),
+        Serie = ticket.Serie,
+        Bill = ticket.Bill,
+        EmployeeId = ticket.EmployeeId,
+        Employee = ticket.Employee,
+        Total = ticket.Total,
+        Observations = ticket.Observations,
+        PayrollType = ticket.PayrollType,
+        StatusId = ticket.StatusId,
+        Status = ticket.Status,
+        ReceiptOfDate = ticket.ReceiptOfDate,
+        PaymentDate = ticket.PaymentDate,
+        PeriodId = newPeriod.PeriodId,
+        Period = newPeriod,
+        TotalPerceptions = ticket.TotalPerceptions,
+        TotalDeductions = ticket.TotalDeductions
+      };
+
+      CopyTicketPerceptions(ticket, newTicket);
+      CopyTicketDeductions(ticket, newTicket);
+
+      return newTicket;
+    }
+    private void CopyTicketPerceptions(Ticket ticket, Ticket newTicket)
+    {
+      foreach (var perception in ticket.TicketPerceptions)
+      {
+        var newTicketPerception = new TicketPerception
+        {
+          TicketPerceptionId = Guid.NewGuid().ToString(),
+          TicketId = newTicket.TicketId,
+          PerceptionId = perception.PerceptionId,
+          Total = perception.Total,
+          Ticket = newTicket,
+          Perception = perception.Perception
+        };
+
+        newTicket.TicketPerceptions.Add(newTicketPerception);
+        context.Add(newTicketPerception);
+      }
+    }
+    private void CopyTicketDeductions(Ticket ticket, Ticket newTicket)
+    {
+      foreach (var deduction in ticket.TicketDeductions)
+      {
+        var newTicketDeduction = new TicketDeduction
+        {
+          TicketDeductionId = Guid.NewGuid().ToString(),
+          TicketId = newTicket.TicketId,
+          DeductionId = deduction.DeductionId,
+          Total = deduction.Total,
+          Ticket = newTicket,
+          Deduction = deduction.Deduction
+        };
+
+        newTicket.TicketDeductions.Add(newTicketDeduction);
+        context.Add(newTicketDeduction);
+      }
+    }
     private static IQueryable<Ticket> IncludeRelatedEntities(IQueryable<Ticket> query) =>
       query
         .Include(t => t.Employee)

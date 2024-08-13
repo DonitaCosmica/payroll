@@ -24,10 +24,13 @@ namespace API.Controllers
           Department = jp.Department.Name
         }).ToList();
 
+      var columns = jobPositionRepository.GetColumns();
       var result = new
       {
-        Columns = jobPositionRepository.GetColumns(),
-        JobPositions = jobPositions
+        Columns = columns,
+        FormColumns = columns,
+        Data = jobPositions,
+        FormData = jobPositions
       };
 
       return Ok(result);
@@ -49,13 +52,7 @@ namespace API.Controllers
         Department = jobPosition.Department.Name
       };
 
-      var result = new
-      {
-        Columns = jobPositionRepository.GetColumns(),
-        JobPosition = jobPositionDTO
-      };
-
-      return Ok(result);
+      return Ok(jobPositionDTO);
     }
 
     [HttpPost]

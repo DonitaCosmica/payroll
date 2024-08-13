@@ -17,14 +17,9 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<Employee>))]
     public IActionResult GetEmployees()
     {
-      var employees = employeeRepository.GetEmployees()
-        .Select(MapToEmployeeDTORequest).ToList();
-
-      var result = new
-      {
-        Columns = GetEmployeeColumns(),
-        Employees = employees
-      };
+      HashSet<string> columns = [];
+      var employees = employeeRepository.GetEmployees().Select(MapToEmployeeDTORequest);
+      var result = CreateResult(employees, columns);
 
       return Ok(result);
     }
@@ -38,15 +33,8 @@ namespace API.Controllers
       if(!employeeRepository.EmployeeExists(employeeId))
         return NotFound();
 
-      var employee = employeeRepository.GetEmployee(employeeId);
-      var employeeDTO = MapToEmployeeDTORequest(employee);
-      var result = new
-      {
-        Columns = GetEmployeeColumns(),
-        Employee = employeeDTO
-      };
-
-      return Ok(result);
+      var employee = MapToEmployeeDTORequest(employeeRepository.GetEmployee(employeeId));
+      return Ok(employee);
     }
 
     [HttpPost]
@@ -256,8 +244,51 @@ namespace API.Controllers
           {
             ProjectId = ep.ProjectId,
             Value = ep.Project.Name,
-            AssignedDate = ep.AssignedDate.ToString("yyyy-MM-dd")
+            Date = ep.AssignedDate.ToString("yyyy-MM-dd")
           }))
+      };
+    }
+
+    private object CreateResult(IEnumerable<EmployeeDTO> employees, HashSet<string> columns)
+    {
+      var auxEmployees = employees.Select(e => 
+      {
+        var employee = new EmployeeListDTO
+        {
+          EmployeeId = e.EmployeeId,
+          Key = e.Key,
+          Name = e.Name,
+          RFC = e.RFC,
+          CURP = e.CURP,
+          Bank = e.Bank,
+          BankAccount = e.BankAccount,
+          Projects = e.Projects,
+          NSS = e.NSS,
+          DateAdmission = e.DateAdmission,
+          JobPosition = e.JobPosition,
+          Department = e.Department,
+          CommercialArea = e.CommercialArea,
+          BaseSalary = e.BaseSalary,
+          DailySalary = e.DailySalary,
+          Phone = e.Phone,
+          Email = e.Email,
+          Status = e.Status,
+          Company = e.Company,
+        };
+
+        employeeRepository.GetColumnsFromRelatedEntity(employee, columns);
+        return employee;
+      }).ToList();
+
+      var formColumns = employeeRepository.GetColumns();
+      formColumns.Add("Projects");
+
+      return new
+      {
+        Columns = columns,
+        FormColumns = formColumns,
+        Data = auxEmployees,
+        FormData = employees
       };
     }
   }

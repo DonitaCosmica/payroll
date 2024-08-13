@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigationContext } from '../../context/Navigation'
-import { type IDropDownMenu, type FieldConfig } from '../../types'
+import { type IDropDownMenu, type FieldConfig, type DataObject, ListObject } from '../../types'
 import { fieldsConfig } from '../../utils/fields'
 import { FaArrowLeft } from "react-icons/fa"
 import { DropDown } from '../dropdown/DropDown'
@@ -12,9 +12,9 @@ interface Props {
 }
 
 export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
-  const { option, title, formSize, url, data, keys, submitCount, selectedId, toolbarOption, setSubmitCount } = useNavigationContext()
+  const { option, title, formSize, url, data, formData: formDataRes, keys, submitCount, selectedId, toolbarOption, setSubmitCount } = useNavigationContext()
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
-  const formData = useRef<{ [key: string]: string | string[] | boolean | number }>({})
+  const formData = useRef<{ [key: string]: string | string[] | boolean | number | ListObject[] }>({})
 
   useEffect(() => {
     const fetchDropdownData = async (): Promise<void> => {
@@ -29,9 +29,10 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                 : ''
             const res: Response = await fetch(urlToUse)
             const data = await res.json()
-            const dataOptions = Object.keys(data)
+            const dataResponse = Array.isArray(data) ? data : data.formData
+            const dataOptions = Object.keys(dataResponse)
               .filter((key) => key !== 'columns')
-              .map((key) => data[key])
+              .map((key) => dataResponse[key])
               .flat()
             return { [String(id)]: dataOptions }
           } catch (error) {
@@ -48,41 +49,40 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     fetchDropdownData()
   }, [ option ])
 
-  const createObject = (data: (string | number | boolean)[][], keys: string[]): { [key: string]: string | string[] | boolean | number } | null => {
-    const selectedObj = data.find((item: (string | number | boolean)[]) => item[0] === selectedId)
+  const getProperty = (obj: DataObject, key: string) => {
+    const lowerCaseKey = key.toLowerCase()
+    const propertyMap: { [key: string]: string } = Object.keys(obj).reduce((item, originalKey) => {
+      item[originalKey.toLowerCase()] = originalKey
+      return item
+    }, {} as { [key: string]: string });
+  
+    const actualKey = propertyMap[lowerCaseKey]
+    return actualKey ? obj[actualKey] : undefined
+  }
+
+  const createObject = (formDataRes: DataObject[], keys: string[]): { [key: string]: string | string[] | boolean | number | ListObject[] } | null => {
+    const selectedObj = formDataRes.find((item: DataObject) => Object.keys(item).some(key => key.endsWith('Id') && item[key] === selectedId))
     if (!selectedObj) return null
 
-    return keys.slice(1).reduce((obj: { [key: string]: string | string[] | boolean | number }, key: string, index: number) => {
+    return keys.slice(1).reduce((obj: { [key: string]: string | string[] | boolean | number }, key: string) => {
       const auxKey = key.replace(/Id$/i, '')
       const dropDownKey = auxKey.charAt(0).toLowerCase() + auxKey.slice(1)
       const newKey = auxKey.toLowerCase()
-      const value = selectedObj[index + 1]
-      const dropDownDataFound = dropdownData[dropDownKey]?.filter((dropData: IDropDownMenu) => Array.isArray(value) ? value.includes(dropData.name) : dropData.name === value)
-      
-      const newValue = dropDownDataFound 
-        ? dropDownDataFound.length === 1
-          ? dropDownDataFound[0][dropDownKey + 'Id']
-          : dropDownDataFound.map(dataFound => dataFound[dropDownKey.replace(/s$/i, '') + 'Id'])
-        : value
-
-      const finalValue: string | string[] | boolean | number = Array.isArray(newValue)
-        ? newValue.map(val => typeof val === 'string' ? val : String(val)) // Convertir números a strings
-        : (typeof newValue === 'string' || typeof newValue === 'number' || typeof newValue === 'boolean'
-          ? newValue
-          : value)
-
-      return { ...obj, [newKey]: finalValue }
+      const value = getProperty(selectedObj, newKey)
+      const dropDownDataFound = Array.isArray(value) ? value : dropdownData[dropDownKey]?.filter((dropData: IDropDownMenu) => dropData.name === value)      
+      const newValue = dropDownDataFound && dropDownDataFound.length === 1  ? dropDownDataFound[0][dropDownKey + 'Id'] : value
+      return { ...obj, [newKey]: newValue }
     }, {} as { [key: string]: string | string[] | boolean | number })
   }
 
   useEffect(() => {
     if (toolbarOption === 1 && selectedId) {
-      const objectsForm = createObject(data, keys)
+      const objectsForm = createObject(formDataRes, keys)
       if (objectsForm) {
         const initialFormData = Object.keys(objectsForm).reduce((acc, key: string) => {
           acc[key] = objectsForm[key]
           return acc
-        }, {} as { [key: string]: string | number | boolean | string[] })
+        }, {} as { [key: string]: string | number | boolean | string[] | ListObject[] })
         formData.current = initialFormData
       }
     }
@@ -108,6 +108,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     }
 
     const urlToUse: string = selectedId && toolbarOption === 1 ? `${ String(url) }/${ selectedId } ` : String(url)
+    console.log({ data: formData.current })
     try {
       const res: Response = await fetch(urlToUse, requestOptions)
       if (!res.ok) {
@@ -127,8 +128,15 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     setShowForm(false)
   }
 
+  const pluralToSingular = (word: string): string => {
+    if (word.endsWith('ies')) return word.slice(0, -3) + 'y'
+    else if (word.endsWith('es')) return word.slice(0, -2)
+    else if (word.endsWith('s')) return word.slice(0, -1)
+    else return word
+  }
+
   const elements = useMemo(() => {
-    const objectsForm = createObject(data, keys)
+    const objectsForm = createObject(formDataRes, keys)
     return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType }: FieldConfig, index: number) => {
       const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
       const appendCurrentGroup = (group: JSX.Element[]) =>
@@ -146,6 +154,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
         ]
       } else {
         const fieldId = id || `field-${index}`
+        const value = toolbarOption === 1 && objectsForm ? String(objectsForm[String(id.toLowerCase())]) : ''
         const fieldElement = (
           <div key={`${ name }-${ index }-${ id }`} className='field'>
             <label htmlFor={ fieldId }>{ name }</label>
@@ -170,14 +179,15 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                 <DropDown 
                   options={ dropdownData[id ?? ''] } 
                   selectedId={ fieldId }
-                  value={ toolbarOption === 1 && objectsForm ? String(objectsForm[String(id.toLowerCase())]) : '0' }
+                  value={ value }
                   setFormData={ formData } 
                 />
               ) : type === 'multi-option' ? (
                 <MultiDropDown
                   id={ fieldId }
                   options={ dropdownData[id ?? ''] || [] }
-                  value={ toolbarOption === 1 && objectsForm ? (objectsForm[String(id.toLowerCase())] as string[]) : [] }
+                  value={ toolbarOption === 1 && objectsForm ? objectsForm[String(id.toLowerCase())] as ListObject[] : [] }
+                  idKey={ pluralToSingular(id) + 'Id' }
                   setFormData={ formData }
                 />
               ) : type === 'textarea' ? (
@@ -187,7 +197,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   autoComplete='off'
                   placeholder={ label }
                   onChange={ (e) => handleChange(e) }
-                  defaultValue={ toolbarOption === 1 && objectsForm ? String(objectsForm[String(id.toLowerCase())]) : '' }
+                  defaultValue={ value }
                 />
               ) : null}
             </div>

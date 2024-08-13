@@ -1,17 +1,30 @@
 import { ChangeEvent, useState } from 'react'
-import { type IDropDownMenu } from '../../types'
+import { type ListObject, type IDropDownMenu } from '../../types'
 import './DropDown.css'
 
 interface Props {
   options: IDropDownMenu[] | [],
   selectedId: string,
   value: string,
-  setFormData: React.MutableRefObject<{ [key: string]: string | number | boolean | string[] }>
+  setFormData: React.MutableRefObject<{ [key: string]: string | number | boolean | string[] | ListObject[] }>
 }
 
 export const DropDown: React.FC<Props> = ({ options, selectedId, value, setFormData }): JSX.Element => {
   const [selectedValue, setSelectedValue] = useState<string>(value)
-  const sortedOptions = [...options].sort((a, b) => a.name.localeCompare(b.name))
+  const sortedOptions = [...options].sort((a, b) => {
+    const extractNumber = (str: string): number => {
+      const match = str.match(/\d+/)
+      return match ? parseInt(match[0], 10) : NaN
+    }
+
+    const nameA = a.name || ''
+    const nameB = b.name || ''
+    const numA = extractNumber(nameA)
+    const numB = extractNumber(nameB)
+
+    if (!isNaN(numA) && !isNaN(numB)) return numA - numB
+    return nameA.localeCompare(nameB)
+  })
   
   const handleChange = (event: ChangeEvent<HTMLSelectElement>): void => {
     const { id, value } = event.target
