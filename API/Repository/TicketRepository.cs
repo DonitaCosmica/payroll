@@ -158,7 +158,7 @@ namespace API.Repository
       
       return perceptionsRemoved && deductionsRemoved && context.DeleteEntity(ticket);
     }
-    public void GetColumnsFromRelatedEntity(TicketListDTO ticket, HashSet<string> columns) => context.GetColumns(ticket, columns);
+    public void GetColumnsFromRelatedEntity(TicketList ticket, HashSet<string> columns) => context.GetColumns(ticket, columns);
     public List<string> GetColumns() => context.GetColumns<Ticket>();
     public bool TicketExists(string ticketId) => context.Tickets.Any(t => t.TicketId == ticketId);
     private static (ushort currentWeek, ushort currentYear, ushort previousWeek, ushort previousYear) GetWeekAndYearInfo()

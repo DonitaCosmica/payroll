@@ -192,8 +192,7 @@ namespace API.Data
         if(property.PropertyType.IsGenericType
           && typeof(IEnumerable<>).MakeGenericType(property.PropertyType.GetGenericArguments()).IsAssignableFrom(property.PropertyType) 
           && property.PropertyType != typeof(string)
-          && property.Name != "Projects"
-          && property.Name != "AdditionalProperties")
+          && property.Name != "Projects")
         {
           var value = property.GetValue(ticket);
           if (value is IEnumerable<object> relatedEntityList)

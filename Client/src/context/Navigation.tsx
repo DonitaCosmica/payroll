@@ -158,6 +158,41 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
     const getValue = (value: string | number): number | string => 
       typeof value === 'string' ? (isNaN(parseInt(value, 10)) ? value : parseInt(value, 10)) : value
 
+    const toCamelCase = (str: string): string => {
+      return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index: number) =>
+        index === 0 ? match.toLowerCase() : match.toUpperCase()).replace(/\s+/g, '')
+    }
+
+    const transformKeysToCamelCase = (obj: DataObject): DataObject => 
+      Object.keys(obj).reduce((acc: DataObject, key: string) => {
+        const camelCaseKey = toCamelCase(key)
+        acc[camelCaseKey] = obj[key]
+        return acc
+      }, {} as DataObject)
+
+    const reorganizeData = (data: DataObject[]) =>
+      data.map((item: DataObject) => {
+        if ('additionalProperties' in item && item.additionalProperties && typeof item.additionalProperties === 'object') {
+          const { additionalProperties, ...rest } = item
+          const transformedRest = transformKeysToCamelCase(rest)
+          const transformedAdditionalProperties = transformKeysToCamelCase(additionalProperties)
+          const totalIndex = Object.keys(transformedRest).indexOf('total')
+          const result = { ...transformedRest }
+
+          if (totalIndex !== -1) {
+            const beforeTotal = Object.entries(result).slice(0, totalIndex)
+            const afterTotal = Object.entries(result).slice(totalIndex)
+            const reorderResult = Object.fromEntries([...beforeTotal, ...Object.entries(transformedAdditionalProperties), ...afterTotal])
+
+            return reorderResult
+          }
+
+          return { ...transformedRest, ...transformedAdditionalProperties }
+        }
+
+        return transformKeysToCamelCase(item)
+      })
+    
     const loadTranslations = async ({ opt }: { opt: NavigationActionKind }): Promise<Record<string, string>> => {
       try {
         const res: Response = await fetch('/src/data/translations.json')
@@ -193,7 +228,9 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
 
         const columns: string[] = dataResponse.formColumns
         const names: string[] = await translateColumns({ opt: state.option, columnsNames: dataResponse.columns })
-        const newData: DataObject[] = dataResponse.data
+        const data: DataObject[] = dataResponse.data
+        const newData = reorganizeData(data)
+
         if (columns.includes('Code') || columns.includes('Key')) {
           newData.sort((a: DataObject, b: DataObject): number => {
             const aValue = getValue((a['code'] || a['key']) as number)
@@ -208,8 +245,6 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
           })
         }
         const formData: DataObject[] = dataResponse.formData
-
-        console.log({ columns, newData, formData, names })
 
         dispatch({ 
           type: NavigationActionKind.UPDATEDATA, 

@@ -206,7 +206,7 @@ namespace API.Controllers
       HashSet<string> columns = [];
       var auxTickets = tickets.Select(t =>
       {
-        var ticket = new TicketListDTO
+        var ticket = new TicketList
         {
           TicketId = t.TicketId,
           Serie = t.Serie,
@@ -221,26 +221,48 @@ namespace API.Controllers
           Company = t.Company,
           Projects = t.Projects,
           Status = t.Status,
-          /*AdditionalProperties = t.Perceptions
-            .Where(p => p.Value > 0)
-            .ToDictionary(p => p.Name ?? "Unknown Perception", p => (object)p.Value)
-            .Concat(
-              t.Deductions
-                .Where(d => d.Value > 0)
-                .ToDictionary(d => d.Name ?? "Unknown Deduction", d => (object)d.Value)
-            )
-            .ToDictionary(kv => kv.Key, kv => kv.Value)*/
         };
 
         ticketRepository.GetColumnsFromRelatedEntity(ticket, columns);
         return ticket;
       }).ToList();
 
+      var ticketsToSend = auxTickets.Select(auxTicket =>
+      {
+        var additionalProperties = auxTicket.Perceptions
+          .Where(p => p.Value > 0)
+          .ToDictionary(p => p.Name ?? "Unknown Perception", p => (object)p.Value)
+          .Concat(
+            auxTicket.Deductions
+              .Where(d => d.Value > 0)
+              .ToDictionary(d => d.Name ?? "Unknown Deduction", d => (object)d.Value)
+          )
+          .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+        var ticket = new TicketListDTO
+        {
+          TicketId = auxTicket.TicketId,
+          Serie = auxTicket.Serie,
+          Bill = auxTicket.Bill,
+          Employee = auxTicket.Employee,
+          JobPosition = auxTicket.JobPosition,
+          Department = auxTicket.Department,
+          AdditionalProperties = additionalProperties,
+          Total = auxTicket.Total,
+          Observations = auxTicket.Observations,
+          Company = auxTicket.Company,
+          Projects = auxTicket.Projects,
+          Status = auxTicket.Status
+        };
+
+        return ticket;
+      });
+
       return new
       {
         Columns = columns,
         FormColumns = ticketRepository.GetColumns(),
-        Data = auxTickets,
+        Data = ticketsToSend,
         FormData = tickets
       };
     }
