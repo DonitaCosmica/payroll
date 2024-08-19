@@ -15,6 +15,7 @@ builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IFederalEntityRepository, FederalEntityRepository>();
 builder.Services.AddScoped<IJobPositionRepository, JobPositionRepository>();
+builder.Services.AddScoped<IPayrollRepository, PayrollTypeRepository>();
 builder.Services.AddScoped<IPerceptionRepository, PerceptionRepository>();
 builder.Services.AddScoped<IPeriodRepository, PeriodRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
@@ -32,7 +33,8 @@ builder.Services.AddSwaggerGen(c =>
 });
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
 });
 builder.Services.AddAuthorization();
 builder.Services.AddCors(options =>

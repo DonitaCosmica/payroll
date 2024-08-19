@@ -274,6 +274,14 @@ C:\Users\sistemas\Documents\Work\nomina-tamyccc\API\obj\Debug\net8.0\scopedcss\b
 C:\Users\sistemas\Documents\Work\nomina-tamyccc\API\obj\Debug\net8.0\API.genruntimeconfig.cache
 C:\Users\sistemas\Documents\Work\nomina-tamyccc\API\obj\Debug\net8.0\ref\API.dll
 C:\Users\sistemas\Documents\Work\nomina-tamyccc\API\obj\Debug\net8.0\API.csproj.Up2Date
+C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.csproj.AssemblyReference.cache
+C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.AssemblyInfoInputs.cache
+C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.AssemblyInfo.cs
+C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.csproj.CoreCompileInputs.cache
+C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.sourcelink.json
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\appsettings.json
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\API.exe
@@ -325,6 +333,7 @@ C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\System.Memory.Data
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\System.Runtime.Caching.dll
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\System.Security.Permissions.dll
+C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\System.Text.Json.dll
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\System.Windows.Extensions.dll
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.resources.dll
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.resources.dll
@@ -390,14 +399,6 @@ C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\runtimes\win\lib\n
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
-C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.csproj.AssemblyReference.cache
-C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.AssemblyInfoInputs.cache
-C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.AssemblyInfo.cs
-C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.csproj.CoreCompileInputs.cache
-C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.sourcelink.json
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets\msbuild.API.Microsoft.AspNetCore.StaticWebAssets.props
@@ -406,7 +407,7 @@ C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets\ms
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.API.props
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets.pack.json
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\scopedcss\bundle\API.styles.css
-C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.csproj.CopyComplete
+C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.csproj.Up2Date
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.dll
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\refint\API.dll
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.pdb

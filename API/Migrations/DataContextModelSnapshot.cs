@@ -351,6 +351,21 @@ namespace API.Migrations
                     b.ToTable("JobPositions");
                 });
 
+            modelBuilder.Entity("API.Models.Payroll", b =>
+                {
+                    b.Property<string>("PayrollId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("PayrollId");
+
+                    b.ToTable("Payrolls");
+                });
+
             modelBuilder.Entity("API.Models.Perception", b =>
                 {
                     b.Property<string>("PerceptionId")
@@ -498,10 +513,22 @@ namespace API.Migrations
                     b.Property<int>("Bill")
                         .HasColumnType("int");
 
+                    b.Property<string>("Company")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("EmployeeId")
                         .IsRequired()
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("JobPosition")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Observations")
                         .HasColumnType("nvarchar(max)");
@@ -517,6 +544,10 @@ namespace API.Migrations
                         .IsRequired()
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("Projects")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ReceiptOfDate")
                         .HasColumnType("datetime2");

@@ -21,6 +21,7 @@ namespace API.Data
     public virtual DbSet<EmployeeProject> EmployeeProjects { get; set; }
     public virtual DbSet<FederalEntity> FederalEntities { get; set; }
     public virtual DbSet<JobPosition> JobPositions { get; set; }
+    public virtual DbSet<Payroll> Payrolls { get; set; }
     public virtual DbSet<Perception> Perceptions { get; set; }
     public virtual DbSet<Period> Periods { get; set; }
     public virtual DbSet<Project> Projects { get; set; }

@@ -44,6 +44,7 @@ export interface FieldConfig {
   inputType?: 'text' | 'tel' | 'number' | 'email' | 'date' | 'checkbox',
   fetchUrl?: string,
   uriComponent?: string,
+  modify?: boolean,
   id: string
 }
 export interface NavigationState {

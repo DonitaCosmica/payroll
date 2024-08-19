@@ -20,9 +20,17 @@ namespace API.Models
     public string EmployeeId { get; set; } = default!;
     public Employee Employee { get; set; } = new();
     [Required]
+    public string JobPosition { get; set; } = default!;
+    [Required]
+    public string Department { get; set; } = default!;
+    [Required]
     [Range(100, float.MaxValue)]
     public float Total { get; set; }
+    [Required]
+    public string Projects { get; set; } = default!;
     public string? Observations { get; set; }
+    [Required]
+    public string Company { get; set; } = default!;
     [Required]
     public PayrollType PayrollType { get; set; }
     [Required]

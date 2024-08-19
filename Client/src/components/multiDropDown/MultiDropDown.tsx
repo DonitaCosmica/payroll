@@ -3,7 +3,7 @@ import { type ListObject, type IDropDownMenu } from "../../types"
 import './MultiDropDown.css'
 
 interface Props {
-  id: string;
+  id: string
   options: IDropDownMenu[] | []
   value: ListObject[]
   idKey: string
@@ -17,8 +17,18 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, setF
   const [isAllOptionsSelected, setIsAllOptionsSelected] = useState<boolean>(false)
   const [showMenu, setShowMenu] = useState<boolean>(false)
 
+  const getDisplayValue = (item: IDropDownMenu): string =>
+    (item.name ?? item.description ?? "").toString()
+
   const sortedOptions = useMemo(() =>
-    Array.isArray(options) ? [...options].sort((a, b) => a.name.localeCompare(b.name)) : [],
+    Array.isArray(options) ? [...options].sort((a, b) => {
+      if ('name' in a && 'name' in b)
+        return (a.name as string).localeCompare(b.name as string)
+      if ('description' in a && 'description' in b)
+        return (a.description as string).localeCompare(b.description as string)
+
+      return 0
+    }) : [],
     [ options ])
 
   useEffect(() => {
@@ -42,7 +52,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, setF
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const filter = e.target.value.toLowerCase().trim()
-    const filtered = sortedOptions.filter(opt => opt.name.toLowerCase().includes(filter))
+    const filtered = sortedOptions.filter(opt => getDisplayValue(opt).toLowerCase().includes(filter))
     setFilteredOptions(filtered)
   }
 
@@ -57,7 +67,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, setF
       const allSelectedItems = sortedOptions.map(option => {
         const newItem = {
           [idKey]: option[idKey],
-          value: option.name,
+          value: getDisplayValue(option),
         }
   
         Object.keys(option).map(key => {
@@ -85,7 +95,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, setF
       ? selectedItems.filter(p => p[idKey] !== item[idKey])
       : [...selectedItems, {
           [idKey]: item[idKey],
-          value: item.name,
+          value: getDisplayValue(item),
           ...Object.keys(item).reduce((acc, key) => {
             if (isDateKey(key))
               acc[key.toLowerCase().includes('date') ? 'date' : key] = new Date().toISOString().split('T')[0]
@@ -144,7 +154,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, setF
               onClick={() => handleSelectOption(index)}
             >
               <span className={ `multi-select-option-radio ${ isOptionSelected[index] ? 'active' : '' }` }></span>
-              <span className="multi-select-option-text">{ opt.name }</span>
+              <span className="multi-select-option-text">{ getDisplayValue(opt) }</span>
             </div>
           ))}
         </div>

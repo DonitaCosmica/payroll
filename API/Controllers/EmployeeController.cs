@@ -17,9 +17,8 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<Employee>))]
     public IActionResult GetEmployees()
     {
-      HashSet<string> columns = [];
       var employees = employeeRepository.GetEmployees().Select(MapToEmployeeDTORequest);
-      var result = CreateResult(employees, columns);
+      var result = CreateResult(employees);
 
       return Ok(result);
     }
@@ -249,8 +248,9 @@ namespace API.Controllers
       };
     }
 
-    private object CreateResult(IEnumerable<EmployeeDTO> employees, HashSet<string> columns)
+    private object CreateResult(IEnumerable<EmployeeDTO> employees)
     {
+      HashSet<string> columns = [];
       var auxEmployees = employees.Select(e => 
       {
         var employee = new EmployeeListDTO
@@ -282,6 +282,7 @@ namespace API.Controllers
 
       var formColumns = employeeRepository.GetColumns();
       formColumns.Add("Projects");
+      formColumns.Add("Department");
 
       return new
       {

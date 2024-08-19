@@ -72,6 +72,7 @@
   border: 1px solid #575252;
   overflow-x: hidden;
   overflow-y: auto;
+  z-index: 10;
 }
 
 .multi-select-options #search-option {

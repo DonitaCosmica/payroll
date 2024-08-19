@@ -10,5 +10,6 @@ namespace API.Helpers
     public Department Department { get; set; } = new();
     public Status Status { get; set; } = new();
     public Period Period { get; set; } = new();
+    public HashSet<Project> Projects { get; set; } = [];
   }
 }

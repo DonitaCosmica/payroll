@@ -70,6 +70,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
       const newKey = auxKey.toLowerCase()
       const value = getProperty(selectedObj, newKey)
       const dropDownDataFound = Array.isArray(value) ? value : dropdownData[dropDownKey]?.filter((dropData: IDropDownMenu) => dropData.name === value)      
+      console.log({ auxKey, dropDownKey, newKey, value, dropDownDataFound, keys })
       const newValue = dropDownDataFound && dropDownDataFound.length === 1  ? dropDownDataFound[0][dropDownKey + 'Id'] : value
       return { ...obj, [newKey]: newValue }
     }, {} as { [key: string]: string | string[] | boolean | number })
@@ -137,7 +138,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
 
   const elements = useMemo(() => {
     const objectsForm = createObject(formDataRes, keys)
-    return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType }: FieldConfig, index: number) => {
+    return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType, modify }: FieldConfig, index: number) => {
       const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
       const appendCurrentGroup = (group: JSX.Element[]) =>
         group.length > 0 ? [...acc.slice(0, -1), <div key={ `input-group-${ index }` } className='input-group'>{ group }</div>] : acc
@@ -168,7 +169,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   autoComplete='off'
                   onChange={ (e) => handleChange(e) }
                   defaultValue={ toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : '' }
-                  readOnly={ objectsForm && id.toLowerCase() === 'department' ? true : undefined }
+                  readOnly={ modify ? undefined : true }
                   checked={ toolbarOption === 1 
                     && objectsForm 
                     && typeof objectsForm[String(id.toLocaleLowerCase())] === 'boolean' 

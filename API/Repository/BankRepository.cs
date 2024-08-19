@@ -10,7 +10,7 @@ namespace API.Repository
   
     public ICollection<Bank> GetBanks() => context.Banks.ToList();
     public Bank GetBank(string bankId) =>
-      context.Banks.Where(b => b.BankId == bankId).FirstOrDefault() ?? 
+      context.Banks.FirstOrDefault(b => b.BankId == bankId) ?? 
       throw new Exception("No Bank with the specified id was found.");
     public Bank? GetBankByName(string bankName) => context.GetEntityByName<Bank>(bankName);
     public bool CreateBank(Bank bank) => context.CreateEntity(bank);

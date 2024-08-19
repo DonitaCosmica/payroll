@@ -31,9 +31,7 @@ namespace API.Repository
       return newTickets;
     }
     public ICollection<Ticket> GetTicketsByWeekAndYear(ushort week, ushort year) =>
-      IncludeRelatedEntities(context.Tickets)
-        .Where(t => t.Period.Week == week && t.Period.Year == year)
-        .ToList();
+      [.. IncludeRelatedEntities(context.Tickets).Where(t => t.Period.Week == week && t.Period.Year == year)];
     public Ticket GetTicket(string ticketId) => 
       IncludeRelatedEntities(context.Tickets).FirstOrDefault(t => t.TicketId == ticketId)
       ?? throw new Exception("No Ticket with the specified id was found");
@@ -56,7 +54,11 @@ namespace API.Repository
           JobPosition = jp,
           Department = d,
           Status = s,
-          Period = pr1
+          Period = pr1,
+          Projects = (from ep in context.EmployeeProjects
+            join p in context.Projects on ep.ProjectId equals p.ProjectId
+            where ep.EmployeeId == e.EmployeeId
+            select p).ToHashSet()
         }).FirstOrDefault();
     public bool CreateTicket(HashSet<TicketPerceptionRelatedEntities> perceptions, 
       HashSet<TicketDeductionRelatedEntities> deductions, Ticket ticket)
@@ -167,13 +169,12 @@ namespace API.Repository
       CultureInfo culture = new("es-MX");
       Calendar calendar = culture.Calendar;
       DateTime startOfWeek = today.AddDays(-(int)today.DayOfWeek + (int)DayOfWeek.Monday);
-      DateTime startOfPreviousWeek = startOfWeek.AddDays(-8);
+      DateTime startOfPreviousWeek = startOfWeek.AddDays(-7);
 
       ushort currentWeek = (ushort)calendar.GetWeekOfYear(today, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
       ushort currentYear = (ushort)today.Year;
       ushort previousWeek = (ushort)calendar.GetWeekOfYear(startOfPreviousWeek, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
       ushort previousYear = (ushort)startOfPreviousWeek.Year;
-
       if (previousWeek > currentWeek && previousYear == currentYear)
         previousYear--;
 
@@ -212,8 +213,12 @@ namespace API.Repository
         Bill = ticket.Bill,
         EmployeeId = ticket.EmployeeId,
         Employee = ticket.Employee,
+        JobPosition = ticket.JobPosition,
+        Department = ticket.Department,
         Total = ticket.Total,
+        Projects = ticket.Projects,
         Observations = ticket.Observations,
+        Company = ticket.Company,
         PayrollType = ticket.PayrollType,
         StatusId = ticket.StatusId,
         Status = ticket.Status,
@@ -243,6 +248,8 @@ namespace API.Repository
           Ticket = newTicket,
           Perception = perception.Perception
         };
+
+        System.Console.WriteLine($"");
 
         newTicket.TicketPerceptions.Add(newTicketPerception);
         context.Add(newTicketPerception);

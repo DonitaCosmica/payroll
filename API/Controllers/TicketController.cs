@@ -118,8 +118,18 @@ namespace API.Controllers
         Bill = createTicket.Bill,
         EmployeeId = createTicket.Employee,
         Employee = relatedEntities.Employee,
+        JobPosition = relatedEntities.JobPosition.Name,
+        Department = relatedEntities.Department.Name,
         Total = createTicket.Total,
+        Projects = string.Join(", ", relatedEntities.Projects
+          .OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
+          .ThenBy(p => {
+            var number = new string(p.Name.Where(char.IsDigit).ToArray());
+            return int.TryParse(number, out int result) ? result : 0;
+          })
+          .Select(p => p.Name)),
         Observations = createTicket.Observations,
+        Company = relatedEntities.Company.Name,
         PayrollType = payrollType,
         StatusId = createTicket.Status,
         Status = relatedEntities.Status,
@@ -164,22 +174,16 @@ namespace API.Controllers
         Serie = ticket.Serie,
         Bill = ticket.Bill,
         Employee = ticket.Employee.Name,
-        JobPosition = ticket.Employee.JobPosition.Name,
-        Department = ticket.Employee.JobPosition.Department.Name,
+        JobPosition = ticket.JobPosition,
+        Department = ticket.Department,
+        Status = ticket.Status.Name,
         Total = ticket.Total,
+        Company = ticket.Company,
+        Projects = ticket.Projects,
         Observations = ticket.Observations,
         ReceiptOfDate = ticket.ReceiptOfDate.ToString("yyyy-MM-dd"),
         PaymentDate = ticket.PaymentDate.ToString("yyyy-MM-dd"),
-        Company = ticket.Employee.Company.Name,
-        Projects = new HashSet<EmployeeProjectRelatedEntities>(ticket.Employee.EmployeeProjects.Select(ep =>
-          new EmployeeProjectRelatedEntities
-          {
-            ProjectId = ep.ProjectId,
-            Value = ep.Project.Name,
-            Date = ep.AssignedDate.ToString("yyyy-MM-dd")
-          })),
         PayrollType = ticket.PayrollType.ToString(),
-        Status = ticket.Status.Name,
         Week = ticket.Period.Week,
         Year = ticket.Period.Year,
         Perceptions = new HashSet<TicketPerceptionRelatedEntities>(ticket.TicketPerceptions.Select(p => 
@@ -216,11 +220,11 @@ namespace API.Controllers
           Department = t.Department,
           Perceptions = t.Perceptions,
           Deductions = t.Deductions,
+          Status = t.Status,
           Total = t.Total,
-          Observations = t.Observations,
           Company = t.Company,
           Projects = t.Projects,
-          Status = t.Status,
+          Observations = t.Observations
         };
 
         ticketRepository.GetColumnsFromRelatedEntity(ticket, columns);
@@ -248,11 +252,11 @@ namespace API.Controllers
           JobPosition = auxTicket.JobPosition,
           Department = auxTicket.Department,
           AdditionalProperties = additionalProperties,
+          Status = auxTicket.Status,
           Total = auxTicket.Total,
-          Observations = auxTicket.Observations,
           Company = auxTicket.Company,
           Projects = auxTicket.Projects,
-          Status = auxTicket.Status
+          Observations = auxTicket.Observations
         };
 
         return ticket;
