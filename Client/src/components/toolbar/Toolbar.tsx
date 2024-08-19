@@ -50,9 +50,7 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm }): JSX.
 
   const deleteResource = async (): Promise<void> => {
     if (!selectedId) return
-    const requestOptions: { method: string } = {
-      method: 'DELETE'
-    }
+    const requestOptions = { method: 'DELETE' }
 
     try {
       const res: Response = await fetch(`${url}/${selectedId}`, requestOptions)

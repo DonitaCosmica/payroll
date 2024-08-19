@@ -8,6 +8,8 @@ namespace API.Models
     [MaxLength(36)]
     public string BankId { get; set; } = default!;
     [Required]
+    public string Code { get; set; } = default!;
+    [Required]
     [MaxLength(20)]
     public string Name { get; set; } = default!;
     public ICollection<Employee> Employees { get; set; } = [];

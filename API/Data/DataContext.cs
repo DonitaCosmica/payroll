@@ -34,6 +34,8 @@ namespace API.Data
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+      modelBuilder.UseCollation("Latin1_General_CI_AS");
+
       modelBuilder.Entity<Status>()
         .Property(s => s.StatusType)
         .HasConversion(v => v.ToString(), v => (StatusType)Enum.Parse(typeof(StatusType), v));

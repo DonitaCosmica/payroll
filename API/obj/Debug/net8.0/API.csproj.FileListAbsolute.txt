@@ -333,7 +333,6 @@ C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\System.Memory.Data
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\System.Runtime.Caching.dll
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\System.Security.Permissions.dll
-C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\System.Text.Json.dll
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\System.Windows.Extensions.dll
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\cs\Microsoft.CodeAnalysis.resources.dll
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\de\Microsoft.CodeAnalysis.resources.dll
@@ -407,9 +406,9 @@ C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets\ms
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.API.props
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets.pack.json
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\scopedcss\bundle\API.styles.css
-C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.csproj.Up2Date
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.dll
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\refint\API.dll
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.pdb
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.genruntimeconfig.cache
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\ref\API.dll
+C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.csproj.CopyComplete

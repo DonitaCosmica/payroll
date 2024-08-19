@@ -7,24 +7,19 @@ import { FaCheck } from "react-icons/fa"
 import './DropMenuDates.css'
 
 export const DropMenuDates = ({  }): JSX.Element => {
+  const ICONS = [...ICON_OPTIONS.common, { label: 'Enviar', icon: <FaCheck fontSize='1rem' color='#73ba69' /> }]
   const { years, dates, selectedPeriod, setActionType } = usePeriodContext()
   const [showOptionsPeriod, setShowOptionsPeriod] = useState<boolean>(false)
   const selectedOption = useRef<number>(-1)
   const period = useRef<IWeekYear>({ week: 0, year: 0 })
 
-  useEffect(() => {
-    if (!ICON_OPTIONS.common.some(icon => Object.values(icon).includes('Enviar')))
-      ICON_OPTIONS.common.push({ label: 'Enviar', icon: <FaCheck fontSize='1rem' color='#73ba69' /> })
-    setActionType('FETCH_DATA')
-  }, [])
+  useEffect(() => { setActionType('FETCH_DATA') }, [])
 
   const getWeekNumber = (date: Date): number => {
-    const currentDate = (typeof date === 'object') ? date : new Date()
+    const currentDate = date || new Date()
     const januaryFirst = new Date(currentDate.getFullYear(), 0, 1)
-    const daysToNextMonday = (januaryFirst.getDay() === 1) ? 0 :
-      (7 - januaryFirst.getDay()) % 7
+    const daysToNextMonday = (januaryFirst.getDay() === 1) ? 0 : (7 - januaryFirst.getDay()) % 7
     const nextMonday = new Date(currentDate.getFullYear(), 0, januaryFirst.getDate() + daysToNextMonday)
-  
     return (currentDate < nextMonday) ? 52 :
       (currentDate > nextMonday ? Math.ceil((currentDate.getTime() - nextMonday.getTime()) / (24 * 3600 * 1000) / 7) : 1)
   }
@@ -40,20 +35,23 @@ export const DropMenuDates = ({  }): JSX.Element => {
     const yearStr = targetMonday.getFullYear()
     const monthStr = String(targetMonday.getMonth() + 1).padStart(2, '0')
     const dayStr = String(targetMonday.getDate()).padStart(2, '0')
-    
     return `${yearStr}-${monthStr}-${dayStr}`
 }
 
   const handleForm = async (e: React.MouseEvent<HTMLDivElement>, index: number): Promise<void> => {
     e.stopPropagation()
-    const isInvalidSelection = (index === 1 || index === 2) && !selectedPeriod.periodId
-    if (isInvalidSelection) return
-    if (index === 3) {
-      await handleSubmit()
-      return
-    }
+    if ((index === 1 || index === 2) && !selectedPeriod.periodId) return
 
-    (index === 2) ? await deletePeriod() : showFormAndSetOption(index)
+    switch (index) {
+      case 2: 
+        await deletePeriod()
+        break
+      case 3: 
+        await handleSubmit()
+        break
+      default:
+        showFormAndSetOption(index)
+    }
   }
 
   const showFormAndSetOption = (index: number): void => {
@@ -64,9 +62,7 @@ export const DropMenuDates = ({  }): JSX.Element => {
   const handleSubmit = async (): Promise<void> => {
     const requestOptions = {
       method: period.current.periodId && selectedOption.current === 1 ? 'PATCH' : 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(period.current)
     }
 
@@ -90,9 +86,7 @@ export const DropMenuDates = ({  }): JSX.Element => {
 
   const deletePeriod = async (): Promise<void> => {
     if (!selectedPeriod.periodId) return
-    const requestOptions: { method: string } = {
-      method: 'DELETE'
-    }
+    const requestOptions = { method: 'DELETE' }
 
     try {
       const res: Response = await fetch(`http://localhost:5239/api/Period/${ selectedPeriod.periodId }`, requestOptions)
@@ -108,10 +102,12 @@ export const DropMenuDates = ({  }): JSX.Element => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     e.stopPropagation()
+
+    const selectedDate = new Date(e.target.value)
     period.current = {
       periodId: selectedPeriod.periodId,
-      week: getWeekNumber(new Date(e.target.value)), 
-      year: new Date(e.target.value).getFullYear()
+      week: getWeekNumber(selectedDate), 
+      year: selectedDate.getFullYear()
     }
   }
   
@@ -120,7 +116,7 @@ export const DropMenuDates = ({  }): JSX.Element => {
       <div className='title-menu'>
         <p>Seleccionar Periodo</p>
         <div className='title-menu-options'>
-          {ICON_OPTIONS.common.map((iconOption: IconDefinition, index: number) => (
+          {ICONS.map((iconOption: IconDefinition, index: number) => (
             <div
               key={ iconOption.label }
               className='title-menu-option-box'
