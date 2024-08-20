@@ -138,7 +138,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
 
   const elements = useMemo(() => {
     const objectsForm = createObject(formDataRes, keys)
-    return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType, modify }: FieldConfig, index: number) => {
+    return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType, modify, amount }: FieldConfig, index: number) => {
       const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
       const appendCurrentGroup = (group: JSX.Element[]) =>
         group.length > 0 ? [...acc.slice(0, -1), <div key={ `input-group-${ index }` } className='input-group'>{ group }</div>] : acc
@@ -189,6 +189,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   options={ dropdownData[id ?? ''] || [] }
                   value={ toolbarOption === 1 && objectsForm ? objectsForm[String(id.toLowerCase())] as ListObject[] : [] }
                   idKey={ pluralToSingular(id) + 'Id' }
+                  showAmount={ amount ?? false }
                   setFormData={ formData }
                 />
               ) : type === 'textarea' ? (

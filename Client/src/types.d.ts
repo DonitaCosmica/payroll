@@ -10,7 +10,7 @@ export interface IDataResponse {
   formColumns: string[]
 }
 export interface ListObject {
-  value: string | number,
+  name: string | number,
   [key: string]: string | number
 }
 export interface IMenuState {
@@ -45,6 +45,7 @@ export interface FieldConfig {
   fetchUrl?: string,
   uriComponent?: string,
   modify?: boolean,
+  amount?: boolean,
   id: string
 }
 export interface NavigationState {

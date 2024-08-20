@@ -242,7 +242,7 @@ namespace API.Controllers
           new EmployeeProjectRelatedEntities
           {
             ProjectId = ep.ProjectId,
-            Value = ep.Project.Name,
+            Name = ep.Project.Name,
             Date = ep.AssignedDate.ToString("yyyy-MM-dd")
           }))
       };

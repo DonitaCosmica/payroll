@@ -3,14 +3,15 @@ import { type ListObject, type IDropDownMenu } from "../../types"
 import './MultiDropDown.css'
 
 interface Props {
-  id: string
-  options: IDropDownMenu[] | []
-  value: ListObject[]
-  idKey: string
+  id: string,
+  options: IDropDownMenu[] | [],
+  value: ListObject[],
+  idKey: string,
+  showAmount: boolean,
   setFormData: React.MutableRefObject<{ [key: string]: string | number | boolean | string[] | ListObject[] }>
 }
 
-export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, setFormData }): JSX.Element => {
+export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, showAmount, setFormData }): JSX.Element => {
   const [filteredOptions, setFilteredOptions] = useState<IDropDownMenu[]>([])
   const [isOptionSelected, setIsOptionSelected] = useState<boolean[]>([])
   const [selectedItems, setSelectedItems] = useState<ListObject[]>([])
@@ -36,7 +37,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, setF
     const selectedIdsSet = new Set(value.map(v => v[idKey] as string))
     const updatedIsOptionSelected = selectedIds.map(id => selectedIdsSet.has(id))
     const allSelected = selectedIds.every(id => selectedIdsSet.has(id))
-    const sortValues = value.sort((a, b) => (a.value as string).localeCompare(b.value as string))
+    const sortValues = value.sort((a, b) => (a.name as string).localeCompare(b.name as string))
 
     setIsOptionSelected(updatedIsOptionSelected)
     setSelectedItems(sortValues)
@@ -67,7 +68,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, setF
       const allSelectedItems = sortedOptions.map(option => {
         const newItem = {
           [idKey]: option[idKey],
-          value: getDisplayValue(option),
+          name: getDisplayValue(option),
         }
   
         Object.keys(option).map(key => {
@@ -95,15 +96,17 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, setF
       ? selectedItems.filter(p => p[idKey] !== item[idKey])
       : [...selectedItems, {
           [idKey]: item[idKey],
-          value: getDisplayValue(item),
+          name: getDisplayValue(item),
           ...Object.keys(item).reduce((acc, key) => {
             if (isDateKey(key))
               acc[key.toLowerCase().includes('date') ? 'date' : key] = new Date().toISOString().split('T')[0]
+            else
+              acc['value'] = 0
             return acc
           }, {} as Record<string, string | number>)
         }]
 
-    const sortValues = newSelectedItems.sort((a, b) => (a.value as string).localeCompare(b.value as string))
+    const sortValues = newSelectedItems.sort((a, b) => (a.name as string).localeCompare(b.name as string))
     newIsOptionSelected[index] = !isSelected
 
     setIsOptionSelected(newIsOptionSelected)
@@ -113,6 +116,8 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, setF
     const allSelected = newIsOptionSelected.every(selected => selected)
   setIsAllOptionsSelected(allSelected)
   }
+
+  console.log({ selectedItems })
 
   return (
     <div className="multi-select" role="listbox" aria-labelledby="items-label">
@@ -124,7 +129,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, setF
           <div className="multi-select-header-option-box">
             {selectedItems.map((item: ListObject) => (
               <span key={ `values-${ item[idKey] as string }` } className="multi-select-header-option" aria-selected="false">
-                { item.value }
+                { item.name }
               </span>
             ))}
           </div>
@@ -145,16 +150,39 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, setF
           />
           <div className="multi-select-all" onClick={handleSelectAllOptions}>
             <span className={ `multi-select-option-radio ${ isAllOptionsSelected ? 'active' : '' }` }></span>
-            <span className="multi-select-option-text">Seleccionar todos</span>
+            <div className="multi-select-option-text" style={{ width: '92.5%' }}>
+              <span>Seleccionar todos</span>
+            </div>
           </div>
           {filteredOptions.map((opt: IDropDownMenu, index: number) => (
             <div
               key={`option-${ index }-${ opt[idKey] }`}
               className="multi-select-option"
-              onClick={() => handleSelectOption(index)}
             >
-              <span className={ `multi-select-option-radio ${ isOptionSelected[index] ? 'active' : '' }` }></span>
-              <span className="multi-select-option-text">{ getDisplayValue(opt) }</span>
+              <span className={ `multi-select-option-radio ${ isOptionSelected[index] ? 'active' : '' }` }
+                onClick={() => handleSelectOption(index)}></span>
+              <div className="multi-select-option-text" style={{ width: showAmount && isOptionSelected[index] ? '50%' : '92.5%' }}>
+                <span>{ getDisplayValue(opt) }</span>
+              </div>
+              {showAmount && isOptionSelected[index] && <div className="multi-select-option-amount">
+                <span
+                  contentEditable={ true }
+                  suppressContentEditableWarning={ true }
+                  onInput={(e) => {
+                    const newValue = e.currentTarget.textContent || ""
+                    setSelectedItems(prevItems =>
+                      prevItems.map(item =>
+                        item[idKey] === opt[idKey]
+                          ? { ...item, value: newValue }
+                          : item
+                      )
+                    );
+                    updateFormData(selectedItems);
+                  }}
+                >
+                  {selectedItems.find(item => item[idKey] === opt[idKey])?.value || '$0.00'}
+                </span>
+              </div>}
             </div>
           ))}
         </div>
