@@ -74,7 +74,7 @@ export interface NavigationAction {
     formData?: DataObject[],
     formColumns?: string[],
     names?: string[]
-  } 
+  }
 }
 export interface IFilterPeriod {
   periods: IPeriod[],

@@ -111,14 +111,14 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     const urlToUse: string = selectedId && toolbarOption === 1 ? `${ String(url) }/${ selectedId } ` : String(url)
     console.log({ data: formData.current })
     try {
-      const res: Response = await fetch(urlToUse, requestOptions)
+      /*const res: Response = await fetch(urlToUse, requestOptions)
       if (!res.ok) {
         const errorData = await res.json()
         console.error('Request error: ', errorData)
       } else {
         setShowForm(false)
         setSubmitCount(submitCount + 1)
-      }
+      }*/
     } catch (error) {
       console.error('Request error: ', error)
     }
@@ -169,7 +169,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   autoComplete='off'
                   onChange={ (e) => handleChange(e) }
                   defaultValue={ toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : '' }
-                  readOnly={ modify ? undefined : true }
+                  //readOnly={ modify ? undefined : true }
                   checked={ toolbarOption === 1 
                     && objectsForm 
                     && typeof objectsForm[String(id.toLocaleLowerCase())] === 'boolean' 

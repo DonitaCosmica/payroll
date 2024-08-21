@@ -184,8 +184,6 @@ namespace API.Controllers
         ReceiptOfDate = ticket.ReceiptOfDate.ToString("yyyy-MM-dd"),
         PaymentDate = ticket.PaymentDate.ToString("yyyy-MM-dd"),
         PayrollType = ticket.PayrollType.ToString(),
-        Week = ticket.Period.Week,
-        Year = ticket.Period.Year,
         Perceptions = new HashSet<TicketPerceptionRelatedEntities>(ticket.TicketPerceptions.Select(p => 
           new TicketPerceptionRelatedEntities
           {

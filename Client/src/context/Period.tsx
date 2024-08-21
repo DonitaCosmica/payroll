@@ -82,8 +82,7 @@ export const PeriodProvider: React.FC<Props> = ({ children }) => {
     const getWeekNumber = (date: Date): number => {
       const currentDate = (typeof date === 'object') ? date : new Date()
       const januaryFirst = new Date(currentDate.getFullYear(), 0, 1)
-      const daysToNextMonday = (januaryFirst.getDay() === 1) ? 0 :
-        (7 - januaryFirst.getDay()) % 7
+      const daysToNextMonday = (januaryFirst.getDay() === 1) ? 0 : (7 - januaryFirst.getDay()) % 7
       const nextMonday = new Date(currentDate.getFullYear(), 0, januaryFirst.getDate() + daysToNextMonday)
     
       return (currentDate < nextMonday) ? 52 :
@@ -111,6 +110,8 @@ export const PeriodProvider: React.FC<Props> = ({ children }) => {
         
         const periods: IWeekYear[][] = createYearlyPeriodArray(data)
         periods.map(period => period.sort((a, b) => a.week - b.week))
+        console.log({ data })
+        //periods.filter(period => console.log({period}))
         dispatch({ type: "SET_DATES", payload: { years: data.years, dates: periods } })
       } catch (error) {
         console.error(error)
