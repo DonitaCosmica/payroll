@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigationContext } from '../../context/Navigation'
+import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
+import { usePeriodContext } from '../../context/Period'
 import { type IDropDownMenu, type FieldConfig, type DataObject, ListObject } from '../../types'
 import { fieldsConfig } from '../../utils/fields'
 import { FaArrowLeft } from "react-icons/fa"
@@ -13,6 +14,7 @@ interface Props {
 
 export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const { option, title, formSize, url, data, formData: formDataRes, keys, submitCount, selectedId, toolbarOption, setSubmitCount } = useNavigationContext()
+  const { selectedPeriod } = usePeriodContext()
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
   const formData = useRef<{ [key: string]: string | string[] | boolean | number | ListObject[] }>({})
 
@@ -100,6 +102,13 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
 
   const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
+
+    if (option === NavigationActionKind.PAYROLLRECEIPTS && selectedPeriod.periodId)
+      formData.current = {
+        ...formData.current,
+        period: selectedPeriod.periodId
+      }
+
     const requestOptions = {
        method: selectedId && toolbarOption === 1 ? 'PATCH' : 'POST',
        headers: {
@@ -111,14 +120,14 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     const urlToUse: string = selectedId && toolbarOption === 1 ? `${ String(url) }/${ selectedId } ` : String(url)
     console.log({ data: formData.current })
     try {
-      /*const res: Response = await fetch(urlToUse, requestOptions)
+      const res: Response = await fetch(urlToUse, requestOptions)
       if (!res.ok) {
         const errorData = await res.json()
         console.error('Request error: ', errorData)
       } else {
         setShowForm(false)
         setSubmitCount(submitCount + 1)
-      }*/
+      }
     } catch (error) {
       console.error('Request error: ', error)
     }

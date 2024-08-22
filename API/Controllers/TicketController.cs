@@ -111,6 +111,9 @@ namespace API.Controllers
       if(string.IsNullOrEmpty(createTicket.PayrollType) || !TryConvertToStatusType(createTicket.PayrollType, out PayrollType payrollType))
         payrollType = PayrollType.Error;
 
+      float totalPerceptions = createTicket.Perceptions.Sum(p => p.Value);
+      float totalDeductions = createTicket.Deductions.Sum(d => d.Value);
+
       return new()
       {
         TicketId = Guid.NewGuid().ToString(),
@@ -120,7 +123,7 @@ namespace API.Controllers
         Employee = relatedEntities.Employee,
         JobPosition = relatedEntities.JobPosition.Name,
         Department = relatedEntities.Department.Name,
-        Total = createTicket.Total,
+        Total = totalPerceptions - totalDeductions,
         Projects = string.Join(", ", relatedEntities.Projects
           .OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
           .ThenBy(p => {
@@ -137,8 +140,8 @@ namespace API.Controllers
         PaymentDate = DateTime.ParseExact(createTicket.PaymentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture),
         PeriodId = relatedEntities.Period.PeriodId,
         Period = relatedEntities.Period,
-        TotalPerceptions = createTicket.Perceptions.Sum(p => p.Value),
-        TotalDeductions = createTicket.Deductions.Sum(d => d.Value)
+        TotalPerceptions = totalPerceptions,
+        TotalDeductions = totalDeductions
       };
     }
 

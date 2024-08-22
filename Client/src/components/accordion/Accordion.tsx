@@ -19,7 +19,7 @@ export const Accordion: React.FC<Props> = ({ year, period }) => {
     Array.isArray(period) ? [...period].sort((a, b) => b.week - a.week) : [],
     [ period ])
 
-  useEffect(() => setActionType('SET_PERIOD'), [ setActionType ])
+  useEffect(() => setActionType('NONE'), [ setActionType ])
 
   const handleCollapsed = (event: React.MouseEvent<HTMLLIElement>): void => {
     event.stopPropagation();

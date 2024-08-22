@@ -12,6 +12,7 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
     { type: 'dropmenu', name: 'Empleado', fetchUrl: 'http://localhost:5239/api/Employee', id: 'employee' },
     { type: 'multi-option', name: 'Percepciones', fetchUrl: 'http://localhost:5239/api/Perception', amount: true, id: 'perceptions' },
     { type: 'multi-option', name: 'Deducciones', fetchUrl: 'http://localhost:5239/api/Deduction', amount: true, id: 'deductions' },
+    { type: 'textarea', name: 'Observaciones', label: 'Observaciones...', id: 'observations' }
   ],
   [NavigationActionKind.EMPLOYEES]: [
     { type: 'section', name: 'Datos Generales', id: 'general-data' },

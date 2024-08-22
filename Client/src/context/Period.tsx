@@ -14,7 +14,7 @@ type PeriodAction =
   | { type: 'SET_ERROR', payload: boolean | null }
 
 interface PeriodContextType extends PeriodState {
-  setActionType: React.Dispatch<React.SetStateAction<'FETCH_DATA' | 'SET_PERIOD' | 'NONE'>>,
+  setActionType: React.Dispatch<React.SetStateAction<'FETCH_DATA' | 'NONE'>>,
   dispatch: React.Dispatch<PeriodAction>
 }
 
@@ -76,7 +76,7 @@ const periodReducer = (state: PeriodState, action: PeriodAction): PeriodState =>
 
 export const PeriodProvider: React.FC<Props> = ({ children }) => {
   const [state, dispatch] = useReducer(periodReducer, INITIAL_STATE)
-  const [actionType, setActionType] = useState<'FETCH_DATA' | 'SET_PERIOD' | 'NONE'>('SET_PERIOD')
+  const [actionType, setActionType] = useState<'FETCH_DATA' | 'NONE'>('FETCH_DATA')
 
   useEffect(() => {
     const getWeekNumber = (date: Date): number => {
@@ -110,9 +110,18 @@ export const PeriodProvider: React.FC<Props> = ({ children }) => {
         
         const periods: IWeekYear[][] = createYearlyPeriodArray(data)
         periods.map(period => period.sort((a, b) => a.week - b.week))
-        console.log({ data })
-        //periods.filter(period => console.log({period}))
         dispatch({ type: "SET_DATES", payload: { years: data.years, dates: periods } })
+      
+        const today = new Date()
+        const week = getWeekNumber(today)
+        const year = today.getFullYear()
+        const currentPeriod = periods.flat()
+          .find(period => period.week === week && period.year === year)
+
+        dispatch({
+          type: 'SET_WEEK',
+          payload: { periodId: currentPeriod?.periodId, week, year }
+        })
       } catch (error) {
         console.error(error)
         dispatch({ type: "SET_ERROR", payload: true })
@@ -121,21 +130,7 @@ export const PeriodProvider: React.FC<Props> = ({ children }) => {
       }
     }
 
-    const setPeriod = (): void => {
-      if (state.selectedPeriod.week === 0) {
-        const today = new Date()
-        dispatch({
-          type: 'SET_WEEK',
-          payload: { week: getWeekNumber(today), year: today.getFullYear() }
-        })
-        setActionType('NONE')
-      }
-    }
-
     switch (actionType) {
-      case 'SET_PERIOD':
-        setPeriod()
-        break
       case 'FETCH_DATA':
         fetchData()
         break

@@ -17,8 +17,6 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
   const [isAllOptionsSelected, setIsAllOptionsSelected] = useState<boolean>(false)
   const [showMenu, setShowMenu] = useState<boolean>(false)
   const selectedItemsRef = useRef<ListObject[]>([])
-
-  console.log({ options })
   
   const getDisplayValue = useCallback((item: IDropDownMenu): string =>
     (item.name ?? item.description ?? "").toString(), [])
