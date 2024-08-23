@@ -75,6 +75,8 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
         Object.keys(option).forEach(key => {
           if (isDateKey(key))
             newItem[key] = new Date().toISOString().split('T')[0]
+          else 
+            newItem['value'] = 0
         })
 
         return newItem

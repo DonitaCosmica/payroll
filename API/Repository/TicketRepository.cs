@@ -41,9 +41,11 @@ namespace API.Repository
         join jp in context.JobPositions on e.JobPositionId equals jp.JobPositionId
         join d in context.Departments on jp.DepartmentId equals d.DepartmentId
         join s in context.Statuses on ticketDTO.Status equals s.StatusId
+        join pa in context.Payrolls on ticketDTO.PayrollType equals pa.PayrollId
         join pr in context.Periods on ticketDTO.Period equals pr.PeriodId
         where ticketDTO.Employee == e.EmployeeId &&
           ticketDTO.Status == s.StatusId &&
+          ticketDTO.PayrollType == pa.PayrollId &&
           ticketDTO.Period == pr.PeriodId
         select new TicketRelatedEntities
         {
@@ -52,6 +54,7 @@ namespace API.Repository
           JobPosition = jp,
           Department = d,
           Status = s,
+          Payroll = pa,
           Period = pr,
           Projects = (from ep in context.EmployeeProjects
             join p in context.Projects on ep.ProjectId equals p.ProjectId

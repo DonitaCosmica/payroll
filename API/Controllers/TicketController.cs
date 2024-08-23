@@ -18,8 +18,8 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<TicketDTO>))]
     public IActionResult GetTickets()
     {
-      var tickets = ticketRepository.GetTickets().Select(MapToTicketDTORequest);
-      var result = CreateResult(tickets);
+      IEnumerable<TicketDTO> tickets = ticketRepository.GetTickets().Select(MapToTicketDTORequest);
+      object result = CreateResult(tickets);
 
       return Ok(result);
     }
@@ -28,8 +28,8 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<TicketDTO>))]
     public IActionResult GetTicketsByWeekAndYear([FromQuery] ushort week, [FromQuery] ushort year)
     {
-      var tickets = ticketRepository.GetTicketsByWeekAndYear(week, year).Select(MapToTicketDTORequest);
-      var result = CreateResult(tickets);
+      IEnumerable<TicketDTO> tickets = ticketRepository.GetTicketsByWeekAndYear(week, year).Select(MapToTicketDTORequest);
+      object result = CreateResult(tickets);
 
       return Ok(result);
     }
@@ -42,8 +42,8 @@ namespace API.Controllers
     {
       if(!ticketRepository.TicketExists(ticketId))
         return NotFound();
-      
-      var ticket = MapToTicketDTORequest(ticketRepository.GetTicket(ticketId));
+
+      TicketDTO ticket = MapToTicketDTORequest(ticketRepository.GetTicket(ticketId));
       return Ok(ticket);
     }
 
@@ -55,11 +55,11 @@ namespace API.Controllers
       if(createTicket == null)
         return BadRequest();
 
-      var relatedEntities = ticketRepository.GetRelatedEntities(createTicket);
+      TicketRelatedEntities? relatedEntities = ticketRepository.GetRelatedEntities(createTicket);
       if(relatedEntities == null)
         return StatusCode(500, "Something went wrong while fetching related data");
 
-      var ticket = MapToTicketModel(createTicket, relatedEntities);
+      Ticket ticket = MapToTicketModel(createTicket, relatedEntities);
       if(!ticketRepository.CreateTicket(createTicket.Perceptions, createTicket.Deductions, ticket))
         return StatusCode(500, "Something went wrong while saving");
 
@@ -75,11 +75,11 @@ namespace API.Controllers
       if(updateTicket == null)
         return BadRequest("Ticket cannot be null");
       
-      var ticket = ticketRepository.GetTicket(ticketId);
+      Ticket ticket = ticketRepository.GetTicket(ticketId);
       if(ticket == null)
         return NotFound("Employee Not Found");
       
-      var relatedEntities = ticketRepository.GetRelatedEntities(updateTicket);
+      TicketRelatedEntities? relatedEntities = ticketRepository.GetRelatedEntities(updateTicket);
       if(relatedEntities == null)
         return StatusCode(500, "Something went wrong while fetching related data");
 
@@ -108,7 +108,7 @@ namespace API.Controllers
 
     private static Ticket MapToTicketModel(TicketDTO createTicket, TicketRelatedEntities relatedEntities)
     {
-      if(string.IsNullOrEmpty(createTicket.PayrollType) || !TryConvertToStatusType(createTicket.PayrollType, out PayrollType payrollType))
+      if(string.IsNullOrEmpty(relatedEntities.Payroll.Name) || !TryConvertToStatusType(createTicket.PayrollType, out PayrollType payrollType))
         payrollType = PayrollType.Error;
 
       float totalPerceptions = createTicket.Perceptions.Sum(p => p.Value);
@@ -147,7 +147,7 @@ namespace API.Controllers
 
     private static void MapToUpdateTicketModel(Ticket ticket, TicketDTO updateTicket, TicketRelatedEntities relatedEntities)
     {
-      if(string.IsNullOrEmpty(updateTicket.PayrollType) || !TryConvertToStatusType(updateTicket.PayrollType, out PayrollType payrollType))
+      if(string.IsNullOrEmpty(relatedEntities.Payroll.Name) || !TryConvertToStatusType(updateTicket.PayrollType, out PayrollType payrollType))
         payrollType = PayrollType.Error;
 
       ticket.Serie = updateTicket.Serie;
@@ -171,7 +171,7 @@ namespace API.Controllers
     {
       if(ticket == null) return new TicketDTO();
 
-      var ticketDTO = new TicketDTO
+      TicketDTO ticketDTO = new()
       {
         TicketId = ticket.TicketId,
         Serie = ticket.Serie,
@@ -209,9 +209,9 @@ namespace API.Controllers
     private object CreateResult(IEnumerable<TicketDTO> tickets)
     {
       HashSet<string> columns = [];
-      var auxTickets = tickets.Select(t =>
+      List<TicketList> listTickets = tickets.Select(t =>
       {
-        var ticket = new TicketList
+        TicketList ticket = new()
         {
           TicketId = t.TicketId,
           Serie = t.Serie,
@@ -232,7 +232,7 @@ namespace API.Controllers
         return ticket;
       }).ToList();
 
-      var ticketsToSend = auxTickets.Select(auxTicket =>
+      IEnumerable<TicketListDTO> ticketsToSend = listTickets.Select(auxTicket =>
       {
         var additionalProperties = auxTicket.Perceptions
           .Where(p => p.Value > 0)
@@ -244,7 +244,7 @@ namespace API.Controllers
           )
           .ToDictionary(kv => kv.Key, kv => kv.Value);
 
-        var ticket = new TicketListDTO
+        TicketListDTO ticket = new()
         {
           TicketId = auxTicket.TicketId,
           Serie = auxTicket.Serie,

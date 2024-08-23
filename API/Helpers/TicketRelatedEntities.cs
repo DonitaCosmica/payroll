@@ -9,6 +9,7 @@ namespace API.Helpers
     public JobPosition JobPosition { get; set; } = new();
     public Department Department { get; set; } = new();
     public Status Status { get; set; } = new();
+    public Payroll Payroll { get; set; } = new();
     public Period Period { get; set; } = new();
     public HashSet<Project> Projects { get; set; } = [];
   }
