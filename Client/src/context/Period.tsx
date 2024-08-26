@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useEffect, useReducer, useState } from "react"
+import { createContext, ReactNode, useContext, useEffect, useReducer, useRef, useState } from "react"
 import { type IFilterPeriod, type IDates, type IWeekYear } from "../types"
 
 interface PeriodState extends IDates {
@@ -76,7 +76,8 @@ const periodReducer = (state: PeriodState, action: PeriodAction): PeriodState =>
 
 export const PeriodProvider: React.FC<Props> = ({ children }) => {
   const [state, dispatch] = useReducer(periodReducer, INITIAL_STATE)
-  const [actionType, setActionType] = useState<'FETCH_DATA' | 'NONE'>('FETCH_DATA')
+  const [actionType, setActionType] = useState<'FETCH_DATA' | 'NONE'>('NONE')
+  const hasFetched = useRef(false)
 
   useEffect(() => {
     const getWeekNumber = (date: Date): number => {
@@ -127,15 +128,13 @@ export const PeriodProvider: React.FC<Props> = ({ children }) => {
         dispatch({ type: "SET_ERROR", payload: true })
       } finally {
         setActionType('NONE')
+        hasFetched.current = true
+        dispatch({ type: 'SET_LOADING', payload: false })
       }
     }
 
-    switch (actionType) {
-      case 'FETCH_DATA':
-        fetchData()
-        break
-      case 'NONE':
-    }
+    if (actionType === 'FETCH_DATA' && !hasFetched.current)
+      fetchData()
   }, [ actionType ])
 
   return (

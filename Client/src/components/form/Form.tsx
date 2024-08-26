@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
 import { usePeriodContext } from '../../context/Period'
-import { type IDropDownMenu, type FieldConfig, type DataObject, ListObject } from '../../types'
+import { type IDropDownMenu, type FieldConfig, type DataObject, type ListObject } from '../../types'
 import { fieldsConfig } from '../../utils/fields'
 import { FaArrowLeft } from "react-icons/fa"
 import { DropDown } from '../dropdown/DropDown'

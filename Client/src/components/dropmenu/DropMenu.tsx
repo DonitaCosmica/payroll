@@ -8,7 +8,7 @@ interface Props {
   width: number
 }
 
-export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element => {
+export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, width }): JSX.Element => {
   const directionStyle = useMemo(() => ({
     [dir]: 0,
     minWidth: `${width}%`
@@ -33,4 +33,4 @@ export const DropMenu: React.FC<Props> = ({ menuOp, dir, width }): JSX.Element =
       </ul>
     </div>
   )
-}
+})

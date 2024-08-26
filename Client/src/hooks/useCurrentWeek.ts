@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useMemo } from "react"
 import { type IWeek, type IWeekYear } from "../types"
 
 interface Props {
@@ -6,31 +6,23 @@ interface Props {
 }
 
 export const useCurrentWeek = ({ input }: Props): { weekRanges: IWeek[] } => {
-  const weekRanges = useRef<IWeek[]>([])
-
-  useEffect(() => {
-    const weeks = Array.isArray(input) ? input : [input]
-    if (weeks.some(week => Object.values(week).includes(0))) return
-
-    const newWeekRanges = weeks.map(({ year, week }) => {
-      const { monday, sunday } = getDatesOfWeek(year, week)
-      return {
-        monday: formatDate(monday),
-        sunday: formatDate(sunday)
-      }
-    })
-    weekRanges.current = newWeekRanges
-  }, [ input ])
-
-  const getDatesOfWeek = (year: number, weekNUmber: number): { monday: Date, sunday: Date } => {
-    const firstDayOfYear = new Date(year, 0, 1)
-    const firstMonday = firstDayOfYear.getDate() + (1 - firstDayOfYear.getDay() + 7) % 7
-    const startOfWeek = new Date(year, 0, firstMonday + (weekNUmber - 1) * 7)
-    const monday = new Date(startOfWeek)
-    const sunday = new Date(startOfWeek)
+  const getStartOfWeek = (date: Date): Date => {
+    const day = date.getDay()
+    const diff = (day === 0 ? -6 : 1) - day
+    const monday = new Date(date)
+    monday.setDate(date.getDate() + diff)
+    return monday
+  }
   
-    monday.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1)
-    sunday.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 7)
+  const getDatesOfWeek = (year: number, weekNumber: number): { monday: Date, sunday: Date } => {
+    const firstDayOfYear = new Date(year, 0, 1)
+    const startOfWeek = new Date(firstDayOfYear)
+    const firstMonday = getStartOfWeek(firstDayOfYear)
+    startOfWeek.setDate(firstMonday.getDate() + (weekNumber - 1) * 7)
+    
+    const monday = getStartOfWeek(startOfWeek)
+    const sunday = new Date(monday)
+    sunday.setDate(monday.getDate() + 6)
   
     return { monday, sunday }
   }
@@ -44,5 +36,18 @@ export const useCurrentWeek = ({ input }: Props): { weekRanges: IWeek[] } => {
         year: 'numeric'
       }).format(date).replace(',', '')
 
-  return { weekRanges: weekRanges.current }
+  const weekRanges = useMemo(() => {
+    const weeks = Array.isArray(input) ? input : [input]
+    if (weeks.some(week => Object.values(week).includes(0))) return []
+    
+    return weeks.map(({ year, week }) => {
+      const { monday, sunday } = getDatesOfWeek(year, week)
+      return {
+        monday: formatDate(monday),
+        sunday: formatDate(sunday)
+      }
+    })
+  }, [ input ])
+
+  return { weekRanges }
 }
