@@ -232,6 +232,7 @@ namespace API.Controllers
         return ticket;
       }).ToList();
 
+      var (filteredPerceptions, filteredDeductions) = ticketRepository.GetFilteredPerceptionsAndDeductions(columns);
       IEnumerable<TicketListDTO> ticketsToSend = listTickets.Select(auxTicket =>
       {
         var additionalProperties = auxTicket.Perceptions
@@ -243,6 +244,18 @@ namespace API.Controllers
               .ToDictionary(d => d.Name ?? "Unknown Deduction", d => (object)d.Value)
           )
           .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+        foreach(var perception in filteredPerceptions)
+        {
+          if(!additionalProperties.ContainsKey(perception.Description))
+            additionalProperties[perception.Description] = 0;
+        }
+
+        foreach(var deduction in filteredDeductions)
+        {
+          if(!additionalProperties.ContainsKey(deduction.Description))
+            additionalProperties[deduction.Description] = 0;
+        }
 
         TicketListDTO ticket = new()
         {

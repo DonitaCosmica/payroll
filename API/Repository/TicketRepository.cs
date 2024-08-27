@@ -163,6 +163,18 @@ namespace API.Repository
     }
     public void GetColumnsFromRelatedEntity(TicketList ticket, HashSet<string> columns) => context.GetColumns(ticket, columns);
     public List<string> GetColumns() => context.GetColumns<Ticket>();
+    public (HashSet<Perception> Perceptions, HashSet<Deduction> Deductions) GetFilteredPerceptionsAndDeductions(HashSet<string> columns)
+    {
+      var filterPerceptions = context.Perceptions
+        .Where(p => columns.Contains(p.Description))
+        .ToHashSet();
+      
+      var filterDeductions = context.Deductions
+        .Where(d => columns.Contains(d.Description))
+        .ToHashSet();
+
+      return (filterPerceptions, filterDeductions);
+    }
     public bool TicketExists(string ticketId) => context.Tickets.Any(t => t.TicketId == ticketId);
     private static (ushort currentWeek, ushort currentYear, ushort previousWeek, ushort previousYear) GetWeekAndYearInfo()
     {
@@ -249,8 +261,6 @@ namespace API.Repository
           Ticket = newTicket,
           Perception = perception.Perception
         };
-
-        System.Console.WriteLine($"");
 
         newTicket.TicketPerceptions.Add(newTicketPerception);
         context.Add(newTicketPerception);
