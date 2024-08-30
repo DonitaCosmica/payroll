@@ -228,6 +228,8 @@ namespace API.Controllers
           Observations = t.Observations
         };
 
+        ticket.Perceptions = [.. ticket.Perceptions.OrderByDescending(p => p.Value)];
+        ticket.Deductions = [.. ticket.Deductions.OrderByDescending(d => d.Value)];
         ticketRepository.GetColumnsFromRelatedEntity(ticket, columns);
         return ticket;
       }).ToList();

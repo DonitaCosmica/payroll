@@ -12,24 +12,27 @@ interface Props {
 export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Element => {
   const { option, data, columnNames, dispatch } = useNavigationContext()
   const [filteredValues, setFilteredValues] = useState<DataObject[]>(data)
+  const columnsDictionary = useRef<Record<string, string>>({})
   const rowSelected = useRef<number>(-1)
   const columnCountSelected = useRef<number>(0)
 
   useEffect(() => {
+    const getTranslateDocument = async (): Promise<void> => {
+      const res: Response = await fetch('/src/data/translations.json')
+      const data = await res.json()
+      columnsDictionary.current = data[option]
+    }
+
     rowSelected.current = -1
-    if (data && data.length > 0) setFilteredValues(data)
+    setFilteredValues(data)
+    getTranslateDocument()
   }, [ option, data ])
 
   useEffect(() => {
     const filtered = data.filter((value: DataObject) =>
       Object.values(value).some((val) => {
-        const newVal = typeof val === 'boolean' 
-          ? (val ? 'Verdadero' : 'Falso') 
-          : (typeof val === 'number' ? val.toString() : val)
-
-        const normalizedSearchFilter = searchFilter.toLowerCase().trim()
-        const normalizedVal = newVal.toLowerCase().trim()
-        return normalizedVal.includes(normalizedSearchFilter)
+        const normalizedVal = (typeof val === 'boolean' ? (val ? 'Verdadero' : 'Falso') : String(val)).toLowerCase().trim()
+        return normalizedVal.includes(searchFilter.toLowerCase().trim())
       })
     )
 
@@ -37,8 +40,7 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
   }, [ searchFilter, data ])
 
   const getIdSelected = useCallback((info: (string | number | boolean)[]): void => {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-    const uuid = info.find(item => typeof item === 'string' && uuidRegex.test(item))
+    const uuid = info.find(item => typeof item === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item))
     uuid ? dispatch({
       type: NavigationActionKind.UPDATESELECTEDID,
       payload: { selectedId: uuid as string }
@@ -51,10 +53,9 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
   }, [ getIdSelected ])
 
   const selectedColumn = useCallback((index: number): void => {
-    const newDataOrder = [...data]
     const columnType = typeof Object.values(data[0])[index]
-    
     columnCountSelected.current++
+
     const compareValues = (a: DataObject, b: DataObject): number => {
       const aValue = Object.values(a)[index]
       const bValue = Object.values(b)[index]
@@ -73,8 +74,7 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
       return 0
     } 
 
-    newDataOrder.sort(compareValues)
-    setFilteredValues(newDataOrder)
+    setFilteredValues((prevValues) => [...prevValues].sort(compareValues))
   }, [ data ])
 
   const showFormDoubleClick = useCallback((info: (string | number | boolean)[]): void => {
@@ -86,9 +86,20 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
     setShowForm(true)
   }, [ getIdSelected, dispatch, setShowForm ])
 
+  const toCamelCase = (str: string): string => {
+    if (str === str.toUpperCase()) return str.toLowerCase()
+    return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) =>
+      index === 0 ? match.toLowerCase() : match.toUpperCase()
+    ).replace(/\s+/g, '')
+  }
+
+  const getValueByKeyIncludes = (obj: DataObject, searchKey: string): string | number | boolean | object | undefined  =>
+    Object.keys(obj).find((key: string) => searchKey.includes(key)) ? obj[searchKey] : undefined
+
   const renderCellContent = (row: DataObject, column: string): number | string => {
-    const key = column.toLowerCase().replace(/\s+/g, '')
-    const info = row[key]
+    const key = Object.keys(columnsDictionary.current).find(key => columnsDictionary.current[key] === column) ?? column
+    const newKey = toCamelCase(key)
+    const info = getValueByKeyIncludes(row, newKey)
 
     if (typeof info === 'boolean') return info ? 'Verdadero' : 'Falso'
     if (Array.isArray(info)) {
@@ -106,6 +117,7 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
       if (info.every(item => typeof item === 'string'))
         return (info as string[]).join(', ')
     }
+
     return info !== undefined ? info.toString() : ''
   }
   
@@ -127,24 +139,20 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
             </tr>
           </thead>
           <tbody>
-            {filteredValues.map((row: DataObject, index: number) => {
-              const rowInfo = Object.values(row)
-
-              return (
-                <tr 
-                  key={ index }
-                  className={ rowSelected.current === index ? 'selected-row' : '' }
-                  onClick={ () => selectedRow(rowInfo, index) } 
-                  onDoubleClick={ () => showFormDoubleClick(rowInfo) }
-                >
+            {filteredValues.map((row: DataObject, index: number) => (
+              <tr 
+                key={ index }
+                className={ rowSelected.current === index ? 'selected-row' : '' }
+                onClick={ () => selectedRow(Object.values(row), index) } 
+                onDoubleClick={ () => showFormDoubleClick(Object.values(row)) }
+              >
                 {columnNames.map((column: string, cellIndex: number) => (
                   <td key={ `$data-{ column }-${ cellIndex }` }>
                     <p>{ renderCellContent(row, column) }</p>
                   </td>
                 ))}
               </tr>
-              )
-            })}
+            ))}
           </tbody>
         </table>
       </div>

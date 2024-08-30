@@ -24,18 +24,13 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
         .filter(({ type, fetchUrl }: FieldConfig) => (type === 'dropmenu' || type === 'multi-option') && fetchUrl)
         .map(async ({ fetchUrl, id, uriComponent }: FieldConfig) => {
           try {
-            const urlToUse: string = uriComponent
-              ? `${ fetchUrl }/byType?type=${ encodeURIComponent(uriComponent) }`
-              : fetchUrl
-                ? fetchUrl
-                : ''
+            const urlToUse = uriComponent ? `${fetchUrl}/byType?type=${encodeURIComponent(uriComponent)}` : fetchUrl || ''
             const res: Response = await fetch(urlToUse)
             const data = await res.json()
             const dataResponse = Array.isArray(data) ? data : data.formData
             const dataOptions = Object.keys(dataResponse)
               .filter((key) => key !== 'columns')
-              .map((key) => dataResponse[key])
-              .flat()
+              .flatMap(key => dataResponse[key])
             return { [String(id)]: dataOptions }
           } catch (error) {
             console.error(`Error fetching dropdown data for ${ id }`, error)
@@ -44,22 +39,19 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
         })
       
       const results = await Promise.all(fetchPromises)
-      const combinedResults = results.reduce((acc, result) => ({ ...acc, ...result }), {})
-      setDropdownData(combinedResults)
+      setDropdownData(results.reduce((acc, result) => ({ ...acc, ...result }), {}))
     }
 
     fetchDropdownData()
   }, [ option ])
 
-  const getProperty = (obj: DataObject, key: string) => {
-    const lowerCaseKey = key.toLowerCase()
+  const getProperty = (obj: DataObject, key: string): string | number | boolean => {
     const propertyMap: { [key: string]: string } = Object.keys(obj).reduce((item, originalKey) => {
       item[originalKey.toLowerCase()] = originalKey
       return item
     }, {} as { [key: string]: string });
   
-    const actualKey = propertyMap[lowerCaseKey]
-    return actualKey ? obj[actualKey] : undefined
+    return obj[propertyMap[key.toLowerCase()]]
   }
 
   const createObject = (formDataRes: DataObject[], keys: string[]): { [key: string]: string | string[] | boolean | number | ListObject[] } | null => {
@@ -67,14 +59,17 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     if (!selectedObj) return null
 
     return keys.slice(1).reduce((obj: { [key: string]: string | string[] | boolean | number }, key: string) => {
-      const auxKey = key.replace(/Id$/i, '')
-      const dropDownKey = auxKey.charAt(0).toLowerCase() + auxKey.slice(1)
-      const newKey = auxKey.toLowerCase()
-      const value = getProperty(selectedObj, newKey)
+      const dropDownKey = key.replace(/Id$/i, '').toLowerCase()
+      const value = getProperty(selectedObj, dropDownKey)
       const dropDownDataFound = Array.isArray(value) ? value : dropdownData[dropDownKey]?.filter((dropData: IDropDownMenu) => dropData.name === value)      
-      console.log({ auxKey, dropDownKey, newKey, value, dropDownDataFound, keys })
       const newValue = dropDownDataFound && dropDownDataFound.length === 1  ? dropDownDataFound[0][dropDownKey + 'Id'] : value
-      return { ...obj, [newKey]: newValue }
+      
+      console.log({ dropDownKey, value, 
+        dataFound: Object.keys(dropdownData).find((key: string) =>
+          (key.toLowerCase() === dropDownKey) ? dropdownData[key] : undefined), 
+        newValue, dropDownDataFound, dropdownData })
+
+      return { ...obj, [dropDownKey]: newValue }
     }, {} as { [key: string]: string | string[] | boolean | number })
   }
 
@@ -179,7 +174,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   autoComplete='off'
                   onChange={ (e) => handleChange(e) }
                   defaultValue={ toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : '' }
-                  readOnly={ modify ? undefined : true }
+                  //readOnly={ modify ? undefined : true }
                   checked={ toolbarOption === 1 
                     && objectsForm 
                     && typeof objectsForm[String(id.toLocaleLowerCase())] === 'boolean' 
