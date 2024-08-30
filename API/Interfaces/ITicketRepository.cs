@@ -15,9 +15,9 @@ namespace API.Interfaces
     bool UpdateTicket(HashSet<TicketPerceptionRelatedEntities> perceptions, 
       HashSet<TicketDeductionRelatedEntities> deductions, Ticket ticket);
     bool DeleteTicket(Ticket ticket);
-    void GetColumnsFromRelatedEntity(TicketList ticket, HashSet<string> columns);
+    void GetColumnsFromRelatedEntity(TicketList ticket, List<string> columns);
     List<string> GetColumns();
-    (HashSet<Perception> Perceptions, HashSet<Deduction> Deductions) GetFilteredPerceptionsAndDeductions(HashSet<string> columns);
+    (HashSet<Perception> Perceptions, HashSet<Deduction> Deductions) GetFilteredPerceptionsAndDeductions(List<string> columns);
     bool TicketExists(string ticketId);
   }
 }

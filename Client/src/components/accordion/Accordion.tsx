@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { usePeriodContext } from '../../context/Period'
 import { useCurrentWeek } from '../../hooks/useCurrentWeek'
 import { type IWeekYear } from '../../types'
@@ -12,8 +12,10 @@ interface Props {
 
 export const Accordion: React.FC<Props> = React.memo(({ year, period }) => {
   const { weekRanges } = useCurrentWeek({ input: period })
-  const { selectedPeriod, dispatch } = usePeriodContext()
+  const { selectedPeriod, setActionType, dispatch } = usePeriodContext()
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true)
+
+  useEffect(() => setActionType('SET_PERIOD'), [ setActionType ])
 
   const sortedPeriods = useMemo(() =>
     Array.isArray(period) ? [...period].sort((a, b) => b.week - a.week) : [],

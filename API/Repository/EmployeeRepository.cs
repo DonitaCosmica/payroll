@@ -131,7 +131,7 @@ namespace API.Repository
       context.Update(department);
       return context.DeleteEntity(employee);
     }
-    public void GetColumnsFromRelatedEntity(EmployeeListDTO employee, HashSet<string> columns) => context.GetColumns(employee, columns);
+    public void GetColumnsFromRelatedEntity(EmployeeListDTO employee, List<string> columns) => context.GetColumns(employee, columns);
     public List<string> GetColumns() => context.GetColumns<Employee>();
     public bool EmployeeExists(string employeeId) => context.Employees.Any(e => e.EmployeeId == employeeId);
     private (Company, Department)? GetNumberOfEmployeesEntities(Employee employee)

@@ -204,6 +204,33 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
       }
     }
 
+    const translateKeys = async (obj: DataObject, opt: NavigationActionKind): Promise<DataObject> => {
+      try {
+        const res: Response = await fetch('/src/data/translations.json')
+        const data = await res.json()
+
+        if (!(opt in NavigationActionKind)) {
+          console.error(`Invalid action type: ${opt}`)
+          return {} as DataObject
+        }
+
+        const translate: Record<string, unknown> = data[opt]
+        const translateLowerCase: Record<string, string> = Object.fromEntries(
+          Object.entries(translate).map(([key, value]) => [key.toLowerCase().replace(/\s+/g, ''), typeof value === 'string' ? value.replace(/\s+/g, '').toLowerCase() : ''])
+        )
+
+        return Object.keys(obj).reduce((acc: DataObject, key: string) => {
+          const lowerCaseKey = key.toLowerCase().replace(/\s+/g, '')
+          const newKey = translateLowerCase[lowerCaseKey] || key.toLowerCase()
+          acc[newKey.trim()] = obj[key]
+          return acc
+        }, {} as DataObject)
+      } catch (error) {
+        console.error('Error loading translations: ', error)
+        return {} as DataObject
+      }
+    }
+
     const translateColumns = async ({ opt, columnsNames }: { opt: NavigationActionKind, columnsNames: string[] }): Promise<string[]> => {
       const columnsDictionary: Record<string, string> = await loadTranslations({ opt })
       return columnsNames.map((column: string) => columnsDictionary[column] || column)
@@ -229,22 +256,23 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
         const columns: string[] = dataResponse.formColumns
         const names: string[] = await translateColumns({ opt: state.option, columnsNames: dataResponse.columns })
         const data: DataObject[] = dataResponse.data
-        const newData = reorganizeData(data)
+        const reorganizedData = reorganizeData(data)
 
         if (columns.includes('Code') || columns.includes('Key')) {
-          newData.sort((a: DataObject, b: DataObject): number => {
+          reorganizedData.sort((a: DataObject, b: DataObject): number => {
             const aValue = getValue((a['code'] || a['key']) as number)
             const bValue = getValue((b['code'] || b['key']) as number)
             return (aValue as number) - (bValue as number)
           })
         } else if (columns.includes('Name')) {
-          newData.sort((a: DataObject, b: DataObject): number => {
+          reorganizedData.sort((a: DataObject, b: DataObject): number => {
             const aValue = getValue(a['name'] as string)
             const bValue = getValue(b['name'] as string)
             return (aValue as string).localeCompare(bValue as string)
           })
         }
         const formData: DataObject[] = dataResponse.formData
+        const newData = await Promise.all(reorganizedData.map(async (data: DataObject) => await translateKeys(data, state.option)))
 
         dispatch({ 
           type: NavigationActionKind.UPDATEDATA, 

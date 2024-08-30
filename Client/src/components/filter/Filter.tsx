@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
 import { usePeriodContext } from '../../context/Period'
 import { useCurrentWeek } from '../../hooks/useCurrentWeek'
@@ -11,11 +11,9 @@ import './Filter.css'
 
 export const Filter = (): JSX.Element => {
   const { payroll, dispatch } = useNavigationContext()
-  const { selectedPeriod, setActionType } = usePeriodContext()
+  const { selectedPeriod } = usePeriodContext()
   const [showDropMenu, setShowDropMenu] = useState<IMenuState>({ date: false, text: false })
   const { weekRanges } = useCurrentWeek({ input: selectedPeriod })
-
-  useEffect(() => setActionType('FETCH_DATA') ,[ setActionType ])
 
   const filterData = useMemo(() => {
     if (selectedPeriod.week === 0 || selectedPeriod.year === 0) return []

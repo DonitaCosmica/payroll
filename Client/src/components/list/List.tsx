@@ -86,24 +86,27 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
     setShowForm(true)
   }, [ getIdSelected, dispatch, setShowForm ])
 
-  const renderCellContent = (info: number | string | boolean | ListObject[]): number | string => {
+  const renderCellContent = (row: DataObject, column: string): number | string => {
+    const key = column.toLowerCase().replace(/\s+/g, '')
+    const info = row[key]
+
     if (typeof info === 'boolean') return info ? 'Verdadero' : 'Falso'
     if (Array.isArray(info)) {
-      if (info.length > 0 && typeof info[0] === 'object' && 'value' in info[0]) {
+      if (info.length > 0 && typeof info[0] === 'object') {
         return (info as ListObject[]).sort((a, b) => {
-          if (typeof a.value === 'string' && typeof b.value === 'string')
-            return a.value.localeCompare(b.value)
-          else if (typeof a.value === 'number' && typeof b.value === 'number')
-            return a.value - b.value
+          if (typeof a.name === 'string' && typeof b.name === 'string')
+            return a.name.localeCompare(b.name)
+          else if (typeof a.name === 'number' && typeof b.name === 'number')
+            return a.name - b.name
           else
             return 0
-        }).map(obj => obj.value).join(', ')
+        }).map(obj => obj.name).join(', ')
       }
 
       if (info.every(item => typeof item === 'string'))
         return (info as string[]).join(', ')
     }
-    return info.toString() ?? ''
+    return info !== undefined ? info.toString() : ''
   }
   
   return (
@@ -134,9 +137,9 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
                   onClick={ () => selectedRow(rowInfo, index) } 
                   onDoubleClick={ () => showFormDoubleClick(rowInfo) }
                 >
-                {rowInfo.map((info: number | string | boolean | ListObject[], cellIndex: number) => (
-                  <td key={`${ info }-${ cellIndex }`}>
-                    <p>{ renderCellContent(info) }</p>
+                {columnNames.map((column: string, cellIndex: number) => (
+                  <td key={ `$data-{ column }-${ cellIndex }` }>
+                    <p>{ renderCellContent(row, column) }</p>
                   </td>
                 ))}
               </tr>

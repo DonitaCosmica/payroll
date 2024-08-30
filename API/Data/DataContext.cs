@@ -187,7 +187,7 @@ namespace API.Data
       return columnNames;
     }
 
-    public void GetColumns<TEntity>(TEntity ticket, HashSet<string> columns) where TEntity : class
+    public void GetColumns<TEntity>(TEntity ticket, List<string> columns) where TEntity : class
     {
       PropertyInfo[] properties = typeof(TEntity).GetProperties();
       foreach(var property in properties)
@@ -208,7 +208,7 @@ namespace API.Data
             }
           }
         }
-        else
+        else if(!columns.Contains(property.Name))
           columns.Add(property.Name);
       }
     }
@@ -298,7 +298,7 @@ namespace API.Data
       return Save();
     }
 
-    private static void GetColumnsFromRelatedEntity<T>(HashSet<T> relatedEntityList, HashSet<string> columns) where T : class
+    private static void GetColumnsFromRelatedEntity<T>(HashSet<T> relatedEntityList, List<string> columns) where T : class
     {
       foreach(var entity in relatedEntityList)
       {
@@ -310,8 +310,14 @@ namespace API.Data
         var columnValue = columnValueProperty?.GetValue(entity);
         if (columnValue is float floatValue && floatValue > 0)
         {
-          if(columnNameProperty?.GetValue(entity) is string columnName)
-            columns.Add(columnName);
+          if(columnNameProperty?.GetValue(entity) is string columnName && !columns.Contains(columnName))
+          {
+            int totalIndex = columns.IndexOf("Total");
+            if(totalIndex >= 0)
+              columns.Insert(totalIndex, columnName);
+            else
+              columns.Add(columnName);
+          }
         }
       }
     }

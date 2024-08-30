@@ -208,7 +208,7 @@ namespace API.Controllers
 
     private object CreateResult(IEnumerable<TicketDTO> tickets)
     {
-      HashSet<string> columns = [];
+      List<string> columns = [];
       List<TicketList> listTickets = tickets.Select(t =>
       {
         TicketList ticket = new()

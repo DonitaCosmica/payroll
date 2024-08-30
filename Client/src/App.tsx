@@ -15,15 +15,17 @@ function App(): JSX.Element {
   const [showForm, setShowForm] = useState<boolean>(false)
   const [searchFilter, setSearchFilter] = useState<string>('')
 
+  const renderForm = () => showForm && <Form setShowForm={setShowForm} />
+  const renderFilter = () => option === 1 && <Filter />
+
   return (
     <main className='payroll'>
-      <Titlebar action='payroll' />
-      <Navbar />
-      {option === 1 &&  
-        <PeriodProvider>
-          <Filter />
-        </PeriodProvider>
-      }
+      <PeriodProvider>
+        {renderForm()}
+        <Titlebar action='payroll' />
+        <Navbar />
+        {renderFilter()}
+      </PeriodProvider>
       <Toolbar
         setSearchFilter={ setSearchFilter }
         setShowForm={ setShowForm }
@@ -33,11 +35,6 @@ function App(): JSX.Element {
         searchFilter={ searchFilter }
       />
       <Footer />
-      {showForm && 
-        <PeriodProvider>
-          <Form setShowForm={ setShowForm } />  
-        </PeriodProvider>
-      }
     </main>
   )
 }

@@ -37,7 +37,8 @@
   "3": {
     "JobPositionId": "ID del Puesto de Trabajo",
     "Name": "Nombre",
-    "DepartmentId": "Departamento"
+    "DepartmentId": "Departamento",
+    "Department": "Departamento"
   },
   "4": {
     "DepartmentId": "ID del Departamento",
@@ -68,7 +69,9 @@
     "StartDate": "Fecha de Inicio",
     "StatusId": "Estado",
     "CompanyId": "Compañia",
-    "Description": "Descripción"
+    "Description": "Descripción",
+    "Company": "Compañia",
+    "Status": "Estado"
   },
   "9": {
     "CompanyId": "ID de la Compañia",

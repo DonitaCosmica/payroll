@@ -103,10 +103,11 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
 
-    if (option === NavigationActionKind.PAYROLLRECEIPTS && selectedPeriod.periodId)
+    if (option === NavigationActionKind.PAYROLLRECEIPTS && selectedPeriod.week && selectedPeriod.year)
       formData.current = {
         ...formData.current,
-        period: selectedPeriod.periodId
+        week: selectedPeriod.week,
+        year: selectedPeriod.year
       }
 
     const requestOptions = {
@@ -178,7 +179,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   autoComplete='off'
                   onChange={ (e) => handleChange(e) }
                   defaultValue={ toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : '' }
-                  //readOnly={ modify ? undefined : true }
+                  readOnly={ modify ? undefined : true }
                   checked={ toolbarOption === 1 
                     && objectsForm 
                     && typeof objectsForm[String(id.toLocaleLowerCase())] === 'boolean' 

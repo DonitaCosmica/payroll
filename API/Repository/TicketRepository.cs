@@ -42,11 +42,13 @@ namespace API.Repository
         join d in context.Departments on jp.DepartmentId equals d.DepartmentId
         join s in context.Statuses on ticketDTO.Status equals s.StatusId
         join pa in context.Payrolls on ticketDTO.PayrollType equals pa.PayrollId
-        join pr in context.Periods on ticketDTO.Period equals pr.PeriodId
+        join pr1 in context.Periods on ticketDTO.Week equals pr1.Week
+        join pr2 in context.Periods on ticketDTO.Year equals pr2.Year
         where ticketDTO.Employee == e.EmployeeId &&
           ticketDTO.Status == s.StatusId &&
           ticketDTO.PayrollType == pa.PayrollId &&
-          ticketDTO.Period == pr.PeriodId
+          ticketDTO.Week == pr1.Week &&
+          ticketDTO.Year == pr2.Year
         select new TicketRelatedEntities
         {
           Employee = e,
@@ -55,7 +57,7 @@ namespace API.Repository
           Department = d,
           Status = s,
           Payroll = pa,
-          Period = pr,
+          Period = pr1,
           Projects = (from ep in context.EmployeeProjects
             join p in context.Projects on ep.ProjectId equals p.ProjectId
             where ep.EmployeeId == e.EmployeeId
@@ -161,9 +163,9 @@ namespace API.Repository
       
       return perceptionsRemoved && deductionsRemoved && context.DeleteEntity(ticket);
     }
-    public void GetColumnsFromRelatedEntity(TicketList ticket, HashSet<string> columns) => context.GetColumns(ticket, columns);
+    public void GetColumnsFromRelatedEntity(TicketList ticket, List<string> columns) => context.GetColumns(ticket, columns);
     public List<string> GetColumns() => context.GetColumns<Ticket>();
-    public (HashSet<Perception> Perceptions, HashSet<Deduction> Deductions) GetFilteredPerceptionsAndDeductions(HashSet<string> columns)
+    public (HashSet<Perception> Perceptions, HashSet<Deduction> Deductions) GetFilteredPerceptionsAndDeductions(List<string> columns)
     {
       var filterPerceptions = context.Perceptions
         .Where(p => columns.Contains(p.Description))

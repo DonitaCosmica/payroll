@@ -250,7 +250,7 @@ namespace API.Controllers
 
     private object CreateResult(IEnumerable<EmployeeDTO> employees)
     {
-      HashSet<string> columns = [];
+      List<string> columns = [];
       var auxEmployees = employees.Select(e => 
       {
         var employee = new EmployeeListDTO
