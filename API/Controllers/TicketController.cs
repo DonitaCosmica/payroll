@@ -283,7 +283,7 @@ namespace API.Controllers
         Columns = columns,
         FormColumns = ticketRepository.GetColumns(),
         Data = ticketsToSend,
-        FormData = tickets
+        FormData = listTickets
       };
     }
 

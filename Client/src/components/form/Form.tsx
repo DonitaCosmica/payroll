@@ -61,14 +61,9 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     return keys.slice(1).reduce((obj: { [key: string]: string | string[] | boolean | number }, key: string) => {
       const dropDownKey = key.replace(/Id$/i, '').toLowerCase()
       const value = getProperty(selectedObj, dropDownKey)
-      const dropDownDataFound = Array.isArray(value) ? value : dropdownData[dropDownKey]?.filter((dropData: IDropDownMenu) => dropData.name === value)      
-      const newValue = dropDownDataFound && dropDownDataFound.length === 1  ? dropDownDataFound[0][dropDownKey + 'Id'] : value
-      
-      console.log({ dropDownKey, value, 
-        dataFound: Object.keys(dropdownData).find((key: string) =>
-          (key.toLowerCase() === dropDownKey) ? dropdownData[key] : undefined), 
-        newValue, dropDownDataFound, dropdownData })
-
+      const newKey = Object.keys(dropdownData).find((key: string) => (key.toLowerCase() === dropDownKey) ? dropdownData[key] : undefined) as string
+      const dropDownDataFound = Array.isArray(value) ? value : dropdownData[newKey]?.filter((dropData: IDropDownMenu) => dropData.name === value)      
+      const newValue = dropDownDataFound && dropDownDataFound.length === 1  ? dropDownDataFound[0][`${ newKey }Id`] : value
       return { ...obj, [dropDownKey]: newValue }
     }, {} as { [key: string]: string | string[] | boolean | number })
   }
@@ -143,6 +138,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
 
   const elements = useMemo(() => {
     const objectsForm = createObject(formDataRes, keys)
+    console.log({ objectsForm, formDataRes, keys })
     return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType, modify, amount }: FieldConfig, index: number) => {
       const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
       const appendCurrentGroup = (group: JSX.Element[]) =>
