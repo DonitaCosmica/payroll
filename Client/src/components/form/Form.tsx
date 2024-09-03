@@ -63,7 +63,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
       const value = getProperty(selectedObj, dropDownKey)
       const newKey = Object.keys(dropdownData).find((key: string) => (key.toLowerCase() === dropDownKey) ? dropdownData[key] : undefined) as string
       const dropDownDataFound = Array.isArray(value) ? value : dropdownData[newKey]?.filter((dropData: IDropDownMenu) => dropData.name === value)      
-      const newValue = dropDownDataFound ? dropDownDataFound[0][`${ newKey }Id`] : value
+      const newValue = dropDownDataFound && dropDownDataFound.length === 1  ? dropDownDataFound[0][`${ newKey }Id`] : value
       console.log({ dropDownKey, value, newKey, dropDownDataFound, newValue, dropdownData })
       return { ...obj, [dropDownKey]: newValue }
     }, {} as { [key: string]: string | string[] | boolean | number })
