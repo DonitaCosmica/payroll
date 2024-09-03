@@ -108,7 +108,7 @@ namespace API.Controllers
 
     private static Ticket MapToTicketModel(TicketDTO createTicket, TicketRelatedEntities relatedEntities)
     {
-      if(string.IsNullOrEmpty(relatedEntities.Payroll.Name) || !TryConvertToStatusType(createTicket.PayrollType, out PayrollType payrollType))
+      if(string.IsNullOrEmpty(relatedEntities.Payroll.Name) || !TryConvertToStatusType(relatedEntities.Payroll.Name, out PayrollType payrollType))
         payrollType = PayrollType.Error;
 
       float totalPerceptions = createTicket.Perceptions.Sum(p => p.Value);
@@ -147,7 +147,7 @@ namespace API.Controllers
 
     private static void MapToUpdateTicketModel(Ticket ticket, TicketDTO updateTicket, TicketRelatedEntities relatedEntities)
     {
-      if(string.IsNullOrEmpty(relatedEntities.Payroll.Name) || !TryConvertToStatusType(updateTicket.PayrollType, out PayrollType payrollType))
+      if(string.IsNullOrEmpty(relatedEntities.Payroll.Name) || !TryConvertToStatusType(relatedEntities.Payroll.Name, out PayrollType payrollType))
         payrollType = PayrollType.Error;
 
       ticket.Serie = updateTicket.Serie;
@@ -209,6 +209,32 @@ namespace API.Controllers
     private object CreateResult(IEnumerable<TicketDTO> tickets)
     {
       List<string> columns = [];
+      List<string> formColumns = [];
+
+      List<TicketFormDTO> formTickets = tickets.Select(t =>
+      {
+        TicketFormDTO ticket = new()
+        {
+          TicketId = t.TicketId,
+          Serie = t.Serie,
+          Bill = t.Bill,
+          Employee = t.Employee,
+          Status = t.Status,
+          ReceiptOfDate = t.ReceiptOfDate,
+          PaymentDate = t.PaymentDate,
+          /*Perceptions = t.Perceptions,
+          Deductions = t.Deductions,*/
+          Observations = t.Observations
+        };
+
+        ticketRepository.GetColumnsFromRelatedEntity(ticket, formColumns);
+
+        ticket.Perceptions = t.Perceptions;
+        ticket.Deductions = t.Deductions;
+
+        return ticket;
+      }).ToList();
+
       List<TicketList> listTickets = tickets.Select(t =>
       {
         TicketList ticket = new()
@@ -278,12 +304,18 @@ namespace API.Controllers
         return ticket;
       });
 
+      if(ticketsToSend.Count() > 0 || formTickets.Count() > 0)
+      {
+        formColumns.Insert(formColumns.Count - 1, "Perceptions");
+        formColumns.Insert(formColumns.Count, "Deductions");
+      }
+
       return new
       {
         Columns = columns,
-        FormColumns = ticketRepository.GetColumns(),
+        FormColumns = formColumns,
         Data = ticketsToSend,
-        FormData = listTickets
+        FormData = formTickets
       };
     }
 

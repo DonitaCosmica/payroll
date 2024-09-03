@@ -228,8 +228,7 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
 
         const columns: string[] = dataResponse.formColumns
         const names: string[] = await translateColumns({ opt: state.option, columnsNames: dataResponse.columns })
-        const data: DataObject[] = dataResponse.data
-        const newData = reorganizeData(data)
+        const newData = reorganizeData(dataResponse.data)
 
         if (columns.includes('Code') || columns.includes('Key')) {
           newData.sort((a: DataObject, b: DataObject): number => {
@@ -244,11 +243,11 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
             return (aValue as string).localeCompare(bValue as string)
           })
         }
-        const formData: DataObject[] = dataResponse.formData
+        //console.log({ formData, columns })
 
         dispatch({ 
           type: NavigationActionKind.UPDATEDATA, 
-          payload: { columns, newData, formData, names } 
+          payload: { columns, newData, formData: dataResponse.formData, names } 
         })
         saveToLocalStorage()
       } catch (error) {

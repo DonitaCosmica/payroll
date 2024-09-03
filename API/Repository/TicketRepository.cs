@@ -163,7 +163,8 @@ namespace API.Repository
       
       return perceptionsRemoved && deductionsRemoved && context.DeleteEntity(ticket);
     }
-    public void GetColumnsFromRelatedEntity(TicketList ticket, List<string> columns) => context.GetColumns(ticket, columns);
+    public void GetColumnsFromRelatedEntity<T>(T ticket, List<string> columns) where T : class => 
+      context.GetColumns(ticket, columns);
     public List<string> GetColumns() => context.GetColumns<Ticket>();
     public (HashSet<Perception> Perceptions, HashSet<Deduction> Deductions) GetFilteredPerceptionsAndDeductions(List<string> columns)
     {
