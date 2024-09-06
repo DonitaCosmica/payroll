@@ -62,10 +62,14 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
       const dropDownKey = key.replace(/Id$/i, '').toLowerCase()
       const value = getProperty(selectedObj, dropDownKey)
       const newKey = Object.keys(dropdownData).find((key: string) => (key.toLowerCase() === dropDownKey) ? dropdownData[key] : undefined) as string
-      const dropDownDataFound = Array.isArray(value) ? value : dropdownData[newKey]?.filter((dropData: IDropDownMenu) => dropData.name === value)      
-      const newValue = dropDownDataFound && dropDownDataFound.length === 1  ? dropDownDataFound[0][`${ newKey }Id`] : value
-      console.log({ dropDownKey, value, newKey, dropDownDataFound, newValue, dropdownData })
-      return { ...obj, [dropDownKey]: newValue }
+      if (!newKey) return { ...obj, [dropDownKey]: value };
+      
+      const fields = fieldsConfig[option]
+      const field = fields.filter(item => item.id.toLowerCase() === newKey.toLowerCase())[0]
+      const dropDownDataFound = Array.isArray(value) ? value : (dropdownData[newKey]?.filter((dropData: IDropDownMenu) => dropData.name === value) || []);
+      const newValue = Array.isArray(dropDownDataFound) ? dropDownDataFound.map(item => item[`${newKey}Id`] || item) : value            
+      const oneValueInAnArray = field.type === 'dropmenu' && Array.isArray(newValue)
+      return { ...obj, [dropDownKey]: oneValueInAnArray ? newValue[0] : newValue }
     }, {} as { [key: string]: string | string[] | boolean | number })
   }
 
@@ -139,7 +143,6 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
 
   const elements = useMemo(() => {
     const objectsForm = createObject(formDataRes, keys)
-    console.log({ objectsForm, formDataRes, keys })
     return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType, /*modify,*/ amount }: FieldConfig, index: number) => {
       const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
       const appendCurrentGroup = (group: JSX.Element[]) =>

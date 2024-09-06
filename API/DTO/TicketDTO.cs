@@ -11,7 +11,7 @@ namespace API.DTO
     public string? JobPosition { get; set; } = default!;
     public string? Department { get; set; } = default!;
     public string Status { get; set; } = default!;
-    public float Total { get; set; }
+    public float? Total { get; set; }
     public string? Company { get; set; } = default!;
     public string? Projects { get; set; } = default!;
     public string? Observations { get; set; }

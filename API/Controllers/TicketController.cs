@@ -150,11 +150,14 @@ namespace API.Controllers
       if(string.IsNullOrEmpty(relatedEntities.Payroll.Name) || !TryConvertToStatusType(relatedEntities.Payroll.Name, out PayrollType payrollType))
         payrollType = PayrollType.Error;
 
+      float totalPerceptions = updateTicket.Perceptions.Sum(p => p.Value);
+      float totalDeductions = updateTicket.Deductions.Sum(d => d.Value);
+
       ticket.Serie = updateTicket.Serie;
       ticket.Bill = updateTicket.Bill;
       ticket.EmployeeId = updateTicket.Employee;
       ticket.Employee = relatedEntities.Employee;
-      ticket.Total = updateTicket.Total;
+      ticket.Total = totalPerceptions - totalDeductions;
       ticket.Observations = updateTicket.Observations;
       ticket.PayrollType = payrollType;
       ticket.StatusId = updateTicket.Status;
@@ -222,21 +225,20 @@ namespace API.Controllers
           Status = t.Status,
           ReceiptOfDate = t.ReceiptOfDate,
           PaymentDate = t.PaymentDate,
-          /*Perceptions = t.Perceptions,
-          Deductions = t.Deductions,*/
           Observations = t.Observations
         };
 
         ticketRepository.GetColumnsFromRelatedEntity(ticket, formColumns);
-
         ticket.Perceptions = t.Perceptions;
         ticket.Deductions = t.Deductions;
-
         return ticket;
       }).ToList();
 
       List<TicketList> listTickets = tickets.Select(t =>
       {
+        float totalPerceptions = t.Perceptions.Sum(p => p.Value);
+        float totalDeductions = t.Deductions.Sum(d => d.Value);
+
         TicketList ticket = new()
         {
           TicketId = t.TicketId,
@@ -248,7 +250,7 @@ namespace API.Controllers
           Status = t.Status,
           Perceptions = t.Perceptions,
           Deductions = t.Deductions,
-          Total = t.Total,
+          Total = totalPerceptions - totalDeductions,
           Company = t.Company,
           Projects = t.Projects,
           Observations = t.Observations
@@ -304,7 +306,7 @@ namespace API.Controllers
         return ticket;
       });
 
-      if(ticketsToSend.Count() > 0 || formTickets.Count() > 0)
+      if(ticketsToSend.Any() || formTickets.Count > 0)
       {
         formColumns.Insert(formColumns.Count - 1, "Perceptions");
         formColumns.Insert(formColumns.Count, "Deductions");

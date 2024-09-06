@@ -44,8 +44,6 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
     setFilteredOptions(sortedOptions)
   }, [sortedOptions, value, idKey])
 
-  console.log({ selectedItemsRef, id, options, value, idKey })
-
   const isDateKey = useCallback((key: string): boolean => {
     const datePatterns = ['date', 'assignedDate', 'dueDate', 'startDate', 'endDate']
     return datePatterns.some(pattern => key.toLowerCase().includes(pattern))
