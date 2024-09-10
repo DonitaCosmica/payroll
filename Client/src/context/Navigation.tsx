@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useContext, useEffect, useReducer, useState } from "react"
 import { type NavigationAction, type NavigationState, type IDataResponse, type DataObject } from "../types"
+import { reorganizeData } from "../utils/modifyData"
 
 export enum NavigationActionKind {
   PAYROLLRECEIPTS = 1,
@@ -12,6 +13,7 @@ export enum NavigationActionKind {
   PROJECTCATALOG,
   COMPANIES,
   UPDATEDATA,
+  UPDATETABLE,
   UPDATEPAYROLL,
   UPDATESELECTEDID,
   UPDATETOOLBAROPT,
@@ -39,6 +41,7 @@ const navigationConfig: Record<NavigationActionKind, { url: string, title: strin
   [NavigationActionKind.PROJECTCATALOG]: { url: 'http://localhost:5239/api/Project', title: 'Proyecto', formSize: 75 },
   [NavigationActionKind.COMPANIES]: { url: 'http://localhost:5239/api/Company', title: 'Compañia', formSize: 30 },
   [NavigationActionKind.UPDATEDATA]: { url: '', title: '', formSize: 0 },
+  [NavigationActionKind.UPDATETABLE]: { url: '', title: '', formSize: 0 },
   [NavigationActionKind.UPDATEPAYROLL]: { url: '', title: '', formSize: 0 },
   [NavigationActionKind.UPDATESELECTEDID]: { url: '', title: '', formSize: 0 },
   [NavigationActionKind.UPDATETOOLBAROPT]: { url: '', title: '', formSize: 0 },
@@ -90,6 +93,15 @@ const NavigationReducer = (state: NavigationState, action: NavigationAction): Na
   const { type, payload } = action
 
   switch(type) {
+    case NavigationActionKind.UPDATETABLE: {
+      const { newData = state.data, formData = state.formData } = payload || {}
+      return {
+        ...state,
+        data: newData,
+        formData,
+        loading: false
+      }
+    }
     case NavigationActionKind.UPDATEDATA: {
       const { columns = state.columnNames, newData = state.data, names = state.columnNames, formData = state.formData } = payload || {}
       return {
@@ -157,41 +169,6 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
   useEffect(() => {
     const getValue = (value: string | number): number | string => 
       typeof value === 'string' ? (isNaN(parseInt(value, 10)) ? value : parseInt(value, 10)) : value
-
-    const toCamelCase = (str: string): string => {
-      return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index: number) =>
-        index === 0 ? match.toLowerCase() : match.toUpperCase()).replace(/\s+/g, '')
-    }
-
-    const transformKeysToCamelCase = (obj: DataObject): DataObject => 
-      Object.keys(obj).reduce((acc: DataObject, key: string) => {
-        const camelCaseKey = toCamelCase(key)
-        acc[camelCaseKey] = obj[key]
-        return acc
-      }, {} as DataObject)
-
-    const reorganizeData = (data: DataObject[]) =>
-      data.map((item: DataObject) => {
-        if ('additionalProperties' in item && item.additionalProperties && typeof item.additionalProperties === 'object') {
-          const { additionalProperties, ...rest } = item
-          const transformedRest = transformKeysToCamelCase(rest)
-          const transformedAdditionalProperties = transformKeysToCamelCase(additionalProperties)
-          const totalIndex = Object.keys(transformedRest).indexOf('total')
-          const result = { ...transformedRest }
-
-          if (totalIndex !== -1) {
-            const beforeTotal = Object.entries(result).slice(0, totalIndex)
-            const afterTotal = Object.entries(result).slice(totalIndex)
-            const reorderResult = Object.fromEntries([...beforeTotal, ...Object.entries(transformedAdditionalProperties), ...afterTotal])
-
-            return reorderResult
-          }
-
-          return { ...transformedRest, ...transformedAdditionalProperties }
-        }
-
-        return transformKeysToCamelCase(item)
-      })
     
     const loadTranslations = async ({ opt }: { opt: NavigationActionKind }): Promise<Record<string, string>> => {
       try {
@@ -223,6 +200,7 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
         const dataResponse: IDataResponse = await res.json()
         if (!res.ok) {
           console.error('Response Error: ', dataResponse)
+          dispatch({ type: NavigationActionKind.ERROR })
           return
         }
 
@@ -243,7 +221,6 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
             return (aValue as string).localeCompare(bValue as string)
           })
         }
-        //console.log({ formData, columns })
 
         dispatch({ 
           type: NavigationActionKind.UPDATEDATA, 

@@ -38,6 +38,7 @@ export const REPORTING_ACTIONS: Record<NavigationActionKind, IconDefinition[]> =
   ],
   [NavigationActionKind.COMPANIES]: [],
   [NavigationActionKind.UPDATEDATA]: [],
+  [NavigationActionKind.UPDATETABLE]: [],
   [NavigationActionKind.UPDATEPAYROLL]: [],
   [NavigationActionKind.UPDATESELECTEDID]: [],
     [NavigationActionKind.UPDATETOOLBAROPT]: [],
