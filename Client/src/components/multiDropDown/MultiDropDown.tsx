@@ -42,7 +42,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
     selectedItemsRef.current = sortValues
     setIsAllOptionsSelected(allSelected)
     setFilteredOptions(sortedOptions)
-  }, [sortedOptions, value, idKey])
+  }, [ sortedOptions, value, idKey ])
 
   const isDateKey = useCallback((key: string): boolean => {
     const datePatterns = ['date', 'assignedDate', 'dueDate', 'startDate', 'endDate']
@@ -53,7 +53,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
     const filter = e.target.value.toLowerCase().trim()
     const filtered = sortedOptions.filter(opt => getDisplayValue(opt).toLowerCase().includes(filter))
     setFilteredOptions(filtered)
-  }, [sortedOptions, getDisplayValue])
+  }, [ sortedOptions, getDisplayValue ])
 
   const updateFormData = useCallback((items: ListObject[]): void => {
     setFormData.current[id] = items

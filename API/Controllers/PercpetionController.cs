@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using API.DTO;
 using API.Interfaces;
 using API.Models;
+using API.Enums;
 
 namespace API.Controllers
 {
@@ -24,13 +25,22 @@ namespace API.Controllers
           IsHidden = p.IsHidden
         }).ToList();
 
+      var perceptionsWithCompensation = perceptions.Select(p => new
+      {
+        p.PerceptionId,
+        p.Key,
+        p.Description,
+        p.IsHidden,
+        CompensationType = DetermineCompensationType(p).ToString()
+      });
+
       var columns = perceptionRepository.GetColumns();
       var result = new
       {
         Columns = columns,
         FormColumns = columns,
         Data = perceptions,
-        FormData = perceptions
+        FormData = perceptionsWithCompensation
       };
 
       return Ok(result);
@@ -118,6 +128,18 @@ namespace API.Controllers
         return StatusCode(500, "Something went wrong deleting perception");
 
       return NoContent();
+    }
+
+    private static CompensationType DetermineCompensationType(PerceptionDTO perception)
+    {
+      if(perception.Description.Contains("Salario") || perception.Description.Contains("Sueldo"))
+        return CompensationType.Principal;
+      else if(perception.Description.Contains("Horas") || perception.Description.Contains("Extra"))
+        return CompensationType.Hours;
+      else if(perception.Description.Contains("Faltas"))
+        return CompensationType.Days;
+
+      return CompensationType.Normal;
     }
   }
 }

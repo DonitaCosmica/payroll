@@ -12,6 +12,56 @@ interface Props {
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
 }
 
+const fetchDropdownData = async (option: NavigationActionKind): Promise<{ [x: string]: any[] }> => {
+  const fetchPromises = fieldsConfig[option]
+    .filter(({ type, fetchUrl }: FieldConfig) => (type === 'dropmenu' || type === 'multi-option') && fetchUrl)
+    .map(async ({ fetchUrl, id, uriComponent }: FieldConfig) => {
+      try {
+        const urlToUse = uriComponent ? `${fetchUrl}/byType?type=${encodeURIComponent(uriComponent)}` : fetchUrl || ''
+        const res: Response = await fetch(urlToUse)
+        const data = await res.json()
+        const dataResponse = Array.isArray(data) ? data : data.formData
+        const dataOptions = Object.keys(dataResponse)
+          .filter((key) => key !== 'columns')
+          .flatMap(key => dataResponse[key])
+        return { [String(id)]: dataOptions }
+      } catch (error) {
+        console.error(`Error fetching dropdown data for ${ id }`, error)
+        return { [String(id)]: [] }
+      }
+    })
+  
+  const results = await Promise.all(fetchPromises)
+  return results.reduce((acc, result) => ({ ...acc, ...result }), {})
+}
+
+const getProperty = (obj: DataObject, key: string): string | number | boolean => {
+  const propertyMap: { [key: string]: string } = Object.keys(obj).reduce((item, originalKey) => {
+    item[originalKey.toLowerCase()] = originalKey
+    return item
+  }, {} as { [key: string]: string });
+
+  return obj[propertyMap[key.toLowerCase()]]
+}
+
+const createObject = (formDataRes: DataObject[], keys: string[], selectedId: string, dropdownData: { [key: string]: IDropDownMenu[] }, option: NavigationActionKind): { [key: string]: string | string[] | boolean | number | ListObject[] } | null => {
+  const selectedObj = formDataRes.find((item: DataObject) => Object.keys(item).some(key => key.endsWith('Id') && item[key] === selectedId))
+  if (!selectedObj) return null
+
+  return keys.slice(1).reduce((obj: { [key: string]: string | string[] | boolean | number }, key: string) => {
+    const dropDownKey = key.replace(/Id$/i, '').toLowerCase()
+    const value = getProperty(selectedObj, dropDownKey)
+    const newKey = Object.keys(dropdownData).find((key: string) => (key.toLowerCase() === dropDownKey) ? dropdownData[key] : undefined) as string
+    if (!newKey) return { ...obj, [dropDownKey]: value };
+    
+    const field = fieldsConfig[option].find(item => item.id.toLowerCase() === newKey.toLowerCase())
+    const dropDownDataFound = Array.isArray(value) ? value : (dropdownData[newKey]?.filter((dropData: IDropDownMenu) => dropData.name === value) || []);
+    const newValue = Array.isArray(dropDownDataFound) ? dropDownDataFound.map(item => item[`${newKey}Id`] || item) : value            
+    const oneValueInAnArray = field?.type === 'dropmenu' && Array.isArray(newValue)
+    return { ...obj, [dropDownKey]: oneValueInAnArray ? newValue[0] : newValue }
+  }, {} as { [key: string]: string | string[] | boolean | number })
+}
+
 export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const { option, title, formSize, url, data, formData: formDataRes, keys, submitCount, selectedId, toolbarOption, setSubmitCount } = useNavigationContext()
   const { selectedPeriod } = usePeriodContext()
@@ -19,72 +69,20 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const formData = useRef<{ [key: string]: string | string[] | boolean | number | ListObject[] }>({})
 
   useEffect(() => {
-    const fetchDropdownData = async (): Promise<void> => {
-      const fetchPromises = fieldsConfig[option]
-        .filter(({ type, fetchUrl }: FieldConfig) => (type === 'dropmenu' || type === 'multi-option') && fetchUrl)
-        .map(async ({ fetchUrl, id, uriComponent }: FieldConfig) => {
-          try {
-            const urlToUse = uriComponent ? `${fetchUrl}/byType?type=${encodeURIComponent(uriComponent)}` : fetchUrl || ''
-            const res: Response = await fetch(urlToUse)
-            const data = await res.json()
-            const dataResponse = Array.isArray(data) ? data : data.formData
-            const dataOptions = Object.keys(dataResponse)
-              .filter((key) => key !== 'columns')
-              .flatMap(key => dataResponse[key])
-            return { [String(id)]: dataOptions }
-          } catch (error) {
-            console.error(`Error fetching dropdown data for ${ id }`, error)
-            return { [String(id)]: [] }
-          }
-        })
-      
-      const results = await Promise.all(fetchPromises)
-      setDropdownData(results.reduce((acc, result) => ({ ...acc, ...result }), {}))
+    const fetchData = async() => {
+      const result = await fetchDropdownData(option)
+      setDropdownData(result)
     }
 
-    fetchDropdownData()
+    fetchData()
   }, [ option ])
-
-  const getProperty = (obj: DataObject, key: string): string | number | boolean => {
-    const propertyMap: { [key: string]: string } = Object.keys(obj).reduce((item, originalKey) => {
-      item[originalKey.toLowerCase()] = originalKey
-      return item
-    }, {} as { [key: string]: string });
-  
-    return obj[propertyMap[key.toLowerCase()]]
-  }
-
-  const createObject = (formDataRes: DataObject[], keys: string[]): { [key: string]: string | string[] | boolean | number | ListObject[] } | null => {
-    const selectedObj = formDataRes.find((item: DataObject) => Object.keys(item).some(key => key.endsWith('Id') && item[key] === selectedId))
-    if (!selectedObj) return null
-
-    return keys.slice(1).reduce((obj: { [key: string]: string | string[] | boolean | number }, key: string) => {
-      const dropDownKey = key.replace(/Id$/i, '').toLowerCase()
-      const value = getProperty(selectedObj, dropDownKey)
-      const newKey = Object.keys(dropdownData).find((key: string) => (key.toLowerCase() === dropDownKey) ? dropdownData[key] : undefined) as string
-      if (!newKey) return { ...obj, [dropDownKey]: value };
-      
-      const fields = fieldsConfig[option]
-      const field = fields.filter(item => item.id.toLowerCase() === newKey.toLowerCase())[0]
-      const dropDownDataFound = Array.isArray(value) ? value : (dropdownData[newKey]?.filter((dropData: IDropDownMenu) => dropData.name === value) || []);
-      const newValue = Array.isArray(dropDownDataFound) ? dropDownDataFound.map(item => item[`${newKey}Id`] || item) : value            
-      const oneValueInAnArray = field.type === 'dropmenu' && Array.isArray(newValue)
-      return { ...obj, [dropDownKey]: oneValueInAnArray ? newValue[0] : newValue }
-    }, {} as { [key: string]: string | string[] | boolean | number })
-  }
 
   useEffect(() => {
     if (toolbarOption === 1 && selectedId) {
-      const objectsForm = createObject(formDataRes, keys)
-      if (objectsForm) {
-        const initialFormData = Object.keys(objectsForm).reduce((acc, key: string) => {
-          acc[key] = objectsForm[key]
-          return acc
-        }, {} as { [key: string]: string | number | boolean | string[] | ListObject[] })
-        formData.current = initialFormData
-      }
+      const objectsForm = createObject(formDataRes, keys, selectedId, dropdownData, option)
+      if (objectsForm) formData.current = objectsForm
     }
-  }, [ toolbarOption, selectedId, data, keys, dropdownData ])
+  }, [ toolbarOption, selectedId, data, keys, dropdownData, formDataRes, option ])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>): void => {
     const { id, value, type } = e.target
@@ -114,7 +112,6 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     }
 
     const urlToUse: string = selectedId && toolbarOption === 1 ? `${ String(url) }/${ selectedId } ` : String(url)
-    console.log({ data: formData.current })
     try {
       const res: Response = await fetch(urlToUse, requestOptions)
       if (!res.ok) {
@@ -142,15 +139,16 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   }
 
   const elements = useMemo(() => {
-    const objectsForm = createObject(formDataRes, keys)
+    const objectsForm = createObject(formDataRes, keys, selectedId, dropdownData, option)
+    console.log({ objectsForm })
     return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType, /*modify,*/ amount }: FieldConfig, index: number) => {
       const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
       const appendCurrentGroup = (group: JSX.Element[]) =>
         group.length > 0 ? [...acc.slice(0, -1), <div key={ `input-group-${ index }` } className='input-group'>{ group }</div>] : acc
-  
+
       if (type === 'section') {
         const updatedAcc = appendCurrentGroup(currentGroup)
-  
+
         return [
           ...updatedAcc,
           <div key={`${ name }-${ index }`} className='title'>

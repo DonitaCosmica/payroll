@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using API.DTO;
 using API.Interfaces;
 using API.Models;
+using API.Enums;
 
 namespace API.Controllers
 {
@@ -24,13 +25,25 @@ namespace API.Controllers
           IsHidden = d.IsHidden
         }).ToList();
 
+      var deductionsWithCompensation  = deductions.Select(d => new
+      {
+        d.DeductionId,
+        d.Key,
+        d.Description,
+        d.IsHidden,
+        CompensationType = DetermineCompensationType(d).ToString()
+      }).ToList();
+
+      foreach(var deduction in deductions)
+        Console.WriteLine();
+
       var columns = deductionRepository.GetColumns();
       var result = new
       {
         Columns = columns,
         FormColumns = columns,
         Data = deductions,
-        FormData = deductions
+        FormData = deductionsWithCompensation 
       };
 
       return Ok(result);
@@ -118,6 +131,17 @@ namespace API.Controllers
         return StatusCode(500, "Something went wrong deleting deduction");
 
       return NoContent();
+    }
+    private static CompensationType DetermineCompensationType(DeductionDTO deduction)
+    {
+      if(deduction.Description.Contains("Salario") || deduction.Description.Contains("Sueldo"))
+        return CompensationType.Principal;
+      else if(deduction.Description.Contains("Horas") || deduction.Description.Contains("Extra"))
+        return CompensationType.Hours;
+      else if(deduction.Description.Contains("Faltas"))
+        return CompensationType.Days;
+
+      return CompensationType.Normal;
     }
   }
 }

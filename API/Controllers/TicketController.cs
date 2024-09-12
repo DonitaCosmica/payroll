@@ -221,6 +221,7 @@ namespace API.Controllers
           TicketId = t.TicketId,
           Serie = t.Serie,
           Bill = t.Bill,
+          PayrollType = t.PayrollType,
           Employee = t.Employee,
           Status = t.Status,
           ReceiptOfDate = t.ReceiptOfDate,
