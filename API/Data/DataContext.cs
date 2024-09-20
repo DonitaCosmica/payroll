@@ -28,6 +28,7 @@ namespace API.Data
     public virtual DbSet<Regime> Regimes { get; set; }
     public virtual DbSet<State> States { get; set; }
     public virtual DbSet<Status> Statuses { get; set; }
+    public virtual DbSet<TableWork> TableWorks { get; set; }
     public virtual DbSet<Ticket> Tickets { get; set; }
     public virtual DbSet<TicketPerception> TicketPerceptions { get; set; }
     public virtual DbSet<TicketDeduction> TicketDeductions { get; set; }
@@ -106,6 +107,19 @@ namespace API.Data
         entity.HasOne(p => p.Project)
           .WithMany(ep => ep.EmployeeProjects)
           .HasForeignKey(p => p.ProjectId)
+          .OnDelete(DeleteBehavior.Restrict);
+      });
+
+      modelBuilder.Entity<TableWork>(entity =>
+      {
+        entity.HasKey(tw => tw.TableWorkId);
+        entity.Property(tw => tw.Cta)
+          .HasConversion(
+            v => v.ToString(),
+            v => (CtaOptions)Enum.Parse(typeof(CtaOptions), v));
+        entity.HasOne(tw => tw.Employee)
+          .WithMany(e => e.TableWorks)
+          .HasForeignKey(tw => tw.EmployeeId)
           .OnDelete(DeleteBehavior.Restrict);
       });
 

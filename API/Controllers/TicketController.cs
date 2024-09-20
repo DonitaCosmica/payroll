@@ -101,7 +101,7 @@ namespace API.Controllers
 
       var ticketToDelete = ticketRepository.GetTicket(ticketId);
       if(!ticketRepository.DeleteTicket(ticketToDelete))
-        return StatusCode(500, "Something went wrong deleting employee");
+        return StatusCode(500, "Something went wrong deleting ticket");
 
       return NoContent();
     }
@@ -126,7 +126,8 @@ namespace API.Controllers
         Total = totalPerceptions - totalDeductions,
         Projects = string.Join(", ", relatedEntities.Projects
           .OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
-          .ThenBy(p => {
+          .ThenBy(p =>
+          {
             var number = new string(p.Name.Where(char.IsDigit).ToArray());
             return int.TryParse(number, out int result) ? result : 0;
           })

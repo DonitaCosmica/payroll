@@ -10,8 +10,8 @@ namespace API.Repository
   {
     private readonly DataContext context = context;
 
-    public ICollection<Project> GetProjects() => 
-      context.Projects.Include(p => p.Company).Include(p => p.Status).ToList();
+    public ICollection<Project> GetProjects() =>
+      [.. context.Projects.Include(p => p.Company).Include(p => p.Status)];
     public Project GetProject(string projectId) => 
       context.Projects.Include(p => p.Company).Include(p => p.Status)
       .FirstOrDefault(p => p.ProjectId == projectId) ??

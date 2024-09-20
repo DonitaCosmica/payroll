@@ -14,6 +14,7 @@ function App(): JSX.Element {
   const { option } = useNavigationContext()
   const [showForm, setShowForm] = useState<boolean>(false)
   const [searchFilter, setSearchFilter] = useState<string>('')
+  const [content, setContent] = useState<boolean>(false)
 
   const renderForm = () => showForm && <Form setShowForm={setShowForm} />
   const renderFilter = () => option === 1 && <Filter />
@@ -21,14 +22,15 @@ function App(): JSX.Element {
   return (
     <main className='payroll'>
       <PeriodProvider>
-        {renderForm()}
+        { renderForm() }
         <Titlebar action='payroll' />
-        <Navbar />
-        {renderFilter()}
+        { !content && <Navbar /> }
+        { renderFilter() }
       </PeriodProvider>
       <Toolbar
         setSearchFilter={ setSearchFilter }
         setShowForm={ setShowForm }
+        setContent={ setContent }
       />
       <List 
         setShowForm={ setShowForm }

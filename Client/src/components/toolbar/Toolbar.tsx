@@ -10,9 +10,10 @@ import './Toolbar.css'
 interface Props {
   setSearchFilter: React.Dispatch<React.SetStateAction<string>>
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
+  setContent: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm }): JSX.Element => {
+export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setContent }): JSX.Element => {
   const { option, url, submitCount, selectedId, setSubmitCount, dispatch } = useNavigationContext()
   const [showDropMenu, setShowDropMenu] = useState<boolean>(false)
 
@@ -39,8 +40,21 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm }): JSX.
     setSearchFilter(e.target.value)
 
   const handleForm = async (index: number, label: string): Promise<void> => {
-    const isInvalidAction = label !== 'Nuevo' && label !== 'Editar' && label !== 'Eliminar'
+    const isInvalidAction = label !== 'Nuevo' && label !== 'Editar' && label !== 'Eliminar' && label !== 'Tabla de trabajo'
     if (isInvalidAction) return
+
+    if (label === 'Tabla de trabajo') {
+      const res: Response = await fetch('')
+      const data = await res.json()
+
+      dispatch({
+        type: NavigationActionKind.UPDATEDATA,
+        payload: {  }
+      })
+
+      setContent(prev => !prev)
+      return
+    }
 
     const isInvalidSelection = (index === 1 || index === 2) && selectedId === ''
     if (isInvalidSelection) return
