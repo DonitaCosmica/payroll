@@ -63,5 +63,6 @@ namespace API.Models
     public float TotalDeductions { get; set; }
     public ICollection<TicketPerception> TicketPerceptions { get; set; } = [];
     public ICollection<TicketDeduction> TicketDeductions { get; set;} = [];
+    public ICollection<TableWork> TableWorks { get; set; } = [];
   }
 }

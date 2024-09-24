@@ -110,19 +110,6 @@ namespace API.Data
           .OnDelete(DeleteBehavior.Restrict);
       });
 
-      modelBuilder.Entity<TableWork>(entity =>
-      {
-        entity.HasKey(tw => tw.TableWorkId);
-        entity.Property(tw => tw.Cta)
-          .HasConversion(
-            v => v.ToString(),
-            v => (CtaOptions)Enum.Parse(typeof(CtaOptions), v));
-        entity.HasOne(tw => tw.Employee)
-          .WithMany(e => e.TableWorks)
-          .HasForeignKey(tw => tw.EmployeeId)
-          .OnDelete(DeleteBehavior.Restrict);
-      });
-
       modelBuilder.Entity<Ticket>(entity =>
       {
         entity.HasKey(t => t.TicketId);
@@ -166,6 +153,19 @@ namespace API.Data
           .WithMany(t => t.TicketDeductions)
           .HasForeignKey(td => td.DeductionId)
           .OnDelete(DeleteBehavior.Cascade);
+      });
+
+      modelBuilder.Entity<TableWork>(entity =>
+      {
+        entity.HasKey(tw => tw.TableWorkId);
+        entity.Property(tw => tw.Cta)
+          .HasConversion(
+            v => v.ToString(),
+            v => (CtaOptions)Enum.Parse(typeof(CtaOptions), v));
+        entity.HasOne(tw => tw.Ticket)
+          .WithMany(t => t.TableWorks)
+          .HasForeignKey(tw => tw.TicketId)
+          .OnDelete(DeleteBehavior.Restrict);
       });
 
       base.OnModelCreating(modelBuilder);

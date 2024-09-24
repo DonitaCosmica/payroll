@@ -178,6 +178,15 @@ namespace API.Repository
 
       return (filterPerceptions, filterDeductions);
     }
+    public float GetBaseSalaryEmployee(string employeeId)
+    {
+      if(employeeId == null)
+        throw new ArgumentNullException(nameof(employeeId), "Employee ID cannot be null.");
+      
+      var employee = context.Employees.FirstOrDefault(e => e.EmployeeId == employeeId);
+      return employee != null ? employee.BaseSalary : 0f;
+    }
+
     public bool TicketExists(string ticketId) => context.Tickets.Any(t => t.TicketId == ticketId);
     private static (ushort currentWeek, ushort currentYear, ushort previousWeek, ushort previousYear) GetWeekAndYearInfo()
     {

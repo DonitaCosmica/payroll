@@ -111,6 +111,8 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
        body: JSON.stringify(formData.current)
     }
 
+    console.log({ data: formData.current })
+
     const urlToUse: string = selectedId && toolbarOption === 1 ? `${ String(url) }/${ selectedId } ` : String(url)
     try {
       const res: Response = await fetch(urlToUse, requestOptions)
@@ -140,7 +142,6 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
 
   const elements = useMemo(() => {
     const objectsForm = createObject(formDataRes, keys, selectedId, dropdownData, option)
-    console.log({ objectsForm })
     return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType, /*modify,*/ amount }: FieldConfig, index: number) => {
       const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
       const appendCurrentGroup = (group: JSX.Element[]) =>

@@ -51,13 +51,14 @@ namespace API.Controllers
       if(bankCreate == null || string.IsNullOrEmpty(bankCreate.Name))
         return BadRequest();
 
-      if(bankRepository.GetBankByName(bankCreate.Name.Trim()) != null)
+      if(bankRepository.GetBankByName(bankCreate.Name.Trim()) != null || string.IsNullOrEmpty(bankCreate.Code))
         return Conflict("Bank already exists");
 
       var bank = new Bank
       {
         BankId = Guid.NewGuid().ToString(),
-        Name = bankCreate.Name
+        Name = bankCreate.Name,
+        Code = bankCreate.Code
       };
 
       if(!bankRepository.CreateBank(bank))
@@ -72,7 +73,7 @@ namespace API.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateBank(string bankId, [FromBody] BankDTO updateBank)
     {
-      if(updateBank == null || string.IsNullOrEmpty(updateBank.Name))
+      if(updateBank == null || string.IsNullOrEmpty(updateBank.Name) || string.IsNullOrEmpty(updateBank.Code))
         return BadRequest();
 
       var bank = bankRepository.GetBank(bankId);
@@ -80,6 +81,7 @@ namespace API.Controllers
         return NotFound();
 
       bank.Name = updateBank.Name;
+      bank.Code = updateBank.Code;
 
       if(!bankRepository.UpdateBank(bank))
         return StatusCode(500, "Something went wrong updating bank");

@@ -93,14 +93,16 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
     ).replace(/\s+/g, '')
   }
 
-  const getValueByKeyIncludes = (obj: DataObject, searchKey: string): string | number | boolean | object | undefined  =>
-    Object.keys(obj).find((key: string) => searchKey.includes(key)) ? obj[searchKey] : undefined
+  const getValueByKeyIncludes = (obj: DataObject, searchKey: string): string | number | boolean | object | undefined => {
+    const foundKey = Object.keys(obj).find((key: string) => searchKey.includes(key))
+    return foundKey ? obj[foundKey as keyof DataObject] : undefined
+  }
 
   const renderCellContent = (row: DataObject, column: string): number | string => {
     const key = Object.keys(columnsDictionary.current).find(key => columnsDictionary.current[key] === column) ?? column
     const newKey = toCamelCase(key)
     const info = getValueByKeyIncludes(row, newKey)
-
+    
     if (typeof info === 'boolean') return info ? 'Verdadero' : 'Falso'
     if (Array.isArray(info)) {
       if (info.length > 0 && typeof info[0] === 'object') {
@@ -120,7 +122,7 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
 
     return info !== undefined ? info.toString() : ''
   }
-  
+
   return (
     <section className="list">
       <div className="list-container">

@@ -11,12 +11,14 @@ interface Props {
   setFormData: React.MutableRefObject<{ [key: string]: string | number | boolean | string[] | ListObject[] }>
 }
 
-export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, showAmount, setFormData }): JSX.Element => {
+export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, showAmount, setFormData }): JSX.Element => {  
   const [filteredOptions, setFilteredOptions] = useState<IDropDownMenu[]>([])
   const [isOptionSelected, setIsOptionSelected] = useState<boolean[]>([])
   const [isAllOptionsSelected, setIsAllOptionsSelected] = useState<boolean>(false)
   const [showMenu, setShowMenu] = useState<boolean>(false)
   const selectedItemsRef = useRef<ListObject[]>([])
+
+  console.log({ options })
   
   const getDisplayValue = useCallback((item: IDropDownMenu): string =>
     (item.name ?? item.description ?? "").toString(), [])
@@ -73,8 +75,8 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
 
         Object.keys(option).forEach(key => {
           if (isDateKey(key))
-            newItem[key] = new Date().toISOString().split('T')[0]
-          else 
+            newItem[key.toLowerCase().includes('date') ? 'date' : key] = new Date().toISOString().split('T')[0]
+          else if(key.toLowerCase() === 'value')
             newItem['value'] = 0
         })
 
@@ -102,7 +104,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
           ...Object.keys(item).reduce((acc, key) => {
             if (isDateKey(key))
               acc[key.toLowerCase().includes('date') ? 'date' : key] = new Date().toISOString().split('T')[0]
-            else
+            else if(key.toLowerCase() === 'value')
               acc['value'] = 0
             return acc
           }, {} as Record<string, string | number>)

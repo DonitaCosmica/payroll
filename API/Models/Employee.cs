@@ -112,6 +112,5 @@ namespace API.Models
     public string CompanyId { get; set; } = default!;
     public Company Company { get; set; } = new();
     public ICollection<Ticket> Tickets { get; set; } = [];
-    public ICollection<TableWork> TableWorks { get; set; } = [];
   }
 }

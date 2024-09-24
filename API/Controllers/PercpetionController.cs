@@ -31,7 +31,7 @@ namespace API.Controllers
         p.Key,
         p.Description,
         p.IsHidden,
-        CompensationType = DetermineCompensationType(p).ToString()
+        CompensationType = DetermineCompensationType(p.Description).ToString()
       });
 
       var columns = perceptionRepository.GetColumns();
@@ -44,6 +44,22 @@ namespace API.Controllers
       };
 
       return Ok(result);
+    }
+
+    [HttpGet("by")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<PerceptionDTO>))]
+    public IActionResult GetAddPerceptions()
+    {
+      var perceptions = perceptionRepository.GetPerceptions()
+        .Select(p => new
+        {
+          p.PerceptionId,
+          Name = p.Description,
+          Value = p.Description == "Sueldo" ? 0 : 0,
+          CompensationType = DetermineCompensationType(p.Description).ToString()
+        }).ToList();
+
+      return Ok(perceptions);
     }
 
     [HttpGet("{perceptionId}")]
@@ -130,13 +146,13 @@ namespace API.Controllers
       return NoContent();
     }
 
-    private static CompensationType DetermineCompensationType(PerceptionDTO perception)
+    private static CompensationType DetermineCompensationType(string description)
     {
-      if(perception.Description.Contains("Salario") || perception.Description.Contains("Sueldo"))
+      if(description.Contains("Salario") || description.Contains("Sueldo"))
         return CompensationType.Principal;
-      else if(perception.Description.Contains("Horas") || perception.Description.Contains("Extra"))
+      else if(description.Contains("Horas") || description.Contains("Extra"))
         return CompensationType.Hours;
-      else if(perception.Description.Contains("Faltas"))
+      else if(description.Contains("Faltas"))
         return CompensationType.Days;
 
       return CompensationType.Normal;

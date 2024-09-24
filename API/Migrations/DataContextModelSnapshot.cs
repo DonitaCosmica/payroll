@@ -509,6 +509,63 @@ namespace API.Migrations
                     b.ToTable("Statuses");
                 });
 
+            modelBuilder.Entity("API.Models.TableWork", b =>
+                {
+                    b.Property<string>("TableWorkId")
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("Cta")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("Friday")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Monday")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Observations")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("Saturday")
+                        .HasColumnType("real");
+
+                    b.Property<string>("StsR")
+                        .IsRequired()
+                        .HasMaxLength(1)
+                        .HasColumnType("nvarchar(1)");
+
+                    b.Property<string>("StsTr")
+                        .IsRequired()
+                        .HasMaxLength(1)
+                        .HasColumnType("nvarchar(1)");
+
+                    b.Property<float>("Sunday")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Thursday")
+                        .HasColumnType("real");
+
+                    b.Property<string>("TicketId")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(36)");
+
+                    b.Property<float>("Tuesday")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Wednesday")
+                        .HasColumnType("real");
+
+                    b.HasKey("TableWorkId");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("TableWorks");
+                });
+
             modelBuilder.Entity("API.Models.Ticket", b =>
                 {
                     b.Property<string>("TicketId")
@@ -759,6 +816,17 @@ namespace API.Migrations
                     b.Navigation("Status");
                 });
 
+            modelBuilder.Entity("API.Models.TableWork", b =>
+                {
+                    b.HasOne("API.Models.Ticket", "Ticket")
+                        .WithMany("TableWorks")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+                });
+
             modelBuilder.Entity("API.Models.Ticket", b =>
                 {
                     b.HasOne("API.Models.Employee", "Employee")
@@ -909,6 +977,8 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.Ticket", b =>
                 {
+                    b.Navigation("TableWorks");
+
                     b.Navigation("TicketDeductions");
 
                     b.Navigation("TicketPerceptions");

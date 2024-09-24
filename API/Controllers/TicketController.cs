@@ -180,6 +180,7 @@ namespace API.Controllers
         TicketId = ticket.TicketId,
         Serie = ticket.Serie,
         Bill = ticket.Bill,
+        EmployeeId = ticket.EmployeeId,
         Employee = ticket.Employee.Name,
         JobPosition = ticket.JobPosition,
         Department = ticket.Department,
@@ -240,12 +241,20 @@ namespace API.Controllers
       {
         float totalPerceptions = t.Perceptions.Sum(p => p.Value);
         float totalDeductions = t.Deductions.Sum(d => d.Value);
+        var baseSalaryPerception = t.Perceptions.FirstOrDefault(p => p.Name == "Sueldo");
+        if(baseSalaryPerception == null)
+        {
+          float baseSalary = ticketRepository.GetBaseSalaryEmployee(t.EmployeeId!);
+          t.Perceptions.Add(new TicketPerceptionRelatedEntities { Name = "Sueldo", Value = baseSalary });
+          totalPerceptions += baseSalary;
+        }
 
         TicketList ticket = new()
         {
           TicketId = t.TicketId,
           Serie = t.Serie,
           Bill = t.Bill,
+          EmployeeId = t.EmployeeId,
           Employee = t.Employee,
           JobPosition = t.JobPosition,
           Department = t.Department,
@@ -268,7 +277,7 @@ namespace API.Controllers
       IEnumerable<TicketListDTO> ticketsToSend = listTickets.Select(auxTicket =>
       {
         var additionalProperties = auxTicket.Perceptions
-          .Where(p => p.Value > 0)
+          .Where(p => p.Value > 0 && p.Name != "Sueldo")
           .ToDictionary(p => p.Name ?? "Unknown Perception", p => (object)p.Value)
           .Concat(
             auxTicket.Deductions
@@ -276,6 +285,9 @@ namespace API.Controllers
               .ToDictionary(d => d.Name ?? "Unknown Deduction", d => (object)d.Value)
           )
           .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+        if(!additionalProperties.ContainsKey("Sueldo"))
+          additionalProperties["Sueldo"] = ticketRepository.GetBaseSalaryEmployee(auxTicket.EmployeeId!);
 
         foreach(var perception in filteredPerceptions)
         {

@@ -31,11 +31,8 @@ namespace API.Controllers
         d.Key,
         d.Description,
         d.IsHidden,
-        CompensationType = DetermineCompensationType(d).ToString()
+        CompensationType = DetermineCompensationType(d.Description).ToString()
       }).ToList();
-
-      foreach(var deduction in deductions)
-        Console.WriteLine();
 
       var columns = deductionRepository.GetColumns();
       var result = new
@@ -47,6 +44,22 @@ namespace API.Controllers
       };
 
       return Ok(result);
+    }
+
+    [HttpGet("by")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<DeductionDTO>))]
+    public IActionResult GetAddDeductions()
+    {
+      var deductions = deductionRepository.GetDeductions()
+        .Select(d => new
+        {
+          d.DeductionId,
+          Name = d.Description,
+          Value = 0,
+          CompensationType = DetermineCompensationType(d.Description).ToString()
+        }).ToList();
+
+      return Ok(deductions);
     }
 
     [HttpGet("{deductionId}")]
@@ -132,13 +145,13 @@ namespace API.Controllers
 
       return NoContent();
     }
-    private static CompensationType DetermineCompensationType(DeductionDTO deduction)
+    private static CompensationType DetermineCompensationType(string description)
     {
-      if(deduction.Description.Contains("Salario") || deduction.Description.Contains("Sueldo"))
+      if(description.Contains("Salario") || description.Contains("Sueldo"))
         return CompensationType.Principal;
-      else if(deduction.Description.Contains("Horas") || deduction.Description.Contains("Extra"))
+      else if(description.Contains("Horas") || description.Contains("Extra"))
         return CompensationType.Hours;
-      else if(deduction.Description.Contains("Faltas"))
+      else if(description.Contains("Faltas"))
         return CompensationType.Days;
 
       return CompensationType.Normal;
