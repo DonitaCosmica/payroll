@@ -17,6 +17,14 @@ namespace API.Repository
     public bool UpdatePerception(Perception perception) => context.UpdateEntity(perception);
     public bool DeletePerception(Perception perception) => context.DeleteEntity(perception);
     public List<string> GetColumns() => context.GetColumns<Perception>();
+    public float GetBaseSalaryEmployee(string employeeId)
+    {
+      if(employeeId == null)
+        throw new ArgumentNullException(nameof(employeeId), "Employee ID cannot be null.");
+
+      var employee = context.Employees.FirstOrDefault(e => e.EmployeeId == employeeId);
+      return employee != null ? employee.BaseSalary : 0f;
+    }
     public bool PerceptionExists(string perceptionId) => context.Perceptions.Any(p => p.PerceptionId == perceptionId);
   }
 }

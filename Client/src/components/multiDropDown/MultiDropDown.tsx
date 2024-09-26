@@ -17,9 +17,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
   const [isAllOptionsSelected, setIsAllOptionsSelected] = useState<boolean>(false)
   const [showMenu, setShowMenu] = useState<boolean>(false)
   const selectedItemsRef = useRef<ListObject[]>([])
-
-  console.log({ options })
-  
+    
   const getDisplayValue = useCallback((item: IDropDownMenu): string =>
     (item.name ?? item.description ?? "").toString(), [])
 
@@ -40,10 +38,22 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
     const allSelected = selectedIds.every(id => selectedIdsSet.has(id))
     const sortValues = value.sort((a, b) => (a.name as string).localeCompare(b.name as string))
 
+    if (!sortValues.some(item => item.name === "Sueldo")) {
+      const salaryItem: ListObject = sortedOptions.filter(item => item.name.toLowerCase() === 'sueldo')[0]
+      if (salaryItem) {
+        if ('compensationType' in salaryItem) delete salaryItem.compensationType
+        sortValues.push(salaryItem)
+
+        const salaryPosition = sortedOptions.findIndex(item => item.name.toLowerCase() === 'sueldo')
+        updatedIsOptionSelected[salaryPosition] = true
+      }
+    }
+
     setIsOptionSelected(updatedIsOptionSelected)
     selectedItemsRef.current = sortValues
     setIsAllOptionsSelected(allSelected)
     setFilteredOptions(sortedOptions)
+
   }, [ sortedOptions, value, idKey ])
 
   const isDateKey = useCallback((key: string): boolean => {

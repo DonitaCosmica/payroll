@@ -222,8 +222,6 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
           })
         }
         
-        console.log({ dataResponse, columns, newData, formData: dataResponse.formData })
-
         dispatch({ 
           type: NavigationActionKind.UPDATEDATA, 
           payload: { columns, newData, formData: dataResponse.formData, names } 

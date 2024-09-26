@@ -12,7 +12,33 @@ interface Props {
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const fetchDropdownData = async (option: NavigationActionKind): Promise<{ [x: string]: any[] }> => {
+interface InitialDropdownData {
+  [key: string]: IDropDownMenu[]
+}
+
+interface PerceptionsAndDeductions {
+  perceptions: IDropDownMenu[],
+  deductions: IDropDownMenu[]
+}
+
+function* fetchDataGenerator(option: NavigationActionKind) {
+  try {
+    const initialDropdownData: InitialDropdownData = yield fetchInitialDropdownData(option)
+
+    if (option === NavigationActionKind.PAYROLLRECEIPTS) {
+      const employeeId: string = yield
+      const perceptionsAndDeductions: PerceptionsAndDeductions = yield fetchPerceptionsAndDeductions(employeeId)
+      return perceptionsAndDeductions
+    }
+
+    return initialDropdownData
+  } catch (error) {
+    console.error('Error in fetchDataGenerator:', error)
+    throw error
+  }
+}
+
+const fetchInitialDropdownData = async (option: NavigationActionKind) => {
   const fetchPromises = fieldsConfig[option]
     .filter(({ type, fetchUrl }: FieldConfig) => (type === 'dropmenu' || type === 'multi-option') && fetchUrl)
     .map(async ({ fetchUrl, id, uriComponent }: FieldConfig) => {
@@ -21,7 +47,7 @@ const fetchDropdownData = async (option: NavigationActionKind): Promise<{ [x: st
         const res: Response = await fetch(urlToUse)
         const data = await res.json()
         const dataResponse = Array.isArray(data) ? data : data.formData
-        const dataOptions = Object.keys(dataResponse)
+        const dataOptions: IDropDownMenu[] = Object.keys(dataResponse)
           .filter((key) => key !== 'columns')
           .flatMap(key => dataResponse[key])
         return { [String(id)]: dataOptions }
@@ -30,9 +56,29 @@ const fetchDropdownData = async (option: NavigationActionKind): Promise<{ [x: st
         return { [String(id)]: [] }
       }
     })
-  
+
   const results = await Promise.all(fetchPromises)
   return results.reduce((acc, result) => ({ ...acc, ...result }), {})
+}
+
+const fetchPerceptionsAndDeductions = async (employeeId: string | undefined) => {
+  try {
+    const perceptionsResponse: Response = await fetch(`http://localhost:5239/api/Perception/by?employeeId=${ employeeId }`)
+    const perceptionsData: IDropDownMenu[] = await perceptionsResponse.json()
+    const deductionsResponse: Response = await fetch('http://localhost:5239/api/Deduction/by')
+    const deductionsData: IDropDownMenu[] = await deductionsResponse.json()
+
+    return {
+      perceptions: perceptionsData || [],
+      deductions: deductionsData || []
+    }
+  } catch (error) {
+    console.error('Error fetching perceptions or deductions:', error)
+    return {
+      perceptions: [],
+      deductions: []
+    }
+  }
 }
 
 const getProperty = (obj: DataObject, key: string): string | number | boolean => {
@@ -53,7 +99,7 @@ const createObject = (formDataRes: DataObject[], keys: string[], selectedId: str
     const value = getProperty(selectedObj, dropDownKey)
     const newKey = Object.keys(dropdownData).find((key: string) => (key.toLowerCase() === dropDownKey) ? dropdownData[key] : undefined) as string
     if (!newKey) return { ...obj, [dropDownKey]: value };
-    
+
     const field = fieldsConfig[option].find(item => item.id.toLowerCase() === newKey.toLowerCase())
     const dropDownDataFound = Array.isArray(value) ? value : (dropdownData[newKey]?.filter((dropData: IDropDownMenu) => dropData.name === value) || []);
     const newValue = Array.isArray(dropDownDataFound) ? dropDownDataFound.map(item => item[`${newKey}Id`] || item) : value            
@@ -66,16 +112,32 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const { option, title, formSize, url, data, formData: formDataRes, keys, submitCount, selectedId, toolbarOption, setSubmitCount } = useNavigationContext()
   const { selectedPeriod } = usePeriodContext()
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
+  const [loading, setLoading] = useState<boolean>(false)
   const formData = useRef<{ [key: string]: string | string[] | boolean | number | ListObject[] }>({})
 
   useEffect(() => {
-    const fetchData = async() => {
-      const result = await fetchDropdownData(option)
-      setDropdownData(result)
+    const fetchData = async () => {
+      const generator = fetchDataGenerator(option)
+      const initialDropdownData = await generator.next().value
+      if (initialDropdownData) setDropdownData(initialDropdownData as InitialDropdownData)
+
+      const selectedEmployeeId = formData.current?.employee as any
+      if (selectedEmployeeId) {
+        generator.next()
+        const { value: perceptionsAndDeductions } = generator.next(selectedEmployeeId)
+        if (perceptionsAndDeductions) {
+          const { perceptions, deductions } = await perceptionsAndDeductions as PerceptionsAndDeductions
+          setDropdownData((prevData) => ({
+            ...prevData,
+            perceptions,
+            deductions
+          }))
+        }
+      }
     }
 
     fetchData()
-  }, [ option ])
+  }, [ option, loading ])
 
   useEffect(() => {
     if (toolbarOption === 1 && selectedId) {
@@ -110,8 +172,6 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
        },
        body: JSON.stringify(formData.current)
     }
-
-    console.log({ data: formData.current })
 
     const urlToUse: string = selectedId && toolbarOption === 1 ? `${ String(url) }/${ selectedId } ` : String(url)
     try {
@@ -186,6 +246,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   selectedId={ fieldId }
                   value={ value }
                   setFormData={ formData } 
+                  setLoading={ option === NavigationActionKind.PAYROLLRECEIPTS ? setLoading : () => {} }
                 />
               ) : type === 'multi-option' ? (
                 <MultiDropDown
@@ -209,7 +270,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
             </div>
           </div>
         )
-        
+
         return [...acc.slice(0, -1), <div key={`input-group-${ index }`} className='input-group'>{ [...currentGroup, fieldElement] }</div>]
       }
     }, [])

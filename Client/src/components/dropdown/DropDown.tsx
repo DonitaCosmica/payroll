@@ -7,9 +7,10 @@ interface Props {
   selectedId: string,
   value: string,
   setFormData: React.MutableRefObject<{ [key: string]: string | number | boolean | string[] | ListObject[] }>
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const DropDown: React.FC<Props> = ({ options, selectedId, value, setFormData }): JSX.Element => {
+export const DropDown: React.FC<Props> = ({ options, selectedId, value, setFormData, setLoading }): JSX.Element => {
   const [selectedValue, setSelectedValue] = useState<string>(value)
   const sortedOptions = [...options].sort((a, b) => {
     const extractNumber = (str: string): number => {
@@ -28,6 +29,9 @@ export const DropDown: React.FC<Props> = ({ options, selectedId, value, setFormD
   
   const handleChange = (event: ChangeEvent<HTMLSelectElement>): void => {
     const { id, value } = event.target
+
+    if (id === 'employee')
+      setLoading(prev => !prev)
 
     setSelectedValue(value)
     setFormData.current[id] = value

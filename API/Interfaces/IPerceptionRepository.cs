@@ -11,6 +11,7 @@ namespace API.Interfaces
     bool UpdatePerception(Perception perception);
     bool DeletePerception(Perception perception);
     List<string> GetColumns();
+    float GetBaseSalaryEmployee(string employeeId);
     bool PerceptionExists(string perceptionId);
   }
 }

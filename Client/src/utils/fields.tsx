@@ -10,8 +10,8 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
     { type: 'input', name: 'Fecha de Recibo', inputType: 'date', modify: true, id: 'receiptOfDate' },
     { type: 'input', name: 'Fecha de Pago', inputType: 'date', modify: true, id: 'paymentDate' },
     { type: 'dropmenu', name: 'Empleado', fetchUrl: 'http://localhost:5239/api/Employee', id: 'employee' },
-    { type: 'multi-option', name: 'Percepciones', fetchUrl: 'http://localhost:5239/api/Perception/by', amount: true, id: 'perceptions' },
-    { type: 'multi-option', name: 'Deducciones', fetchUrl: 'http://localhost:5239/api/Deduction/by', amount: true, id: 'deductions' },
+    { type: 'multi-option', name: 'Percepciones', amount: true, id: 'perceptions' },
+    { type: 'multi-option', name: 'Deducciones', amount: true, id: 'deductions' },
     { type: 'textarea', name: 'Observaciones', label: 'Observaciones...', id: 'observations' }
   ],
   [NavigationActionKind.EMPLOYEES]: [

@@ -48,16 +48,18 @@ namespace API.Controllers
 
     [HttpGet("by")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<PerceptionDTO>))]
-    public IActionResult GetAddPerceptions()
+    public IActionResult GetAddPerceptions([FromQuery] string employeeId)
     {
       var perceptions = perceptionRepository.GetPerceptions()
         .Select(p => new
         {
           p.PerceptionId,
           Name = p.Description,
-          Value = p.Description == "Sueldo" ? 0 : 0,
+          Value = p.Description == "Sueldo" ? perceptionRepository.GetBaseSalaryEmployee(employeeId) : 0,
           CompensationType = DetermineCompensationType(p.Description).ToString()
         }).ToList();
+
+        Console.WriteLine($"Employee: {employeeId}");
 
       return Ok(perceptions);
     }
