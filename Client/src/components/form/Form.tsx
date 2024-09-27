@@ -173,6 +173,8 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
        body: JSON.stringify(formData.current)
     }
 
+    console.log({ formData })
+
     const urlToUse: string = selectedId && toolbarOption === 1 ? `${ String(url) }/${ selectedId } ` : String(url)
     try {
       const res: Response = await fetch(urlToUse, requestOptions)

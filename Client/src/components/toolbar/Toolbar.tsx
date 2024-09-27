@@ -33,7 +33,8 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
   const showMoreOptions = [
     NavigationActionKind.PAYROLLRECEIPTS,
     NavigationActionKind.EMPLOYEES,
-    NavigationActionKind.PROJECTCATALOG
+    NavigationActionKind.PROJECTCATALOG,
+    NavigationActionKind.TABLEWORK
   ].includes(option)
 
   const handleChangeSearch = (e: React.ChangeEvent<HTMLInputElement>): void =>
@@ -44,14 +45,7 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
     if (isInvalidAction) return
 
     if (label === 'Tabla de trabajo') {
-      const res: Response = await fetch('')
-      const data = await res.json()
-
-      dispatch({
-        type: NavigationActionKind.UPDATEDATA,
-        payload: {  }
-      })
-
+      dispatch({ type: 10 })
       setContent(prev => !prev)
       return
     }

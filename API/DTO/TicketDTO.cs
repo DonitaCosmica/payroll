@@ -18,7 +18,7 @@ namespace API.DTO
     public string? Observations { get; set; }
     public string ReceiptOfDate { get; set; } = default!;
     public string PaymentDate { get; set; } = default!;
-    public string PayrollType { get; set; } = default!;
+    public string Payroll { get; set; } = default!;
     public ushort? Week { get; set; }
     public ushort? Year { get; set; }
     public HashSet<TicketPerceptionRelatedEntities> Perceptions { get; set; } = [];

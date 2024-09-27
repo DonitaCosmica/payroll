@@ -41,12 +41,12 @@ namespace API.Repository
         join jp in context.JobPositions on e.JobPositionId equals jp.JobPositionId
         join d in context.Departments on jp.DepartmentId equals d.DepartmentId
         join s in context.Statuses on ticketDTO.Status equals s.StatusId
-        join pa in context.Payrolls on ticketDTO.PayrollType equals pa.PayrollId
+        join pa in context.Payrolls on ticketDTO.Payroll equals pa.PayrollId
         join pr1 in context.Periods on ticketDTO.Week equals pr1.Week
         join pr2 in context.Periods on ticketDTO.Year equals pr2.Year
         where ticketDTO.Employee == e.EmployeeId &&
           ticketDTO.Status == s.StatusId &&
-          ticketDTO.PayrollType == pa.PayrollId &&
+          ticketDTO.Payroll == pa.PayrollId &&
           ticketDTO.Week == pr1.Week &&
           ticketDTO.Year == pr2.Year
         select new TicketRelatedEntities

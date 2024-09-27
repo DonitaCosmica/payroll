@@ -164,3 +164,37 @@
   padding: 0 5px;
   border-radius: 5px;
 }
+
+.multi-select-options > hr {
+  margin-top: 10px;
+}
+
+.multi-select-options > .total-amount {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 5px 10px;
+}
+
+.multi-select-options > .total-amount > :where(.total-text, .total-number) {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.multi-select-options > .total-amount > .total-text {
+  font-size: 0.8rem;
+}
+
+.multi-select-options > .total-amount > .total-number {
+  justify-content: flex-end;
+}
+
+.multi-select-options > .total-amount > .total-number > p {
+  background-color: #003366;
+  color: #fff;
+  padding: 1px 5px;
+  border-radius: 5px;
+  font-size: 0.7rem;
+}

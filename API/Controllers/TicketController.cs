@@ -191,7 +191,7 @@ namespace API.Controllers
         Observations = ticket.Observations,
         ReceiptOfDate = ticket.ReceiptOfDate.ToString("yyyy-MM-dd"),
         PaymentDate = ticket.PaymentDate.ToString("yyyy-MM-dd"),
-        PayrollType = ticket.PayrollType.ToString(),
+        Payroll = ticket.PayrollType.ToString(),
         Perceptions = new HashSet<TicketPerceptionRelatedEntities>(ticket.TicketPerceptions.Select(p => 
           new TicketPerceptionRelatedEntities
           {
@@ -223,7 +223,7 @@ namespace API.Controllers
           TicketId = t.TicketId,
           Serie = t.Serie,
           Bill = t.Bill,
-          PayrollType = t.PayrollType,
+          Payroll = t.Payroll,
           Employee = t.Employee,
           Status = t.Status,
           ReceiptOfDate = t.ReceiptOfDate,

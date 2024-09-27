@@ -10,6 +10,8 @@ import { FiSettings, FiUsers } from "react-icons/fi"
 import { MdOutlineEmail } from "react-icons/md"
 import { PiPrinter } from "react-icons/pi"
 import { TfiClose } from "react-icons/tfi"
+import { IoReload } from "react-icons/io5"
+import { LuClipboardList } from "react-icons/lu"
 
 export const ICON_OPTIONS: {
   common: IconDefinition[]
@@ -45,6 +47,7 @@ export const ICON_OPTIONS: {
     [NavigationActionKind.PROJECTCATALOG]: [
       { icon: <TbReportSearch fontSize='1.2rem' color="#ffb380" />, label: 'Reportes' }
     ],
+    [NavigationActionKind.TABLEWORK]: [],
     [NavigationActionKind.COMPANIES]: [],
     [NavigationActionKind.UPDATEDATA]: [],
     [NavigationActionKind.UPDATETABLE]: [],
@@ -70,6 +73,11 @@ export const ICON_OPTIONS: {
       { icon: <TbCalendarTime color="#333" />, label: 'Registro de Actividad' }
     ],
     [NavigationActionKind.COMPANIES]: [],
+    [NavigationActionKind.TABLEWORK]: [
+      { icon: <IoReload color="#333" />, label: 'Actualizar' },
+      { icon: <LuClipboardList color="#70b2fb" />, label: 'Reportes' },
+      { icon: <LuClipboardList color="#70b2fb" />, label: 'Layout Bancos' }
+    ],
     [NavigationActionKind.UPDATEDATA]: [],
     [NavigationActionKind.UPDATETABLE]: [],
     [NavigationActionKind.UPDATEPAYROLL]: [],

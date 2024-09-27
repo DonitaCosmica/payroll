@@ -5,7 +5,7 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
   [NavigationActionKind.PAYROLLRECEIPTS]: [
     { type: 'input', name: 'Serie', label: 'Serie...', inputType: 'text', modify: false, id: 'serie' },
     { type: 'input', name: 'Folio', label: 'Folio...', inputType: 'text', modify: false, id: 'bill' },
-    { type: 'dropmenu', name: 'Tipo de Nomina', fetchUrl: 'http://localhost:5239/api/Payroll', id: 'payrollType' },
+    { type: 'dropmenu', name: 'Tipo de Nomina', fetchUrl: 'http://localhost:5239/api/Payroll', id: 'payroll' },
     { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status', uriComponent: 'Ticket' },
     { type: 'input', name: 'Fecha de Recibo', inputType: 'date', modify: true, id: 'receiptOfDate' },
     { type: 'input', name: 'Fecha de Pago', inputType: 'date', modify: true, id: 'paymentDate' },
@@ -84,6 +84,7 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
   [NavigationActionKind.COMPANIES]: [
     { type: 'input', name: 'Nombre', label: 'Nombre...', inputType: 'text', modify: true, id: 'name' }
   ],
+  [NavigationActionKind.TABLEWORK]: [],
   [NavigationActionKind.UPDATEDATA]: [],
   [NavigationActionKind.UPDATETABLE]: [],
   [NavigationActionKind.UPDATEPAYROLL]: [],

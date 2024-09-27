@@ -35,7 +35,6 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
     const selectedIds = sortedOptions.map(item => item[idKey] as string)
     const selectedIdsSet = new Set(value.map(v => v[idKey] as string))
     const updatedIsOptionSelected = selectedIds.map(id => selectedIdsSet.has(id))
-    const allSelected = selectedIds.every(id => selectedIdsSet.has(id))
     const sortValues = value.sort((a, b) => (a.name as string).localeCompare(b.name as string))
 
     if (!sortValues.some(item => item.name === "Sueldo")) {
@@ -49,6 +48,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
       }
     }
 
+    const allSelected = updatedIsOptionSelected.every(id => id)
     setIsOptionSelected(updatedIsOptionSelected)
     selectedItemsRef.current = sortValues
     setIsAllOptionsSelected(allSelected)
@@ -203,6 +203,21 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
               )}
             </div>
           ))}
+          {showAmount && (
+            <>
+              <hr />
+              <div className="total-amount">
+                <div className="total-text">
+                  <p>Total</p>
+                </div>
+                <div className="total-number">
+                  <p>{ `$${ selectedItemsRef.current.reduce((acc, item) =>
+                      acc + parseFloat(String(item.value)), 0) }` }
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
