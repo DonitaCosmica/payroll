@@ -9,6 +9,7 @@ namespace API.Interfaces
     bool CreateTableWork(TableWork tableWork);
     bool UpdateTableWork(TableWork tableWork);
     bool DeleteTableWork(TableWork tableWork);
+    List<string> GetColumns();
     bool TableWorkExists(string tableWorkId);
   }
 }

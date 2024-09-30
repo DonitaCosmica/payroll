@@ -47,7 +47,11 @@ export const ICON_OPTIONS: {
     [NavigationActionKind.PROJECTCATALOG]: [
       { icon: <TbReportSearch fontSize='1.2rem' color="#ffb380" />, label: 'Reportes' }
     ],
-    [NavigationActionKind.TABLEWORK]: [],
+    [NavigationActionKind.TABLEWORK]: [
+      { icon: <IoReload color="#333" />, label: 'Actualizar' },
+      { icon: <LuClipboardList color="#70b2fb" />, label: 'Reportes' },
+      { icon: <LuClipboardList color="#70b2fb" />, label: 'Layout Bancos' }
+    ],
     [NavigationActionKind.COMPANIES]: [],
     [NavigationActionKind.UPDATEDATA]: [],
     [NavigationActionKind.UPDATETABLE]: [],
@@ -73,11 +77,7 @@ export const ICON_OPTIONS: {
       { icon: <TbCalendarTime color="#333" />, label: 'Registro de Actividad' }
     ],
     [NavigationActionKind.COMPANIES]: [],
-    [NavigationActionKind.TABLEWORK]: [
-      { icon: <IoReload color="#333" />, label: 'Actualizar' },
-      { icon: <LuClipboardList color="#70b2fb" />, label: 'Reportes' },
-      { icon: <LuClipboardList color="#70b2fb" />, label: 'Layout Bancos' }
-    ],
+    [NavigationActionKind.TABLEWORK]: [],
     [NavigationActionKind.UPDATEDATA]: [],
     [NavigationActionKind.UPDATETABLE]: [],
     [NavigationActionKind.UPDATEPAYROLL]: [],

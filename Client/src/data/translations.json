@@ -77,5 +77,23 @@
     "CompanyId": "ID de la Compañia",
     "Name": "Nombre",
     "TotalWorkers": "Total de trabajadores"
+  },
+  "10": {
+    "TableWorkId": "ID",
+    "Employee": "Empleado",
+    "Department": "Departamento",
+    "Projects": "Proyectos",
+    "JobPosition":"Puesto de trabajo",
+    "StsTr": "StsTr",
+    "StsR": "StsR",
+    "Cta": "Cta",
+    "Observations": "Observaciones",
+    "Monday": "Lunes",
+    "Tuesday": "Martes",
+    "Wednesday": "Miercoles",
+    "Thursday": "Jueves",
+    "Friday": "Viernes",
+    "Saturday": "Sabado",
+    "Sunday": "Domingo"
   }
 }

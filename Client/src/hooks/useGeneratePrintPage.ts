@@ -19,7 +19,7 @@ export const useGeneratePrintPage = ({ titlebar, tableId }: Props): { [key: stri
       setHtmlText(text)
     }
 
-    const tableName = LINKS[option - 1]
+    const tableName = LINKS[option - 1] ?? "Ninguno"
     docName.current = tableName.toLowerCase().split(' ').join('-')
     getHtmlText()
   }, [ option ])

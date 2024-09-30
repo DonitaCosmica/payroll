@@ -2,6 +2,7 @@ using API.DTO;
 using API.Interfaces;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace API.Controllers
 {
@@ -18,7 +19,17 @@ namespace API.Controllers
       IEnumerable<TableWorkDTO> tableWorks = tableWorkRepository.GetTableWorks()
         .Select(MapToTableWorkDTORequest);
 
-      return Ok(tableWorks);
+      var columns = tableWorkRepository.GetColumns();
+      columns.Remove("TicketId");
+      var result = new
+      {
+        Columns = columns,
+        FormColumns = columns,
+        Data = tableWorks,
+        FormData = tableWorks
+      };
+
+      return Ok(result);
     }
 
     [HttpGet("{tableWorkId}")]
@@ -31,7 +42,17 @@ namespace API.Controllers
         return NotFound();
 
       TableWorkDTO tableWork = MapToTableWorkDTORequest(tableWorkRepository.GetTableWork(tableWorkId));
-      return Ok(tableWork);
+      var columns = tableWorkRepository.GetColumns();
+      columns.Remove("TicketId");
+      var result = new
+      {
+        Columns = columns,
+        FormColumns = columns,
+        Data = tableWork,
+        FormData = tableWork
+      };
+
+      return Ok(result);
     }
 
     [HttpPost]
@@ -79,6 +100,7 @@ namespace API.Controllers
 
       return new TableWorkDTO
       {
+        TableWorkId = tableWork.TableWorkId,
         Employee = tableWork.Ticket.Employee.Name,
         Department = tableWork.Ticket.Department,
         Projects = tableWork.Ticket.Projects,

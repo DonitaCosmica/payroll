@@ -91,11 +91,15 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
       >
         <div className='main-options'>
           <IconSection 
-            options={ showMoreOptions ? options.slice(0, end) : options }
+            options={ showMoreOptions 
+              ? option !== NavigationActionKind.TABLEWORK
+                ? options.slice(0, end)
+                : options.slice(end)
+              : options }
             handleForm={ handleForm }
           />
         </div>
-        {showMoreOptions && (
+        {showMoreOptions && option !== NavigationActionKind.TABLEWORK && (
           <div className='other-options'>
             <IconSection
               action={ option }
@@ -116,7 +120,7 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
         />
         <AiOutlineSearch />
       </div>
-      {showMoreOptions && (
+      {showMoreOptions && option !== NavigationActionKind.TABLEWORK && (
         <div className="more-options">
           <BsThreeDotsVertical onClick={ () => setShowDropMenu(!showDropMenu) } />
           { showDropMenu && <DropMenu menuOp={ menuOp ?? [] } dir={ 'right' } width={ 35 } /> }
