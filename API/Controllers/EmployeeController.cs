@@ -95,14 +95,6 @@ namespace API.Controllers
       return NoContent();
     }
 
-    private List<string> GetEmployeeColumns()
-    {
-      var columns = employeeRepository.GetColumns();
-      columns.Insert(10, "Projects");
-      columns.Insert(15, "Department");
-      return columns;
-    }
-
     private static Employee MapToEmployeeModel(EmployeeDTO employeeCreate, EmployeeRelatedEntities relatedEntities)
     {
       return new Employee

@@ -12,6 +12,7 @@ namespace API.DTO
     public char StsTr { get; set; }
     public char StsR { get; set; }
     public string? Cta { get; set; }
+    public Dictionary<string, float> AdditionalProperties = [];
     public string? Observations { get; set; }
     public float Monday { get; set; }
     public float Tuesday { get; set; }

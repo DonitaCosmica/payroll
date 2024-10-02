@@ -223,6 +223,8 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
             return (aValue as string).localeCompare(bValue as string)
           })
         }
+
+        console.log({ columns, names, newData, dataResponse })
         
         dispatch({ 
           type: NavigationActionKind.UPDATEDATA, 
