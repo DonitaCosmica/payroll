@@ -1,10 +1,7 @@
-using System.Text.Json;
 using API.DTO;
-using API.Helpers;
 using API.Interfaces;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace API.Controllers
 {
@@ -22,30 +19,9 @@ namespace API.Controllers
     public IActionResult GetTableWorks()
     {
       IEnumerable<TableWorkDTO> tableWorks = tableWorkRepository.GetTableWorks()
-        .Select(tw =>
-          {
-            var item = MapToTableWorkDTORequest(tw);
-            var json = JsonSerializer.Serialize(item);
-            Console.WriteLine(json);
-            return item;
-          }
-        );
+        .Select(MapToTableWorkDTORequest);
 
-      var columns = tableWorkRepository.GetColumns();
-      columns.Remove("TicketId");
-      columns.Insert(1, "Projects");
-      columns.Insert(2, "Employee");
-      columns.Insert(3, "Department");
-      columns.Insert(4, "JobPosition");
-
-      var result = new
-      {
-        Columns = columns,
-        FormColumns = columns,
-        Data = tableWorks,
-        FormData = tableWorks
-      };
-
+      var result = CreateResult(tableWorks);
       return Ok(result);
     }
 
@@ -59,13 +35,7 @@ namespace API.Controllers
         return NotFound();
 
       TableWorkDTO tableWork = MapToTableWorkDTORequest(tableWorkRepository.GetTableWork(tableWorkId));
-      var columns = tableWorkRepository.GetColumns();
-      columns.Remove("TicketId");
-      columns.Insert(1, "Projects");
-      columns.Insert(2, "Employee");
-      columns.Insert(3, "Department");
-      columns.Insert(4, "JobPosition");
-      
+      var columns = GetFormattedColumns();
       var result = new
       {
         Columns = columns,
@@ -116,40 +86,26 @@ namespace API.Controllers
       return NoContent();
     }
 
+    private static IEnumerable<KeyValuePair<string, float>> GetTicketValues<T>(
+      IEnumerable<T> items, Func<T, string> getDescription, Func<T, float> getTotal) =>
+      items.Select(item => new KeyValuePair<string, float>(getDescription(item), getTotal(item)));
+
     private TableWorkDTO MapToTableWorkDTORequest(TableWork? tableWork)
     {
       if(tableWork == null) return new TableWorkDTO();
+      var perceptionValues = GetTicketValues(
+        perceptionRepository.GetPerceptions(),
+        p => p.Description,
+        p => tableWork.Ticket.TicketPerceptions.FirstOrDefault(tp => tp.PerceptionId == p.PerceptionId)?.Total ?? 0);
 
-      var perceptions = perceptionRepository.GetPerceptions();
-      var deductions = deductionRepository.GetDeductions();
-
-      var perceptionValues = perceptions.Select(p =>
-      {
-        var item = tableWork.Ticket.TicketPerceptions.FirstOrDefault(tp => tp.PerceptionId == p.PerceptionId);
-        return new TicketPerceptionRelatedEntities
-        {
-          PerceptionId = p.PerceptionId,
-          Name = p.Description,
-          Value = item != null ? item.Total : 0
-        };
-      });
-
-      var deductionValues = deductions.Select(d =>
-      {
-        var item = tableWork.Ticket.TicketDeductions.FirstOrDefault(td => td.DeductionId == d.DeductionId);
-        return new TicketDeductionRelatedEntities
-        {
-          DeductionId = d.DeductionId,
-          Name = d.Description,
-          Value = item != null ? item.Total : 0
-        };
-      });
+      var deductionValues = GetTicketValues(
+        deductionRepository.GetDeductions(),
+        d => d.Description,
+        d => tableWork.Ticket.TicketDeductions.FirstOrDefault(td => td.DeductionId == d.DeductionId)?.Total ?? 0);
 
       var additionalProperties = perceptionValues
-        .ToDictionary(p => p.Name ?? "Unknown Perception", p => p.Value)
-        .Concat(deductionValues
-          .ToDictionary(d => d.Name ?? "Unknown Perception", d => d.Value))
-        .ToDictionary(kv => kv.Key, KeyValuePair => KeyValuePair.Value);
+        .Concat(deductionValues)
+        .ToDictionary(kv => kv.Key, kv => kv.Value);
 
       return new TableWorkDTO
       {
@@ -170,6 +126,60 @@ namespace API.Controllers
         Friday = tableWork.Friday,
         Saturday = tableWork.Saturday,
         Sunday = tableWork.Sunday
+      };
+    }
+
+    private List<string> GetFormattedColumns()
+    {
+      var columns = tableWorkRepository.GetColumns();
+      var perceptionNames = perceptionRepository.GetPerceptions().Select(p => p.Description).ToList();
+      var deductionNames = deductionRepository.GetDeductions().Select(d => d.Description).ToList();
+
+      perceptionNames.Remove("Sueldo");
+      perceptionNames.Insert(0, "Sueldo");
+
+      columns.Remove("TicketId");
+      columns.Remove("TableWorkId");
+      columns.InsertRange(0, ["Department", "Projects", "Employee", "JobPosition"]);
+      columns.InsertRange(columns.FindIndex(c => c.Contains("Observations")), perceptionNames);
+      columns.InsertRange(columns.FindIndex(c => c.Contains("Observations")), deductionNames);
+      return columns;
+    }
+
+    private object CreateResult(IEnumerable<TableWorkDTO> tableWorks)
+    {
+      var columns = GetFormattedColumns();
+
+      return new
+      {
+        Columns = columns,
+        FormColumns = columns,
+        Data = tableWorks.Select(MapToResultObject),
+        FormData = tableWorks
+      };
+    }
+
+    private static object MapToResultObject(TableWorkDTO tw)
+    {
+      return new
+      {
+        tw.TableWorkId,
+        tw.Employee,
+        tw.Department,
+        tw.Projects,
+        tw.JobPosition,
+        tw.StsTr,
+        tw.StsR,
+        tw.Cta,
+        tw.AdditionalProperties,
+        tw.Observations,
+        tw.Monday,
+        tw.Tuesday,
+        tw.Wednesday,
+        tw.Thursday,
+        tw.Friday,
+        tw.Saturday,
+        tw.Sunday
       };
     }
 

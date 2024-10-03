@@ -37,7 +37,7 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
     )
 
     setFilteredValues(filtered)
-  }, [ searchFilter, data ])
+  }, [ searchFilter, data, option ])
 
   const getIdSelected = useCallback((info: (string | number | boolean)[]): void => {
     const uuid = info.find(item => typeof item === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item))
@@ -144,13 +144,21 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
             {filteredValues.map((row: DataObject, index: number) => (
               <tr 
                 key={ index }
-                className={ rowSelected.current === index ? 'selected-row' : '' }
+                className={
+                  rowSelected.current === index &&
+                  option !== NavigationActionKind.TABLEWORK
+                  ? 'selected-row' : '' 
+                }
                 onClick={ () => selectedRow(Object.values(row), index) } 
                 onDoubleClick={ () => showFormDoubleClick(Object.values(row)) }
               >
                 {columnNames.map((column: string, cellIndex: number) => (
                   <td key={ `$data-{ column }-${ cellIndex }` }>
-                    <p>{ renderCellContent(row, column) }</p>
+                    {option !== NavigationActionKind.TABLEWORK
+                      ? <p>{ renderCellContent(row, column) }</p>
+                      : <input
+                          defaultValue={ renderCellContent(row, column) }
+                        />}
                   </td>
                 ))}
               </tr>

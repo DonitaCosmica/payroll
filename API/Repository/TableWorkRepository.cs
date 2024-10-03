@@ -25,6 +25,8 @@ namespace API.Repository
     public bool UpdateTableWork(TableWork tableWork) => context.UpdateEntity(tableWork);
     public bool DeleteTableWork(TableWork tableWork) => context.DeleteEntity(tableWork);
     public List<string> GetColumns() => context.GetColumns<TableWork>();
+    public void GetColumnsFromRelatedEntity<T>(T tableWork, List<string> columns) where T : class =>
+      context.GetColumns(tableWork, columns);
     public bool TableWorkExists(string tableWorkId) => context.TableWorks.Any(tw => tw.TableWorkId == tableWorkId);
     private static (ushort currentWeek, ushort currentYear) GetWeekAndYearInfo()
     {

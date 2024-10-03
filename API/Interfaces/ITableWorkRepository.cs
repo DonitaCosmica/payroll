@@ -10,6 +10,7 @@ namespace API.Interfaces
     bool UpdateTableWork(TableWork tableWork);
     bool DeleteTableWork(TableWork tableWork);
     List<string> GetColumns();
+    void GetColumnsFromRelatedEntity<T>(T tableWork, List<string> columns) where T : class;
     bool TableWorkExists(string tableWorkId);
   }
 }

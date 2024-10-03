@@ -1,4 +1,4 @@
-using API.Helpers;
+using System.Text.Json.Serialization;
 
 namespace API.DTO
 {
@@ -12,6 +12,7 @@ namespace API.DTO
     public char StsTr { get; set; }
     public char StsR { get; set; }
     public string? Cta { get; set; }
+    [JsonExtensionData]
     public Dictionary<string, float> AdditionalProperties = [];
     public string? Observations { get; set; }
     public float Monday { get; set; }

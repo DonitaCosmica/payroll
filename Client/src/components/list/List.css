@@ -14,7 +14,7 @@
 
 .content {
   border-collapse: collapse;
-  table-layout: fixed;
+  table-layout: auto;
   width: max-content;
 }
 
@@ -27,9 +27,28 @@
   background-color: #f3f3f3;
 }
 
+.content > :is(thead, tbody) > tr > :where(th, td) > input {
+  border: none;
+  width: 100%;
+  transition: 0.35s ease-in;
+}
+
+.content > :is(thead, tbody) > tr > :where(th, td) > input:focus {
+  outline: none !important;
+  background-color: #489aff;
+  color: #fff;
+  transition: 0.35s ease;
+}
+
 .content > :is(thead, tbody) > tr > :where(th, td) > p {
   text-align: center;
   padding: 10px 20px;
+  font-size: 0.8rem;
+}
+
+.content > :is(thead, tbody) > tr > :where(th, td) > input {
+  text-align: center;
+  padding: 10px;
   font-size: 0.8rem;
 }
 
@@ -39,7 +58,7 @@
   cursor: pointer;
 }
 
-.content > thead > tr > th > p {
+.content > thead > tr > th > :where(p, input) {
   margin-right: 10px;
 }
 
@@ -80,4 +99,5 @@
 
 .content > tbody > tr > td {
   text-align: left;
+  white-space: nowrap;
 }
