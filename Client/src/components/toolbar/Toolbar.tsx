@@ -41,12 +41,17 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
     setSearchFilter(e.target.value)
 
   const handleForm = async (index: number, label: string): Promise<void> => {
-    const isInvalidAction = label !== 'Nuevo' && label !== 'Editar' && label !== 'Eliminar' && label !== 'Tabla de trabajo'
+    const isInvalidAction = label !== 'Nuevo' && label !== 'Editar' && label !== 'Eliminar' && label !== 'Tabla de trabajo' && label !== 'Actualizar'
     if (isInvalidAction) return
 
     if (label === 'Tabla de trabajo') {
       dispatch({ type: 10 })
       setContent(prev => !prev)
+      return
+    }
+
+    if (label === 'Actualizar') {
+      console.log('Actualizado')
       return
     }
 

@@ -10,7 +10,7 @@ interface Props {
 }
 
 export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Element => {
-  const { option, data, columnNames, dispatch } = useNavigationContext()
+  const { option, data, columnNames, formData, dispatch } = useNavigationContext()
   const [filteredValues, setFilteredValues] = useState<DataObject[]>(data)
   const columnsDictionary = useRef<Record<string, string>>({})
   const rowSelected = useRef<number>(-1)
@@ -123,6 +123,12 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
     return info !== undefined ? info.toString() : ''
   }
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target
+
+    console.log({ id, value })
+  }
+
   return (
     <section className="list">
       <div className="list-container">
@@ -155,10 +161,15 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
                 {columnNames.map((column: string, cellIndex: number) => (
                   <td key={ `$data-{ column }-${ cellIndex }` }>
                     {option !== NavigationActionKind.TABLEWORK
-                      ? <p>{ renderCellContent(row, column) }</p>
-                      : <input
+                      ? (<p>{ renderCellContent(row, column) }</p>
+                      ): (
+                        <input
+                          type="text"
+                          autoComplete="off"
+                          onChange={ (e) => handleChange(e) }
                           defaultValue={ renderCellContent(row, column) }
-                        />}
+                        />
+                      )}
                   </td>
                 ))}
               </tr>

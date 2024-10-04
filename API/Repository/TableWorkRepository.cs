@@ -86,7 +86,9 @@ namespace API.Repository
           .ThenInclude(t => t.Period)
         .Include(tw => tw.Ticket)
           .ThenInclude(t => t.TicketPerceptions)
+            .ThenInclude(tp => tp.Perception)
         .Include(tw => tw.Ticket)
-          .ThenInclude(t => t.TicketDeductions);
+          .ThenInclude(t => t.TicketDeductions)
+            .ThenInclude(td => td.Deduction);
   }
 }

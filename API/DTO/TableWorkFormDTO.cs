@@ -1,19 +1,16 @@
-using System.Text.Json.Serialization;
+using API.Helpers;
 
 namespace API.DTO
 {
-  public class TableWorkDTO
+  public class TableWorkFormDTO
   {
     public string TableWorkId { get; set; } = default!;
-    public string Employee { get; set; } = default!;
-    public string? Department { get; set; }
-    public string? Projects { get; set; }
-    public string? JobPosition { get; set; }
+    public string? Employee { get; set; }
     public char StsTr { get; set; }
     public char StsR { get; set; }
     public string Cta { get; set; } = default!;
-    [JsonExtensionData]
-    public Dictionary<string, float> AdditionalProperties = [];
+    public HashSet<TicketPerceptionRelatedEntities> Perceptions { get; set; } = [];
+    public HashSet<TicketDeductionRelatedEntities> Deductions { get; set; } = [];
     public string? Observations { get; set; }
     public float Monday { get; set; }
     public float Tuesday { get; set; }

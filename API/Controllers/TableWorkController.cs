@@ -1,4 +1,5 @@
 using API.DTO;
+using API.Helpers;
 using API.Interfaces;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -20,8 +21,10 @@ namespace API.Controllers
     {
       IEnumerable<TableWorkDTO> tableWorks = tableWorkRepository.GetTableWorks()
         .Select(MapToTableWorkDTORequest);
+      IEnumerable<TableWorkFormDTO> tableWorkForms = tableWorkRepository.GetTableWorks()
+        .Select(MapToTableWorkFormDTORequest);
 
-      var result = CreateResult(tableWorks);
+      var result = CreateResult(tableWorks, tableWorkForms);
       return Ok(result);
     }
 
@@ -129,6 +132,41 @@ namespace API.Controllers
       };
     }
 
+    private static TableWorkFormDTO MapToTableWorkFormDTORequest(TableWork? tableWork)
+    {
+      if(tableWork == null) return new TableWorkFormDTO();
+      return new TableWorkFormDTO
+      {
+        TableWorkId = tableWork.TableWorkId,
+        Employee = tableWork.Ticket.Employee.Name,
+        StsTr = tableWork.StsTr,
+        StsR = tableWork.StsR,
+        Cta = tableWork.Cta.ToString(),
+        Perceptions = new HashSet<TicketPerceptionRelatedEntities>(tableWork.Ticket.TicketPerceptions.Select(p =>
+          new TicketPerceptionRelatedEntities
+          {
+            PerceptionId = p.PerceptionId,
+            Name = p.Perception.Description,
+            Value = p.Total
+          })),
+        Deductions = new HashSet<TicketDeductionRelatedEntities>(tableWork.Ticket.TicketDeductions.Select(d =>
+          new TicketDeductionRelatedEntities
+          {
+            DeductionId = d.DeductionId,
+            Name = d.Deduction.Description,
+            Value = d.Total
+          })),
+        Observations = tableWork.Observations,
+        Monday = tableWork.Monday,
+        Tuesday = tableWork.Tuesday,
+        Wednesday = tableWork.Wednesday,
+        Thursday = tableWork.Thursday,
+        Friday = tableWork.Friday,
+        Saturday = tableWork.Saturday,
+        Sunday = tableWork.Sunday
+      };
+    }
+
     private List<string> GetFormattedColumns()
     {
       var columns = tableWorkRepository.GetColumns();
@@ -146,16 +184,15 @@ namespace API.Controllers
       return columns;
     }
 
-    private object CreateResult(IEnumerable<TableWorkDTO> tableWorks)
+    private object CreateResult(IEnumerable<TableWorkDTO> tableWorks, IEnumerable<TableWorkFormDTO> tableWorkForms)
     {
       var columns = GetFormattedColumns();
-
       return new
       {
         Columns = columns,
         FormColumns = columns,
         Data = tableWorks.Select(MapToResultObject),
-        FormData = tableWorks
+        FormData = tableWorkForms
       };
     }
 
