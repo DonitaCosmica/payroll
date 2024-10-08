@@ -1,6 +1,6 @@
 import { type DataObject } from "../types"
 
-const toCamelCase = (str: string): string => {
+export const toCamelCase = (str: string): string => {
   return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index: number) =>
     index === 0 ? match.toLowerCase() : match.toUpperCase()).replace(/\s+/g, '')
 }

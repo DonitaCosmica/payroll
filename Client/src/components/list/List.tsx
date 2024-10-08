@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
 import { type DataObject, type ListObject } from "../../types"
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md"
+import { toCamelCase } from '../../utils/modifyData'
 import './List.css'
 
 interface Props {
@@ -10,11 +11,12 @@ interface Props {
 }
 
 export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Element => {
-  const { option, data, columnNames, formData, dispatch } = useNavigationContext()
+  const { option, data, columnNames, formData: formDataRes, dispatch } = useNavigationContext()
   const [filteredValues, setFilteredValues] = useState<DataObject[]>(data)
   const columnsDictionary = useRef<Record<string, string>>({})
   const rowSelected = useRef<number>(-1)
   const columnCountSelected = useRef<number>(0)
+  const formData = useRef<{ [key: string]: string | string[] | boolean | number | ListObject[] }>({})
 
   useEffect(() => {
     const getTranslateDocument = async (): Promise<void> => {
@@ -86,13 +88,6 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
     setShowForm(true)
   }, [ getIdSelected, dispatch, setShowForm ])
 
-  const toCamelCase = (str: string): string => {
-    if (str === str.toUpperCase()) return str.toLowerCase()
-    return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) =>
-      index === 0 ? match.toLowerCase() : match.toUpperCase()
-    ).replace(/\s+/g, '')
-  }
-
   const getValueByKeyIncludes = (obj: DataObject, searchKey: string): string | number | boolean | object | undefined => {
     const foundKey = Object.keys(obj).find((key: string) => searchKey.includes(key))
     return foundKey ? obj[foundKey as keyof DataObject] : undefined
@@ -123,10 +118,50 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
     return info !== undefined ? info.toString() : ''
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>, index: number): Promise<void> => {
     const { id, value } = e.target
+    const [key, _] = id.split('-')
+    formData.current = formDataRes[index]
 
-    console.log({ id, value })
+    if (!formData.current[key.trim()] && 'perceptions' in formData.current && 'deductions' in formData.current) {
+      const [perceptionsRes, deductionsRes]: [Response, Response] = await Promise.all([
+        fetch('http://localhost:5239/api/Perception'),
+        fetch('http://localhost:5239/api/Deduction')
+      ])
+      
+      const [perceptionsObj, deductionsObj] = await Promise.all([perceptionsRes.json(), deductionsRes.json()])
+      const perceptions: ListObject[] = perceptionsObj.data
+      const deductions: ListObject[] = deductionsObj.data
+      const property = ['perceptions', 'deductions'].reduce((acc, type) => {
+        const items = type === 'perceptions' ? perceptions : deductions
+        return items.find(item => {
+          const description = item.description
+          return typeof description === 'string' && toCamelCase(description.trim()) === key.trim()
+        }) ? type : acc
+      }, 'none')
+
+      if (property !== 'none') {
+        const targetArray = formData.current[property]
+        if (Array.isArray(targetArray)) {
+          const objIndex = targetArray.findIndex(item => typeof item !== 'string' && toCamelCase(item.name as string).trim() === key.trim())
+          if (objIndex !== -1 && typeof targetArray[objIndex] !== 'string' && 'value' in targetArray[objIndex])
+            targetArray[objIndex].value = value
+          else
+            console.log('Crear percepcion o deduccion')
+        }
+      }
+
+      console.log({ property, data: formData.current })
+      return
+    }
+
+    formData.current[key.trim()] = value
+  }
+
+  const getKeyByValue = (obj: Record<string, string>, valueToFind: string): string | undefined => {
+    for (const key in obj)
+      if (obj[key] === valueToFind) return toCamelCase(key)
+    return toCamelCase(valueToFind)
   }
 
   return (
@@ -165,8 +200,9 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
                       ): (
                         <input
                           type="text"
+                          id={ `${ getKeyByValue(columnsDictionary.current, column) } - ${ index }` }
                           autoComplete="off"
-                          onChange={ (e) => handleChange(e) }
+                          onChange={ (e) => handleChange(e, index) }
                           defaultValue={ renderCellContent(row, column) }
                         />
                       )}

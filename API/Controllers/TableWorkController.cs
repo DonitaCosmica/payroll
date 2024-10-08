@@ -50,17 +50,6 @@ namespace API.Controllers
       return Ok(result);
     }
 
-    [HttpPost]
-    [ProducesResponseType(204)]
-    [ProducesResponseType(400)]
-    public IActionResult CreateTableWork([FromBody] TableWorkDTO createTableWork)
-    {
-      if(createTableWork == null)
-        return BadRequest();
-
-      return NoContent();
-    }
-
     [HttpPatch("{tableWorkId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
