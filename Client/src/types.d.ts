@@ -10,8 +10,9 @@ export interface IDataResponse {
   formColumns: string[]
 }
 export interface ListObject {
-  name: string | number,
-  [key: string]: string | number
+  [key: string]: string | number,
+  id?: string,
+  name: string | number
 }
 export interface IMenuState {
   date: boolean,

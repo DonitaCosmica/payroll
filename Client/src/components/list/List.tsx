@@ -16,9 +16,22 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
   const columnsDictionary = useRef<Record<string, string>>({})
   const rowSelected = useRef<number>(-1)
   const columnCountSelected = useRef<number>(0)
-  const formData = useRef<{ [key: string]: string | string[] | boolean | number | ListObject[] }>({})
+  const formData = useRef<DataObject[]>([])
+  const perceptions = useRef<ListObject[]>([])
+  const deductions = useRef<ListObject[]>([])
 
   useEffect(() => {
+    const getPerceptionsAndDeductions = async (): Promise<void> => {
+      const [perceptionsRes, deductionsRes]: [Response, Response] = await Promise.all([
+        fetch('http://localhost:5239/api/Perception'),
+        fetch('http://localhost:5239/api/Deduction')
+      ])
+      
+      const [perceptionsObj, deductionsObj] = await Promise.all([perceptionsRes.json(), deductionsRes.json()])
+      perceptions.current = perceptionsObj.data
+      deductions.current = deductionsObj.data
+    }
+
     const getTranslateDocument = async (): Promise<void> => {
       const res: Response = await fetch('/src/data/translations.json')
       const data = await res.json()
@@ -26,8 +39,10 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
     }
 
     rowSelected.current = -1
+    formData.current = formDataRes
     setFilteredValues(data)
     getTranslateDocument()
+    getPerceptionsAndDeductions()
   }, [ option, data ])
 
   useEffect(() => {
@@ -118,50 +133,67 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
     return info !== undefined ? info.toString() : ''
   }
 
-  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>, index: number): Promise<void> => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number): void => {
     const { id, value } = e.target
     const [key, _] = id.split('-')
-    formData.current = formDataRes[index]
+    const form = formData.current[index]
 
-    if (!formData.current[key.trim()] && 'perceptions' in formData.current && 'deductions' in formData.current) {
-      const [perceptionsRes, deductionsRes]: [Response, Response] = await Promise.all([
-        fetch('http://localhost:5239/api/Perception'),
-        fetch('http://localhost:5239/api/Deduction')
-      ])
-      
-      const [perceptionsObj, deductionsObj] = await Promise.all([perceptionsRes.json(), deductionsRes.json()])
-      const perceptions: ListObject[] = perceptionsObj.data
-      const deductions: ListObject[] = deductionsObj.data
+    if (form[key.trim()] === undefined && 'perceptions' in form && 'deductions' in form) {
       const property = ['perceptions', 'deductions'].reduce((acc, type) => {
-        const items = type === 'perceptions' ? perceptions : deductions
+        const items = type === 'perceptions' ? perceptions.current : deductions.current
         return items.find(item => {
-          const description = item.description
+          const description = item.description as string
           return typeof description === 'string' && toCamelCase(description.trim()) === key.trim()
         }) ? type : acc
       }, 'none')
 
+      const resultItems = property === 'perceptions' ? perceptions.current : (property === 'deductions' ? deductions.current : [])
       if (property !== 'none') {
-        const targetArray = formData.current[property]
+        const targetArray: ListObject = form[property] as any
         if (Array.isArray(targetArray)) {
           const objIndex = targetArray.findIndex(item => typeof item !== 'string' && toCamelCase(item.name as string).trim() === key.trim())
           if (objIndex !== -1 && typeof targetArray[objIndex] !== 'string' && 'value' in targetArray[objIndex])
             targetArray[objIndex].value = value
-          else
-            console.log('Crear percepcion o deduccion')
+          else {
+            const item = resultItems.find(item => toCamelCase(item.description as string).trim() === key.trim())
+            if (item) {
+              const id = getKeyId(item)
+              if (!id) return
+
+              const newItem: ListObject = {
+                [id]: item[id],
+                name: item.description,
+                value: parseInt(value)
+              }
+
+              targetArray.push(newItem)
+              targetArray.sort((a, b) => (a.name as string).localeCompare(b.name as string))
+            }
+          }
         }
       }
 
-      console.log({ property, data: formData.current })
+      formData.current[index] = form
       return
     }
 
-    formData.current[key.trim()] = value
+    for (const id in form)
+      if (key.trim() === id)
+        form[id] = typeof form[id] === 'number' ? parseFloat(value.replace(',', '.')) : value
+
+    formData.current[index] = form
   }
 
   const getKeyByValue = (obj: Record<string, string>, valueToFind: string): string | undefined => {
     for (const key in obj)
       if (obj[key] === valueToFind) return toCamelCase(key)
     return toCamelCase(valueToFind)
+  }
+
+  const getKeyId = (obj: ListObject): string | undefined => {
+    for (const key in obj)
+      if (key.toLowerCase().includes('id')) return key
+    return undefined
   }
 
   return (
