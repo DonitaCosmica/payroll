@@ -206,6 +206,8 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
           return
         }
 
+        console.log({ dataResponse })
+
         const columns: string[] = dataResponse.formColumns
         const names: string[] = await translateColumns({ opt: state.option, columnsNames: dataResponse.columns })
         const newData = reorganizeData(dataResponse.data)

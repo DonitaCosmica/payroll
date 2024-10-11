@@ -1,4 +1,5 @@
 using API.DTO;
+using API.Enums;
 using API.Helpers;
 using API.Interfaces;
 using API.Models;
@@ -9,12 +10,14 @@ namespace API.Controllers
   [Route("api/[controller]")]
   [ApiController]
   public class TableWorkController(ITableWorkRepository tableWorkRepository, 
-    IPerceptionRepository perceptionRepository, IDeductionRepository deductionRepository) : Controller
+    IPerceptionRepository perceptionRepository, IDeductionRepository deductionRepository,
+    ITicketRepository ticketRepository) : Controller
   {
     private readonly ITableWorkRepository tableWorkRepository = tableWorkRepository;
     private readonly IPerceptionRepository perceptionRepository = perceptionRepository;
     private readonly IDeductionRepository deductionRepository = deductionRepository;
-
+    private readonly ITicketRepository ticketRepository = ticketRepository;
+    
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<TableWorkDTO>))]
     public IActionResult GetTableWorks()
@@ -50,30 +53,32 @@ namespace API.Controllers
       return Ok(result);
     }
 
-    [HttpPatch("{tableWorkId}")]
+    [HttpPatch]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public IActionResult UpdateTableWork(string tableWorkId, [FromBody] TableWorkDTO updateTableWork)
+    public IActionResult UpdateTableWork([FromBody] List<TableWorkFormDTO> updateTableWork)
     {
-      if(updateTableWork == null)
+      if(updateTableWork == null || updateTableWork.Count == 0)
         return BadRequest();
 
-      return NoContent();
-    }
+      foreach(var item in updateTableWork)
+      {
+        TableWork tableWork = tableWorkRepository.GetTableWork(item.TableWorkId);
+        if (tableWork == null)
+          return NotFound("Table Work Not Found");
 
-    [HttpDelete("{tableWorkId}")]
-    [ProducesResponseType(204)]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(404)]
-    public IActionResult DeleteTableWork(string tableWorkId)
-    {
-      if(!tableWorkRepository.TableWorkExists(tableWorkId))
-        return NotFound("Table Work Not Found");
+        Ticket ticket = tableWorkRepository.GetRelatedTicket(item.Ticket);
+        if(ticket == null)
+          return NotFound("Ticket Not Found");
 
-      var tableWorkToDelete = tableWorkRepository.GetTableWork(tableWorkId);
-      if(!tableWorkRepository.DeleteTableWork(tableWorkToDelete))
-        return StatusCode(500, "Something went wrong deleting table Work");
+        MapToUpdateTableWork(tableWork, item, ticket);
+        if(!tableWorkRepository.UpdateTableWork(tableWork))
+          return StatusCode(500, "Something went wrong updating Table Work");
+
+        if(!ticketRepository.UpdateTicket(item.Perceptions, item.Deductions, ticket))
+          return StatusCode(500, "Something went wrong updating Ticket");
+      }
 
       return NoContent();
     }
@@ -110,6 +115,7 @@ namespace API.Controllers
         StsR = tableWork.StsR,
         Cta = tableWork.Cta.ToString(),
         AdditionalProperties = additionalProperties,
+        Total = tableWork.Ticket.Total,
         Observations = tableWork.Observations,
         Monday = tableWork.Monday,
         Tuesday = tableWork.Tuesday,
@@ -127,6 +133,7 @@ namespace API.Controllers
       return new TableWorkFormDTO
       {
         TableWorkId = tableWork.TableWorkId,
+        Ticket = tableWork.TicketId,
         Employee = tableWork.Ticket.Employee.Name,
         StsTr = tableWork.StsTr,
         StsR = tableWork.StsR,
@@ -145,6 +152,8 @@ namespace API.Controllers
             Name = d.Deduction.Description,
             Value = d.Total
           })),
+
+        Total = tableWork.Ticket.Total,
         Observations = tableWork.Observations,
         Monday = tableWork.Monday,
         Tuesday = tableWork.Tuesday,
@@ -154,6 +163,26 @@ namespace API.Controllers
         Saturday = tableWork.Saturday,
         Sunday = tableWork.Sunday
       };
+    }
+
+    private static void MapToUpdateTableWork(TableWork tableWork, TableWorkFormDTO updateTableWork, Ticket ticket)
+    {
+      if(string.IsNullOrEmpty(updateTableWork.Cta) || !TryConvertToCtaType(updateTableWork.Cta, out CtaOptions cta))
+        cta = CtaOptions.Error;
+
+      tableWork.TicketId = updateTableWork.Ticket;
+      tableWork.Ticket = ticket;
+      tableWork.StsTr = updateTableWork.StsTr;
+      tableWork.StsR = updateTableWork.StsR;
+      tableWork.Cta = cta;
+      tableWork.Observations = updateTableWork.Observations;
+      tableWork.Monday = updateTableWork.Monday;
+      tableWork.Tuesday = updateTableWork.Tuesday;
+      tableWork.Wednesday = updateTableWork.Wednesday;
+      tableWork.Thursday = updateTableWork.Thursday;
+      tableWork.Friday = updateTableWork.Friday;
+      tableWork.Saturday = updateTableWork.Saturday;
+      tableWork.Sunday = updateTableWork.Sunday;
     }
 
     private List<string> GetFormattedColumns()
@@ -170,6 +199,7 @@ namespace API.Controllers
       columns.InsertRange(0, ["Department", "Projects", "Employee", "JobPosition"]);
       columns.InsertRange(columns.FindIndex(c => c.Contains("Observations")), perceptionNames);
       columns.InsertRange(columns.FindIndex(c => c.Contains("Observations")), deductionNames);
+      columns.Insert(columns.Count - 8, "Total");
       return columns;
     }
 
@@ -198,6 +228,7 @@ namespace API.Controllers
         tw.StsR,
         tw.Cta,
         tw.AdditionalProperties,
+        tw.Total,
         tw.Observations,
         tw.Monday,
         tw.Tuesday,

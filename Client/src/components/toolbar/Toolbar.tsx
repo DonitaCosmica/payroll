@@ -11,9 +11,10 @@ interface Props {
   setSearchFilter: React.Dispatch<React.SetStateAction<string>>
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
   setContent: React.Dispatch<React.SetStateAction<boolean>>
+  setUpdateTableWork: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setContent }): JSX.Element => {
+export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setContent, setUpdateTableWork }): JSX.Element => {
   const { option, url, submitCount, selectedId, setSubmitCount, dispatch } = useNavigationContext()
   const [showDropMenu, setShowDropMenu] = useState<boolean>(false)
 
@@ -53,7 +54,7 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
     }
 
     if (label === 'Actualizar' || label === 'Layout Bancos') {
-      console.log('Actualizado')
+      setUpdateTableWork(true)
       return
     }
 

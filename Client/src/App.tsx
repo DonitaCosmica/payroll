@@ -15,6 +15,7 @@ function App(): JSX.Element {
   const [showForm, setShowForm] = useState<boolean>(false)
   const [searchFilter, setSearchFilter] = useState<string>('')
   const [content, setContent] = useState<boolean>(false)
+  const [updateTableWork, setUpdateTableWork] = useState<boolean>(false)
 
   const renderForm = () => showForm && <Form setShowForm={setShowForm} />
   const renderFilter = () => option === 1 && <Filter />
@@ -26,16 +27,19 @@ function App(): JSX.Element {
         <Titlebar action='payroll' />
         { !content && <Navbar /> }
         { renderFilter() }
+        <Toolbar
+          setSearchFilter={ setSearchFilter }
+          setShowForm={ setShowForm }
+          setContent={ setContent }
+          setUpdateTableWork={ setUpdateTableWork }
+        />
+        <List
+          searchFilter={ searchFilter }
+          updateTableWork={ updateTableWork }
+          setShowForm={ setShowForm }
+          setUpdateTableWork={ setUpdateTableWork }
+        />
       </PeriodProvider>
-      <Toolbar
-        setSearchFilter={ setSearchFilter }
-        setShowForm={ setShowForm }
-        setContent={ setContent }
-      />
-      <List 
-        setShowForm={ setShowForm }
-        searchFilter={ searchFilter }
-      />
       <Footer />
     </main>
   )

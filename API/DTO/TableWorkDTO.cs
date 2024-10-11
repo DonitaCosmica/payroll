@@ -14,6 +14,7 @@ namespace API.DTO
     public string Cta { get; set; } = default!;
     [JsonExtensionData]
     public Dictionary<string, float> AdditionalProperties = [];
+    public float Total { get; set; }
     public string? Observations { get; set; }
     public float Monday { get; set; }
     public float Tuesday { get; set; }

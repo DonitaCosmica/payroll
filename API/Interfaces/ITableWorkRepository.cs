@@ -1,3 +1,4 @@
+using API.DTO;
 using API.Models;
 
 namespace API.Interfaces
@@ -6,6 +7,7 @@ namespace API.Interfaces
   {
     ICollection<TableWork> GetTableWorks();
     TableWork GetTableWork(string tableWorkId);
+    Ticket GetRelatedTicket(string ticketId);
     bool CreateTableWork(TableWork tableWork);
     bool UpdateTableWork(TableWork tableWork);
     bool DeleteTableWork(TableWork tableWork);

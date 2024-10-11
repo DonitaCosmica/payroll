@@ -6,11 +6,13 @@ import { toCamelCase } from '../../utils/modifyData'
 import './List.css'
 
 interface Props {
-  setShowForm: React.Dispatch<React.SetStateAction<boolean>>
   searchFilter: string
+  updateTableWork: boolean
+  setShowForm: React.Dispatch<React.SetStateAction<boolean>>
+  setUpdateTableWork: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Element => {
+export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowForm, setUpdateTableWork}): JSX.Element => {
   const { option, data, columnNames, formData: formDataRes, dispatch } = useNavigationContext()
   const [filteredValues, setFilteredValues] = useState<DataObject[]>(data)
   const columnsDictionary = useRef<Record<string, string>>({})
@@ -56,6 +58,36 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
     setFilteredValues(filtered)
   }, [ searchFilter, data, option ])
 
+  useEffect(() => {
+    const updateData = async () => {
+      if (!updateTableWork) return
+
+      const requestOptions = {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData.current)
+      }
+
+      console.log({ data: formData.current })
+
+      try {
+        const res: Response = await fetch('http://localhost:5239/api/TableWork', requestOptions)
+        if (!res.ok) {
+          const errorData = await res.json()
+          console.error('Request error: ', errorData)
+        }
+      } catch (error) {
+        console.error('Request error: ', error)
+      } finally {
+        setUpdateTableWork(false)
+      }
+    }
+
+    updateData()
+  }, [ updateTableWork ])
+
   const getIdSelected = useCallback((info: (string | number | boolean)[]): void => {
     const uuid = info.find(item => typeof item === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item))
     uuid ? dispatch({
@@ -63,6 +95,23 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
       payload: { selectedId: uuid as string }
     }) : console.error('No valid UUID found in the provided info.')
   }, [ dispatch ])
+
+  const getValueByKeyIncludes = (obj: DataObject, searchKey: string): string | number | boolean | object | undefined => {
+    const foundKey = Object.keys(obj).find((key: string) => searchKey.includes(key))
+    return foundKey ? obj[foundKey as keyof DataObject] : undefined
+  }
+
+  const getKeyByValue = (obj: Record<string, string>, valueToFind: string): string | undefined => {
+    for (const key in obj)
+      if (obj[key] === valueToFind) return toCamelCase(key)
+    return toCamelCase(valueToFind)
+  }
+
+  const getKeyId = (obj: ListObject): string | undefined => {
+    for (const key in obj)
+      if (key.toLowerCase().includes('id')) return key
+    return undefined
+  }
 
   const selectedRow = useCallback((row: (string | number | boolean)[], index: number): void => {
     getIdSelected(row)
@@ -102,11 +151,6 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
     })
     setShowForm(true)
   }, [ getIdSelected, dispatch, setShowForm ])
-
-  const getValueByKeyIncludes = (obj: DataObject, searchKey: string): string | number | boolean | object | undefined => {
-    const foundKey = Object.keys(obj).find((key: string) => searchKey.includes(key))
-    return foundKey ? obj[foundKey as keyof DataObject] : undefined
-  }
 
   const renderCellContent = (row: DataObject, column: string): number | string => {
     const key = Object.keys(columnsDictionary.current).find(key => columnsDictionary.current[key] === column) ?? column
@@ -184,17 +228,29 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
     formData.current[index] = form
   }
 
-  const getKeyByValue = (obj: Record<string, string>, valueToFind: string): string | undefined => {
-    for (const key in obj)
-      if (obj[key] === valueToFind) return toCamelCase(key)
-    return toCamelCase(valueToFind)
+  const calculateTotals = (column: string): Record<string, number> => {
+    const totals: Record<string, number> = {}
+    filteredValues.forEach((row: DataObject) => {
+      const property = getKeyByValue(columnsDictionary.current, column)
+      if (row[property as string] !== undefined && !isNaN(Number(row[property as string]))) {
+        const numberValue = parseFloat(row[property as string] as string)
+        if (!totals[column]) totals[column] = 0
+        totals[column] += numberValue
+      }
+    })
+
+    return totals
   }
 
-  const getKeyId = (obj: ListObject): string | undefined => {
-    for (const key in obj)
-      if (key.toLowerCase().includes('id')) return key
-    return undefined
+  const renderTotalContent = (column: string): string | number => {
+    const totals = calculateTotals(column)
+    if (column === 'Proyectos') return 'Total'
+    if (column === 'Empleado') return 'Periodo'
+    if (column === 'Puesto de trabajo') return filteredValues.length
+    return totals[column] ?? ''
   }
+
+  console.log({ data })
 
   return (
     <section className="list">
@@ -226,7 +282,7 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
                 onDoubleClick={ () => showFormDoubleClick(Object.values(row)) }
               >
                 {columnNames.map((column: string, cellIndex: number) => (
-                  <td key={ `$data-{ column }-${ cellIndex }` }>
+                  <td key={ `$data-${ column }-${ cellIndex }` }>
                     {option !== NavigationActionKind.TABLEWORK
                       ? (<p>{ renderCellContent(row, column) }</p>
                       ): (
@@ -242,6 +298,15 @@ export const List: React.FC<Props> = ({ setShowForm, searchFilter }): JSX.Elemen
                 ))}
               </tr>
             ))}
+            {option === NavigationActionKind.TABLEWORK && (
+              <tr className="total-row">
+                {columnNames.map((column: string, cellIndex: number) => (
+                  <td key={ `total-${ column }-${ cellIndex }` }>
+                    <p>{ renderTotalContent(column) }</p>
+                  </td>
+                ))}
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

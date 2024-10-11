@@ -1,5 +1,6 @@
 using System.Globalization;
 using API.Data;
+using API.DTO;
 using API.Interfaces;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,9 @@ namespace API.Repository
     }
     public TableWork GetTableWork(string tableWorkId) =>
       IncludeRelatedEntities(context.TableWorks).FirstOrDefault(tw => tw.TableWorkId == tableWorkId) ??
+      throw new Exception("No Table Work with the specified was found");
+    public Ticket GetRelatedTicket(string ticketId) =>
+      context.Tickets.FirstOrDefault(t => ticketId == t.TicketId) ??
       throw new Exception("No Table Work with the specified was found");
     public bool CreateTableWork(TableWork tableWork) => context.CreateEntity(tableWork);
     public bool UpdateTableWork(TableWork tableWork) => context.UpdateEntity(tableWork);

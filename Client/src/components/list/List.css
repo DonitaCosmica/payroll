@@ -97,7 +97,24 @@
   transition: all 0.35s ease;
 }
 
+.content > tbody > .total-row {
+  background-color: #ededed;
+}
+
+.content > tbody > .total-row:hover {
+  background-color: #ededed;
+  color: #000;
+}
+
 .content > tbody > tr > td {
   text-align: left;
   white-space: nowrap;
+}
+
+.content > tbody > .total-row > td {
+  border: 1px solid #ddd;
+}
+
+.content > tbody > .total-row > td > p {
+  font-weight: 600;
 }

@@ -23,7 +23,7 @@ namespace API.Models
     [Required]
     public CtaOptions Cta { get; set; }
     [Required]
-    public string Observations { get; set; } = default!;
+    public string? Observations { get; set; }
     [Required]
     public float Monday { get; set; }
     [Required]
