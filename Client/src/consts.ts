@@ -10,7 +10,8 @@ export const LINKS: string[] = [
   'PERCEPCIONES',
   'DEDUCCIONES',
   'CATALOGO DE PROYECTOS',
-  'EMPRESAS'
+  'EMPRESAS',
+  'BANCOS'
 ] as const
 
 export const PAYROLL_TYPE_OP: IconDefinition[] = [
@@ -37,6 +38,8 @@ export const REPORTING_ACTIONS: Record<NavigationActionKind, IconDefinition[]> =
     { label: 'Acumulado' }
   ],
   [NavigationActionKind.COMPANIES]: [],
+  [NavigationActionKind.TABLEWORK]: [],
+  [NavigationActionKind.BANKS]: [],
   [NavigationActionKind.UPDATEDATA]: [],
   [NavigationActionKind.UPDATETABLE]: [],
   [NavigationActionKind.UPDATEPAYROLL]: [],

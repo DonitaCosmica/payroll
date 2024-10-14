@@ -48,7 +48,7 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
     if (isInvalidAction) return
 
     if (label === 'Tabla de trabajo') {
-      dispatch({ type: 10 })
+      dispatch({ type: 11 })
       setContent(prev => !prev)
       return
     }
@@ -117,17 +117,18 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
           </div>
         )}
       </div>
-      <div className='search'>
-        <input
-          type="text"
-          name="search"
-          id="search"
-          placeholder="Busqueda..."
-          autoComplete='off'
-          onChange={ handleChangeSearch }
-        />
-        <AiOutlineSearch />
-      </div>
+      {option !== NavigationActionKind.TABLEWORK &&
+        <div className='search'>
+          <input
+            type="text"
+            name="search"
+            id="search"
+            placeholder="Busqueda..."
+            autoComplete='off'
+            onChange={ handleChangeSearch }
+          />
+          <AiOutlineSearch />
+        </div>}
       {showMoreOptions && option !== NavigationActionKind.TABLEWORK && (
         <div className="more-options">
           <BsThreeDotsVertical onClick={ () => setShowDropMenu(!showDropMenu) } />

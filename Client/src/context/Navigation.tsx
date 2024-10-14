@@ -12,6 +12,7 @@ export enum NavigationActionKind {
   DEDUCTIONS,
   PROJECTCATALOG,
   COMPANIES,
+  BANKS,
   TABLEWORK,
   UPDATEDATA,
   UPDATETABLE,
@@ -41,6 +42,7 @@ const navigationConfig: Record<NavigationActionKind, { url: string, title: strin
   [NavigationActionKind.DEDUCTIONS]: { url: 'http://localhost:5239/api/Deduction', title: 'Deducción', formSize: 57.5 },
   [NavigationActionKind.PROJECTCATALOG]: { url: 'http://localhost:5239/api/Project', title: 'Proyecto', formSize: 75 },
   [NavigationActionKind.COMPANIES]: { url: 'http://localhost:5239/api/Company', title: 'Compañia', formSize: 30 },
+  [NavigationActionKind.BANKS]: { url: 'http://localhost:5239/api/Bank', title: 'Banco', formSize: 57.5 },
   [NavigationActionKind.TABLEWORK]: { url: 'http://localhost:5239/api/TableWork', title: 'Tabla de Trabajo', formSize: 75 },
   [NavigationActionKind.UPDATEDATA]: { url: '', title: '', formSize: 0 },
   [NavigationActionKind.UPDATETABLE]: { url: '', title: '', formSize: 0 },
@@ -205,8 +207,6 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
           dispatch({ type: NavigationActionKind.ERROR })
           return
         }
-
-        console.log({ dataResponse })
 
         const columns: string[] = dataResponse.formColumns
         const names: string[] = await translateColumns({ opt: state.option, columnsNames: dataResponse.columns })

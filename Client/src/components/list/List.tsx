@@ -154,7 +154,7 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
 
   const renderCellContent = (row: DataObject, column: string): number | string => {
     const key = Object.keys(columnsDictionary.current).find(key => columnsDictionary.current[key] === column) ?? column
-    const newKey = toCamelCase(key)
+    const newKey = key === key.toUpperCase() ? key.toLowerCase() : toCamelCase(key)
     const info = getValueByKeyIncludes(row, newKey)
     
     if (typeof info === 'boolean') return info ? 'Verdadero' : 'Falso'
@@ -249,8 +249,6 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
     if (column === 'Puesto de trabajo') return filteredValues.length
     return totals[column] ?? ''
   }
-
-  console.log({ data })
 
   return (
     <section className="list">
