@@ -165,7 +165,7 @@ namespace API.Data
         entity.HasOne(tw => tw.Ticket)
           .WithMany(t => t.TableWorks)
           .HasForeignKey(tw => tw.TicketId)
-          .OnDelete(DeleteBehavior.Restrict);
+          .OnDelete(DeleteBehavior.Cascade);
       });
 
       base.OnModelCreating(modelBuilder);

@@ -28,8 +28,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
       if ('description' in a && 'description' in b)
         return (a.description as string).localeCompare(b.description as string)
       return 0
-    }) : [],
-    [ options ])
+    }) : [], [ options ])
 
   useEffect(() => {
     const selectedIds = sortedOptions.map(item => item[idKey] as string)
@@ -37,23 +36,25 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
     const updatedIsOptionSelected = selectedIds.map(id => selectedIdsSet.has(id))
     const sortValues = value.sort((a, b) => (a.name as string).localeCompare(b.name as string))
 
-    if (!sortValues.some(item => item.name === "Sueldo")) {
-      const salaryItem: ListObject = sortedOptions.filter(item => item.name.toLowerCase() === 'sueldo')[0]
-      if (salaryItem) {
-        if ('compensationType' in salaryItem) delete salaryItem.compensationType
-        sortValues.push(salaryItem)
-
-        const salaryPosition = sortedOptions.findIndex(item => item.name.toLowerCase() === 'sueldo')
-        updatedIsOptionSelected[salaryPosition] = true
+    const addItemIfNotPresent = (name: string, matchFn: (item: ListObject) => boolean) => {
+      if (!sortValues.some(item => item.name === name)) {
+        const itemToAdd = sortedOptions.find(matchFn)
+        if (itemToAdd) {
+          sortValues.push(itemToAdd)
+          const itemPosition = sortedOptions.findIndex(matchFn)
+          updatedIsOptionSelected[itemPosition] = true
+        }
       }
     }
+
+    addItemIfNotPresent('Sueldo', item => (item.name as string).toLowerCase() === 'sueldo')
+    addItemIfNotPresent('Hora Extra', item => (item.name as string).toLowerCase().includes('extra'))
 
     const allSelected = updatedIsOptionSelected.every(id => id)
     setIsOptionSelected(updatedIsOptionSelected)
     selectedItemsRef.current = sortValues
     setIsAllOptionsSelected(allSelected)
     setFilteredOptions(sortedOptions)
-
   }, [ sortedOptions, value, idKey ])
 
   const isDateKey = useCallback((key: string): boolean => {
@@ -143,14 +144,46 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
       selectedItemsRef.current = updatedItems
       updateFormData(updatedItems)
     }
-  }, [ idKey, updateFormData ])
+  }, [ idKey, updateFormData, id ])
+
+  const handleHours = useCallback((e: React.FormEvent<HTMLSpanElement>, opt: IDropDownMenu) => {
+    const hours = parseInt(e.currentTarget.textContent ?? '0') || 0
+    const salary = selectedItemsRef.current.find(item => item.name === 'Sueldo')?.value as number
+    const money = salary / 40 * hours 
+
+    const updatedItems = selectedItemsRef.current.map(item =>
+      item[idKey] === opt[idKey]
+        ? { ...item, value: money ?? 0 }
+        : item
+    )
+
+    if (JSON.stringify(updatedItems) !== JSON.stringify(selectedItemsRef.current)) {
+      selectedItemsRef.current = updatedItems
+      updateFormData(updatedItems)
+    }
+  }, [])
+
+  const renderHours = useCallback((value: number): number => {
+    const salary = selectedItemsRef.current.find(item => item.name === 'Sueldo')?.value as number
+    return value ? 40 * value / salary : 0
+  }, [])
+
+  const totalAmount = useMemo(() =>
+    selectedItemsRef.current.reduce((acc, item) => acc + (item.value as number), 0)
+  , [ selectedItemsRef.current ])
 
   return (
     <div className="multi-select" role="listbox" aria-labelledby="items-label">
       <select id={ id } style={{ display: 'none' }}></select>
       <div className="multi-select-header">
         {selectedItemsRef.current.length === 0 ? (
-          <span className="multi-select-header-placeholder">Selecciona Proyecto</span>
+          <span className="multi-select-header-placeholder">{
+            id.toLowerCase().includes('deductions')
+              ? 'Seleccionar Deducciones'
+              : id.toLowerCase().includes('perceptions')
+                ? 'Seleccionar Percepciones'
+                : 'Seleccionar Proyectos'
+          }</span>
         ) : (
           <div className="multi-select-header-option-box">
             {selectedItemsRef.current.map((item: ListObject) => (
@@ -182,7 +215,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
           </div>
           {filteredOptions.map((opt: IDropDownMenu, index: number) => (
             <div
-              key={`option-${index}-${opt[idKey]}`}
+              key={ `option-${ index }-${ opt[idKey] }` }
               className="multi-select-option"
             >
               <span className={ `multi-select-option-radio ${ isOptionSelected[index] ? 'active' : '' }` }
@@ -192,13 +225,30 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
               </div>
               {showAmount && isOptionSelected[index] && (
                 <div className="multi-select-option-amount">
-                  <span
-                    contentEditable={ true }
-                    suppressContentEditableWarning={ true }
-                    onInput={(e) => handleInput(e, opt)}
-                  >
-                    { `$${ selectedItemsRef.current.find(item => item[idKey] === opt[idKey])?.value }` || '$0.00' }
-                  </span>
+                  { selectedItemsRef.current.find(item => item[idKey] === opt[idKey])?.compensationType !== 'Hours'
+                    ? (
+                      <span
+                        contentEditable={ true }
+                        suppressContentEditableWarning={ true }
+                        onInput={(e) => handleInput(e, opt)}
+                      >
+                        { `$${ selectedItemsRef.current.find(item => item[idKey] === opt[idKey])?.value }` || '$0.00' }
+                      </span>
+                    )
+                    : (
+                      <>
+                        <span
+                          contentEditable={ true }
+                          suppressContentEditableWarning={ true }
+                          onInput={(e) => handleHours(e, opt)}
+                        >
+                          { renderHours(selectedItemsRef.current.find(item => item[idKey] === opt[idKey])?.value as number) || '0' }
+                        </span>
+                        <span className="hours-money">
+                        { `$${ selectedItemsRef.current.find(item => item[idKey] === opt[idKey])?.value }` || '$0.00' }
+                        </span>
+                      </>
+                    )}
                 </div>
               )}
             </div>
@@ -211,8 +261,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
                   <p>Total</p>
                 </div>
                 <div className="total-number">
-                  <p>{ `$${ selectedItemsRef.current.reduce((acc, item) =>
-                      acc + parseFloat(String(item.value)), 0) }` }
+                  <p>{ `$${ totalAmount }` }
                   </p>
                 </div>
               </div>

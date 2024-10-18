@@ -13,5 +13,6 @@ namespace API.Interfaces
     List<string> GetColumns();
     float GetBaseSalaryEmployee(string employeeId);
     bool PerceptionExists(string perceptionId);
+    bool PerceptionExistsByName(string perceptionName);
   }
 }

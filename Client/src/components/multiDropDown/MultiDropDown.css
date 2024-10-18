@@ -165,6 +165,10 @@
   border-radius: 5px;
 }
 
+.multi-select-option-amount > .hours-money {
+  margin-left: 5px;
+}
+
 .multi-select-options > hr {
   margin-top: 10px;
 }

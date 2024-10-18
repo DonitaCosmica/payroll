@@ -20,7 +20,6 @@ namespace API.Controllers
     {
       IEnumerable<TicketDTO> tickets = ticketRepository.GetTickets().Select(MapToTicketDTORequest);
       object result = CreateResult(tickets);
-
       return Ok(result);
     }
 
@@ -30,7 +29,6 @@ namespace API.Controllers
     {
       IEnumerable<TicketDTO> tickets = ticketRepository.GetTicketsByWeekAndYear(week, year).Select(MapToTicketDTORequest);
       object result = CreateResult(tickets);
-
       return Ok(result);
     }
 
@@ -197,7 +195,8 @@ namespace API.Controllers
           {
             PerceptionId = p.PerceptionId,
             Name = p.Perception.Description,
-            Value = p.Total
+            Value = p.Total,
+            CompensationType = DetermineCompensationType(p.Perception.Description).ToString()
           })),
         Deductions = new HashSet<TicketDeductionRelatedEntities>(ticket.TicketDeductions.Select(d => 
           new TicketDeductionRelatedEntities
@@ -246,6 +245,7 @@ namespace API.Controllers
         {
           float baseSalary = ticketRepository.GetBaseSalaryEmployee(t.EmployeeId!);
           t.Perceptions.Add(new TicketPerceptionRelatedEntities { Name = "Sueldo", Value = baseSalary });
+          t.Perceptions.Add(new TicketPerceptionRelatedEntities { Name = "Hora Extra", Value = 0 });
           totalPerceptions += baseSalary;
         }
 
@@ -277,7 +277,7 @@ namespace API.Controllers
       IEnumerable<TicketListDTO> ticketsToSend = listTickets.Select(auxTicket =>
       {
         var additionalProperties = auxTicket.Perceptions
-          .Where(p => p.Value > 0 && p.Name != "Sueldo")
+          .Where(p => p.Value > 0 && p.Name != "Sueldo" && p.Name != "Hora Extra")
           .ToDictionary(p => p.Name ?? "Unknown Perception", p => (object)p.Value)
           .Concat(
             auxTicket.Deductions
@@ -288,6 +288,9 @@ namespace API.Controllers
 
         if(!additionalProperties.ContainsKey("Sueldo"))
           additionalProperties["Sueldo"] = ticketRepository.GetBaseSalaryEmployee(auxTicket.EmployeeId!);
+
+        if(!additionalProperties.ContainsKey("Hora Extra"))
+          additionalProperties["Hora Extra"] = auxTicket.Perceptions.FirstOrDefault(p => p.Name == "Hora Extra")?.Value ?? 0;
 
         foreach(var perception in filteredPerceptions)
         {
@@ -333,6 +336,18 @@ namespace API.Controllers
         Data = ticketsToSend,
         FormData = formTickets
       };
+    }
+
+    private static CompensationType DetermineCompensationType(string description)
+    {
+      if(description.Contains("Salario") || description.Contains("Sueldo"))
+        return CompensationType.Principal;
+      else if(description.Contains("Horas") || description.Contains("Extra"))
+        return CompensationType.Hours;
+      else if(description.Contains("Faltas"))
+        return CompensationType.Days;
+
+      return CompensationType.Normal;
     }
 
     private static bool TryConvertToStatusType<TEnum>(string value, out TEnum enumValue) where TEnum : struct, Enum =>

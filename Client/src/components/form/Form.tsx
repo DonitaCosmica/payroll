@@ -67,7 +67,7 @@ const fetchPerceptionsAndDeductions = async (employeeId: string | undefined) => 
     const perceptionsData: IDropDownMenu[] = await perceptionsResponse.json()
     const deductionsResponse: Response = await fetch('http://localhost:5239/api/Deduction/by')
     const deductionsData: IDropDownMenu[] = await deductionsResponse.json()
-
+    
     return {
       perceptions: perceptionsData || [],
       deductions: deductionsData || []

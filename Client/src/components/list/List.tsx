@@ -70,8 +70,6 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
         body: JSON.stringify(formData.current)
       }
 
-      console.log({ data: formData.current })
-
       try {
         const res: Response = await fetch('http://localhost:5239/api/TableWork', requestOptions)
         if (!res.ok) {

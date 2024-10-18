@@ -59,8 +59,6 @@ namespace API.Controllers
           CompensationType = DetermineCompensationType(p.Description).ToString()
         }).ToList();
 
-        Console.WriteLine($"Employee: {employeeId}");
-
       return Ok(perceptions);
     }
 

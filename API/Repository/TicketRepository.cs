@@ -160,6 +160,10 @@ namespace API.Repository
         t => t.TicketDeductions, 
         context.Tickets, 
         context.TicketDeductions);
+
+      var tableWorks = context.TableWorks.Where(tw => tw.TicketId == ticket.TicketId).ToList();
+      foreach (var tableWork in tableWorks)
+        context.TableWorks.Remove(tableWork);
       
       return perceptionsRemoved && deductionsRemoved && context.DeleteEntity(ticket);
     }
@@ -186,7 +190,6 @@ namespace API.Repository
       var employee = context.Employees.FirstOrDefault(e => e.EmployeeId == employeeId);
       return employee != null ? employee.BaseSalary : 0f;
     }
-
     public bool TicketExists(string ticketId) => context.Tickets.Any(t => t.TicketId == ticketId);
     private static (ushort currentWeek, ushort currentYear, ushort previousWeek, ushort previousYear) GetWeekAndYearInfo()
     {
