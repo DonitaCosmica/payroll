@@ -165,8 +165,8 @@ namespace API.Controllers
       ticket.PaymentDate = DateTime.ParseExact(updateTicket.PaymentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
       ticket.PeriodId = relatedEntities.Period.PeriodId;
       ticket.Period = relatedEntities.Period;
-      ticket.TotalPerceptions = updateTicket.Perceptions.Sum(p => p.Value);
-      ticket.TotalDeductions = updateTicket.Deductions.Sum(d => d.Value);
+      ticket.TotalPerceptions = totalPerceptions;
+      ticket.TotalDeductions = totalDeductions;
     }
 
     private TicketDTO MapToTicketDTORequest(Ticket? ticket)

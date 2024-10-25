@@ -11,6 +11,7 @@ namespace API.Data
   public class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
   {
     private readonly Dictionary<Type, List<string>> cachedColumns = [];
+    public virtual DbSet<Account> Accounts { get; set; }
     public virtual DbSet<Bank> Banks { get; set; }
     public virtual DbSet<CommercialArea> CommercialAreas { get; set; }
     public virtual DbSet<Company> Companies { get; set; }
@@ -48,7 +49,7 @@ namespace API.Data
           .WithMany(d => d.JobPositions)
           .HasForeignKey(j => j.DepartmentId);
       });
-      
+
       modelBuilder.Entity<Project>(entity =>
       {
         entity.HasKey(p => p.ProjectId);
@@ -196,7 +197,7 @@ namespace API.Data
         while (reader.Read())
           columnNames.Add(reader.GetString(0));
       }
-      
+
       cachedColumns[entityTypeClrType] = columnNames;
       return columnNames;
     }

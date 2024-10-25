@@ -23,28 +23,23 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
   const deductions = useRef<ListObject[]>([])
 
   useEffect(() => {
-    const getPerceptionsAndDeductions = async (): Promise<void> => {
-      const [perceptionsRes, deductionsRes]: [Response, Response] = await Promise.all([
+    const fetchDataAsync = async (): Promise<void> => {
+      const [perceptionsRes, deductionsRes, translateRes]: [Response, Response, Response] = await Promise.all([
         fetch('http://localhost:5239/api/Perception'),
-        fetch('http://localhost:5239/api/Deduction')
+        fetch('http://localhost:5239/api/Deduction'),
+        fetch('/src/data/translations.json')
       ])
       
-      const [perceptionsObj, deductionsObj] = await Promise.all([perceptionsRes.json(), deductionsRes.json()])
+      const [perceptionsObj, deductionsObj, translateObj] = await Promise.all([perceptionsRes.json(), deductionsRes.json(), translateRes.json()])
       perceptions.current = perceptionsObj.data
       deductions.current = deductionsObj.data
-    }
-
-    const getTranslateDocument = async (): Promise<void> => {
-      const res: Response = await fetch('/src/data/translations.json')
-      const data = await res.json()
-      columnsDictionary.current = data[option]
+      columnsDictionary.current = translateObj[option]
     }
 
     rowSelected.current = -1
     formData.current = formDataRes
     setFilteredValues(data)
-    getTranslateDocument()
-    getPerceptionsAndDeductions()
+    fetchDataAsync()
   }, [ option, data ])
 
   useEffect(() => {
@@ -69,6 +64,15 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
         },
         body: JSON.stringify(formData.current)
       }
+
+      formData.current.forEach(item => {
+        if ('perceptions' in item && Array.isArray(item.perceptions)) {
+          item.perceptions.forEach(perception => {
+            if ('compensationType' in perception) 
+              delete perception.compensationType
+          })
+        }
+      })
 
       try {
         const res: Response = await fetch('http://localhost:5239/api/TableWork', requestOptions)
@@ -111,6 +115,14 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
     return undefined
   }
 
+  const isDayOfWeek = (day: string): boolean => {
+    const daysOfWeek = new Set([
+      'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+    ])
+    const formattedDay = day.charAt(0).toUpperCase() + day.slice(1).toLowerCase()
+    return daysOfWeek.has(formattedDay)
+  }
+
   const selectedRow = useCallback((row: (string | number | boolean)[], index: number): void => {
     getIdSelected(row)
     rowSelected.current = index
@@ -150,7 +162,7 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
     setShowForm(true)
   }, [ getIdSelected, dispatch, setShowForm ])
 
-  const renderCellContent = (row: DataObject, column: string): number | string => {
+  const renderCellContent = useCallback((row: DataObject, column: string): number | string => {
     const key = Object.keys(columnsDictionary.current).find(key => columnsDictionary.current[key] === column) ?? column
     const newKey = key === key.toUpperCase() ? key.toLowerCase() : toCamelCase(key)
     const info = getValueByKeyIncludes(row, newKey)
@@ -173,12 +185,13 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
     }
 
     return info !== undefined ? info.toString() : ''
-  }
+  }, [formData.current])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number): void => {
     const { id, value } = e.target
     const [key, _] = id.split('-')
     const form = formData.current[index]
+    const list = filteredValues[index]
 
     if (form[key.trim()] === undefined && 'perceptions' in form && 'deductions' in form) {
       const property = ['perceptions', 'deductions'].reduce((acc, type) => {
@@ -219,14 +232,37 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
       return
     }
 
-    for (const id in form)
+    if (typeof list[key.trim()] === 'string')
+      list[key.trim()] = value
+    else if (typeof list[key.trim()] === 'number')
+      list[key.trim()] = parseFloat(value.replace(',', '.'))
+
+    for (const id in form) {
       if (key.trim() === id)
         form[id] = typeof form[id] === 'number' ? parseFloat(value.replace(',', '.')) : value
+    
+      if (isDayOfWeek(id) && key.trim() === id && Array.isArray(form.perceptions)) {
+        const hours = parseInt(value) ?? 0
+        if (!Number.isNaN(hours)) {
+          const salary = form.perceptions.find(item => item.name === 'Sueldo')?.value
+          const money = salary / 40 * hours
+          list['horaExtra'] = (Number(list['horaExtra']) || 0) + money
+          form.perceptions.forEach(item => {
+            if (item.name === 'Hora Extra')
+              item.value += money
+          })
+        }
+      }
+    }
+
+    if (Array.isArray(form.perceptions) && Array.isArray(form.deductions))
+      list['total'] = form.perceptions.reduce((acc, item) => acc + item.value , 0)
+        - form.deductions.reduce((acc, item) => acc + item.value, 0)
 
     formData.current[index] = form
   }
 
-  const calculateTotals = (column: string): Record<string, number> => {
+  const calculateTotals = useCallback((column: string): Record<string, number> => {
     const totals: Record<string, number> = {}
     filteredValues.forEach((row: DataObject) => {
       const property = getKeyByValue(columnsDictionary.current, column)
@@ -238,15 +274,15 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
     })
 
     return totals
-  }
+  }, [ filteredValues ])
 
-  const renderTotalContent = (column: string): string | number => {
+  const renderTotalContent = useCallback((column: string): string | number => {
     const totals = calculateTotals(column)
     if (column === 'Proyectos') return 'Total'
     if (column === 'Empleado') return 'Periodo'
     if (column === 'Puesto de trabajo') return filteredValues.length
     return totals[column] ?? ''
-  }
+  }, [ filteredValues ])
 
   return (
     <section className="list">
@@ -287,7 +323,8 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
                           id={ `${ getKeyByValue(columnsDictionary.current, column) } - ${ index }` }
                           autoComplete="off"
                           onChange={ (e) => handleChange(e, index) }
-                          defaultValue={ renderCellContent(row, column) }
+                          defaultValue={ column !== 'Hora Extra' && column !== 'Total' ? renderCellContent(row, column) : undefined }
+                          value={ column === 'Hora Extra' || column === 'Total' ? renderCellContent(row, column) : undefined }
                         />
                       )}
                   </td>

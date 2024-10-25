@@ -10,7 +10,7 @@ namespace API.Models
     [Required]
     public string Name { get; set; } = default!;
     [Required]
-    public string AccoutnNumber { get; set; } = default!;
+    public string AccountNumber { get; set; } = default!;
     [Required]
     [Range(1, uint.MaxValue)]
     public uint Reference { get; set; }

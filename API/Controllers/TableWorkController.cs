@@ -72,7 +72,11 @@ namespace API.Controllers
         if(ticket == null)
           return NotFound("Ticket Not Found");
 
+        float totalPerceptions = item.Perceptions.Sum(p => p.Value);
+        float totalDeductions = item.Deductions.Sum(d => d.Value);
+        ticket.Total = totalPerceptions - totalDeductions;
         MapToUpdateTableWork(tableWork, item, ticket);
+
         if(!tableWorkRepository.UpdateTableWork(tableWork))
           return StatusCode(500, "Something went wrong updating Table Work");
 

@@ -7,6 +7,6 @@ namespace API.Helpers
     public string PerceptionId { get; set; } = default!;
     public string? Name { get; set; } = default!;
     public float Value { get; set; }
-    public string CompensationType { get; set; } = default!;
+    public string? CompensationType { get; set; } = default!;
   }
 }

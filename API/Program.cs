@@ -6,6 +6,7 @@ using API.Repository;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IBankRepository, BankRepository>();
 builder.Services.AddScoped<ICommercialAreaRepository, CommercialAreaRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
