@@ -75,11 +75,11 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
       })
 
       try {
-        const res: Response = await fetch('http://localhost:5239/api/TableWork', requestOptions)
+        /*const res: Response = await fetch('http://localhost:5239/api/TableWork', requestOptions)
         if (!res.ok) {
           const errorData = await res.json()
           console.error('Request error: ', errorData)
-        }
+        }*/
       } catch (error) {
         console.error('Request error: ', error)
       } finally {

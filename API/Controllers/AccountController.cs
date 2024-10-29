@@ -7,7 +7,7 @@ namespace API.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
-  public class AccoutnController(IAccountRepository accountRepository) : Controller
+  public class AccountController(IAccountRepository accountRepository) : Controller
   {
     private readonly IAccountRepository accountRepository = accountRepository;
 

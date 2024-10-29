@@ -19,7 +19,7 @@ export const useGeneratePrintPage = ({ titlebar, tableId }: Props): { [key: stri
       setHtmlText(text)
     }
 
-    const tableName = LINKS[option - 1] ?? "Ninguno"
+    const tableName = LINKS[option - 1] ?? 'Layout'
     docName.current = tableName.toLowerCase().split(' ').join('-')
     getHtmlText()
   }, [ option ])
@@ -38,13 +38,26 @@ export const useGeneratePrintPage = ({ titlebar, tableId }: Props): { [key: stri
     }).join(' ')
 
     const styles = `<style>${ getStyleSheets() }</style>`
-    const dataToPrint = document.getElementById(tableId)?.outerHTML
+    const dataToPrint: string = document.getElementById(tableId)?.outerHTML ?? ''
+    const modifiedDataToPrint = dataToPrint ? (() => {
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(dataToPrint, 'text/html')
+      const inputs = doc.querySelectorAll('input')
+      if (inputs.length > 0)
+        inputs.forEach(input => {
+          const p = document.createElement('p')
+          p.textContent = input.defaultValue
+          input.replaceWith(p)
+        })
+
+      return doc.body.innerHTML
+    })() : ''
     const styleHtmlTemplate = htmlText.replace('</head>', `${styles}</head>`)
     const contentHtmlTemplate = styleHtmlTemplate.replace('<body style="position: relative; height: 100vh">', `
-      <body style="position: relative; height: 100vh">
+      <body style="position: relative; height: 98vh">
         ${ titlebar }
         <section id="content">
-          ${ dataToPrint }
+          ${ modifiedDataToPrint }
         </section>
     `)
     const sendEmailHtmlTemplate = contentHtmlTemplate.replace('//sendEmail', `
@@ -88,10 +101,8 @@ export const useGeneratePrintPage = ({ titlebar, tableId }: Props): { [key: stri
           console.error("Error sending email", error)
         })
       }
-      
     `)
     const printPageTemplate = sendEmailHtmlTemplate.replace('//openEmailWindow', `
-      
       const openEmailWindow = () => {
         document.getElementById("background").style.display = "flex"
         document.getElementById("email").innerHTML = "${ docName.current }.pdf"
@@ -136,7 +147,6 @@ export const useGeneratePrintPage = ({ titlebar, tableId }: Props): { [key: stri
         link.click()
         document.body.removeChild(link)
       }
-
     `)
 
   return { printPageTemplate }

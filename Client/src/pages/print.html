@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte</title>
+    <title>Reportes</title>
     <style>
       #background {
         position: absolute;
@@ -354,9 +354,7 @@
         }
   
         const closeWindow = () => window.close()
-
         const reloadTable = () => location.reload()
-
         const printTable = () => {
           const cssText = getStylesOfAnElement({ prefixes: [".content", "*"] })
           const content = document.getElementById("data-list")
@@ -364,14 +362,12 @@
           const printFrame = window.frames["print-frame"]
           const printDocument = printFrame.document
           const styleTag = printDocument.createElement("style")
-
           styleTag.type = "text/css"
           styleTag.appendChild(printDocument.createTextNode(cssText))
 
           printDocument.head.appendChild(styleTag)
           printDocument.body.innerHTML = ""
           printDocument.body.appendChild(contentClone)
-
           printFrame.window.focus()
           printFrame.window.print()
         }
@@ -379,7 +375,6 @@
         //openEmailWindow
 
         gisLoaded()
-
         const actions = [closeWindow, reloadTable, printTable, openEmailWindow, importPDF, importExcel]
         const printIcons = document.getElementsByClassName("print-icon-container")
         const actionIterator = actions[Symbol.iterator]()
@@ -400,7 +395,6 @@
         })
         document.getElementById("send-email").addEventListener("submit", () => {
           event.preventDefault()
-
           if (!isValidEmail(formData.receiver)) {
             alert("Email no valido.")
             return

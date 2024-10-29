@@ -1,5 +1,5 @@
 import ReactDOMServer from 'react-dom/server'
-import { useCallback, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { useGeneratePrintPage } from '../../hooks/useGeneratePrintPage'
 import { type IconDefinition } from "../../types"
 import { Titlebar } from '../titlebar/Titlebar'
@@ -36,17 +36,19 @@ export const IconSection: React.FC<Props> = ({ action, options, handleForm }): J
 
   const handleClick = useCallback((index: number, label: string) => {
     handleForm(index, label)
-    if (label === 'Reportes') setActiveOption(prev => (prev === label) ? null : label)
+    if (label === 'Reportes' || label === 'Layout Bancos')
+      setActiveOption(prev => (prev === label) ? null : label)
   }, [ handleForm ])
 
-  const menuWidth = action === NavigationActionKind.PAYROLLRECEIPTS ? 280 :
-    action === NavigationActionKind.EMPLOYEES ? 210 : 125
+  const menuWidth = useMemo(() => action === NavigationActionKind.PAYROLLRECEIPTS ? 280 :
+    action === NavigationActionKind.EMPLOYEES ? 210 : 125, [action])
   
   return (
     <>
       {options.map((option: IconDefinition, index: number) => {
         const { label, icon } = option
-        const isActive = activeOption === 'Reportes' && label === 'Reportes'
+        const isActive = (activeOption === 'Reportes' && label === 'Reportes')
+          || (activeOption === 'Layout Bancos' && label === 'Layout Bancos')
 
         return (
           <div 

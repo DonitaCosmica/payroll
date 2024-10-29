@@ -33,6 +33,10 @@ export interface IconDefinition {
   label: string,
   onClick?: () => void
 }
+export interface ReportDefinition {
+  label: string,
+  hasForm: boolean
+}
 export interface IDropDownMenu {
   value: string,
   name: string,

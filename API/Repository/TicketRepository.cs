@@ -18,9 +18,7 @@ namespace API.Repository
       var tickets = GetTicketsByWeekAndYear(currentWeek, currentYear);
       if(tickets.Count > 0) return tickets;
 
-      var period = context.Periods
-        .FirstOrDefault(pr => pr.Week == currentWeek && pr.Year == currentYear);
-
+      var period = context.Periods.FirstOrDefault(pr => pr.Week == currentWeek && pr.Year == currentYear);
       if(period == null)
       {
         period = CreateNewPeriod(currentWeek, currentYear);

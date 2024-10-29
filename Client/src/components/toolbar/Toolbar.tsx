@@ -104,6 +104,7 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
                 ? options.slice(0, end)
                 : options.slice(end)
               : options }
+            action={ option }
             handleForm={ handleForm }
           />
         </div>

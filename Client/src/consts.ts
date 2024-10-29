@@ -1,5 +1,5 @@
 import { NavigationActionKind } from "./context/Navigation"
-import { type IconDefinition } from "./types"
+import { type ReportDefinition, type IconDefinition } from "./types"
 
 export const LINKS: string[] = [
   'RECIBOS DE NOMINA',
@@ -19,15 +19,15 @@ export const PAYROLL_TYPE_OP: IconDefinition[] = [
   { label: 'ExtraOrdinario' }
 ] as const
 
-export const REPORTING_ACTIONS: Record<NavigationActionKind, IconDefinition[]> = {
+export const REPORTING_ACTIONS: Record<NavigationActionKind, ReportDefinition[]> = {
   [NavigationActionKind.PAYROLLRECEIPTS]: [
-    { label: 'Recibos del Periodo' }, { label: 'Recibos del Periodo (det)' },
-    { label: 'Acumulado x Periodos' }, { label: 'Acumulado x Depto.' },
-    { label: 'Acumulado por Proyecto/Puesto' }, { label: 'Prestamos y Descuentos' },
-    { label: 'Deducciones x Proyecto' }
+    { label: 'Recibos del Periodo', hasForm: false }, { label: 'Recibos del Periodo (det)', hasForm: false },
+    { label: 'Acumulado x Periodos', hasForm: true }, { label: 'Acumulado x Depto.', hasForm: true },
+    { label: 'Acumulado por Proyecto/Puesto', hasForm: true }, { label: 'Prestamos y Descuentos', hasForm: true },
+    { label: 'Deducciones x Proyecto', hasForm: true }
   ],
   [NavigationActionKind.EMPLOYEES]: [
-    { label: 'Listado a Detalle' }, { label: 'Trabajadores por Fecha' }
+    { label: 'Listado a Detalle', hasForm: false }, { label: 'Trabajadores por Fecha', hasForm: true }
   ],
   [NavigationActionKind.JOBPOSITIONS]: [],
   [NavigationActionKind.DEPARTMENTS]: [],
@@ -35,10 +35,12 @@ export const REPORTING_ACTIONS: Record<NavigationActionKind, IconDefinition[]> =
   [NavigationActionKind.PERCEPTIONS]: [],
   [NavigationActionKind.DEDUCTIONS]: [],
   [NavigationActionKind.PROJECTCATALOG]: [
-    { label: 'Acumulado' }
+    { label: 'Acumulado', hasForm: false }
   ],
   [NavigationActionKind.COMPANIES]: [],
-  [NavigationActionKind.TABLEWORK]: [],
+  [NavigationActionKind.TABLEWORK]: [
+    { label: 'Generar Layout', hasForm: true }
+  ],
   [NavigationActionKind.BANKS]: [],
   [NavigationActionKind.UPDATEDATA]: [],
   [NavigationActionKind.UPDATETABLE]: [],

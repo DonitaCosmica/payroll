@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { PeriodProvider } from './context/Period'
-import { useNavigationContext } from './context/Navigation'
+import { NavigationActionKind, useNavigationContext } from './context/Navigation'
 import { Titlebar } from './components/titlebar/Titlebar'
 import { Navbar } from './components/navbar/Navbar'
 import { Filter } from './components/filter/Filter'
@@ -25,20 +25,23 @@ function App(): JSX.Element {
       <PeriodProvider>
         { renderForm() }
         <Titlebar action='payroll' />
-        { !content && <Navbar /> }
-        { renderFilter() }
-        <Toolbar
-          setSearchFilter={ setSearchFilter }
-          setShowForm={ setShowForm }
-          setContent={ setContent }
-          setUpdateTableWork={ setUpdateTableWork }
-        />
-        <List
-          searchFilter={ searchFilter }
-          updateTableWork={ updateTableWork }
-          setShowForm={ setShowForm }
-          setUpdateTableWork={ setUpdateTableWork }
-        />
+        {option !== NavigationActionKind.BANKS &&
+          <>
+            { !content && <Navbar /> }
+            { renderFilter() }
+            <Toolbar
+              setSearchFilter={ setSearchFilter }
+              setShowForm={ setShowForm }
+              setContent={ setContent }
+              setUpdateTableWork={ setUpdateTableWork }
+            />
+            <List
+              searchFilter={ searchFilter }
+              updateTableWork={ updateTableWork }
+              setShowForm={ setShowForm }
+              setUpdateTableWork={ setUpdateTableWork }
+            />
+          </>}
       </PeriodProvider>
       <Footer />
     </main>
