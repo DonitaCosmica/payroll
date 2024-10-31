@@ -17,7 +17,8 @@ interface Props {
 export const IconSection: React.FC<Props> = ({ action, options, handleForm }): JSX.Element => {
   const { printPageTemplate } =  useGeneratePrintPage({
     titlebar: ReactDOMServer.renderToStaticMarkup(<Titlebar action='print' />),
-    tableId: 'data-list'
+    tableId: 'data-list',
+    hasForm: REPORTING_ACTIONS[action ?? NavigationActionKind.ERROR][0].hasForm ?? false
   })
   const [activeOption, setActiveOption] = useState<string | null>(null)
 

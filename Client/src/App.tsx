@@ -9,6 +9,7 @@ import { List } from './components/list/List'
 import { Footer } from './components/footer/Footer'
 import { Form } from './components/form/Form'
 import './App.css'
+import { FilterReport } from './components/filterReport/FilterReport'
 
 function App(): JSX.Element {
   const { option } = useNavigationContext()
@@ -44,6 +45,7 @@ function App(): JSX.Element {
           </>}
       </PeriodProvider>
       <Footer />
+      <FilterReport />
     </main>
   )
 }

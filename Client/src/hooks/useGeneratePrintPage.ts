@@ -5,9 +5,10 @@ import { LINKS } from "../consts"
 interface Props {
   titlebar: string,
   tableId: string,
+  hasForm: boolean
 }
 
-export const useGeneratePrintPage = ({ titlebar, tableId }: Props): { [key: string]: string } => {
+export const useGeneratePrintPage = ({ titlebar, tableId, hasForm }: Props): { [key: string]: string } => {
   const { option } = useNavigationContext()
   const [htmlText, setHtmlText] = useState<string>('')
   const docName = useRef<string>('')
@@ -60,6 +61,11 @@ export const useGeneratePrintPage = ({ titlebar, tableId }: Props): { [key: stri
           ${ modifiedDataToPrint }
         </section>
     `)
+
+    if (hasForm) {
+      
+    }
+
     const sendEmailHtmlTemplate = contentHtmlTemplate.replace('//sendEmail', `
       const sendEmail= () => {
         const email = \`From: "me"\r\n\` +

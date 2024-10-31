@@ -93,3 +93,7 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
   [NavigationActionKind.UPDATETOOLBAROPT]: [],
   [NavigationActionKind.ERROR]: []
 } as const
+
+export const fieldsReport: Record<string, FieldConfig[]> = {
+
+} as const
