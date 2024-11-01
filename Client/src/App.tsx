@@ -45,7 +45,7 @@ function App(): JSX.Element {
           </>}
       </PeriodProvider>
       <Footer />
-      <FilterReport />
+      <FilterReport fields='Recibos del Periodo' />
     </main>
   )
 }

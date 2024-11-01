@@ -5,10 +5,11 @@ import { LINKS } from "../consts"
 interface Props {
   titlebar: string,
   tableId: string,
+  label: string,
   hasForm: boolean
 }
 
-export const useGeneratePrintPage = ({ titlebar, tableId, hasForm }: Props): { [key: string]: string } => {
+export const useGeneratePrintPage = ({ titlebar, tableId, label, hasForm }: Props): { [key: string]: string } => {
   const { option } = useNavigationContext()
   const [htmlText, setHtmlText] = useState<string>('')
   const docName = useRef<string>('')

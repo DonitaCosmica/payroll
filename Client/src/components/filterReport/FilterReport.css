@@ -1,6 +1,6 @@
 .filter-report-background {
   position: absolute;
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
   top: 0;
@@ -10,8 +10,57 @@
 }
 
 .filter-report-container {
-  width: 50%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  width: 35%;
   height: 50%;
   background-color: #fff;
   border-radius: 15px;
+  padding: 25px;
+}
+
+.filter-report-container > h1 {
+  width: 100%;
+  text-align: center;
+}
+
+.report-buttons-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px 0;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+}
+
+.button-container > button {
+  border: none;
+  padding: 12.5px 25px;
+  border-radius: 10px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.button-container > .accept-report {
+  background-color: #73ba69;
+  transition: 0.4s ease;
+}
+
+.button-container > .cancel-report {
+  background-color: #de4645;
+  transition: 0.4s ease;
+}
+
+.button-container > .accept-report:hover {
+  background-color: #5e9956;
+  transition: 0.4s ease;
+}
+
+.button-container > .cancel-report:hover {
+  background-color: #c92e2e;
+  transition: 0.4s ease;
 }

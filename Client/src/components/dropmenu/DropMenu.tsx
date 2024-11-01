@@ -5,10 +5,11 @@ import './DropMenu.css'
 interface Props {
   menuOp: IconDefinition[],
   dir: 'left' | 'right',
-  width: number
+  width: number,
+  setSelectedLabel?: React.Dispatch<React.SetStateAction<string>>
 }
 
-export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, width }): JSX.Element => {
+export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, width, setSelectedLabel }): JSX.Element => {
   const directionStyle = useMemo(() => ({
     [dir]: 0,
     minWidth: `${width}%`
@@ -25,7 +26,10 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, width }): JS
     >
       <ul>
         {menuOp.map((op: IconDefinition) => (
-          <li key={ op.label } onClick={ op.onClick }>
+          <li key={ op.label } onClick={ () => {
+            if (setSelectedLabel) setSelectedLabel(op.label)
+            if(op.onClick) op.onClick()
+          }}>
             { firstItemIconKey && op.icon }
             { op.label }
           </li>

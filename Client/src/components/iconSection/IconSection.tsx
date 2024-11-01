@@ -15,12 +15,14 @@ interface Props {
 }
 
 export const IconSection: React.FC<Props> = ({ action, options, handleForm }): JSX.Element => {
+  const [activeOption, setActiveOption] = useState<string | null>(null)
+  const [selectedLabel, setSelectedLabel] = useState<string>('')
   const { printPageTemplate } =  useGeneratePrintPage({
     titlebar: ReactDOMServer.renderToStaticMarkup(<Titlebar action='print' />),
     tableId: 'data-list',
-    hasForm: REPORTING_ACTIONS[action ?? NavigationActionKind.ERROR][0].hasForm ?? false
+    label: REPORTING_ACTIONS[action ?? NavigationActionKind.ERROR].find(rep => rep.label === selectedLabel)?.label ?? '',
+    hasForm: REPORTING_ACTIONS[action ?? NavigationActionKind.ERROR].find(rep => rep.label === selectedLabel)?.hasForm ?? false
   })
-  const [activeOption, setActiveOption] = useState<string | null>(null)
 
   const printData = useCallback(() => {
     const currentUrl = window.location.href
@@ -33,7 +35,7 @@ export const IconSection: React.FC<Props> = ({ action, options, handleForm }): J
     newWin.postMessage({ data: 'message' }, '*')
     newWin.document.write(printPageTemplate)
     newWin.document.close()
-  }, [ printPageTemplate ])
+  }, [ printPageTemplate, selectedLabel ])
 
   const handleClick = useCallback((index: number, label: string) => {
     handleForm(index, label)
@@ -67,6 +69,7 @@ export const IconSection: React.FC<Props> = ({ action, options, handleForm }): J
                 }))} 
                 dir="right" 
                 width={ menuWidth } 
+                setSelectedLabel={ setSelectedLabel }
               />}
           </div>
         )
