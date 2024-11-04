@@ -97,16 +97,17 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
 export const fieldsReport: Record<string, FieldConfig[]> = {
   ['Acumulado x Periodos']: [
     { type: 'input', name: 'Periodo Inicial', inputType: 'date', modify: true, id: 'inicialPeriod' },
+    { type: 'input', name: 'Periodo Final', inputType: 'date', modify: true, id: 'finalPeriod' }
+  ],
+  ['Acumulado x Depto.']: [
+    { type: 'dropmenu', name: 'Departamento', fetchUrl: 'http://localhost:5239/api/Department', id: 'department' },
+  ],
+  ['Acumulado por Proyecto/Puesto']: [
+    { type: 'input', name: 'Periodo Inicial', inputType: 'date', modify: true, id: 'inicialPeriod' },
     { type: 'input', name: 'Periodo Final', inputType: 'date', modify: true, id: 'finalPeriod' },
     { type: 'dropmenu', name: 'Departamento', fetchUrl: 'http://localhost:5239/api/Department', id: 'department' },
     { type: 'dropmenu', name: 'Concepto', fetchUrl: 'http://localhost:5239/api/Perception', id: 'perception' },
     { type: 'input', name: 'Resumen', inputType: 'checkbox', modify: true, id: 'resumen' }
-  ],
-  ['Acumulado x Depto.']: [
-
-  ],
-  ['Acumulado por Proyecto/Puesto']: [
-
   ],
   ['Prestamos y Descuentos']: [
 

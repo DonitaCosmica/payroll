@@ -8,8 +8,8 @@ import { Toolbar } from './components/toolbar/Toolbar'
 import { List } from './components/list/List'
 import { Footer } from './components/footer/Footer'
 import { Form } from './components/form/Form'
-import './App.css'
 import { FilterReport } from './components/filterReport/FilterReport'
+import './App.css'
 
 function App(): JSX.Element {
   const { option } = useNavigationContext()
@@ -45,7 +45,7 @@ function App(): JSX.Element {
           </>}
       </PeriodProvider>
       <Footer />
-      <FilterReport fields='Recibos del Periodo' />
+      <FilterReport fields='Acumulado por Proyecto/Puesto' />
     </main>
   )
 }

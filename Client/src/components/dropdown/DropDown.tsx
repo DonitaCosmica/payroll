@@ -7,30 +7,33 @@ interface Props {
   selectedId: string,
   value: string,
   setFormData: React.MutableRefObject<{ [key: string]: string | number | boolean | string[] | ListObject[] }>
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>
+  setLoading?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export const DropDown: React.FC<Props> = ({ options, selectedId, value, setFormData, setLoading }): JSX.Element => {
   const [selectedValue, setSelectedValue] = useState<string>(value)
   const sortedOptions = [...options].sort((a, b) => {
-    const extractNumber = (str: string): number => {
+    const extractNumber = (str: string): number | null => {
       const match = str.match(/\d+/)
-      return match ? parseInt(match[0], 10) : NaN
+      return match ? parseInt(match[0], 10) : null
     }
-
-    const nameA = a.name || ''
-    const nameB = b.name || ''
-    const numA = extractNumber(nameA)
-    const numB = extractNumber(nameB)
-
-    if (!isNaN(numA) && !isNaN(numB)) return numA - numB
-    return nameA.localeCompare(nameB)
+  
+    const getNameOrDescription = (obj: { [key: string]: any }) => 
+      'name' in obj ? obj.name : obj.description || ''
+  
+    const nameA = getNameOrDescription(a)
+    const nameB = getNameOrDescription(b)
+    const numA = typeof nameA === 'string' ? extractNumber(nameA) : nameA
+    const numB = typeof nameB === 'string' ? extractNumber(nameB) : nameB
+  
+    return (numA !== null && numB !== null) ? numA - numB
+      : String(nameA).localeCompare(String(nameB))
   })
   
   const handleChange = (event: ChangeEvent<HTMLSelectElement>): void => {
     const { id, value } = event.target
 
-    if (id === 'employee')
+    if (id === 'employee' && setLoading)
       setLoading(prev => !prev)
 
     setSelectedValue(value)
@@ -46,7 +49,7 @@ export const DropDown: React.FC<Props> = ({ options, selectedId, value, setFormD
     <select id={`${ selectedId }`} value={ selectedValue } onChange={ handleChange }>
       <option value='0'>Elije una opción...</option>
       {sortedOptions.map((option: IDropDownMenu, index: number) => 
-        <option key={`${ selectedId }-${ index }`} value={ filterAttributesContainingId(option) }>{ option.name }</option>
+        <option key={`${ selectedId }-${ index }`} value={ filterAttributesContainingId(option) }>{ option.name ?? option.description }</option>
       )}
     </select>
   )
