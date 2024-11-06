@@ -487,8 +487,38 @@
 
         //openEmailWindow
 
-        console.log({ item: localStorage.getItem('dropdownData') })
+        const filterAttributesContainingId = (obj) => {
+          const key = Object.keys(obj).find(key => key.includes('Id'))
+          return key ? obj[key] : undefined
+        }
+
+        const fillSelectTag = () => {
+          const item = localStorage.getItem('dropdownData')
+          if (!item) return
+          const data = JSON.parse(item)
+          Object.keys(data).forEach(key => {
+            const selectElement = document.getElementById(key)
+            if (selectElement) {
+              const options = data[key]
+              selectElement.innerHTML = ''
+
+              const option = document.createElement('option')
+              option.value = '0'
+              option.textContent = 'Elije una opcion'
+              selectElement.appendChild(option)
+
+              options.forEach(opt => {
+                const option = document.createElement('option')
+                option.value = filterAttributesContainingId(opt)
+                option.textContent = opt.name ?? opt.description
+                selectElement.appendChild(option)
+              })
+            }
+          })
+        }
+
         gisLoaded()
+        fillSelectTag()
         const actions = [closeWindow, reloadTable, printTable, openEmailWindow, importPDF, importExcel]
         const printIcons = document.getElementsByClassName("print-icon-container")
         const actionIterator = actions[Symbol.iterator]()
