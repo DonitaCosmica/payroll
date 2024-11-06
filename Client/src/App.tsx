@@ -8,7 +8,6 @@ import { Toolbar } from './components/toolbar/Toolbar'
 import { List } from './components/list/List'
 import { Footer } from './components/footer/Footer'
 import { Form } from './components/form/Form'
-import { FilterReport } from './components/filterReport/FilterReport'
 import './App.css'
 
 function App(): JSX.Element {
@@ -45,7 +44,6 @@ function App(): JSX.Element {
           </>}
       </PeriodProvider>
       <Footer />
-      <FilterReport fields='Acumulado por Proyecto/Puesto' />
     </main>
   )
 }

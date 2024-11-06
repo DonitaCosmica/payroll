@@ -7,8 +7,8 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
     { type: 'input', name: 'Folio', label: 'Folio...', inputType: 'text', modify: false, id: 'bill' },
     { type: 'dropmenu', name: 'Tipo de Nomina', fetchUrl: 'http://localhost:5239/api/Payroll', id: 'payroll' },
     { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status', uriComponent: 'Ticket' },
-    { type: 'input', name: 'Fecha de Recibo', inputType: 'date', modify: true, id: 'receiptOfDate' },
-    { type: 'input', name: 'Fecha de Pago', inputType: 'date', modify: true, id: 'paymentDate' },
+    { type: 'input', name: 'Fecha de Recibo', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: 'date', modify: true, id: 'receiptOfDate' },
+    { type: 'input', name: 'Fecha de Pago', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: 'date', modify: true, id: 'paymentDate' },
     { type: 'dropmenu', name: 'Empleado', fetchUrl: 'http://localhost:5239/api/Employee', id: 'employee' },
     { type: 'multi-option', name: 'Percepciones', amount: true, id: 'perceptions' },
     { type: 'multi-option', name: 'Deducciones', amount: true, id: 'deductions' },
@@ -29,7 +29,7 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
     { type: 'multi-option', name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', amount: false, id: 'projects' },
     { type: 'dropmenu', name: 'Régimen', fetchUrl: 'http://localhost:5239/api/Regime', id: 'regime' },
     { type: 'input', name: 'NSS', label: 'NSS...', inputType: 'number', modify: true, id: 'nss' },
-    { type: 'input', name: 'Fecha de Ingreso', label: '1/1/2000', inputType: 'date', modify: true, id: 'dateAdmission' },
+    { type: 'input', name: 'Fecha de Ingreso', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: 'date', modify: true, id: 'dateAdmission' },
     { type: 'dropmenu', name: 'Puesto', fetchUrl: 'http://localhost:5239/api/JobPosition', id: 'jobPosition' },
     { type: 'input', name: 'Departamento', label: 'Departmento...', modify: false, id: 'department' },
     { type: 'dropmenu', name: 'Area Comercial', fetchUrl: 'http://localhost:5239/api/CommercialArea', id: 'commercialArea' },
@@ -76,7 +76,7 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
   [NavigationActionKind.PROJECTCATALOG]: [
     { type: 'input', name: 'Clave', label: 'Clave...', inputType: 'text', modify: true, id: 'code' },
     { type: 'input', name: 'Nombre', label: 'Nombre...', inputType: 'text', modify: true, id: 'name' },
-    { type: 'input', name: 'Fecha de inicio', label: '1/1/2000', inputType: 'date', modify: true, id: 'startDate' },
+    { type: 'input', name: 'Fecha de inicio', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: 'date', modify: true, id: 'startDate' },
     { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status', uriComponent: 'Project' },
     { type: 'dropmenu', name: 'Compañia', fetchUrl: 'http://localhost:5239/api/Company', id: 'company' },
     { type: 'textarea', name: 'Descripción', label: 'Descripción...', inputType: 'text', modify: true, id: 'description' }
@@ -103,8 +103,8 @@ export const fieldsReport: Record<string, FieldConfig[]> = {
     { type: 'dropmenu', name: 'Departamento', fetchUrl: 'http://localhost:5239/api/Department', id: 'department' },
   ],
   ['Acumulado por Proyecto/Puesto']: [
-    { type: 'input', name: 'Periodo Inicial', inputType: 'date', modify: true, id: 'inicialPeriod' },
-    { type: 'input', name: 'Periodo Final', inputType: 'date', modify: true, id: 'finalPeriod' },
+    { type: 'input', name: 'Periodo Inicial', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: 'date', modify: true, id: 'inicialPeriod' },
+    { type: 'input', name: 'Periodo Final', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: 'date', modify: true, id: 'finalPeriod' },
     { type: 'dropmenu', name: 'Departamento', fetchUrl: 'http://localhost:5239/api/Department', id: 'department' },
     { type: 'dropmenu', name: 'Concepto', fetchUrl: 'http://localhost:5239/api/Perception', id: 'perception' },
     { type: 'input', name: 'Resumen', inputType: 'checkbox', modify: true, id: 'resumen' }

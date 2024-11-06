@@ -17,11 +17,12 @@ interface Props {
 export const IconSection: React.FC<Props> = ({ action, options, handleForm }): JSX.Element => {
   const [activeOption, setActiveOption] = useState<string | null>(null)
   const [selectedLabel, setSelectedLabel] = useState<string>('')
+  const [hasForm, setHasForm] = useState<boolean>(false)
   const { printPageTemplate } =  useGeneratePrintPage({
     titlebar: ReactDOMServer.renderToStaticMarkup(<Titlebar action='print' />),
     tableId: 'data-list',
-    label: REPORTING_ACTIONS[action ?? NavigationActionKind.ERROR].find(rep => rep.label === selectedLabel)?.label ?? '',
-    hasForm: REPORTING_ACTIONS[action ?? NavigationActionKind.ERROR].find(rep => rep.label === selectedLabel)?.hasForm ?? false
+    filterReport: selectedLabel,
+    hasForm
   })
 
   const printData = useCallback(() => {
@@ -31,11 +32,13 @@ export const IconSection: React.FC<Props> = ({ action, options, handleForm }): J
       console.error('Could not open a new window')
       return
     }
+
+    console.group('Ejecutado')
       
     newWin.postMessage({ data: 'message' }, '*')
     newWin.document.write(printPageTemplate)
     newWin.document.close()
-  }, [ printPageTemplate, selectedLabel ])
+  }, [ printPageTemplate ])
 
   const handleClick = useCallback((index: number, label: string) => {
     handleForm(index, label)
@@ -54,11 +57,7 @@ export const IconSection: React.FC<Props> = ({ action, options, handleForm }): J
           || (activeOption === 'Layout Bancos' && label === 'Layout Bancos')
 
         return (
-          <div 
-            className="option" 
-            key={ label } 
-            onClick={ () => handleClick(index, label) }
-          >
+          <div className="option" key={ label } onClick={ () => handleClick(index, label) }>
             { icon }
             <p>{ label }</p>
             {isActive &&
@@ -70,6 +69,7 @@ export const IconSection: React.FC<Props> = ({ action, options, handleForm }): J
                 dir="right" 
                 width={ menuWidth } 
                 setSelectedLabel={ setSelectedLabel }
+                setHasForm={ setHasForm }
               />}
           </div>
         )
