@@ -52,21 +52,21 @@ namespace API.Controllers
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public IActionResult CreateAccount([FromBody] AccountDTO accoutnCreate)
+    public IActionResult CreateAccount([FromBody] AccountDTO accountCreate)
     {
-      if(accoutnCreate == null || string.IsNullOrEmpty(accoutnCreate.Name) || string.IsNullOrEmpty(accoutnCreate.RFC))
+      if(accountCreate == null || string.IsNullOrEmpty(accountCreate.Name) || string.IsNullOrEmpty(accountCreate.RFC))
         return BadRequest();
 
-      if(accountRepository.GetAccountByName(accoutnCreate.Name.Trim()) != null)
+      if(accountRepository.GetAccountByName(accountCreate.Name.Trim()) != null)
         return Conflict("Account already exists");
 
       var account = new Account
       {
         AccountId = Guid.NewGuid().ToString(),
-        AccountNumber = accoutnCreate.AccountNumber,
-        Name = accoutnCreate.Name,
-        Reference = accoutnCreate.Reference,
-        RFC = accoutnCreate.RFC
+        AccountNumber = accountCreate.AccountNumber,
+        Name = accountCreate.Name,
+        Reference = accountCreate.Reference,
+        RFC = accountCreate.RFC
       };
 
       if(!accountRepository.CreateAccount(account))

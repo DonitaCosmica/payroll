@@ -13,7 +13,7 @@ namespace API.Models
     public string AccountNumber { get; set; } = default!;
     [Required]
     [Range(1, uint.MaxValue)]
-    public uint Reference { get; set; }
+    public string Reference { get; set; } = default!;
     [Required]
     public string RFC { get; set; } = default!;
   }

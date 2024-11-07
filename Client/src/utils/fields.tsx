@@ -119,6 +119,8 @@ export const fieldsReport: Record<string, FieldConfig[]> = {
 
   ],
   ['Generar Layout']: [
-
+    { type: 'dropmenu', name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', amount: false, id: 'projects' },
+    { type: 'dropmenu', name: 'Cuenta', fetchUrl: 'http://localhost:5239/api/Account', amount: false, id: 'account' },
+    { type: 'input', name: 'Agrupar no titulares', inputType: 'checkbox', modify: true, id: 'titular' }
   ]
 } as const

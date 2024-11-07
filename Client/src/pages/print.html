@@ -143,7 +143,7 @@
         text-align: center;
       }
 
-      .fields-container {
+      #fields-container {
         display: flex;
         flex-direction: column;
         justify-content: space-evenly;
@@ -210,22 +210,22 @@
         cursor: pointer;
       }
 
-      .button-container > .accept-report {
+      .button-container > #accept-report {
         background-color: #73ba69;
         transition: 0.4s ease;
       }
 
-      .button-container > .cancel-report {
+      .button-container > #cancel-report {
         background-color: #de4645;
         transition: 0.4s ease;
       }
 
-      .button-container > .accept-report:hover {
+      .button-container > #accept-report:hover {
         background-color: #5e9956;
         transition: 0.4s ease;
       }
 
-      .button-container > .cancel-report:hover {
+      .button-container > #cancel-report:hover {
         background-color: #c92e2e;
         transition: 0.4s ease;
       }
@@ -308,6 +308,8 @@
         return loadScript('https://accounts.google.com/gsi/client')
       })
       .then(() => {
+        const filterData = {}
+
         const formData = {
           receiver: "",
           subject: "",
@@ -492,9 +494,16 @@
           return key ? obj[key] : undefined
         }
 
+        const handleOnChange = (event) => {
+          const element = event.target
+          if (element.type = 'checkbox') filterData[element.id] = element.checked
+          else filterData[element.id] = element.value
+        }
+
         const fillSelectTag = () => {
           const item = localStorage.getItem('dropdownData')
           if (!item) return
+
           const data = JSON.parse(item)
           Object.keys(data).forEach(key => {
             const selectElement = document.getElementById(key)
@@ -519,33 +528,42 @@
 
         gisLoaded()
         fillSelectTag()
+
+        const fieldsContainer = document.getElementById('fields-container')
+        const elements = fieldsContainer.querySelectorAll('input, select')
+        elements.forEach(input => input.onchange = handleOnChange)
+
         const actions = [closeWindow, reloadTable, printTable, openEmailWindow, importPDF, importExcel]
-        const printIcons = document.getElementsByClassName("print-icon-container")
+        const printIcons = document.getElementsByClassName('print-icon-container')
         const actionIterator = actions[Symbol.iterator]()
 
         for (const container of printIcons) {
           const action = actionIterator.next().value
-          if (action) container.addEventListener("click", action)
+          if (action) container.addEventListener('click', action)
         }
 
-        document.getElementById("receiver").onchange = handleChange
-        document.getElementById("subject").onchange = handleChange
-        document.getElementById("msg").onchange = handleChange
-        document.getElementById("cancel").addEventListener("click", () => {
-          document.getElementById("background").style.display = "none"
-          Object.keys(formData).map(key => formData[key] = "")
-          for (const element of document.querySelectorAll("#receiver, #subject, #msg"))
-            element.value = ""
+        document.getElementById('accept-report').addEventListener('click', () => {
+
         })
-        document.getElementById("send-email").addEventListener("submit", () => {
+        document.getElementById('cancel-report').addEventListener('click', () => window.close())
+        document.getElementById('receiver').onchange = handleChange
+        document.getElementById('subject').onchange = handleChange
+        document.getElementById('msg').onchange = handleChange
+        document.getElementById('cancel').addEventListener('click', () => {
+          document.getElementById('background').style.display = 'none'
+          Object.keys(formData).map(key => formData[key] = "")
+          for (const element of document.querySelectorAll('#receiver, #subject, #msg'))
+            element.value = ''
+        })
+        document.getElementById('send-email').addEventListener('submit', () => {
           event.preventDefault()
           if (!isValidEmail(formData.receiver)) {
-            alert("Email no valido.")
+            alert('Email no valido.')
             return
           }
 
           handleCredentialResponse()
-          document.getElementById("background").style.display = "none"
+          document.getElementById('background').style.display = 'none'
         })
       }).catch((error) => {
         console.error(error)

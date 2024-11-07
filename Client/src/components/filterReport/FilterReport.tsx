@@ -15,7 +15,7 @@ export const FilterReport: React.FC<Props> = ({ fields }): JSX.Element => {
     <section className="filter-report-background">
       <div className="filter-report-container">
         <h1>Parametros del Reporte</h1>
-        <div className="fields-container">
+        <div id="fields-container">
           {fieldsReport[fields]?.map(({ type, name, label, id, inputType, modify }: FieldConfig, index: number) => {
             const fieldId = id || `field-${index}`
             const isCheckbox = inputType === 'checkbox'
@@ -49,10 +49,10 @@ export const FilterReport: React.FC<Props> = ({ fields }): JSX.Element => {
         </div>
         <div className="report-buttons-container">
           <div className='button-container'>
-            <button className='accept-report'>Aceptar</button>
+            <button id='accept-report'>Aceptar</button>
           </div>
           <div className='button-container'>
-            <button className='cancel-report'>Cancelar</button>
+            <button id='cancel-report'>Cancelar</button>
           </div>
         </div>
       </div>
