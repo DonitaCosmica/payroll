@@ -3,7 +3,7 @@ import React, { useMemo } from 'react'
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
 import { useGeneratePrintPage } from '../../hooks/useGeneratePrintPage'
 import { type FieldConfig, type IconDefinition } from "../../types"
-import { REPORTING_ACTIONS } from '../../consts'
+import { FILTER_COLUMNS, REPORTING_ACTIONS } from '../../consts'
 import { fieldsReport } from '../../utils/fields'
 import { FilterReport } from '../filterReport/FilterReport'
 import { Titlebar } from '../titlebar/Titlebar'
@@ -60,10 +60,39 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, width }): JS
     const filterReport = ReactDOMServer.renderToStaticMarkup(<FilterReport fields={op.label} />)
     const dataToPrint = document.getElementById('data-list')?.outerHTML ?? ''
     const modifiedDataToPrint = modifyDataToPrint(dataToPrint)
-    const contentHtmlTemplate = getContentHtmlTemplate(hasForm, titlebar, modifiedDataToPrint, filterReport)
+    const filterTableToPrint = filterTable(modifiedDataToPrint, op.label)
+    const contentHtmlTemplate = getContentHtmlTemplate(hasForm, titlebar, filterTableToPrint ?? modifiedDataToPrint, filterReport)
     const sendEmailHtmlTemplate = getSendEmailHtmlTemplate(contentHtmlTemplate)
     const printPageTemplate = getPrintPageTemplate(sendEmailHtmlTemplate)
     printData(printPageTemplate)
+  }
+
+  const filterTable = (dataToPrint: string, label: string): string | undefined => {
+    const columns = FILTER_COLUMNS[label]
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(dataToPrint, 'text/html')
+    const table = doc.querySelector('table')
+    
+    if (table && columns) {
+      const headers = Array.from(table.querySelectorAll('thead th'))
+      const rows = Array.from(table.querySelectorAll('tbody tr')) as HTMLTableRowElement[]
+
+      const columnIndexes = headers
+        .map((header, index) => (columns.includes(header.textContent?.trim() ?? '') ? index : -1))
+        .filter(index => index !== -1)
+
+      headers.forEach((header, index) => {
+        if (!columnIndexes.includes(index)) header.remove()
+      })
+
+      rows.forEach(row => {
+        Array.from(row.cells).forEach((cell, index) => {
+          if (!columnIndexes.includes(index)) cell.remove()
+        })
+      })
+    }
+
+    return table?.outerHTML
   }
 
   const modifyDataToPrint = (data: string): string => {

@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reportes</title>
     <style>
+      #content {
+        overflow-x: scroll;
+      }
+
       #background {
         position: absolute;
         display: none;
@@ -117,7 +121,7 @@
         transition: 0.4s ease;
       }
 
-      .filter-report-background {
+      #filter-report-background {
         position: absolute;
         display: flex;
         justify-content: center;
@@ -132,7 +136,7 @@
         display: grid;
         grid-template-rows: auto 1fr auto;
         width: 35%;
-        height: 55%;
+        height: auto;
         background-color: #fff;
         border-radius: 15px;
         padding: 25px;
@@ -497,7 +501,20 @@
         const handleOnChange = (event) => {
           const element = event.target
           if (element.type = 'checkbox') filterData[element.id] = element.checked
-          else filterData[element.id] = element.value
+          else filterData[element.id] = element.value.toLowerCase()
+        }
+
+        const filterTable = () => {
+          const table = document.getElementById('data-list')
+          const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr')
+
+          for (const row of rows) {
+            const rowText = row.textContent.toLowerCase()
+            if(rowText.includes(''))
+              row.style.display = ''
+            else
+              row.style.display = 'none'
+          }
         }
 
         const fillSelectTag = () => {
@@ -543,7 +560,8 @@
         }
 
         document.getElementById('accept-report').addEventListener('click', () => {
-
+          document.getElementById('filter-report-background').style.display = 'none'
+          localStorage.removeItem('dropdownData')
         })
         document.getElementById('cancel-report').addEventListener('click', () => window.close())
         document.getElementById('receiver').onchange = handleChange

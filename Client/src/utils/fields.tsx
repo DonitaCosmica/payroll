@@ -35,8 +35,6 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
     { type: 'dropmenu', name: 'Area Comercial', fetchUrl: 'http://localhost:5239/api/CommercialArea', id: 'commercialArea' },
     { type: 'dropmenu', name: 'Contrato', fetchUrl: 'http://localhost:5239/api/Contract', id: 'contract' },
     { type: 'input', name: 'Salario Semanal', label: '0.00', inputType: 'number', modify: true, id: 'baseSalary' },
-    { type: 'input', name: 'Salario Diario Int.', label: '0.00', inputType: 'number', modify: true, id: 'dailySalary' },
-    { type: 'input', name: 'Val. Hora Extra', label: '0.00', inputType: 'number', modify: true, id: 'valuePerExtraHour' },
     { type: 'dropmenu', name: 'Entidad Federativa', fetchUrl: 'http://localhost:5239/api/FederalEntity', id: 'federalEntity' },
     { type: 'section', name: 'Contacto', id: 'contact-data' },
     { type: 'input', name: 'Teléfono', label: 'Teléfono...', inputType: 'tel', modify: true, id: 'phone' },
@@ -116,11 +114,13 @@ export const fieldsReport: Record<string, FieldConfig[]> = {
 
   ],
   ['Trabajadores por Fecha']: [
-
+    { type: 'dropmenu', name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', id: 'projects' },
+    { type: 'dropmenu', name: 'Puesto', fetchUrl: 'http://localhost:5239/api/JobPosition', id: 'jobPosition' },
+    { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status', uriComponent: 'Employee' }
   ],
   ['Generar Layout']: [
-    { type: 'dropmenu', name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', amount: false, id: 'projects' },
-    { type: 'dropmenu', name: 'Cuenta', fetchUrl: 'http://localhost:5239/api/Account', amount: false, id: 'account' },
+    { type: 'dropmenu', name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', id: 'projects' },
+    { type: 'dropmenu', name: 'Cuenta', fetchUrl: 'http://localhost:5239/api/Account', id: 'account' },
     { type: 'input', name: 'Agrupar no titulares', inputType: 'checkbox', modify: true, id: 'titular' }
   ]
 } as const

@@ -12,7 +12,7 @@ export const FilterReport: React.FC<Props> = ({ fields }): JSX.Element => {
   const formData = useRef<{ [key: string]: string | string[] | boolean | number | ListObject[] }>({})
 
   return (
-    <section className="filter-report-background">
+    <section id="filter-report-background">
       <div className="filter-report-container">
         <h1>Parametros del Reporte</h1>
         <div id="fields-container">
