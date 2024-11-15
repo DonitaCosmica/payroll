@@ -26,7 +26,7 @@ namespace API.Models
     public Bank Bank { get; set; } = new();
     [Required]
     public ulong InterbankCode { get; set; }
-    public ulong BankAccount { get; set; }
+    public string BankAccount { get; set; } = default!;
     [Required]
     public ulong BankPortal { get; set; }
     public bool IsAStarter { get; set; }

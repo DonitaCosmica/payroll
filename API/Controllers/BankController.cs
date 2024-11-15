@@ -19,7 +19,8 @@ namespace API.Controllers
         .Select(b => new BankDTO
         {
           BankId = b.BankId,
-          Name = b.Name
+          Name = b.Name,
+          Code = b.Code
         }).ToList();
 
       return Ok(banks);
@@ -37,7 +38,8 @@ namespace API.Controllers
       var bankDTO = new BankDTO
       {
         BankId = bank.BankId,
-        Name = bank.Name
+        Name = bank.Name,
+        Code = bank.Code
       };
 
       return Ok(bankDTO);
@@ -51,7 +53,9 @@ namespace API.Controllers
       if(bankCreate == null || string.IsNullOrEmpty(bankCreate.Name))
         return BadRequest();
 
-      if(bankRepository.GetBankByName(bankCreate.Name.Trim()) != null || string.IsNullOrEmpty(bankCreate.Code))
+      if(bankRepository.GetBankByName(bankCreate.Name.Trim()) != null
+        || bankRepository.GetBankByCode(bankCreate.Code) != null
+        || string.IsNullOrEmpty(bankCreate.Code))
         return Conflict("Bank already exists");
 
       var bank = new Bank

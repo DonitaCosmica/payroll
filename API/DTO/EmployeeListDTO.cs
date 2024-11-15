@@ -10,7 +10,7 @@ namespace API.DTO
     public string RFC { get; set; } = default!;
     public string CURP { get; set; } = default!;
     public string Bank { get; set; } = default!;
-    public ulong BankAccount { get; set; }
+    public string BankAccount { get; set; } = default!;
     public HashSet<EmployeeProjectRelatedEntities> Projects { get; set; } = [];
     public uint NSS { get; set; }
     public string DateAdmission { get; set; } = default!;

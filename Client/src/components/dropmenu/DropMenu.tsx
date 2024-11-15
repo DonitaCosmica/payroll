@@ -61,7 +61,7 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, width }): JS
     const dataToPrint = document.getElementById('data-list')?.outerHTML ?? ''
     const modifiedDataToPrint = modifyDataToPrint(dataToPrint)
     const filterTableToPrint = filterTable(modifiedDataToPrint, op.label)
-    const contentHtmlTemplate = getContentHtmlTemplate(hasForm, titlebar, filterTableToPrint ?? modifiedDataToPrint, filterReport)
+    const contentHtmlTemplate = getContentHtmlTemplate(hasForm, titlebar, filterTableToPrint ?? modifiedDataToPrint, filterReport, op.label)
     const sendEmailHtmlTemplate = getSendEmailHtmlTemplate(contentHtmlTemplate)
     const printPageTemplate = getPrintPageTemplate(sendEmailHtmlTemplate)
     printData(printPageTemplate)
@@ -110,12 +110,12 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, width }): JS
     return doc.body.innerHTML
   }
 
-  const getContentHtmlTemplate = (hasForm: boolean, titlebar: string, modifiedDataToPrint: string, filterReport: string): string => {
+  const getContentHtmlTemplate = (hasForm: boolean, titlebar: string, modifiedDataToPrint: string, filterReport: string, label: string): string => {
     return styleHtmlTemplate.replace('<body style="position: relative; height: 100vh">', `
       <body style="position: relative; height: 98vh">
-        ${titlebar}
-        <section id="content">${modifiedDataToPrint}</section>
-        ${!hasForm ? '' : filterReport}
+        ${ titlebar }
+        <section id="content">${ label !== 'Generar Layout' ? modifiedDataToPrint : '' }</section>
+        ${ !hasForm ? '' : filterReport }
       </body>
     `)
   }

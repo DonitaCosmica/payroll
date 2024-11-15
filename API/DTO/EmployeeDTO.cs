@@ -11,7 +11,7 @@ namespace API.DTO
     public string CURP { get; set; } = default!;
     public string Bank { get; set; } = default!;
     public ulong InterbankCode { get; set; }
-    public ulong BankAccount { get; set; }
+    public string BankAccount { get; set; } = default!;
     public ulong BankPortal { get; set; }
     public bool IsAStarter { get; set; }
     public HashSet<EmployeeProjectRelatedEntities> Projects { get; set; } = [];

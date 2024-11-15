@@ -22,7 +22,7 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
     { type: 'input', name: 'CURP', label: 'CURP...', inputType: 'text', modify: true, id: 'curp' },
     { type: 'dropmenu', name: 'Banco', fetchUrl: 'http://localhost:5239/api/Bank', id: 'bank' },
     { type: 'input', name: 'CLABE', label: 'CLABE...', inputType: 'number', modify: true, id: 'interbankCode' },
-    { type: 'input', name: 'Cuenta de Banco', label: 'Cuenta Banco...', inputType: 'number', modify: true, id: 'bankAccount' },
+    { type: 'input', name: 'Cuenta de Banco', label: 'Cuenta Banco...', inputType: 'text', modify: true, id: 'bankAccount' },
     { type: 'input', name: 'ID Portal Banco', label: 'Portal ID...', modify: true, id: 'bankPortal' },
     { type: 'input', name: 'Titular', inputType: 'checkbox', modify: true, id: 'isAStarter' },
     { type: 'section', name: 'Datos Laborales', id: 'labor-data' },

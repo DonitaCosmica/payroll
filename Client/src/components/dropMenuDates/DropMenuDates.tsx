@@ -36,7 +36,7 @@ export const DropMenuDates = ({  }): JSX.Element => {
     const monthStr = String(targetMonday.getMonth() + 1).padStart(2, '0')
     const dayStr = String(targetMonday.getDate()).padStart(2, '0')
     return `${yearStr}-${monthStr}-${dayStr}`
-}
+  }
 
   const handleForm = async (e: React.MouseEvent<HTMLDivElement>, index: number): Promise<void> => {
     e.stopPropagation()

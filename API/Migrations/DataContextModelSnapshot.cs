@@ -171,8 +171,9 @@ namespace API.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
-                    b.Property<decimal>("BankAccount")
-                        .HasColumnType("decimal(20,0)");
+                    b.Property<string>("BankAccount")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("BankId")
                         .IsRequired()

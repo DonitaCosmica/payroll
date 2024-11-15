@@ -51,26 +51,14 @@ export const REPORTING_ACTIONS: Record<NavigationActionKind, ReportDefinition[]>
 } as const
 
 export const FILTER_COLUMNS: Record<string, string[]> = {
-  ['Acumulado x Periodos']: [
-
-  ],
-  ['Acumulado x Depto.']: [
-
-  ],
-  ['Acumulado por Proyecto/Puesto']: [
-
-  ],
   ['Prestamos y Descuentos']: [
-
+    'Folio', 'Proyectos', 'Trabajador'
   ],
   ['Deducciones x Proyecto']: [
-
+    'Proyectos'
   ],
   ['Trabajadores por Fecha']: [
     'Proyectos', 'Nombre', 'Puesto de trabajo',
     'Estado', 'Salario Base', 'Fecha de Admisión'
-  ],
-  ['Generar Layout']: [
-
   ]
 }

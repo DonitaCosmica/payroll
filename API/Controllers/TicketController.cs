@@ -329,6 +329,7 @@ namespace API.Controllers
         formColumns.Insert(formColumns.Count, "Deductions");
       }
 
+      columns.Remove("EmployeeId");
       return new
       {
         Columns = columns,
