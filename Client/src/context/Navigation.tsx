@@ -35,14 +35,14 @@ interface Props {
 const navigationConfig: Record<NavigationActionKind, { url: string, title: string, formSize: number }> = {
   [NavigationActionKind.PAYROLLRECEIPTS]: { url: 'http://localhost:5239/api/Ticket', title: 'Periodo', formSize: 75 },
   [NavigationActionKind.EMPLOYEES]: { url: 'http://localhost:5239/api/Employee', title: 'Trabajador', formSize: 75 },
-  [NavigationActionKind.JOBPOSITIONS]: { url: 'http://localhost:5239/api/JobPosition', title: 'Puesto', formSize: 40 },
-  [NavigationActionKind.DEPARTMENTS]: { url: 'http://localhost:5239/api/Department', title: 'Departamento', formSize: 40 },
-  [NavigationActionKind.COMMERCIALAREAS]: { url: 'http://localhost:5239/api/CommercialArea', title: 'Área Comercial', formSize: 30 },
+  [NavigationActionKind.JOBPOSITIONS]: { url: 'http://localhost:5239/api/JobPosition', title: 'Puesto', formSize: 50 },
+  [NavigationActionKind.DEPARTMENTS]: { url: 'http://localhost:5239/api/Department', title: 'Departamento', formSize: 50 },
+  [NavigationActionKind.COMMERCIALAREAS]: { url: 'http://localhost:5239/api/CommercialArea', title: 'Área Comercial', formSize: 40 },
   [NavigationActionKind.PERCEPTIONS]: { url: 'http://localhost:5239/api/Perception', title: 'Percepción', formSize: 57.5 },
   [NavigationActionKind.DEDUCTIONS]: { url: 'http://localhost:5239/api/Deduction', title: 'Deducción', formSize: 57.5 },
   [NavigationActionKind.PROJECTCATALOG]: { url: 'http://localhost:5239/api/Project', title: 'Proyecto', formSize: 75 },
-  [NavigationActionKind.COMPANIES]: { url: 'http://localhost:5239/api/Company', title: 'Compañia', formSize: 30 },
-  [NavigationActionKind.BANKS]: { url: 'http://localhost:5239/api/Bank', title: 'Banco', formSize: 57.5 },
+  [NavigationActionKind.COMPANIES]: { url: 'http://localhost:5239/api/Company', title: 'Compañia', formSize: 40 },
+  [NavigationActionKind.BANKS]: { url: '', title: '', formSize: 0 },
   [NavigationActionKind.TABLEWORK]: { url: 'http://localhost:5239/api/TableWork', title: 'Tabla de Trabajo', formSize: 75 },
   [NavigationActionKind.UPDATEDATA]: { url: '', title: '', formSize: 0 },
   [NavigationActionKind.UPDATETABLE]: { url: '', title: '', formSize: 0 },
@@ -230,7 +230,6 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
           type: NavigationActionKind.UPDATEDATA, 
           payload: { columns, newData, formData: dataResponse.formData, names } 
         })
-        saveToLocalStorage()
       } catch (error) {
         console.error(error)
         dispatch({ type: NavigationActionKind.ERROR })
@@ -238,6 +237,7 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
     }
 
     fetchData()
+    saveToLocalStorage()
   }, [ state.url, submitCount ])
 
   useEffect(() => {

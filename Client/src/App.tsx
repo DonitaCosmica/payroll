@@ -8,6 +8,7 @@ import { Toolbar } from './components/toolbar/Toolbar'
 import { List } from './components/list/List'
 import { Footer } from './components/footer/Footer'
 import { Form } from './components/form/Form'
+import { UploadBanks } from './components/uploadBanks/UploadBanks'
 import './App.css'
 
 function App(): JSX.Element {
@@ -25,10 +26,10 @@ function App(): JSX.Element {
       <PeriodProvider>
         { renderForm() }
         <Titlebar action='payroll' />
-        {option !== NavigationActionKind.BANKS &&
-          <>
-            { !content && <Navbar /> }
-            { renderFilter() }
+        { !content && <Navbar /> }
+        { renderFilter() }
+        {option !== NavigationActionKind.BANKS ?
+          (<>
             <Toolbar
               setSearchFilter={ setSearchFilter }
               setShowForm={ setShowForm }
@@ -41,7 +42,9 @@ function App(): JSX.Element {
               setShowForm={ setShowForm }
               setUpdateTableWork={ setUpdateTableWork }
             />
-          </>}
+          </>) : (
+            <UploadBanks />
+          )}
       </PeriodProvider>
       <Footer />
     </main>

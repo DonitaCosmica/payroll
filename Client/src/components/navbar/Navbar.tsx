@@ -7,23 +7,21 @@ export const Navbar = (): JSX.Element => {
 
   return (
     <nav className='navbar'>
-      {
-        LINKS.map((link: string, index: number) => (
-          <div 
-            className={ `link ${ option === index + 1 ? 'selected' : '' }` } 
-            key={ link } 
-            onClick={ () => {
-              dispatch({ type: index + 1 })
-              dispatch({ 
-                type: NavigationActionKind.UPDATESELECTEDID,
-                payload: { selectedId: '' }
-              })
-            } }
-          >
-            <p>{ link }</p>
-          </div>
-        ))
-      }
+      {LINKS.map((link: string, index: number) => (
+        <div 
+          className={ `link ${ option === index + 1 ? 'selected' : '' }` } 
+          key={ link } 
+          onClick={() => {
+            dispatch({ type: index + 1 })
+            dispatch({
+              type: NavigationActionKind.UPDATESELECTEDID,
+              payload: { selectedId: '' }
+            })
+          }}
+        >
+          <p>{ link }</p>
+        </div>
+      ))}
     </nav>
   )
 }

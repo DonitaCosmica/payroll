@@ -261,7 +261,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
                   <p>Total</p>
                 </div>
                 <div className="total-number">
-                  <p>{ `$${ totalAmount }` }
+                  <p>{ `$${ totalAmount.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }` }
                   </p>
                 </div>
               </div>

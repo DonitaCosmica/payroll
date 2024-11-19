@@ -576,7 +576,7 @@
         const exportTableToTxt = (table) => {
           const content = table.getElementsByTagName('tbody')[0]
           const rows = Array.from(content.getElementsByTagName('tr'))
-          const filterRows = rows.slice(0, -2)
+          const filterRows = table.id === 'ata-list-A' ? rows.slice(0, -2) : rows.slice(0, -5)
           const data = filterRows.map(row => {
             const cells = Array.from(row.getElementsByTagName('p'))
             return cells.map(cell => cell.textContent).join('\t')
@@ -815,7 +815,10 @@
                 const td = document.createElement('td')
                 const p = document.createElement('p')
                 if (index === 3) p.textContent = `${ rowCount } Movimientos`
-                if (index === 4) p.textContent = sumColumn5.toFixed(2)
+                if (index === 4) {
+                  p.textContent = sumColumn5.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  p.className = 'total-salary'
+                }
                 td.appendChild(p)
                 extraRow1.appendChild(td)
               })
@@ -828,7 +831,10 @@
                 const p = document.createElement('p')
                 if (index === 2) p.textContent = 'Total'
                 if (index === 3) p.textContent = `${ rowCount } Movimientos`
-                if (index === 4) p.textContent = sumColumn5.toFixed(2)
+                if (index === 4) {
+                  p.textContent = sumColumn5.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  p.className = 'total-salary'
+                }
                 if (index === 10) p.textContent = `Periodo ${ getWeekNumber(new Date()) } ${ new Date().getFullYear() }`
                 td.appendChild(p)
                 extraRow2.appendChild(td)
@@ -842,7 +848,9 @@
 
             const tbody = document.querySelector('#data-list-B tbody')
             if (tbody) {
-              const blankRows = Array.from({ length: 4 }, (_ ,index) => {
+              const pBanks = document.getElementsByClassName('total-salary')
+              const totalSalaries = Array.from(pBanks).reduce((sum, bank) => sum + parseFloat(bank.textContent), 0) / 2
+              const blankRows = Array.from({ length: 3 }, (_ ,index) => {
                 const tr = document.createElement('tr')
                 if (index <= 1) {
                   tr.className = 'blank-space'
@@ -852,9 +860,19 @@
                     td.appendChild(p)
                     return td
                   }))
-                } else {
-                  
+                } else if (index === 2) {
+                  columns.forEach((_, index) => {
+                    const td = document.createElement('td')
+                    const p = document.createElement('p')
+                    if (index === 2) p.textContent = 'GRAN TOTAL'
+                    if (index === 3) p.textContent = dataEmployee.formData.length
+                    if (index === 4) p.textContent = totalSalaries.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                    td.appendChild(p)
+                    tr.appendChild(td)
+                    tr.className = 'subtotal-banorte'
+                  })
                 }
+
                 return tr;
               });
 

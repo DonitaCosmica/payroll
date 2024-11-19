@@ -71,6 +71,45 @@ namespace API.Controllers
       return NoContent();
     }
 
+    [HttpPost("csv")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public IActionResult UpdateBanks([FromBody] IEnumerable<BankDTO> banks)
+    {
+      if(banks == null || !banks.Any())
+        return BadRequest(new { success = false, message = "No banks provided." });
+
+      foreach(var bank in banks)
+      {
+        if (string.IsNullOrEmpty(bank.Name) || string.IsNullOrEmpty(bank.Code))
+          return BadRequest(new { success = false, message = "Invalid data for one or more banks." });
+
+        var existingBank = bankRepository.GetBankByName(bank.Name);
+        if(existingBank == null)
+        {
+          var newBank = new Bank
+          {
+            BankId = Guid.NewGuid().ToString(),
+            Name = bank.Name,
+            Code = bank.Code
+          };
+
+          if(!bankRepository.CreateBank(newBank))
+            return StatusCode(500, new { success = false, message = "Error creating a bank." });
+        }
+        else
+        {
+          existingBank.Name = bank.Name;
+          existingBank.Code = bank.Code;
+
+          if (!bankRepository.UpdateBank(existingBank))
+            return StatusCode(500, new { success = false, message = "Error updating a bank." });
+        }
+      }
+
+      return Ok(new { success = true, message = "Banks processed successfully." });
+    }
+
     [HttpPatch("{bankId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
