@@ -7,11 +7,12 @@ interface Props {
   options: IDropDownMenu[] | [],
   value: ListObject[],
   idKey: string,
+  isDisabled: boolean,
   showAmount: boolean,
   setFormData: React.MutableRefObject<{ [key: string]: string | number | boolean | string[] | ListObject[] }>
 }
 
-export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, showAmount, setFormData }): JSX.Element => {  
+export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDisabled, showAmount, setFormData }): JSX.Element => {  
   const [filteredOptions, setFilteredOptions] = useState<IDropDownMenu[]>([])
   const [isOptionSelected, setIsOptionSelected] = useState<boolean[]>([])
   const [isAllOptionsSelected, setIsAllOptionsSelected] = useState<boolean>(false)
@@ -205,6 +206,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
             type="text"
             placeholder="Buscar..."
             autoComplete="off"
+            disabled={ isDisabled }
             onChange={ handleSearchChange }
           />
           <div className="multi-select-all" onClick={ handleSelectAllOptions }>
@@ -238,8 +240,8 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, show
                     : (
                       <>
                         <span
-                          contentEditable={ true }
-                          suppressContentEditableWarning={ true }
+                          contentEditable={ isDisabled ? false : true }
+                          suppressContentEditableWarning={ isDisabled ? false : true }
                           onInput={(e) => handleHours(e, opt)}
                         >
                           { renderHours(selectedItemsRef.current.find(item => item[idKey] === opt[idKey])?.value as number) || '0' }

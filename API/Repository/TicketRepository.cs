@@ -61,6 +61,48 @@ namespace API.Repository
             where ep.EmployeeId == e.EmployeeId
             select p).ToHashSet()
         }).FirstOrDefault();
+    public (HashSet<Perception> Perceptions, HashSet<Deduction> Deductions) GetFilteredPerceptionsAndDeductions(List<string> columns)
+    {
+      var filterPerceptions = context.Perceptions
+        .Where(p => columns.Contains(p.Description))
+        .ToHashSet();
+      
+      var filterDeductions = context.Deductions
+        .Where(d => columns.Contains(d.Description))
+        .ToHashSet();
+
+      return (filterPerceptions, filterDeductions);
+    }
+    public float GetBaseSalaryEmployee(string employeeName, string jobPosition, string department)
+    {
+      if(employeeName == null || jobPosition == null || department == null)
+        throw new ArgumentNullException(nameof(employeeName), "Employee cannot be null.");
+      
+      var employee = context.Employees.Include(e => e.JobPosition).ThenInclude(jp => jp.Department)
+        .FirstOrDefault(e => e.Name == employeeName && e.JobPosition.Name == jobPosition && e.JobPosition.Department.Name == department);
+      return employee != null ? employee.BaseSalary : 0f;
+    }
+    public (char nextSerie, ushort nextBill) GenerateNextTicket()
+    {
+      var lastTicket = context.Tickets
+        .OrderByDescending(t => t.Serie)
+        .ThenByDescending(t => t.Bill)
+        .FirstOrDefault();
+
+      if(lastTicket == null)
+        return ('A', 1);
+
+      char currentSerie = lastTicket.Serie;
+      ushort currentBill = lastTicket.Bill;
+      if(currentBill < ushort.MaxValue)
+        return (currentSerie, (ushort)(currentBill + 1));
+      else
+      {
+        char nexSerie = (char)(currentSerie + 1);
+        if(nexSerie > 'Z') throw new Exception("The available series are sold out.");
+        return (nexSerie, 1);
+      }
+    }
     public bool CreateTicket(HashSet<TicketPerceptionRelatedEntities> perceptions, 
       HashSet<TicketDeductionRelatedEntities> deductions, Ticket ticket)
     {
@@ -73,6 +115,7 @@ namespace API.Repository
           TicketPerceptionId = Guid.NewGuid().ToString(),
           TicketId = t.TicketId,
           PerceptionId = p.PerceptionId,
+          Name = p.Description,
           Total = i.Value,
           Ticket = t,
           Perception = p
@@ -86,6 +129,7 @@ namespace API.Repository
           TicketDeductionId = Guid.NewGuid().ToString(),
           TicketId = t.TicketId,
           DeductionId = d.DeductionId,
+          Name = d.Description,
           Total = i.Value,
           Ticket = t,
           Deduction = d
@@ -121,6 +165,7 @@ namespace API.Repository
           TicketPerceptionId = Guid.NewGuid().ToString(),
           TicketId = t.TicketId,
           PerceptionId = p.PerceptionId,
+          Name = p.Description,
           Total = i.Value,
           Ticket = t,
           Perception = p
@@ -134,6 +179,7 @@ namespace API.Repository
           TicketDeductionId = Guid.NewGuid().ToString(),
           TicketId = t.TicketId,
           DeductionId = d.DeductionId,
+          Name = d.Description,
           Total = i.Value,
           Ticket = t,
           Deduction = d
@@ -168,26 +214,6 @@ namespace API.Repository
     public void GetColumnsFromRelatedEntity<T>(T ticket, List<string> columns) where T : class => 
       context.GetColumns(ticket, columns);
     public List<string> GetColumns() => context.GetColumns<Ticket>();
-    public (HashSet<Perception> Perceptions, HashSet<Deduction> Deductions) GetFilteredPerceptionsAndDeductions(List<string> columns)
-    {
-      var filterPerceptions = context.Perceptions
-        .Where(p => columns.Contains(p.Description))
-        .ToHashSet();
-      
-      var filterDeductions = context.Deductions
-        .Where(d => columns.Contains(d.Description))
-        .ToHashSet();
-
-      return (filterPerceptions, filterDeductions);
-    }
-    public float GetBaseSalaryEmployee(string employeeId)
-    {
-      if(employeeId == null)
-        throw new ArgumentNullException(nameof(employeeId), "Employee ID cannot be null.");
-      
-      var employee = context.Employees.FirstOrDefault(e => e.EmployeeId == employeeId);
-      return employee != null ? employee.BaseSalary : 0f;
-    }
     public bool TicketExists(string ticketId) => context.Tickets.Any(t => t.TicketId == ticketId);
     private static (ushort currentWeek, ushort currentYear, ushort previousWeek, ushort previousYear) GetWeekAndYearInfo()
     {
@@ -237,7 +263,6 @@ namespace API.Repository
         TicketId = Guid.NewGuid().ToString(),
         Serie = ticket.Serie,
         Bill = ticket.Bill,
-        EmployeeId = ticket.EmployeeId,
         Employee = ticket.Employee,
         JobPosition = ticket.JobPosition,
         Department = ticket.Department,
@@ -246,7 +271,6 @@ namespace API.Repository
         Observations = ticket.Observations,
         Company = ticket.Company,
         PayrollType = ticket.PayrollType,
-        StatusId = ticket.StatusId,
         Status = ticket.Status,
         ReceiptOfDate = ticket.ReceiptOfDate,
         PaymentDate = ticket.PaymentDate,
@@ -270,6 +294,7 @@ namespace API.Repository
           TicketPerceptionId = Guid.NewGuid().ToString(),
           TicketId = newTicket.TicketId,
           PerceptionId = perception.PerceptionId,
+          Name = perception.Name,
           Total = perception.Total,
           Ticket = newTicket,
           Perception = perception.Perception
@@ -288,6 +313,7 @@ namespace API.Repository
           TicketDeductionId = Guid.NewGuid().ToString(),
           TicketId = newTicket.TicketId,
           DeductionId = deduction.DeductionId,
+          Name = deduction.Name,
           Total = deduction.Total,
           Ticket = newTicket,
           Deduction = deduction.Deduction
@@ -299,18 +325,10 @@ namespace API.Repository
     }
     private static IQueryable<Ticket> IncludeRelatedEntities(IQueryable<Ticket> query) =>
       query
-        .Include(t => t.Employee)
-          .ThenInclude(e => e.JobPosition)
-            .ThenInclude(jp => jp.Department)
-        .Include(t => t.Employee)
-          .ThenInclude(e => e.EmployeeProjects)
-            .ThenInclude(ep => ep.Project)
-        .Include(t => t.Employee)
-          .ThenInclude(e => e.Company)
         .Include(t => t.TicketPerceptions)
           .ThenInclude(tp => tp.Perception)
         .Include(t => t.TicketDeductions)
           .ThenInclude(td => td.Deduction)
-        .Include(t => t.Status).Include(t => t.Period);
+        .Include(t => t.Period);
   }
 }

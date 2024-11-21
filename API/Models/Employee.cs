@@ -65,9 +65,6 @@ namespace API.Models
     [Range(100, float.MaxValue)]
     public float DailySalary { get; set; }
     [Required]
-    [Range(100, float.MaxValue)]
-    public float ValuePerExtraHour { get; set; }
-    [Required]
     [MaxLength(36)]
     [ForeignKey("FederalEntity")]
     public string FederalEntityId { get; set; } = default!;
@@ -111,6 +108,5 @@ namespace API.Models
     [ForeignKey("Company")]
     public string CompanyId { get; set; } = default!;
     public Company Company { get; set; } = new();
-    public ICollection<Ticket> Tickets { get; set; } = [];
   }
 }

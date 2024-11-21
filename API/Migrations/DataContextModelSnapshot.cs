@@ -295,9 +295,6 @@ namespace API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<float>("ValuePerExtraHour")
-                        .HasColumnType("real");
-
                     b.HasKey("EmployeeId");
 
                     b.HasIndex("BankId");
@@ -611,10 +608,9 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("EmployeeId")
+                    b.Property<string>("Employee")
                         .IsRequired()
-                        .HasMaxLength(36)
-                        .HasColumnType("nvarchar(36)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("JobPosition")
                         .IsRequired()
@@ -647,9 +643,11 @@ namespace API.Migrations
                         .HasMaxLength(1)
                         .HasColumnType("nvarchar(1)");
 
-                    b.Property<string>("StatusId")
+                    b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(36)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StatusId")
                         .HasColumnType("nvarchar(36)");
 
                     b.Property<float>("Total")
@@ -663,8 +661,6 @@ namespace API.Migrations
 
                     b.HasKey("TicketId");
 
-                    b.HasIndex("EmployeeId");
-
                     b.HasIndex("PeriodId");
 
                     b.HasIndex("StatusId");
@@ -674,7 +670,7 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.TicketDeduction", b =>
                 {
-                    b.Property<string>("TicketId")
+                    b.Property<string>("TicketDeductionId")
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
@@ -682,40 +678,54 @@ namespace API.Migrations
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
-                    b.Property<string>("TicketDeductionId")
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TicketId")
+                        .IsRequired()
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
                     b.Property<float>("Total")
                         .HasColumnType("real");
 
-                    b.HasKey("TicketId", "DeductionId");
+                    b.HasKey("TicketDeductionId");
 
                     b.HasIndex("DeductionId");
+
+                    b.HasIndex("TicketId");
 
                     b.ToTable("TicketDeductions");
                 });
 
             modelBuilder.Entity("API.Models.TicketPerception", b =>
                 {
-                    b.Property<string>("TicketId")
+                    b.Property<string>("TicketPerceptionId")
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PerceptionId")
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
-                    b.Property<string>("TicketPerceptionId")
+                    b.Property<string>("TicketId")
+                        .IsRequired()
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)");
 
                     b.Property<float>("Total")
                         .HasColumnType("real");
 
-                    b.HasKey("TicketId", "PerceptionId");
+                    b.HasKey("TicketPerceptionId");
 
                     b.HasIndex("PerceptionId");
+
+                    b.HasIndex("TicketId");
 
                     b.ToTable("TicketPerceptions");
                 });
@@ -857,29 +867,17 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.Ticket", b =>
                 {
-                    b.HasOne("API.Models.Employee", "Employee")
-                        .WithMany("Tickets")
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("API.Models.Period", "Period")
                         .WithMany("Tickets")
                         .HasForeignKey("PeriodId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("API.Models.Status", "Status")
+                    b.HasOne("API.Models.Status", null)
                         .WithMany("Tickets")
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Employee");
+                        .HasForeignKey("StatusId");
 
                     b.Navigation("Period");
-
-                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("API.Models.TicketDeduction", b =>
@@ -887,8 +885,7 @@ namespace API.Migrations
                     b.HasOne("API.Models.Deduction", "Deduction")
                         .WithMany("TicketDeductions")
                         .HasForeignKey("DeductionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("API.Models.Ticket", "Ticket")
                         .WithMany("TicketDeductions")
@@ -906,8 +903,7 @@ namespace API.Migrations
                     b.HasOne("API.Models.Perception", "Perception")
                         .WithMany("TicketPerceptions")
                         .HasForeignKey("PerceptionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("API.Models.Ticket", "Ticket")
                         .WithMany("TicketPerceptions")
@@ -955,8 +951,6 @@ namespace API.Migrations
             modelBuilder.Entity("API.Models.Employee", b =>
                 {
                     b.Navigation("EmployeeProjects");
-
-                    b.Navigation("Tickets");
                 });
 
             modelBuilder.Entity("API.Models.FederalEntity", b =>

@@ -24,7 +24,6 @@ namespace API.DTO
     public string Contract { get; set; } = default!;
     public float BaseSalary { get; set; }
     public float DailySalary { get; set; }
-    public float ValuePerExtraHour { get; set; } = default!;
     public string FederalEntity { get; set; } = default!;
     public ulong Phone { get; set; }
     public string Email { get; set; } = default!;

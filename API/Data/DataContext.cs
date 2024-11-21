@@ -11,28 +11,28 @@ namespace API.Data
   public class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
   {
     private readonly Dictionary<Type, List<string>> cachedColumns = [];
-    public virtual DbSet<Account> Accounts { get; set; }
-    public virtual DbSet<Bank> Banks { get; set; }
-    public virtual DbSet<CommercialArea> CommercialAreas { get; set; }
-    public virtual DbSet<Company> Companies { get; set; }
-    public virtual DbSet<Contract> Contracts { get; set; }
-    public virtual DbSet<Deduction> Deductions { get; set; }
-    public virtual DbSet<Department> Departments { get; set; }
-    public virtual DbSet<Employee> Employees { get; set; }
-    public virtual DbSet<EmployeeProject> EmployeeProjects { get; set; }
-    public virtual DbSet<FederalEntity> FederalEntities { get; set; }
-    public virtual DbSet<JobPosition> JobPositions { get; set; }
-    public virtual DbSet<Payroll> Payrolls { get; set; }
-    public virtual DbSet<Perception> Perceptions { get; set; }
-    public virtual DbSet<Period> Periods { get; set; }
-    public virtual DbSet<Project> Projects { get; set; }
-    public virtual DbSet<Regime> Regimes { get; set; }
-    public virtual DbSet<State> States { get; set; }
-    public virtual DbSet<Status> Statuses { get; set; }
-    public virtual DbSet<TableWork> TableWorks { get; set; }
-    public virtual DbSet<Ticket> Tickets { get; set; }
-    public virtual DbSet<TicketPerception> TicketPerceptions { get; set; }
-    public virtual DbSet<TicketDeduction> TicketDeductions { get; set; }
+    public virtual required DbSet<Account> Accounts { get; set; }
+    public virtual required DbSet<Bank> Banks { get; set; }
+    public virtual required DbSet<CommercialArea> CommercialAreas { get; set; }
+    public virtual required DbSet<Company> Companies { get; set; }
+    public virtual required DbSet<Contract> Contracts { get; set; }
+    public virtual required DbSet<Deduction> Deductions { get; set; }
+    public virtual required DbSet<Department> Departments { get; set; }
+    public virtual required DbSet<Employee> Employees { get; set; }
+    public virtual required DbSet<EmployeeProject> EmployeeProjects { get; set; }
+    public virtual required DbSet<FederalEntity> FederalEntities { get; set; }
+    public virtual required DbSet<JobPosition> JobPositions { get; set; }
+    public virtual required DbSet<Payroll> Payrolls { get; set; }
+    public virtual required DbSet<Perception> Perceptions { get; set; }
+    public virtual required DbSet<Period> Periods { get; set; }
+    public virtual required DbSet<Project> Projects { get; set; }
+    public virtual required DbSet<Regime> Regimes { get; set; }
+    public virtual required DbSet<State> States { get; set; }
+    public virtual required DbSet<Status> Statuses { get; set; }
+    public virtual required DbSet<TableWork> TableWorks { get; set; }
+    public virtual required DbSet<Ticket> Tickets { get; set; }
+    public virtual required DbSet<TicketPerception> TicketPerceptions { get; set; }
+    public virtual required DbSet<TicketDeduction> TicketDeductions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -118,21 +118,15 @@ namespace API.Data
           .HasConversion(
             v => v.ToString(),
             v => (PayrollType)Enum.Parse(typeof(PayrollType), v));
-        entity.HasOne(t => t.Employee)
-          .WithMany(e => e.Tickets)
-          .HasForeignKey(t => t.EmployeeId);
-        entity.HasOne(t => t.Status)
-          .WithMany(s => s.Tickets)
-          .HasForeignKey(t => t.StatusId)
-          .OnDelete(DeleteBehavior.Restrict);
         entity.HasOne(t => t.Period)
           .WithMany(pr => pr.Tickets)
-          .HasForeignKey(t => t.PeriodId);
+          .HasForeignKey(t => t.PeriodId)
+          .OnDelete(DeleteBehavior.Cascade);
       });
 
       modelBuilder.Entity<TicketPerception>(entity =>
       {
-        entity.HasKey(tp => new { tp.TicketId, tp.PerceptionId });
+        entity.HasKey(tp => tp.TicketPerceptionId);
         entity.HasOne(tp => tp.Ticket)
           .WithMany(t => t.TicketPerceptions)
           .HasForeignKey(tp => tp.TicketId)
@@ -140,12 +134,14 @@ namespace API.Data
         entity.HasOne(tp => tp.Perception)
           .WithMany(p => p.TicketPerceptions)
           .HasForeignKey(tp => tp.PerceptionId)
-          .OnDelete(DeleteBehavior.Cascade);
+          .OnDelete(DeleteBehavior.SetNull);
+        entity.Property(td => td.PerceptionId)
+          .IsRequired(false);
       });
 
       modelBuilder.Entity<TicketDeduction>(entity =>
       {
-        entity.HasKey(td => new { td.TicketId, td.DeductionId });
+        entity.HasKey(td => td.TicketDeductionId);
         entity.HasOne(td => td.Ticket)
           .WithMany(t => t.TicketDeductions)
           .HasForeignKey(td => td.TicketId)
@@ -153,7 +149,9 @@ namespace API.Data
         entity.HasOne(td => td.Deduction)
           .WithMany(t => t.TicketDeductions)
           .HasForeignKey(td => td.DeductionId)
-          .OnDelete(DeleteBehavior.Cascade);
+          .OnDelete(DeleteBehavior.SetNull);
+        entity.Property(td => td.DeductionId)
+          .IsRequired(false);
       });
 
       modelBuilder.Entity<TableWork>(entity =>
@@ -163,10 +161,6 @@ namespace API.Data
           .HasConversion(
             v => v.ToString(),
             v => (CtaOptions)Enum.Parse(typeof(CtaOptions), v));
-        entity.HasOne(tw => tw.Ticket)
-          .WithMany(t => t.TableWorks)
-          .HasForeignKey(tw => tw.TicketId)
-          .OnDelete(DeleteBehavior.Cascade);
       });
 
       base.OnModelCreating(modelBuilder);

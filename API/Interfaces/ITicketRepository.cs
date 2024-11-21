@@ -10,6 +10,9 @@ namespace API.Interfaces
     ICollection<Ticket> GetTicketsByWeekAndYear(ushort week, ushort year);
     Ticket GetTicket(string ticketId);
     TicketRelatedEntities? GetRelatedEntities(TicketDTO ticketDTO);
+    float GetBaseSalaryEmployee(string employeeName, string jobPosition, string department);
+    (char nextSerie, ushort nextBill) GenerateNextTicket();
+    bool TicketExists(string ticketId);
     bool CreateTicket(HashSet<TicketPerceptionRelatedEntities> perceptions, 
       HashSet<TicketDeductionRelatedEntities> deductions, Ticket ticket);
     bool UpdateTicket(HashSet<TicketPerceptionRelatedEntities> perceptions, 
@@ -18,7 +21,5 @@ namespace API.Interfaces
     void GetColumnsFromRelatedEntity<T>(T ticket, List<string> columns) where T : class;
     List<string> GetColumns();
     (HashSet<Perception> Perceptions, HashSet<Deduction> Deductions) GetFilteredPerceptionsAndDeductions(List<string> columns);
-    float GetBaseSalaryEmployee(string employeeId);
-    bool TicketExists(string ticketId);
   }
 }

@@ -104,21 +104,21 @@ namespace API.Controllers
       return NoContent();
     }
 
-    private static Ticket MapToTicketModel(TicketDTO createTicket, TicketRelatedEntities relatedEntities)
+    private Ticket MapToTicketModel(TicketDTO createTicket, TicketRelatedEntities relatedEntities)
     {
       if(string.IsNullOrEmpty(relatedEntities.Payroll.Name) || !TryConvertToStatusType(relatedEntities.Payroll.Name, out PayrollType payrollType))
         payrollType = PayrollType.Error;
 
+      var (nextSerie, nextBill) = ticketRepository.GenerateNextTicket();
       float totalPerceptions = createTicket.Perceptions.Sum(p => p.Value);
       float totalDeductions = createTicket.Deductions.Sum(d => d.Value);
 
       return new()
       {
         TicketId = Guid.NewGuid().ToString(),
-        Serie = createTicket.Serie,
-        Bill = createTicket.Bill,
-        EmployeeId = createTicket.Employee,
-        Employee = relatedEntities.Employee,
+        Serie = nextSerie,
+        Bill = nextBill,
+        Employee = relatedEntities.Employee.Name,
         JobPosition = relatedEntities.JobPosition.Name,
         Department = relatedEntities.Department.Name,
         Total = totalPerceptions - totalDeductions,
@@ -133,8 +133,7 @@ namespace API.Controllers
         Observations = createTicket.Observations,
         Company = relatedEntities.Company.Name,
         PayrollType = payrollType,
-        StatusId = createTicket.Status,
-        Status = relatedEntities.Status,
+        Status = relatedEntities.Status.Name,
         ReceiptOfDate = DateTime.ParseExact(createTicket.ReceiptOfDate, "yyyy-MM-dd", CultureInfo.InvariantCulture),
         PaymentDate = DateTime.ParseExact(createTicket.PaymentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture),
         PeriodId = relatedEntities.Period.PeriodId,
@@ -152,15 +151,13 @@ namespace API.Controllers
       float totalPerceptions = updateTicket.Perceptions.Sum(p => p.Value);
       float totalDeductions = updateTicket.Deductions.Sum(d => d.Value);
 
-      ticket.Serie = updateTicket.Serie;
-      ticket.Bill = updateTicket.Bill;
-      ticket.EmployeeId = updateTicket.Employee;
-      ticket.Employee = relatedEntities.Employee;
+      ticket.Employee = relatedEntities.Employee.Name;
+      ticket.JobPosition = relatedEntities.JobPosition.Name;
+      ticket.Department = relatedEntities.Department.Name;
       ticket.Total = totalPerceptions - totalDeductions;
       ticket.Observations = updateTicket.Observations;
       ticket.PayrollType = payrollType;
-      ticket.StatusId = updateTicket.Status;
-      ticket.Status = relatedEntities.Status;
+      ticket.Status = relatedEntities.Status.Name;
       ticket.ReceiptOfDate = DateTime.ParseExact(updateTicket.ReceiptOfDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
       ticket.PaymentDate = DateTime.ParseExact(updateTicket.PaymentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
       ticket.PeriodId = relatedEntities.Period.PeriodId;
@@ -178,11 +175,10 @@ namespace API.Controllers
         TicketId = ticket.TicketId,
         Serie = ticket.Serie,
         Bill = ticket.Bill,
-        EmployeeId = ticket.EmployeeId,
-        Employee = ticket.Employee.Name,
+        Employee = ticket.Employee,
         JobPosition = ticket.JobPosition,
         Department = ticket.Department,
-        Status = ticket.Status.Name,
+        Status = ticket.Status,
         Total = ticket.Total,
         Company = ticket.Company,
         Projects = ticket.Projects,
@@ -190,21 +186,21 @@ namespace API.Controllers
         ReceiptOfDate = ticket.ReceiptOfDate.ToString("yyyy-MM-dd"),
         PaymentDate = ticket.PaymentDate.ToString("yyyy-MM-dd"),
         Payroll = ticket.PayrollType.ToString(),
-        Perceptions = new HashSet<TicketPerceptionRelatedEntities>(ticket.TicketPerceptions.Select(p => 
+        Perceptions = [.. ticket.TicketPerceptions.Select(p => 
           new TicketPerceptionRelatedEntities
           {
             PerceptionId = p.PerceptionId,
-            Name = p.Perception.Description,
+            Name = p.Name,
             Value = p.Total,
-            CompensationType = DetermineCompensationType(p.Perception.Description).ToString()
-          })),
-        Deductions = new HashSet<TicketDeductionRelatedEntities>(ticket.TicketDeductions.Select(d => 
+            CompensationType = DetermineCompensationType(p.Name).ToString()
+          })],
+        Deductions = [.. ticket.TicketDeductions.Select(d => 
           new TicketDeductionRelatedEntities
           {
             DeductionId = d.DeductionId,
-            Name = d.Deduction.Description,
+            Name = d.Name,
             Value = d.Total
-          }))
+          })]
       };
       
       return ticketDTO;
@@ -243,7 +239,7 @@ namespace API.Controllers
         var baseSalaryPerception = t.Perceptions.FirstOrDefault(p => p.Name == "Sueldo");
         if(baseSalaryPerception == null)
         {
-          float baseSalary = ticketRepository.GetBaseSalaryEmployee(t.EmployeeId!);
+          float baseSalary = ticketRepository.GetBaseSalaryEmployee(t.Employee, t.JobPosition!, t.Department!);
           t.Perceptions.Add(new TicketPerceptionRelatedEntities { Name = "Sueldo", Value = baseSalary });
           t.Perceptions.Add(new TicketPerceptionRelatedEntities { Name = "Hora Extra", Value = 0 });
           totalPerceptions += baseSalary;
@@ -254,7 +250,6 @@ namespace API.Controllers
           TicketId = t.TicketId,
           Serie = t.Serie,
           Bill = t.Bill,
-          EmployeeId = t.EmployeeId,
           Employee = t.Employee,
           JobPosition = t.JobPosition,
           Department = t.Department,
@@ -278,16 +273,17 @@ namespace API.Controllers
       {
         var additionalProperties = auxTicket.Perceptions
           .Where(p => p.Value > 0 && p.Name != "Sueldo" && p.Name != "Hora Extra")
-          .ToDictionary(p => p.Name ?? "Unknown Perception", p => (object)p.Value)
+          .Select((p, i) => new KeyValuePair<string, object>(p.Name ?? $"Unknown Perception {i}", p.Value))
           .Concat(
-            auxTicket.Deductions
-              .Where(d => d.Value > 0)
-              .ToDictionary(d => d.Name ?? "Unknown Deduction", d => (object)d.Value)
+              auxTicket.Deductions
+                  .Where(d => d.Value > 0)
+                  .Select((d, i) => new KeyValuePair<string, object>(d.Name ?? $"Unknown Deduction {i}", d.Value))
           )
-          .ToDictionary(kv => kv.Key, kv => kv.Value);
+          .GroupBy(kv => kv.Key)
+          .ToDictionary(g => g.Key, g => g.First().Value);
 
         if(!additionalProperties.ContainsKey("Sueldo"))
-          additionalProperties["Sueldo"] = ticketRepository.GetBaseSalaryEmployee(auxTicket.EmployeeId!);
+          additionalProperties["Sueldo"] = ticketRepository.GetBaseSalaryEmployee(auxTicket.Employee, auxTicket.JobPosition!, auxTicket.Department!);
 
         if(!additionalProperties.ContainsKey("Hora Extra"))
           additionalProperties["Hora Extra"] = auxTicket.Perceptions.FirstOrDefault(p => p.Name == "Hora Extra")?.Value ?? 0;

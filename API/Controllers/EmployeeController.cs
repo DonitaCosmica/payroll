@@ -121,8 +121,7 @@ namespace API.Controllers
         ContractId = employeeCreate.Contract,
         Contract = relatedEntities.Contract,
         BaseSalary = employeeCreate.BaseSalary,
-        DailySalary = employeeCreate.DailySalary,
-        ValuePerExtraHour = employeeCreate.ValuePerExtraHour,
+        DailySalary = employeeCreate.BaseSalary / 7,
         FederalEntityId = employeeCreate.FederalEntity,
         FederalEntity = relatedEntities.FederalEntity,
         Phone = employeeCreate.Phone,
@@ -167,8 +166,7 @@ namespace API.Controllers
       employee.ContractId = updateEmployee.Contract;
       employee.Contract = relatedEntities.Contract;
       employee.BaseSalary = updateEmployee.BaseSalary;
-      employee.DailySalary = updateEmployee.DailySalary;
-      employee.ValuePerExtraHour = updateEmployee.ValuePerExtraHour;
+      employee.DailySalary = updateEmployee.BaseSalary / 7;
       employee.FederalEntityId = updateEmployee.FederalEntity;
       employee.FederalEntity = relatedEntities.FederalEntity;
       employee.Phone = updateEmployee.Phone;
@@ -215,8 +213,7 @@ namespace API.Controllers
         CommercialArea = employee.CommercialArea.Name,
         Contract = employee.Contract.Name,
         BaseSalary = employee.BaseSalary,
-        DailySalary = employee.DailySalary,
-        ValuePerExtraHour = employee.ValuePerExtraHour,
+        DailySalary = employee.BaseSalary / 7,
         FederalEntity = employee.FederalEntity.Name,
         Phone = employee.Phone,
         Email = employee.Email,

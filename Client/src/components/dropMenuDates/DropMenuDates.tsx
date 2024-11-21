@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { usePeriodContext } from '../../context/Period'
 import { IWeekYear, type IconDefinition } from '../../types'
 import { ICON_OPTIONS } from '../../utils/icons'
+import { getWeekNumber } from '../../utils/modifyData'
 import { Accordion } from '../accordion/Accordion'
 import { FaCheck } from "react-icons/fa"
 import './DropMenuDates.css'
@@ -14,15 +15,6 @@ export const DropMenuDates = ({  }): JSX.Element => {
   const period = useRef<IWeekYear>({ week: 0, year: 0 })
 
   useEffect(() => { setActionType('FETCH_DATA') }, [])
-
-  const getWeekNumber = (date: Date): number => {
-    const currentDate = date || new Date()
-    const januaryFirst = new Date(currentDate.getFullYear(), 0, 1)
-    const daysToNextMonday = (januaryFirst.getDay() === 1) ? 0 : (7 - januaryFirst.getDay()) % 7
-    const nextMonday = new Date(currentDate.getFullYear(), 0, januaryFirst.getDate() + daysToNextMonday)
-    return (currentDate < nextMonday) ? 52 :
-      (currentDate > nextMonday ? Math.ceil((currentDate.getTime() - nextMonday.getTime()) / (24 * 3600 * 1000) / 7) : 1)
-  }
 
   const getMondayOfWeek = ({ week, year }: IWeekYear): string => {
     const janFirst = new Date(year, 0, 1)

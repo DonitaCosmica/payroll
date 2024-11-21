@@ -411,5 +411,4 @@ C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\refint\API.dll
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.pdb
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.genruntimeconfig.cache
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\ref\API.dll
-C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\System.Text.Json.dll
-C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.csproj.Up2Date
+C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.csproj.CopyComplete

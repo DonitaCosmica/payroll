@@ -111,7 +111,7 @@ namespace API.Controllers
       return new TableWorkDTO
       {
         TableWorkId = tableWork.TableWorkId,
-        Employee = tableWork.Ticket.Employee.Name,
+        Employee = tableWork.Ticket.Employee,
         Department = tableWork.Ticket.Department,
         Projects = tableWork.Ticket.Projects,
         JobPosition = tableWork.Ticket.JobPosition,
@@ -138,24 +138,24 @@ namespace API.Controllers
       {
         TableWorkId = tableWork.TableWorkId,
         Ticket = tableWork.TicketId,
-        Employee = tableWork.Ticket.Employee.Name,
+        Employee = tableWork.Ticket.Employee,
         StsTr = tableWork.StsTr,
         StsR = tableWork.StsR,
         Cta = tableWork.Cta.ToString(),
-        Perceptions = new HashSet<TicketPerceptionRelatedEntities>(tableWork.Ticket.TicketPerceptions.Select(p =>
+        Perceptions = [.. tableWork.Ticket.TicketPerceptions.Select(p =>
           new TicketPerceptionRelatedEntities
           {
             PerceptionId = p.PerceptionId,
-            Name = p.Perception.Description,
+            Name = p.Name,
             Value = p.Total
-          })),
-        Deductions = new HashSet<TicketDeductionRelatedEntities>(tableWork.Ticket.TicketDeductions.Select(d =>
+          })],
+        Deductions = [.. tableWork.Ticket.TicketDeductions.Select(d =>
           new TicketDeductionRelatedEntities
           {
             DeductionId = d.DeductionId,
-            Name = d.Deduction.Description,
+            Name = d.Name,
             Value = d.Total
-          })),
+          })],
 
         Total = tableWork.Ticket.Total,
         Observations = tableWork.Observations,

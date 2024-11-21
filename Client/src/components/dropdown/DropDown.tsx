@@ -6,11 +6,12 @@ interface Props {
   options: IDropDownMenu[] | [],
   selectedId: string,
   value: string,
+  isDisabled: boolean,
   setFormData: React.MutableRefObject<{ [key: string]: string | number | boolean | string[] | ListObject[] }>
   setLoading?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const DropDown: React.FC<Props> = ({ options, selectedId, value, setFormData, setLoading }): JSX.Element => {
+export const DropDown: React.FC<Props> = ({ options, selectedId, value, isDisabled, setFormData, setLoading }): JSX.Element => {
   const [selectedValue, setSelectedValue] = useState<string>(value)
   const sortedOptions = [...options].sort((a, b) => {
     const extractNumber = (str: string): number | null => {
@@ -45,8 +46,10 @@ export const DropDown: React.FC<Props> = ({ options, selectedId, value, setFormD
     return key ? (obj as any)[key] : undefined
   }
 
+  console.log({ isDisabled })
+
   return (
-    <select id={`${ selectedId }`} value={ selectedValue } onChange={ handleChange }>
+    <select id={`${ selectedId }`} value={ selectedValue } onChange={ handleChange } disabled={ isDisabled ? true : undefined }>
       <option value='0'>Elije una opción...</option>
       {sortedOptions.map((option: IDropDownMenu, index: number) => 
         <option key={`${ selectedId }-${ index }`} value={ filterAttributesContainingId(option) }>{ option.name ?? option.description }</option>

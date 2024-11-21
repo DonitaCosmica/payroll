@@ -13,12 +13,10 @@ namespace API.Models
     [MaxLength(1)]
     public char Serie { get; set; }
     [Required]
+    [Range(1, ushort.MaxValue)]
     public ushort Bill { get; set; }
     [Required]
-    [MaxLength(36)]
-    [ForeignKey("Employee")]
-    public string EmployeeId { get; set; } = default!;
-    public Employee Employee { get; set; } = new();
+    public string Employee { get; set; } = default!;
     [Required]
     public string JobPosition { get; set; } = default!;
     [Required]
@@ -34,10 +32,7 @@ namespace API.Models
     [Required]
     public PayrollType PayrollType { get; set; }
     [Required]
-    [MaxLength(36)]
-    [ForeignKey("Status")]
-    public string StatusId { get; set; } = default!;
-    public Status Status { get; set; } = new();
+    public string Status { get; set; } = default!;
     [Required]
     [DataType(DataType.Date)]
     [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]

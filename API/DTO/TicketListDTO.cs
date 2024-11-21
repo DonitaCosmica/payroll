@@ -1,5 +1,3 @@
-using API.Helpers;
-
 namespace API.DTO
 {
   public class TicketListDTO

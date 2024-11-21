@@ -3,6 +3,7 @@ import { NavigationActionKind, useNavigationContext } from '../../context/Naviga
 import { usePeriodContext } from '../../context/Period'
 import { type IDropDownMenu, type FieldConfig, type DataObject, type ListObject } from '../../types'
 import { fieldsConfig } from '../../utils/fields'
+import { getWeekNumber } from '../../utils/modifyData'
 import { FaArrowLeft } from "react-icons/fa"
 import { DropDown } from '../dropdown/DropDown'
 import { MultiDropDown } from '../multiDropDown/MultiDropDown'
@@ -24,7 +25,6 @@ interface PerceptionsAndDeductions {
 function* fetchDataGenerator(option: NavigationActionKind) {
   try {
     const initialDropdownData: InitialDropdownData = yield fetchInitialDropdownData(option)
-
     if (option === NavigationActionKind.PAYROLLRECEIPTS) {
       const employeeId: string = yield
       const perceptionsAndDeductions: PerceptionsAndDeductions = yield fetchPerceptionsAndDeductions(employeeId)
@@ -113,6 +113,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const { selectedPeriod } = usePeriodContext()
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
   const [loading, setLoading] = useState<boolean>(false)
+  const currentPeriod = useRef<{ week: number, year: number }>({ week: 0, year: 0 })
   const formData = useRef<{ [key: string]: string | string[] | boolean | number | ListObject[] }>({})
 
   useEffect(() => {
@@ -136,6 +137,10 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
       }
     }
 
+    currentPeriod.current = {
+      week: getWeekNumber(new Date),
+      year: new Date().getFullYear()
+    }
     fetchData()
   }, [ option, loading ])
 
@@ -145,6 +150,11 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
       if (objectsForm) formData.current = objectsForm
     }
   }, [ toolbarOption, selectedId, data, keys, dropdownData, formDataRes, option ])
+
+  const isDisabled = useMemo(() =>
+    selectedPeriod.year !== currentPeriod.current.year
+    || selectedPeriod.week !== currentPeriod.current.week
+  , [selectedPeriod])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>): void => {
     const { id, value, type } = e.target
@@ -234,6 +244,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   onChange={ (e) => handleChange(e) }
                   defaultValue={ toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : '' }
                   //readOnly={ modify ? undefined : true }
+                  disabled={ isDisabled }
                   checked={ toolbarOption === 1 
                     && objectsForm 
                     && typeof objectsForm[String(id.toLocaleLowerCase())] === 'boolean' 
@@ -245,6 +256,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   options={ dropdownData[id ?? ''] } 
                   selectedId={ fieldId }
                   value={ value }
+                  isDisabled={ !isDisabled }
                   setFormData={ formData } 
                   setLoading={ option === NavigationActionKind.PAYROLLRECEIPTS ? setLoading : () => {} }
                 />
@@ -254,6 +266,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   options={ dropdownData[id ?? ''] || [] }
                   value={ toolbarOption === 1 && objectsForm ? objectsForm[String(id.toLowerCase())] as ListObject[] : [] }
                   idKey={ pluralToSingular(id) + 'Id' }
+                  isDisabled={ !isDisabled }
                   showAmount={ amount ?? false }
                   setFormData={ formData }
                 />
@@ -265,6 +278,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   placeholder={ label }
                   onChange={ (e) => handleChange(e) }
                   defaultValue={ value }
+                  disabled={ isDisabled }
                 />
               ) : null}
             </div>

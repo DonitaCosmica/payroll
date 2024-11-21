@@ -7,7 +7,6 @@ namespace API.DTO
     public string? TicketId { get; set; }
     public char Serie { get; set; }
     public ushort Bill { get; set; }
-    public string? EmployeeId { get; set; }
     public string Employee { get; set; } = default!;
     public string? JobPosition { get; set; } = default!;
     public string? Department { get; set; } = default!;

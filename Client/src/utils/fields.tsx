@@ -3,8 +3,6 @@ import { type FieldConfig } from "../types"
 
 export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
   [NavigationActionKind.PAYROLLRECEIPTS]: [
-    { type: 'input', name: 'Serie', label: 'Serie...', inputType: 'text', modify: false, id: 'serie' },
-    { type: 'input', name: 'Folio', label: 'Folio...', inputType: 'text', modify: false, id: 'bill' },
     { type: 'dropmenu', name: 'Tipo de Nomina', fetchUrl: 'http://localhost:5239/api/Payroll', id: 'payroll' },
     { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status', uriComponent: 'Ticket' },
     { type: 'input', name: 'Fecha de Recibo', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: 'date', modify: true, id: 'receiptOfDate' },
@@ -65,11 +63,11 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
   ],
   [NavigationActionKind.PERCEPTIONS]: [
     { type: 'input', name: 'Clave', label: 'Clave...', inputType: 'text', modify: true, id: 'key' },
-    { type: 'textarea', name: 'Descripción', label: 'Descripción...', inputType: 'text', modify: true, id: 'description' }
+    { type: 'input', name: 'Descripción', label: 'Descripción...', inputType: 'text', modify: true, id: 'description' }
   ],
   [NavigationActionKind.DEDUCTIONS]: [
     { type: 'input', name: 'Clave', label: 'Clave...', inputType: 'number', modify: true, id: 'key' },
-    { type: 'textarea', name: 'Descripción', label: 'Descripción...', inputType: 'text', modify: true, id: 'description' }
+    { type: 'input', name: 'Descripción', label: 'Descripción...', inputType: 'text', modify: true, id: 'description' }
   ],
   [NavigationActionKind.PROJECTCATALOG]: [
     { type: 'input', name: 'Clave', label: 'Clave...', inputType: 'text', modify: true, id: 'code' },
@@ -116,7 +114,7 @@ export const fieldsReport: Record<string, FieldConfig[]> = {
   ['Trabajadores por Fecha']: [
     { type: 'dropmenu', name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', id: 'projects' },
     { type: 'dropmenu', name: 'Puesto', fetchUrl: 'http://localhost:5239/api/JobPosition', id: 'jobPosition' },
-    { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status', uriComponent: 'Employee' }
+    { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status/byType?type=Employee', id: 'status', uriComponent: 'Employee' }
   ],
   ['Generar Layout']: [
     { type: 'dropmenu', name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', id: 'projects' },
