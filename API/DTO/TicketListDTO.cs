@@ -13,6 +13,7 @@ namespace API.DTO
     public float Total { get; set; }
     public string? Company { get; set; } = default!;
     public string? Projects { get; set; } = default!;
+    public string PaymentDate { get; set; } = default!;
     public string? Observations { get; set; }
   }
 }

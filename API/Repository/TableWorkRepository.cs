@@ -1,6 +1,5 @@
 using System.Globalization;
 using API.Data;
-using API.DTO;
 using API.Interfaces;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
@@ -84,8 +83,6 @@ namespace API.Repository
     }
     private static IQueryable<TableWork> IncludeRelatedEntities(IQueryable<TableWork> query) =>
       query
-        .Include(tw => tw.Ticket)
-          .ThenInclude(t => t.Employee)
         .Include(tw => tw.Ticket)
           .ThenInclude(t => t.Period)
         .Include(tw => tw.Ticket)

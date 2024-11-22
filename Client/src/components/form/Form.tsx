@@ -29,6 +29,10 @@ function* fetchDataGenerator(option: NavigationActionKind) {
       const employeeId: string = yield
       const perceptionsAndDeductions: PerceptionsAndDeductions = yield fetchPerceptionsAndDeductions(employeeId)
       return perceptionsAndDeductions
+    } else if (option === NavigationActionKind.EMPLOYEES) {
+      const jobPositionId: string = yield
+      const department: IDropDownMenu[] = yield fetchDepartment(jobPositionId)
+      return department
     }
 
     return initialDropdownData
@@ -61,7 +65,7 @@ const fetchInitialDropdownData = async (option: NavigationActionKind) => {
   return results.reduce((acc, result) => ({ ...acc, ...result }), {})
 }
 
-const fetchPerceptionsAndDeductions = async (employeeId: string | undefined) => {
+const fetchPerceptionsAndDeductions = async (employeeId: string | undefined): Promise<PerceptionsAndDeductions> => {
   try {
     const perceptionsResponse: Response = await fetch(`http://localhost:5239/api/Perception/by?employeeId=${ employeeId }`)
     const perceptionsData: IDropDownMenu[] = await perceptionsResponse.json()
@@ -73,11 +77,22 @@ const fetchPerceptionsAndDeductions = async (employeeId: string | undefined) => 
       deductions: deductionsData || []
     }
   } catch (error) {
-    console.error('Error fetching perceptions or deductions:', error)
+    console.error('Error fetching perceptions or deductions: ', error)
     return {
       perceptions: [],
       deductions: []
     }
+  }
+}
+
+const fetchDepartment = async (jobPositionId: string | undefined): Promise<IDropDownMenu[]> => {
+  try {
+    const departmentResponse: Response = await fetch(`http://localhost:5239/api/JobPosition/by?jobPositionId=${ jobPositionId }`)
+    const departmentData: IDropDownMenu[] = await departmentResponse.json()
+    return departmentData
+  } catch (error) {
+    console.error('Error fetching department: ', error)
+    return []
   }
 }
 
@@ -120,9 +135,10 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     const fetchData = async () => {
       const generator = fetchDataGenerator(option)
       const initialDropdownData = await generator.next().value
-      if (initialDropdownData) setDropdownData(initialDropdownData as InitialDropdownData)
 
+      if (initialDropdownData) setDropdownData(initialDropdownData as InitialDropdownData)
       const selectedEmployeeId = formData.current?.employee as any
+      const selectedJobPositionId = formData.current?.jobPosition as any
       if (selectedEmployeeId) {
         generator.next()
         const { value: perceptionsAndDeductions } = generator.next(selectedEmployeeId)
@@ -133,6 +149,13 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
             perceptions,
             deductions
           }))
+        }
+      } else if (selectedJobPositionId) {
+        generator.next()
+        const { value: department } = generator.next(selectedJobPositionId)
+        if (department) {
+          const dep = await department as IDropDownMenu[]
+          console.log({ dep })
         }
       }
     }
@@ -151,10 +174,8 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     }
   }, [ toolbarOption, selectedId, data, keys, dropdownData, formDataRes, option ])
 
-  const isDisabled = useMemo(() =>
-    selectedPeriod.year !== currentPeriod.current.year
+  const isDisabled = selectedPeriod.year !== currentPeriod.current.year
     || selectedPeriod.week !== currentPeriod.current.week
-  , [selectedPeriod])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>): void => {
     const { id, value, type } = e.target
@@ -256,7 +277,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   options={ dropdownData[id ?? ''] } 
                   selectedId={ fieldId }
                   value={ value }
-                  isDisabled={ !isDisabled }
+                  isDisabled={ isDisabled }
                   setFormData={ formData } 
                   setLoading={ option === NavigationActionKind.PAYROLLRECEIPTS ? setLoading : () => {} }
                 />
@@ -266,7 +287,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   options={ dropdownData[id ?? ''] || [] }
                   value={ toolbarOption === 1 && objectsForm ? objectsForm[String(id.toLowerCase())] as ListObject[] : [] }
                   idKey={ pluralToSingular(id) + 'Id' }
-                  isDisabled={ !isDisabled }
+                  isDisabled={ isDisabled }
                   showAmount={ amount ?? false }
                   setFormData={ formData }
                 />

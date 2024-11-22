@@ -5,8 +5,6 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
   [NavigationActionKind.PAYROLLRECEIPTS]: [
     { type: 'dropmenu', name: 'Tipo de Nomina', fetchUrl: 'http://localhost:5239/api/Payroll', id: 'payroll' },
     { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status', uriComponent: 'Ticket' },
-    { type: 'input', name: 'Fecha de Recibo', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: 'date', modify: true, id: 'receiptOfDate' },
-    { type: 'input', name: 'Fecha de Pago', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: 'date', modify: true, id: 'paymentDate' },
     { type: 'dropmenu', name: 'Empleado', fetchUrl: 'http://localhost:5239/api/Employee', id: 'employee' },
     { type: 'multi-option', name: 'Percepciones', amount: true, id: 'perceptions' },
     { type: 'multi-option', name: 'Deducciones', amount: true, id: 'deductions' },

@@ -15,8 +15,8 @@ namespace API.DTO
     public string? Company { get; set; } = default!;
     public string? Projects { get; set; } = default!;
     public string? Observations { get; set; }
-    public string ReceiptOfDate { get; set; } = default!;
-    public string PaymentDate { get; set; } = default!;
+    public string? ReceiptOfDate { get; set; }
+    public string? PaymentDate { get; set; }
     public string Payroll { get; set; } = default!;
     public ushort? Week { get; set; }
     public ushort? Year { get; set; }

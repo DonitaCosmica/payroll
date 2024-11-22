@@ -289,19 +289,22 @@ namespace API.Repository
     {
       foreach (var perception in ticket.TicketPerceptions)
       {
-        var newTicketPerception = new TicketPerception
+        if(perception.Name == "Sueldo" || perception.Name == "Hora Extra")
         {
-          TicketPerceptionId = Guid.NewGuid().ToString(),
-          TicketId = newTicket.TicketId,
-          PerceptionId = perception.PerceptionId,
-          Name = perception.Name,
-          Total = perception.Total,
-          Ticket = newTicket,
-          Perception = perception.Perception
-        };
+          var newTicketPerception = new TicketPerception
+          {
+            TicketPerceptionId = Guid.NewGuid().ToString(),
+            TicketId = newTicket.TicketId,
+            PerceptionId = perception.PerceptionId,
+            Name = perception.Name,
+            Total = perception.Name == "Hora Extra" ? 0 : perception.Total,
+            Ticket = newTicket,
+            Perception = perception.Perception
+          };
 
-        newTicket.TicketPerceptions.Add(newTicketPerception);
-        context.Add(newTicketPerception);
+          newTicket.TicketPerceptions.Add(newTicketPerception);
+          context.Add(newTicketPerception);
+        }
       }
     }
     private void CopyTicketDeductions(Ticket ticket, Ticket newTicket)

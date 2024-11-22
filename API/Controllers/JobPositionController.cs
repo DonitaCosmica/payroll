@@ -36,6 +36,26 @@ namespace API.Controllers
       return Ok(result);
     }
 
+    [HttpPost("by")]
+    [ProducesResponseType(200, Type = typeof(Department))]
+    [ProducesResponseType(400)]
+    public IActionResult GetDepartmentByJobPosition([FromQuery] string jobPositionId)
+    {
+      if(!jobPositionRepository.JobPositionExists(jobPositionId))
+        return NotFound();
+
+      var department = jobPositionRepository.GetJobPosition(jobPositionId).Department;
+      var departmentDTO = new DepartmentDTO
+      {
+        DepartmentId = department.DepartmentId,
+        Name = department.Name,
+        SubContract = department.SubContract,
+        TotalEmployees = department.TotalEmployees
+      };
+
+      return Ok(departmentDTO);
+    }
+
     [HttpGet("{jobPositionId}")]
     [ProducesResponseType(200, Type = typeof(JobPositionDTO))]
     [ProducesResponseType(400)]

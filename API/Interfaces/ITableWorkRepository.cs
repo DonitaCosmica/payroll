@@ -1,4 +1,3 @@
-using API.DTO;
 using API.Models;
 
 namespace API.Interfaces

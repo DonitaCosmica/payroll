@@ -110,8 +110,17 @@ namespace API.Controllers
         payrollType = PayrollType.Error;
 
       var (nextSerie, nextBill) = ticketRepository.GenerateNextTicket();
+      DateTime friday = GetTicketDates();
       float totalPerceptions = createTicket.Perceptions.Sum(p => p.Value);
       float totalDeductions = createTicket.Deductions.Sum(d => d.Value);
+      string projects = string.Join(", ", relatedEntities.Projects
+        .OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
+        .ThenBy(p =>
+        {
+          string number = new(p.Name.Where(char.IsDigit).ToArray());
+          return int.TryParse(number, out int result) ? result : int.MaxValue;
+        })
+        .Select(p => p.Name));
 
       return new()
       {
@@ -122,20 +131,13 @@ namespace API.Controllers
         JobPosition = relatedEntities.JobPosition.Name,
         Department = relatedEntities.Department.Name,
         Total = totalPerceptions - totalDeductions,
-        Projects = string.Join(", ", relatedEntities.Projects
-          .OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
-          .ThenBy(p =>
-          {
-            var number = new string(p.Name.Where(char.IsDigit).ToArray());
-            return int.TryParse(number, out int result) ? result : 0;
-          })
-          .Select(p => p.Name)),
+        Projects = projects,
         Observations = createTicket.Observations,
         Company = relatedEntities.Company.Name,
         PayrollType = payrollType,
         Status = relatedEntities.Status.Name,
-        ReceiptOfDate = DateTime.ParseExact(createTicket.ReceiptOfDate, "yyyy-MM-dd", CultureInfo.InvariantCulture),
-        PaymentDate = DateTime.ParseExact(createTicket.PaymentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture),
+        ReceiptOfDate = friday,
+        PaymentDate = friday,
         PeriodId = relatedEntities.Period.PeriodId,
         Period = relatedEntities.Period,
         TotalPerceptions = totalPerceptions,
@@ -158,8 +160,6 @@ namespace API.Controllers
       ticket.Observations = updateTicket.Observations;
       ticket.PayrollType = payrollType;
       ticket.Status = relatedEntities.Status.Name;
-      ticket.ReceiptOfDate = DateTime.ParseExact(updateTicket.ReceiptOfDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
-      ticket.PaymentDate = DateTime.ParseExact(updateTicket.PaymentDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
       ticket.PeriodId = relatedEntities.Period.PeriodId;
       ticket.Period = relatedEntities.Period;
       ticket.TotalPerceptions = totalPerceptions;
@@ -221,8 +221,8 @@ namespace API.Controllers
           Payroll = t.Payroll,
           Employee = t.Employee,
           Status = t.Status,
-          ReceiptOfDate = t.ReceiptOfDate,
-          PaymentDate = t.PaymentDate,
+          ReceiptOfDate = t.ReceiptOfDate ?? DateTime.MinValue.ToString("yyyy-MM-dd"),
+          PaymentDate = t.PaymentDate ?? DateTime.MinValue.ToString("yyyy-MM-dd"),
           Observations = t.Observations
         };
 
@@ -259,6 +259,10 @@ namespace API.Controllers
           Total = totalPerceptions - totalDeductions,
           Company = t.Company,
           Projects = t.Projects,
+          PaymentDate = DateTime.ParseExact(
+            t.PaymentDate ?? DateTime.MinValue.ToString("yyyy-MM-dd"),
+            "yyyy-MM-dd", CultureInfo.InvariantCulture
+          ).ToString("dd-MM-yyyy"),
           Observations = t.Observations
         };
 
@@ -313,6 +317,7 @@ namespace API.Controllers
           Total = auxTicket.Total,
           Company = auxTicket.Company,
           Projects = auxTicket.Projects,
+          PaymentDate = auxTicket.PaymentDate,
           Observations = auxTicket.Observations
         };
 
@@ -333,6 +338,15 @@ namespace API.Controllers
         Data = ticketsToSend,
         FormData = formTickets
       };
+    }
+
+    private static DateTime GetTicketDates()
+    {
+      DateTime today = DateTime.Today;
+      int dayOfWeek = (int)today.DayOfWeek;
+      if(dayOfWeek == 0) dayOfWeek = 7;
+      DateTime monday = today.AddDays(-(dayOfWeek - 1));
+      return monday.AddDays(4);
     }
 
     private static CompensationType DetermineCompensationType(string description)

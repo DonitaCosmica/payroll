@@ -34,7 +34,9 @@ export const DropDown: React.FC<Props> = ({ options, selectedId, value, isDisabl
   const handleChange = (event: ChangeEvent<HTMLSelectElement>): void => {
     const { id, value } = event.target
 
-    if (id === 'employee' && setLoading)
+    console.log({ id })
+
+    if ((id === 'employee' || id === 'jobPosition') && setLoading)
       setLoading(prev => !prev)
 
     setSelectedValue(value)
@@ -45,8 +47,6 @@ export const DropDown: React.FC<Props> = ({ options, selectedId, value, isDisabl
     const key = Object.keys(obj).find((key: string) => key.includes('Id'))
     return key ? (obj as any)[key] : undefined
   }
-
-  console.log({ isDisabled })
 
   return (
     <select id={`${ selectedId }`} value={ selectedValue } onChange={ handleChange } disabled={ isDisabled ? true : undefined }>

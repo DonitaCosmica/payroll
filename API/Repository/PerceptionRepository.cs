@@ -23,7 +23,7 @@ namespace API.Repository
           };
 
           if(!CreatePerception(perception))
-            throw new InvalidOperationException($"Failed to create perception: {description}");
+            throw new InvalidOperationException($"Failed to create perception: { description }");
         }
       }
 

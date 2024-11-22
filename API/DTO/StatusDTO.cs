@@ -1,5 +1,3 @@
-using API.Enums;
-
 namespace API.DTO
 {
   public class StatusDTO

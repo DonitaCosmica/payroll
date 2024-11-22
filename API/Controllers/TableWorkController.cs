@@ -31,28 +31,6 @@ namespace API.Controllers
       return Ok(result);
     }
 
-    [HttpGet("{tableWorkId}")]
-    [ProducesResponseType(200, Type = typeof(TableWorkDTO))]
-    [ProducesResponseType(400)]
-    [ProducesResponseType(404)]
-    public IActionResult GetTableWork(string tableWorkId)
-    {
-      if(!tableWorkRepository.TableWorkExists(tableWorkId))
-        return NotFound();
-
-      TableWorkDTO tableWork = MapToTableWorkDTORequest(tableWorkRepository.GetTableWork(tableWorkId));
-      var columns = GetFormattedColumns();
-      var result = new
-      {
-        Columns = columns,
-        FormColumns = columns,
-        Data = tableWork,
-        FormData = tableWork
-      };
-
-      return Ok(result);
-    }
-
     [HttpPatch]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
