@@ -20,7 +20,8 @@ namespace API.Controllers
         .Select(s => new StatusDTO
         {
           StatusId = s.StatusId,
-          Name = s.Name
+          Name = s.Name,
+          StatusType = s.StatusType.ToString()
         }).ToList();
 
       return Ok(statuses);
@@ -37,7 +38,8 @@ namespace API.Controllers
         .Select(s => new StatusDTO
         {
           StatusId = s.StatusId,
-          Name = s.Name
+          Name = s.Name,
+          StatusType = s.StatusType.ToString()
         }).ToList();
 
       return Ok(statuses);

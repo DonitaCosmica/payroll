@@ -33,9 +33,6 @@ export const DropDown: React.FC<Props> = ({ options, selectedId, value, isDisabl
   
   const handleChange = (event: ChangeEvent<HTMLSelectElement>): void => {
     const { id, value } = event.target
-
-    console.log({ id })
-
     if ((id === 'employee' || id === 'jobPosition') && setLoading)
       setLoading(prev => !prev)
 

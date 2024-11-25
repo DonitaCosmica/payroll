@@ -31,7 +31,7 @@ function* fetchDataGenerator(option: NavigationActionKind) {
       return perceptionsAndDeductions
     } else if (option === NavigationActionKind.EMPLOYEES) {
       const jobPositionId: string = yield
-      const department: IDropDownMenu[] = yield fetchDepartment(jobPositionId)
+      const department: IDropDownMenu = yield fetchDepartment(jobPositionId)
       return department
     }
 
@@ -85,14 +85,14 @@ const fetchPerceptionsAndDeductions = async (employeeId: string | undefined): Pr
   }
 }
 
-const fetchDepartment = async (jobPositionId: string | undefined): Promise<IDropDownMenu[]> => {
+const fetchDepartment = async (jobPositionId: string | undefined): Promise<IDropDownMenu> => {
   try {
     const departmentResponse: Response = await fetch(`http://localhost:5239/api/JobPosition/by?jobPositionId=${ jobPositionId }`)
-    const departmentData: IDropDownMenu[] = await departmentResponse.json()
+    const departmentData: IDropDownMenu = await departmentResponse.json()
     return departmentData
   } catch (error) {
     console.error('Error fetching department: ', error)
-    return []
+    return {} as IDropDownMenu
   }
 }
 
@@ -128,6 +128,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const { selectedPeriod } = usePeriodContext()
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
   const [loading, setLoading] = useState<boolean>(false)
+  const [department, setDepartment] = useState<string>('')
   const currentPeriod = useRef<{ week: number, year: number }>({ week: 0, year: 0 })
   const formData = useRef<{ [key: string]: string | string[] | boolean | number | ListObject[] }>({})
 
@@ -135,27 +136,31 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     const fetchData = async () => {
       const generator = fetchDataGenerator(option)
       const initialDropdownData = await generator.next().value
-
       if (initialDropdownData) setDropdownData(initialDropdownData as InitialDropdownData)
-      const selectedEmployeeId = formData.current?.employee as any
-      const selectedJobPositionId = formData.current?.jobPosition as any
-      if (selectedEmployeeId) {
-        generator.next()
-        const { value: perceptionsAndDeductions } = generator.next(selectedEmployeeId)
-        if (perceptionsAndDeductions) {
-          const { perceptions, deductions } = await perceptionsAndDeductions as PerceptionsAndDeductions
-          setDropdownData((prevData) => ({
-            ...prevData,
-            perceptions,
-            deductions
-          }))
+
+      if (option === NavigationActionKind.PAYROLLRECEIPTS) {
+        const selectedEmployeeId = formData.current?.employee as any
+        if (selectedEmployeeId) {
+          generator.next()
+          const { value: perceptionsAndDeductions } = generator.next(selectedEmployeeId)
+          if (perceptionsAndDeductions) {
+            const { perceptions, deductions } = await perceptionsAndDeductions as PerceptionsAndDeductions
+            setDropdownData((prevData) => ({
+              ...prevData,
+              perceptions,
+              deductions
+            }))
+          }
         }
-      } else if (selectedJobPositionId) {
-        generator.next()
-        const { value: department } = generator.next(selectedJobPositionId)
-        if (department) {
-          const dep = await department as IDropDownMenu[]
-          console.log({ dep })
+      } else if (option === NavigationActionKind.EMPLOYEES) {
+        const selectedJobPositionId = formData.current?.jobPosition as any
+        if (selectedJobPositionId) {
+          generator.next()
+          const { value: department } = generator.next(selectedJobPositionId)
+          if (department) {
+            const dep = await department as IDropDownMenu
+            setDepartment(dep.name)
+          }
         }
       }
     }
@@ -233,7 +238,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
 
   const elements = useMemo(() => {
     const objectsForm = createObject(formDataRes, keys, selectedId, dropdownData, option)
-    return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType, /*modify,*/ amount }: FieldConfig, index: number) => {
+    return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType, modify, amount }: FieldConfig, index: number) => {
       const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
       const appendCurrentGroup = (group: JSX.Element[]) =>
         group.length > 0 ? [...acc.slice(0, -1), <div key={ `input-group-${ index }` } className='input-group'>{ group }</div>] : acc
@@ -263,8 +268,8 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   placeholder={ label }
                   autoComplete='off'
                   onChange={ (e) => handleChange(e) }
-                  defaultValue={ toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : '' }
-                  //readOnly={ modify ? undefined : true }
+                  defaultValue={ toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : department }
+                  readOnly={ modify ? undefined : true }
                   disabled={ isDisabled }
                   checked={ toolbarOption === 1 
                     && objectsForm 
@@ -279,7 +284,10 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   value={ value }
                   isDisabled={ isDisabled }
                   setFormData={ formData } 
-                  setLoading={ option === NavigationActionKind.PAYROLLRECEIPTS ? setLoading : () => {} }
+                  setLoading={
+                    option === NavigationActionKind.PAYROLLRECEIPTS || option === NavigationActionKind.EMPLOYEES
+                    ? setLoading : () => {}
+                  }
                 />
               ) : type === 'multi-option' ? (
                 <MultiDropDown
@@ -309,7 +317,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
         return [...acc.slice(0, -1), <div key={`input-group-${ index }`} className='input-group'>{ [...currentGroup, fieldElement] }</div>]
       }
     }, [])
-  }, [ fieldsConfig, option, dropdownData, toolbarOption, selectedId, data, keys ])
+  }, [ fieldsConfig, option, dropdownData, toolbarOption, selectedId, data, keys, department ])
 
   return (
     <section className='background'>

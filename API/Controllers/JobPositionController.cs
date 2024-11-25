@@ -36,7 +36,7 @@ namespace API.Controllers
       return Ok(result);
     }
 
-    [HttpPost("by")]
+    [HttpGet("by")]
     [ProducesResponseType(200, Type = typeof(Department))]
     [ProducesResponseType(400)]
     public IActionResult GetDepartmentByJobPosition([FromQuery] string jobPositionId)
