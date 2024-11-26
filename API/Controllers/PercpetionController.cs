@@ -152,8 +152,6 @@ namespace API.Controllers
         return CompensationType.Principal;
       else if(description.Contains("Horas") || description.Contains("Extra"))
         return CompensationType.Hours;
-      else if(description.Contains("Faltas"))
-        return CompensationType.Days;
 
       return CompensationType.Normal;
     }

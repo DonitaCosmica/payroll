@@ -40,6 +40,7 @@ export const FilterReport: React.FC<Props> = ({ fields }): JSX.Element => {
                       selectedId={ fieldId }
                       value={ formData.current[fieldId] as string }
                       setFormData={ formData }
+                      isDisabled={ false }
                     />
                   )}
                 </div>

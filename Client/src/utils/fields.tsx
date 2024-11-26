@@ -27,7 +27,7 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
     { type: 'input', name: 'NSS', label: 'NSS...', inputType: 'number', modify: true, id: 'nss' },
     { type: 'input', name: 'Fecha de Ingreso', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: 'date', modify: true, id: 'dateAdmission' },
     { type: 'dropmenu', name: 'Puesto', fetchUrl: 'http://localhost:5239/api/JobPosition', id: 'jobPosition' },
-    { type: 'input', name: 'Departamento', label: 'Departmento...', modify: false, id: 'department' },
+    { type: 'input', name: 'Departamento', label: 'Departmento...', inputType: 'text', modify: false, id: 'department' },
     { type: 'dropmenu', name: 'Area Comercial', fetchUrl: 'http://localhost:5239/api/CommercialArea', id: 'commercialArea' },
     { type: 'dropmenu', name: 'Contrato', fetchUrl: 'http://localhost:5239/api/Contract', id: 'contract' },
     { type: 'input', name: 'Salario Semanal', label: '0.00', inputType: 'number', modify: true, id: 'baseSalary' },

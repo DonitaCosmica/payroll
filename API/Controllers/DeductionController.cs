@@ -14,7 +14,7 @@ namespace API.Controllers
 
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<DeductionDTO>))]
-    public IActionResult GetDedudctions()
+    public IActionResult GetDeductions()
     {
       var deductions = deductionRepository.GetDeductions()
         .Select(d => new DeductionDTO
@@ -147,12 +147,12 @@ namespace API.Controllers
     }
     private static CompensationType DetermineCompensationType(string description)
     {
-      if(description.Contains("Salario") || description.Contains("Sueldo"))
-        return CompensationType.Principal;
-      else if(description.Contains("Horas") || description.Contains("Extra"))
+      if(description.Contains("Horas") || description.Contains("Extra"))
         return CompensationType.Hours;
       else if(description.Contains("Faltas"))
         return CompensationType.Days;
+      else if(description.Contains("Desc"))
+        return CompensationType.Discount;
 
       return CompensationType.Normal;
     }

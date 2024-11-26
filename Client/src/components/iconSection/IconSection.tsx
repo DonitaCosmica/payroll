@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react"
+import { useCurrentWeek } from "../../hooks/useCurrentWeek"
 import { type IconDefinition } from "../../types"
 import { DropMenu } from "../dropmenu/DropMenu"
 import { NavigationActionKind } from "../../context/Navigation"
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export const IconSection: React.FC<Props> = ({ action, options, handleForm }): JSX.Element => {
+  const { isDisabled } = useCurrentWeek({ input: [] })
   const [activeOption, setActiveOption] = useState<string | null>(null)
 
   const handleClick = useCallback((index: number, label: string) => {
@@ -44,7 +46,12 @@ export const IconSection: React.FC<Props> = ({ action, options, handleForm }): J
           && label === activeOption
 
         return (
-          <div className="option" key={ label } onClick={ () => handleClick(index, label) }>
+          <div className="option" key={ label }
+            onClick={ isDisabled && label !== 'Reportes'
+              && label !== 'Tabla de trabajo' 
+              && label !== 'Layout Bancos'
+              ? () => {} : () => handleClick(index, label) }
+          >
             { icon }
             <p>{ label }</p>
             {isActive &&

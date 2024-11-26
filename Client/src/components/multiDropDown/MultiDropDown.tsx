@@ -22,13 +22,14 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
   const getDisplayValue = useCallback((item: IDropDownMenu): string =>
     (item.name ?? item.description ?? "").toString(), [])
 
+  const getCompensationType = useCallback((item: IDropDownMenu): string =>
+    'compensationType' in item ? String(item.compensationType) : 'Normal', [])
+
   const sortedOptions = useMemo(() =>
     Array.isArray(options) ? [...options].sort((a, b) => {
-      if ('name' in a && 'name' in b)
-        return (a.name as string).localeCompare(b.name as string)
-      if ('description' in a && 'description' in b)
-        return (a.description as string).localeCompare(b.description as string)
-      return 0
+      const aName = a.name ?? a.description
+      const bName = b.name ?? b.description
+      return (aName as string).localeCompare(bName as string)
     }) : [], [ options ])
 
   useEffect(() => {
@@ -73,100 +74,100 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
     setFormData.current[id] = items
   }, [ setFormData, id ])
 
-  const handleSelectAllOptions = useCallback((): void => {
-    if (isAllOptionsSelected) {
-      selectedItemsRef.current = []
-      setIsOptionSelected(new Array(sortedOptions.length).fill(false))
-      updateFormData([])
-    } else {
-      const allSelectedItems = sortedOptions.map(option => {
-        const newItem: ListObject = {
-          [idKey]: option[idKey],
-          name: getDisplayValue(option),
-        }
-
-        Object.keys(option).forEach(key => {
-          if (isDateKey(key))
-            newItem[key.toLowerCase().includes('date') ? 'date' : key] = new Date().toISOString().split('T')[0]
-          else if(key.toLowerCase() === 'value')
-            newItem['value'] = 0
-        })
-
-        return newItem
-      })
-      
-      selectedItemsRef.current = allSelectedItems
-      setIsOptionSelected(new Array(sortedOptions.length).fill(true))
-      updateFormData(allSelectedItems)
+  const createListObject = (option: IDropDownMenu): ListObject => {
+    const newItem: ListObject = {
+      [idKey]: option[idKey],
+      name: getDisplayValue(option),
+      compensationType: getCompensationType(option),
+      ...Object.keys(option).reduce((acc, key) => {
+        if (isDateKey(key))
+          acc[key.toLowerCase().includes('date') ? 'date' : key] = new Date().toISOString().split('T')[0]
+        else if (key.toLowerCase() === 'value')
+          acc['value'] = 0
+        return acc
+      }, {} as Record<string, string | number>),
     }
+    return newItem
+  }
 
-    setIsAllOptionsSelected(!isAllOptionsSelected)
-  }, [ isAllOptionsSelected, sortedOptions, idKey, getDisplayValue, isDateKey, updateFormData ])
+  const handleSelectAllOptions = useCallback((): void => {
+    const allSelected = !isAllOptionsSelected;
+    setIsAllOptionsSelected(allSelected);
+    const updatedItems = allSelected ? sortedOptions.map(option => createListObject(option)) : [];
+    selectedItemsRef.current = updatedItems;
+    setIsOptionSelected(new Array(sortedOptions.length).fill(allSelected));
+    updateFormData(updatedItems)
+  }, [ isAllOptionsSelected, sortedOptions, updateFormData ])
 
   const handleSelectOption = useCallback((index: number): void => {
-    const item = sortedOptions[index]
-    const isSelected = isOptionSelected[index]
-    const newIsOptionSelected = [...isOptionSelected]
+    const option = sortedOptions[index];
+    const isSelected = isOptionSelected[index];
+    const newSelection = isSelected ? selectedItemsRef.current.filter(item => item[idKey] !== option[idKey]) :
+      [...selectedItemsRef.current, createListObject(option)];
 
-    const newSelectedItems = isSelected
-      ? selectedItemsRef.current.filter(p => p[idKey] !== item[idKey])
-      : [...selectedItemsRef.current, {
-          [idKey]: item[idKey],
-          name: getDisplayValue(item),
-          ...Object.keys(item).reduce((acc, key) => {
-            if (isDateKey(key))
-              acc[key.toLowerCase().includes('date') ? 'date' : key] = new Date().toISOString().split('T')[0]
-            else if(key.toLowerCase() === 'value')
-              acc['value'] = 0
-            return acc
-          }, {} as Record<string, string | number>)
-        }]
+    selectedItemsRef.current = newSelection;
+    setIsOptionSelected(prev => {
+      const newSelectionState = [...prev];
+      newSelectionState[index] = !isSelected;
+      return newSelectionState;
+    });
 
-    const sortValues = newSelectedItems.sort((a, b) => (a.name as string).localeCompare(b.name as string))
-    selectedItemsRef.current = sortValues
-    newIsOptionSelected[index] = !isSelected
+    updateFormData(newSelection);
+    setIsAllOptionsSelected(newSelection.length === sortedOptions.length)
+  }, [ sortedOptions, isOptionSelected, updateFormData ])
 
-    setIsOptionSelected(newIsOptionSelected)
-    updateFormData(sortValues)
-
-    const allSelected = newIsOptionSelected.every(selected => selected)
-    setIsAllOptionsSelected(allSelected)
-  }, [ sortedOptions, isOptionSelected, idKey, getDisplayValue, isDateKey, updateFormData ])
-
-  const handleInput = useCallback((e: React.FormEvent<HTMLSpanElement>, opt: IDropDownMenu) => {
-    const newValue = e.currentTarget.textContent || ""
+  const updateItemValue = (opt: IDropDownMenu, value: number) => {
     const updatedItems = selectedItemsRef.current.map(item =>
-      item[idKey] === opt[idKey]
-        ? { ...item, value: parseFloat(newValue.replace('$', '')) ?? 0 }
-        : item
-    )
-
+      item[idKey] === opt[idKey] ? { ...item, value } : item)
     if (JSON.stringify(updatedItems) !== JSON.stringify(selectedItemsRef.current)) {
       selectedItemsRef.current = updatedItems
       updateFormData(updatedItems)
     }
-  }, [ idKey, updateFormData, id ])
+  }
 
-  const handleHours = useCallback((e: React.FormEvent<HTMLSpanElement>, opt: IDropDownMenu) => {
-    const hours = parseInt(e.currentTarget.textContent ?? '0') || 0
-    const salary = selectedItemsRef.current.find(item => item.name === 'Sueldo')?.value as number
-    const money = salary / 40 * hours 
+  const handleInput = useCallback((e: React.FormEvent<HTMLSpanElement>, opt: IDropDownMenu) => {
+    const newValue = parseFloat(e.currentTarget.textContent?.replace('$', '') ?? '0');
+    updateItemValue(opt, newValue)
+  }, [ idKey, updateFormData ])
 
-    const updatedItems = selectedItemsRef.current.map(item =>
-      item[idKey] === opt[idKey]
-        ? { ...item, value: money ?? 0 }
-        : item
-    )
+  const handleContent = useCallback((e: React.FormEvent<HTMLSpanElement>, opt: IDropDownMenu, compensationType: string) => {
+    const salary = localStorage.getItem('salary')
+    const value = parseFloat(e.currentTarget.textContent ?? '0')
 
-    if (JSON.stringify(updatedItems) !== JSON.stringify(selectedItemsRef.current)) {
-      selectedItemsRef.current = updatedItems
-      updateFormData(updatedItems)
+    if (isNaN(value)) return
+    if (!salary || isNaN(parseFloat(salary))) return
+
+    const salaryValue = parseFloat(salary)
+    const calculateAndUpdate = (factor: number): void => {
+      const calculatedValue = salaryValue * factor * value
+      updateItemValue(opt, calculatedValue)
+    }
+
+    switch (compensationType) {
+      case 'Hours':
+        calculateAndUpdate(1 / 40)
+        break
+      case 'Days':
+        calculateAndUpdate(1 / 7)
+        break
+      default:
     }
   }, [])
 
-  const renderHours = useCallback((value: number): number => {
-    const salary = selectedItemsRef.current.find(item => item.name === 'Sueldo')?.value as number
-    return value ? 40 * value / salary : 0
+  const renderContent = useCallback((value: number, compensationType: string): number => {
+    const salary = localStorage.getItem('salary')
+    if (isNaN(value)) return -1
+    if (!salary || isNaN(parseFloat(salary))) return -1
+
+    const salaryValue = parseFloat(salary)
+    switch (compensationType) {
+      case 'Hours':
+        return value ? 40 * value / salaryValue : 0
+      case 'Days':
+        return value ? 7 * value / salaryValue : 0
+    }
+
+    return -1
   }, [])
 
   const totalAmount = useMemo(() =>
@@ -215,46 +216,51 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
               <span>Seleccionar todos</span>
             </div>
           </div>
-          {filteredOptions.map((opt: IDropDownMenu, index: number) => (
-            <div
-              key={ `option-${ index }-${ opt[idKey] }` }
-              className="multi-select-option"
-            >
-              <span className={ `multi-select-option-radio ${ isOptionSelected[index] ? 'active' : '' }` }
-                onClick={ () => handleSelectOption(index) }></span>
-              <div className="multi-select-option-text" style={{ width: showAmount && isOptionSelected[index] ? '50%' : '92.5%' }}>
-                <span>{ getDisplayValue(opt) }</span>
-              </div>
-              {showAmount && isOptionSelected[index] && (
-                <div className="multi-select-option-amount">
-                  { selectedItemsRef.current.find(item => item[idKey] === opt[idKey])?.compensationType !== 'Hours'
-                    ? (
-                      <span
-                        contentEditable={ true }
-                        suppressContentEditableWarning={ true }
-                        onInput={(e) => handleInput(e, opt)}
-                      >
-                        { `$${ selectedItemsRef.current.find(item => item[idKey] === opt[idKey])?.value }` || '$0.00' }
-                      </span>
-                    )
-                    : (
-                      <>
-                        <span
-                          contentEditable={ isDisabled ? false : true }
-                          suppressContentEditableWarning={ isDisabled ? false : true }
-                          onInput={(e) => handleHours(e, opt)}
-                        >
-                          { renderHours(selectedItemsRef.current.find(item => item[idKey] === opt[idKey])?.value as number) || '0' }
-                        </span>
-                        <span className="hours-money">
-                        { `$${ selectedItemsRef.current.find(item => item[idKey] === opt[idKey])?.value }` || '$0.00' }
-                        </span>
-                      </>
-                    )}
+          {filteredOptions.map((opt: IDropDownMenu, index: number) => {
+            const selectedItem = selectedItemsRef.current.find(item => item[idKey] === opt[idKey])
+
+            return (
+              <div
+                key={ `option-${ index }-${ opt[idKey] }` }
+                className="multi-select-option"
+              >
+                <span className={ `multi-select-option-radio ${ isOptionSelected[index] ? 'active' : '' }` }
+                  onClick={ () => handleSelectOption(index) }></span>
+                <div className="multi-select-option-text" style={{ width: showAmount && isOptionSelected[index] ? '50%' : '92.5%' }}>
+                  <span>{ getDisplayValue(opt) }</span>
                 </div>
-              )}
-            </div>
-          ))}
+                {showAmount && isOptionSelected[index] && (
+                  <div className="multi-select-option-amount">
+                    {selectedItem && ((selectedItem.compensationType !== 'Hours'
+                      && selectedItem.compensationType !== 'Days'
+                      && selectedItem.compensationType !== 'Discount')
+                      || (selectedItem.value === 0 && selectedItem.compensationType === 'Discount')
+                      ) ? (
+                        <span
+                          contentEditable={ true }
+                          suppressContentEditableWarning={ true }
+                          onInput={(e) => handleInput(e, opt)}
+                        >
+                          { `$${ selectedItem.value }` || '$0.00' }
+                        </span>
+                      ) : (
+                        <>
+                          <span
+                            contentEditable={ !isDisabled }
+                            suppressContentEditableWarning={ !isDisabled }
+                            onInput={(e) => handleContent(e, opt, String(selectedItem?.compensationType))}
+                          >
+                            { renderContent(selectedItem?.value as number, String(selectedItem?.compensationType)) || '0' }
+                          </span>
+                          <span className="hours-money">
+                          { `$${ Number(selectedItem?.value).toFixed(2) }` || '$0.00' }
+                          </span>
+                        </>
+                      )}
+                  </div>
+                )}
+              </div>
+          )})}
           {showAmount && (
             <>
               <hr />

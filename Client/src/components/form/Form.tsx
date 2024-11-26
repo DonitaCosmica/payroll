@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
 import { usePeriodContext } from '../../context/Period'
+import { useCurrentWeek } from '../../hooks/useCurrentWeek'
 import { type IDropDownMenu, type FieldConfig, type DataObject, type ListObject } from '../../types'
 import { fieldsConfig } from '../../utils/fields'
-import { getWeekNumber } from '../../utils/modifyData'
 import { FaArrowLeft } from "react-icons/fa"
 import { DropDown } from '../dropdown/DropDown'
 import { MultiDropDown } from '../multiDropDown/MultiDropDown'
@@ -71,7 +71,11 @@ const fetchPerceptionsAndDeductions = async (employeeId: string | undefined): Pr
     const perceptionsData: IDropDownMenu[] = await perceptionsResponse.json()
     const deductionsResponse: Response = await fetch('http://localhost:5239/api/Deduction/by')
     const deductionsData: IDropDownMenu[] = await deductionsResponse.json()
-    
+    const salary = perceptionsData.find(perception => 
+      'compensationType' in perception && perception.compensationType
+        ? perception.value : null)
+    localStorage.setItem('salary', JSON.stringify(salary?.value))
+
     return {
       perceptions: perceptionsData || [],
       deductions: deductionsData || []
@@ -126,10 +130,10 @@ const createObject = (formDataRes: DataObject[], keys: string[], selectedId: str
 export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const { option, title, formSize, url, data, formData: formDataRes, keys, submitCount, selectedId, toolbarOption, setSubmitCount } = useNavigationContext()
   const { selectedPeriod } = usePeriodContext()
+  const { isDisabled } = useCurrentWeek({ input: [] })
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
   const [loading, setLoading] = useState<boolean>(false)
   const [department, setDepartment] = useState<string>('')
-  const currentPeriod = useRef<{ week: number, year: number }>({ week: 0, year: 0 })
   const formData = useRef<{ [key: string]: string | string[] | boolean | number | ListObject[] }>({})
 
   useEffect(() => {
@@ -165,10 +169,6 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
       }
     }
 
-    currentPeriod.current = {
-      week: getWeekNumber(new Date),
-      year: new Date().getFullYear()
-    }
     fetchData()
   }, [ option, loading ])
 
@@ -178,9 +178,6 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
       if (objectsForm) formData.current = objectsForm
     }
   }, [ toolbarOption, selectedId, data, keys, dropdownData, formDataRes, option ])
-
-  const isDisabled = selectedPeriod.year !== currentPeriod.current.year
-    || selectedPeriod.week !== currentPeriod.current.week
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>): void => {
     const { id, value, type } = e.target
@@ -193,13 +190,25 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
 
   const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
-
-    if (option === NavigationActionKind.PAYROLLRECEIPTS && selectedPeriod.week && selectedPeriod.year)
+    const cleanCompensationType = (items: ListObject[]) =>
+      items.map(item => {
+        if (typeof item === 'object' && 'compensationType' in item) {
+          const { compensationType, ...rest } = item
+          return rest
+        }
+        return item
+      })
+    if (option === NavigationActionKind.PAYROLLRECEIPTS && selectedPeriod.week && selectedPeriod.year) {
+      const { deductions, perceptions } = formData.current
+      
       formData.current = {
         ...formData.current,
         week: selectedPeriod.week,
-        year: selectedPeriod.year
+        year: selectedPeriod.year,
+        deductions: Array.isArray(deductions) ? cleanCompensationType(deductions as ListObject[]) : deductions,
+        perceptions: Array.isArray(perceptions) ? cleanCompensationType(perceptions as ListObject[]) : perceptions
       }
+    }
 
     const requestOptions = {
        method: selectedId && toolbarOption === 1 ? 'PATCH' : 'POST',
@@ -218,6 +227,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
       } else {
         setShowForm(false)
         setSubmitCount(submitCount + 1)
+        localStorage.removeItem('salary')
       }
     } catch (error) {
       console.error('Request error: ', error)
@@ -227,6 +237,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement | SVGElement>): void => {
     e.preventDefault()
     setShowForm(false)
+    localStorage.removeItem('salary')
   }
 
   const pluralToSingular = (word: string): string => {
@@ -268,7 +279,11 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   placeholder={ label }
                   autoComplete='off'
                   onChange={ (e) => handleChange(e) }
-                  defaultValue={ toolbarOption === 1 && objectsForm ? String(objectsForm[id.toLowerCase()]) : department }
+                  defaultValue={toolbarOption === 1 && objectsForm
+                    ? String(objectsForm[id.toLowerCase()])
+                    : id === 'department'
+                      ? department
+                      : ''}
                   readOnly={ modify ? undefined : true }
                   disabled={ isDisabled }
                   checked={ toolbarOption === 1 

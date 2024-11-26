@@ -647,9 +647,6 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StatusId")
-                        .HasColumnType("nvarchar(36)");
-
                     b.Property<float>("Total")
                         .HasColumnType("real");
 
@@ -662,8 +659,6 @@ namespace API.Migrations
                     b.HasKey("TicketId");
 
                     b.HasIndex("PeriodId");
-
-                    b.HasIndex("StatusId");
 
                     b.ToTable("Tickets");
                 });
@@ -873,10 +868,6 @@ namespace API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("API.Models.Status", null)
-                        .WithMany("Tickets")
-                        .HasForeignKey("StatusId");
-
                     b.Navigation("Period");
                 });
 
@@ -993,8 +984,6 @@ namespace API.Migrations
                     b.Navigation("Employees");
 
                     b.Navigation("Projects");
-
-                    b.Navigation("Tickets");
                 });
 
             modelBuilder.Entity("API.Models.Ticket", b =>

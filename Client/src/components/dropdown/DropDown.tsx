@@ -46,7 +46,7 @@ export const DropDown: React.FC<Props> = ({ options, selectedId, value, isDisabl
   }
 
   return (
-    <select id={`${ selectedId }`} value={ selectedValue } onChange={ handleChange } disabled={ isDisabled ? true : undefined }>
+    <select id={`${ selectedId }`} value={ selectedValue } onChange={ handleChange } disabled={ isDisabled ? true : undefined } autoComplete='off'>
       <option value='0'>Elije una opción...</option>
       {sortedOptions.map((option: IDropDownMenu, index: number) => 
         <option key={`${ selectedId }-${ index }`} value={ filterAttributesContainingId(option) }>{ option.name ?? option.description }</option>

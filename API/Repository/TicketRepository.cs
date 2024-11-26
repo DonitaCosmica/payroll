@@ -275,14 +275,13 @@ namespace API.Repository
         ReceiptOfDate = ticket.ReceiptOfDate,
         PaymentDate = ticket.PaymentDate,
         PeriodId = newPeriod.PeriodId,
-        Period = newPeriod,
-        TotalPerceptions = ticket.TotalPerceptions,
-        TotalDeductions = ticket.TotalDeductions
+        Period = newPeriod
       };
 
       CopyTicketPerceptions(ticket, newTicket);
       CopyTicketDeductions(ticket, newTicket);
-
+      newTicket.TotalPerceptions = newTicket.TicketDeductions.Sum(d => d.Total);
+      newTicket.TotalDeductions = newTicket.TicketPerceptions.Sum(p => p.Total);
       return newTicket;
     }
     private void CopyTicketPerceptions(Ticket ticket, Ticket newTicket)
@@ -311,19 +310,22 @@ namespace API.Repository
     {
       foreach (var deduction in ticket.TicketDeductions)
       {
-        var newTicketDeduction = new TicketDeduction
+        if(deduction.Name == "Desc. x Prestamos" && deduction.Total > 0)
         {
-          TicketDeductionId = Guid.NewGuid().ToString(),
-          TicketId = newTicket.TicketId,
-          DeductionId = deduction.DeductionId,
-          Name = deduction.Name,
-          Total = deduction.Total,
-          Ticket = newTicket,
-          Deduction = deduction.Deduction
-        };
+          var newTicketDeduction = new TicketDeduction
+          {
+            TicketDeductionId = Guid.NewGuid().ToString(),
+            TicketId = newTicket.TicketId,
+            DeductionId = deduction.DeductionId,
+            Name = deduction.Name,
+            Total = deduction.Total,
+            Ticket = newTicket,
+            Deduction = deduction.Deduction
+          };
 
-        newTicket.TicketDeductions.Add(newTicketDeduction);
-        context.Add(newTicketDeduction);
+          newTicket.TicketDeductions.Add(newTicketDeduction);
+          context.Add(newTicketDeduction);
+        }
       }
     }
     private static IQueryable<Ticket> IncludeRelatedEntities(IQueryable<Ticket> query) =>

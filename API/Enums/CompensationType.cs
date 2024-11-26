@@ -5,6 +5,7 @@ namespace API.Enums
     Principal,
     Hours,
     Days,
+    Discount,
     Normal
   }
 }

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
+import { useCurrentWeek } from "../../hooks/useCurrentWeek"
 import { type DataObject, type ListObject } from "../../types"
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md"
 import { toCamelCase } from '../../utils/modifyData'
@@ -14,6 +15,7 @@ interface Props {
 
 export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowForm, setUpdateTableWork}): JSX.Element => {
   const { option, data, columnNames, formData: formDataRes, dispatch } = useNavigationContext()
+  const { isDisabled } = useCurrentWeek({ input: [] })
   const [filteredValues, setFilteredValues] = useState<DataObject[]>(data)
   const columnsDictionary = useRef<Record<string, string>>({})
   const rowSelected = useRef<number>(-1)
@@ -124,7 +126,7 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
   }
 
   const selectedRow = useCallback((row: (string | number | boolean)[], index: number): void => {
-    getIdSelected(row)
+    if (!isDisabled) getIdSelected(row)
     rowSelected.current = index
   }, [ getIdSelected ])
 
@@ -311,7 +313,7 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
                   ? 'selected-row' : '' 
                 }
                 onClick={ () => selectedRow(Object.values(row), index) } 
-                onDoubleClick={ () => showFormDoubleClick(Object.values(row)) }
+                onDoubleClick={ () => isDisabled ? () => {} : showFormDoubleClick(Object.values(row)) }
               >
                 {columnNames.map((column: string, cellIndex: number) => (
                   <td key={ `$data-${ column }-${ cellIndex }` }>
