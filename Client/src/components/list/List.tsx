@@ -125,6 +125,26 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
     return daysOfWeek.has(formattedDay)
   }
 
+  const compareNames = (a: number | string, b: number | string): number => {
+    if (typeof a === 'string' && typeof b === 'string') return a.localeCompare(b)
+    if (typeof a === 'number' && typeof b === 'number') return a - b
+    return 0
+  }
+
+  const renderArray = (info: object[]): string => {
+    if (info.length > 0 && typeof info[0] === 'object') {
+      return (info as ListObject[])
+        .sort((a, b) => compareNames(a.name, b.name))
+        .map(obj => obj.name)
+        .join(', ')
+    }
+
+    if (info.every(item => typeof item === 'string'))
+      return (info as string[]).join(', ')
+
+    return ''
+  }
+
   const selectedRow = useCallback((row: (string | number | boolean)[], index: number): void => {
     if (!isDisabled) getIdSelected(row)
     rowSelected.current = index
@@ -168,25 +188,14 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
     const key = Object.keys(columnsDictionary.current).find(key => columnsDictionary.current[key] === column) ?? column
     const newKey = key === key.toUpperCase() ? key.toLowerCase() : toCamelCase(key)
     const info = getValueByKeyIncludes(row, newKey)
-    
+
+    if (info === undefined || info === null) return 'Error'
+    if (Array.isArray(info)) return renderArray(info)
     if (typeof info === 'boolean') return info ? 'Verdadero' : 'Falso'
-    if (Array.isArray(info)) {
-      if (info.length > 0 && typeof info[0] === 'object') {
-        return (info as ListObject[]).sort((a, b) => {
-          if (typeof a.name === 'string' && typeof b.name === 'string')
-            return a.name.localeCompare(b.name)
-          else if (typeof a.name === 'number' && typeof b.name === 'number')
-            return a.name - b.name
-          else
-            return 0
-        }).map(obj => obj.name).join(', ')
-      }
+    if (typeof info === 'number' && !['NSS', 'Clave', 'Celular', 'Folio'].includes(column) && !column.includes('Total de'))
+      return info.toFixed(2)
 
-      if (info.every(item => typeof item === 'string'))
-        return (info as string[]).join(', ')
-    }
-
-    return info !== undefined ? info.toString() : ''
+    return info.toString()
   }, [formData.current])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number): void => {
@@ -315,31 +324,35 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
                 onClick={ () => selectedRow(Object.values(row), index) } 
                 onDoubleClick={ () => isDisabled ? () => {} : showFormDoubleClick(Object.values(row)) }
               >
-                {columnNames.map((column: string, cellIndex: number) => (
+                {columnNames.map((column: string, cellIndex: number) => {
+                  const content = renderCellContent(row, column)
+                  return (
                   <td key={ `$data-${ column }-${ cellIndex }` }>
                     {option !== NavigationActionKind.TABLEWORK
-                      ? (<p>{ renderCellContent(row, column) }</p>
+                      ? (<p>{ typeof content === 'number' ? content.toFixed(2) : content }</p>
                       ): (
                         <input
                           type="text"
                           id={ `${ getKeyByValue(columnsDictionary.current, column) } - ${ index }` }
                           autoComplete="off"
                           onChange={ (e) => handleChange(e, index) }
-                          defaultValue={ column !== 'Hora Extra' && column !== 'Total' ? renderCellContent(row, column) : undefined }
-                          value={ column === 'Hora Extra' || column === 'Total' ? renderCellContent(row, column) : undefined }
+                          defaultValue={ column !== 'Hora Extra' && column !== 'Total' ? content : undefined }
+                          value={ column === 'Hora Extra' || column === 'Total' ? content : undefined }
                         />
                       )}
                   </td>
-                ))}
+                )})}
               </tr>
             ))}
             {option === NavigationActionKind.TABLEWORK && (
               <tr className="total-row">
-                {columnNames.map((column: string, cellIndex: number) => (
+                {columnNames.map((column: string, cellIndex: number) => {
+                  const content = renderTotalContent(column)
+                  return (
                   <td key={ `total-${ column }-${ cellIndex }` }>
-                    <p>{ renderTotalContent(column) }</p>
+                    <p>{ typeof content === 'number' ? content.toFixed(2) : content }</p>
                   </td>
-                ))}
+                )})}
               </tr>
             )}
           </tbody>

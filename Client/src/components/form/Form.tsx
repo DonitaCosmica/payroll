@@ -135,6 +135,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const [loading, setLoading] = useState<boolean>(false)
   const [department, setDepartment] = useState<string>('')
   const formData = useRef<{ [key: string]: string | string[] | boolean | number | ListObject[] }>({})
+  const discount = useRef<number | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -169,6 +170,8 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
       }
     }
 
+    localStorage.removeItem('salary')
+    localStorage.removeItem('discount')
     fetchData()
   }, [ option, loading ])
 
@@ -176,6 +179,14 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     if (toolbarOption === 1 && selectedId) {
       const objectsForm = createObject(formDataRes, keys, selectedId, dropdownData, option)
       if (objectsForm) formData.current = objectsForm
+      if (option === NavigationActionKind.PAYROLLRECEIPTS) {
+        formDataRes.forEach(res => {
+          for (const key in res) {
+            if (res[key] === selectedId && 'discount' in res)
+             discount.current = Number(res.discount)
+          }
+        })
+      }
     }
   }, [ toolbarOption, selectedId, data, keys, dropdownData, formDataRes, option ])
 
@@ -200,13 +211,26 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
       })
     if (option === NavigationActionKind.PAYROLLRECEIPTS && selectedPeriod.week && selectedPeriod.year) {
       const { deductions, perceptions } = formData.current
+      const discount = localStorage.getItem('discount')
       
-      formData.current = {
-        ...formData.current,
-        week: selectedPeriod.week,
-        year: selectedPeriod.year,
-        deductions: Array.isArray(deductions) ? cleanCompensationType(deductions as ListObject[]) : deductions,
-        perceptions: Array.isArray(perceptions) ? cleanCompensationType(perceptions as ListObject[]) : perceptions
+      if (discount !== null)
+        formData.current = {
+          ...formData.current,
+          week: selectedPeriod.week,
+          year: selectedPeriod.year,
+          discount: parseFloat(discount),
+          deductions: Array.isArray(deductions) ? cleanCompensationType(deductions as ListObject[]) : deductions,
+          perceptions: Array.isArray(perceptions) ? cleanCompensationType(perceptions as ListObject[]) : perceptions
+        }
+      else {
+        if ('discount' in formData.current) delete formData.current.discount
+        formData.current = {
+          ...formData.current,
+          week: selectedPeriod.week,
+          year: selectedPeriod.year,
+          deductions: Array.isArray(deductions) ? cleanCompensationType(deductions as ListObject[]) : deductions,
+          perceptions: Array.isArray(perceptions) ? cleanCompensationType(perceptions as ListObject[]) : perceptions
+        }
       }
     }
 
@@ -227,7 +251,9 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
       } else {
         setShowForm(false)
         setSubmitCount(submitCount + 1)
+        discount.current = null
         localStorage.removeItem('salary')
+        localStorage.removeItem('discount')
       }
     } catch (error) {
       console.error('Request error: ', error)
@@ -237,7 +263,9 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement | SVGElement>): void => {
     e.preventDefault()
     setShowForm(false)
+    discount.current = null
     localStorage.removeItem('salary')
+    localStorage.removeItem('discount')
   }
 
   const pluralToSingular = (word: string): string => {
@@ -313,6 +341,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   isDisabled={ isDisabled }
                   showAmount={ amount ?? false }
                   setFormData={ formData }
+                  discount={ discount }
                 />
               ) : type === 'textarea' ? (
                 <textarea

@@ -141,7 +141,8 @@ namespace API.Controllers
         PeriodId = relatedEntities.Period.PeriodId,
         Period = relatedEntities.Period,
         TotalPerceptions = totalPerceptions,
-        TotalDeductions = totalDeductions
+        TotalDeductions = totalDeductions,
+        Discount = createTicket.Discount ?? 0
       };
     }
 
@@ -186,6 +187,7 @@ namespace API.Controllers
         ReceiptOfDate = ticket.ReceiptOfDate.ToString("yyyy-MM-dd"),
         PaymentDate = ticket.PaymentDate.ToString("yyyy-MM-dd"),
         Payroll = ticket.PayrollType.ToString(),
+        Discount = ticket.Discount,
         Perceptions = [.. ticket.TicketPerceptions.Select(p => 
           new TicketPerceptionRelatedEntities
           {
@@ -229,6 +231,7 @@ namespace API.Controllers
         ticketRepository.GetColumnsFromRelatedEntity(ticket, formColumns);
         ticket.Perceptions = t.Perceptions;
         ticket.Deductions = t.Deductions;
+        ticket.Discount = t.Discount ?? 0;
         return ticket;
       }).ToList();
 

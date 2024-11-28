@@ -15,5 +15,6 @@ namespace API.DTO
     public HashSet<TicketPerceptionRelatedEntities> Perceptions { get; set; } = [];
     public HashSet<TicketDeductionRelatedEntities> Deductions { get; set; } = [];
     public string? Observations { get; set; }
+    public float Discount { get; set; }
   }
 }

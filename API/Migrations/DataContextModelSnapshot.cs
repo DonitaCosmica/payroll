@@ -608,6 +608,9 @@ namespace API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<float>("Discount")
+                        .HasColumnType("real");
+
                     b.Property<string>("Employee")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

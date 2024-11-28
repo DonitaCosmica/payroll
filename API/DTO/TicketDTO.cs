@@ -20,6 +20,7 @@ namespace API.DTO
     public string Payroll { get; set; } = default!;
     public ushort? Week { get; set; }
     public ushort? Year { get; set; }
+    public float? Discount { get; set; }
     public HashSet<TicketPerceptionRelatedEntities> Perceptions { get; set; } = [];
     public HashSet<TicketDeductionRelatedEntities> Deductions { get; set; } = [];
   }

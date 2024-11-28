@@ -282,6 +282,8 @@ namespace API.Repository
       CopyTicketDeductions(ticket, newTicket);
       newTicket.TotalPerceptions = newTicket.TicketDeductions.Sum(d => d.Total);
       newTicket.TotalDeductions = newTicket.TicketPerceptions.Sum(p => p.Total);
+      var deduction = newTicket.TicketDeductions.FirstOrDefault(td => td.Name == "Desc. x Prestamos");
+      newTicket.Discount = deduction != null && deduction.Total > 0 ? deduction.Total : 0;
       return newTicket;
     }
     private void CopyTicketPerceptions(Ticket ticket, Ticket newTicket)

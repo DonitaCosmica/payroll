@@ -8,11 +8,12 @@ interface Props {
   value: ListObject[],
   idKey: string,
   isDisabled: boolean,
+  discount: React.MutableRefObject<number | null>,
   showAmount: boolean,
   setFormData: React.MutableRefObject<{ [key: string]: string | number | boolean | string[] | ListObject[] }>
 }
 
-export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDisabled, showAmount, setFormData }): JSX.Element => {  
+export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDisabled, discount, showAmount, setFormData }): JSX.Element => {  
   const [filteredOptions, setFilteredOptions] = useState<IDropDownMenu[]>([])
   const [isOptionSelected, setIsOptionSelected] = useState<boolean[]>([])
   const [isAllOptionsSelected, setIsAllOptionsSelected] = useState<boolean>(false)
@@ -51,10 +52,13 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
 
     addItemIfNotPresent('Sueldo', item => (item.name as string).toLowerCase() === 'sueldo')
     addItemIfNotPresent('Hora Extra', item => (item.name as string).toLowerCase().includes('extra'))
+    if (discount.current !== null)
+      addItemIfNotPresent('Desc. x Prestamos', item => (item.name as string).toLowerCase().includes('prestamos'))
 
     const allSelected = updatedIsOptionSelected.every(id => id)
     setIsOptionSelected(updatedIsOptionSelected)
     selectedItemsRef.current = sortValues
+    updateFormData(sortValues)
     setIsAllOptionsSelected(allSelected)
     setFilteredOptions(sortedOptions)
   }, [ sortedOptions, value, idKey ])
@@ -130,7 +134,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
     updateItemValue(opt, newValue)
   }, [ idKey, updateFormData ])
 
-  const handleContent = useCallback((e: React.FormEvent<HTMLSpanElement>, opt: IDropDownMenu, compensationType: string) => {
+  const handleContent = useCallback((e: React.FormEvent<HTMLSpanElement>, opt: IDropDownMenu, selectedItem: ListObject | undefined) => {
     const salary = localStorage.getItem('salary')
     const value = parseFloat(e.currentTarget.textContent ?? '0')
 
@@ -143,31 +147,43 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
       updateItemValue(opt, calculatedValue)
     }
 
-    switch (compensationType) {
+    switch (selectedItem?.compensationType) {
       case 'Hours':
         calculateAndUpdate(1 / 40)
         break
       case 'Days':
         calculateAndUpdate(1 / 7)
         break
+      case 'Discount':
+        updateItemValue(opt, value)
+        break
       default:
     }
   }, [])
 
-  const renderContent = useCallback((value: number, compensationType: string): number => {
+  const handleDiscount = (e: React.FormEvent<HTMLSpanElement>): void => {
+    const value = parseFloat(e.currentTarget.textContent?.replace('$', '') ?? '0')
+    discount.current === null
+      ? localStorage.setItem('discount', JSON.stringify(value))
+      : discount.current = value
+  }
+
+  const renderContent = useCallback((value: number, selectedItem: ListObject | undefined): number | null => {
     const salary = localStorage.getItem('salary')
     if (isNaN(value)) return -1
     if (!salary || isNaN(parseFloat(salary))) return -1
 
     const salaryValue = parseFloat(salary)
-    switch (compensationType) {
+    switch (selectedItem?.compensationType) {
       case 'Hours':
         return value ? 40 * value / salaryValue : 0
       case 'Days':
         return value ? 7 * value / salaryValue : 0
+      case 'Discount':
+        return Number(selectedItem.value)
     }
 
-    return -1
+    return null
   }, [])
 
   const totalAmount = useMemo(() =>
@@ -218,6 +234,8 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
           </div>
           {filteredOptions.map((opt: IDropDownMenu, index: number) => {
             const selectedItem = selectedItemsRef.current.find(item => item[idKey] === opt[idKey])
+            const isEditabled = !isDisabled && selectedItem?.compensationType === 'Discount'
+              && (discount.current === null || discount.current === 0)
 
             return (
               <div
@@ -234,7 +252,6 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
                     {selectedItem && ((selectedItem.compensationType !== 'Hours'
                       && selectedItem.compensationType !== 'Days'
                       && selectedItem.compensationType !== 'Discount')
-                      || (selectedItem.value === 0 && selectedItem.compensationType === 'Discount')
                       ) ? (
                         <span
                           contentEditable={ true }
@@ -248,12 +265,21 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
                           <span
                             contentEditable={ !isDisabled }
                             suppressContentEditableWarning={ !isDisabled }
-                            onInput={(e) => handleContent(e, opt, String(selectedItem?.compensationType))}
+                            onInput={(e) => !isDisabled ? handleContent(e, opt, selectedItem) : () => {} }
                           >
-                            { renderContent(selectedItem?.value as number, String(selectedItem?.compensationType)) || '0' }
+                            { renderContent(selectedItem?.value as number, selectedItem) || '0' }
                           </span>
-                          <span className="hours-money">
-                          { `$${ Number(selectedItem?.value).toFixed(2) }` || '$0.00' }
+                          <span 
+                            className="hours-money"
+                            contentEditable={ isEditabled }
+                            suppressContentEditableWarning={ isEditabled }
+                            onInput={ (e) => isEditabled ? handleDiscount(e) : {} }
+                          >
+                          { `$${ selectedItem?.compensationType === 'Discount' && discount.current === null
+                            ?  parseFloat(localStorage.getItem('discount') || '0') || '0.00'
+                            : selectedItem?.compensationType === 'Discount' && discount.current !== null
+                              ? discount.current
+                              : Number(selectedItem?.value).toFixed(2) }` || '$0.00' }
                           </span>
                         </>
                       )}

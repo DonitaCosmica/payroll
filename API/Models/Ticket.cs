@@ -56,6 +56,9 @@ namespace API.Models
     [Required]
     [Range(100, float.MaxValue)]
     public float TotalDeductions { get; set; }
+    [Required]
+    [Range(0, float.MaxValue)]
+    public float Discount { get; set; }
     public ICollection<TicketPerception> TicketPerceptions { get; set; } = [];
     public ICollection<TicketDeduction> TicketDeductions { get; set;} = [];
     public ICollection<TableWork> TableWorks { get; set; } = [];
