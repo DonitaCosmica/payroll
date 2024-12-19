@@ -1,10 +1,8 @@
-import { useMemo, useState } from "react"
+import React, { Suspense, useMemo, useState } from "react"
 import { ICON_OPTIONS } from "../../utils/icons"
 import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
 import { AiOutlineSearch } from "react-icons/ai"
 import { BsThreeDotsVertical } from "react-icons/bs"
-import { DropMenu } from "../dropmenu/DropMenu"
-import { IconSection } from "../iconSection/IconSection"
 import './Toolbar.css'
 
 interface Props {
@@ -13,6 +11,9 @@ interface Props {
   setContent: React.Dispatch<React.SetStateAction<boolean>>
   setUpdateTableWork: React.Dispatch<React.SetStateAction<boolean>>
 }
+
+const DropMenu = React.lazy(() => import('../dropmenu/DropMenu').then(module => ({ default: module.DropMenu })))
+const IconSection = React.lazy(() => import('../iconSection/IconSection').then(module => ({ default: module.IconSection })))
 
 export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setContent, setUpdateTableWork }): JSX.Element => {
   const { option, url, submitCount, selectedId, setSubmitCount, dispatch } = useNavigationContext()
@@ -69,7 +70,7 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
     const requestOptions = { method: 'DELETE' }
 
     try {
-      const res: Response = await fetch(`${url}/${selectedId}`, requestOptions)
+      const res: Response = await fetch(`${ url }/${ selectedId }`, requestOptions)
       if (!res.ok) {
         const errorData = await res.json()
         console.error('Request error: ', errorData)
@@ -98,23 +99,27 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
         }}
       >
         <div className='main-options'>
-          <IconSection 
-            options={ showMoreOptions 
-              ? option !== NavigationActionKind.TABLEWORK
-                ? options.slice(0, end)
-                : options.slice(end)
-              : options }
-            action={ option }
-            handleForm={ handleForm }
-          />
+          <Suspense fallback={ <div>Loading icons...</div> }>
+            <IconSection 
+              options={ showMoreOptions 
+                ? option !== NavigationActionKind.TABLEWORK
+                  ? options.slice(0, end)
+                  : options.slice(end)
+                : options }
+              action={ option }
+              handleForm={ handleForm }
+            />
+          </Suspense>
         </div>
         {showMoreOptions && option !== NavigationActionKind.TABLEWORK && (
           <div className='other-options'>
-            <IconSection
-              action={ option }
-              options={ options.slice(end) }
-              handleForm={ handleForm }
-            />
+            <Suspense fallback={ <div>Loading icons...</div> }>
+              <IconSection
+                action={ option }
+                options={ options.slice(end) }
+                handleForm={ handleForm }
+              />
+            </Suspense>
           </div>
         )}
       </div>
@@ -133,7 +138,11 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
       {showMoreOptions && option !== NavigationActionKind.TABLEWORK && (
         <div className="more-options">
           <BsThreeDotsVertical onClick={ () => setShowDropMenu(!showDropMenu) } />
-          { showDropMenu && <DropMenu menuOp={ menuOp ?? [] } dir={ 'right' } width={ 35 } /> }
+          {showDropMenu && (
+            <Suspense fallback={ <div>Loading menu...</div> }>
+              <DropMenu menuOp={ menuOp ?? [] } dir={ 'right' } width={ 35 } />
+            </Suspense>
+          )}
         </div>
       )}
     </section>

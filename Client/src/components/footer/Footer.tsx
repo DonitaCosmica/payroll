@@ -1,9 +1,8 @@
 import { RiMoneyDollarCircleLine } from "react-icons/ri"
+import { totalTitles } from "../../consts"
 import './Footer.css'
 
-const amountElements: number = 4
-const totalTitles: string[] = ['Total de periodo', 'Total Extraordinario', 'Total Pagado', 'Saldo']
-const elements: JSX.Element[] = Array.from({ length: amountElements }, (_, index: number) => (
+const elements: JSX.Element[] = Array.from({ length: 4 }, (_, index: number) => (
   <div key={index} className='total-container'>
     <div className='title'>{ totalTitles[index] }</div>
     <div className='total-box'>

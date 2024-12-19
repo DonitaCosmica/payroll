@@ -1,7 +1,6 @@
-import { useCallback, useMemo, useState } from "react"
+import React, { Suspense, useCallback, useMemo, useState } from "react"
 import { useCurrentWeek } from "../../hooks/useCurrentWeek"
 import { type IconDefinition } from "../../types"
-import { DropMenu } from "../dropmenu/DropMenu"
 import { NavigationActionKind } from "../../context/Navigation"
 import { REPORTING_ACTIONS } from "../../consts"
 import './IconSection.css'
@@ -11,6 +10,8 @@ interface Props {
   options: IconDefinition[],
   handleForm: (index: number, label: string) => void
 }
+
+const DropMenu = React.lazy(() => import('../dropmenu/DropMenu').then(module => ({ default: module.DropMenu })))
 
 export const IconSection: React.FC<Props> = ({ action, options, handleForm }): JSX.Element => {
   const { isDisabled } = useCurrentWeek({ input: [] })
@@ -55,11 +56,13 @@ export const IconSection: React.FC<Props> = ({ action, options, handleForm }): J
             { icon }
             <p>{ label }</p>
             {isActive &&
-              <DropMenu 
-                menuOp={ generateDropMenuOptions } 
-                dir="right" 
-                width={ menuWidth } 
-              />}
+              <Suspense fallback={ <div>Loading menu...</div> }>
+                <DropMenu 
+                  menuOp={ generateDropMenuOptions } 
+                  dir="right" 
+                  width={ menuWidth } 
+                />  
+              </Suspense>}
           </div>
         )
       })}

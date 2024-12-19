@@ -1,8 +1,9 @@
 .list {
   display: flex;
   justify-content: center;
-  height: 60%;
   width: 100%;
+  flex-grow: 1;
+  overflow-y: hidden;
 }
 
 .list-container {

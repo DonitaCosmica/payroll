@@ -62,3 +62,5 @@ export const FILTER_COLUMNS: Record<string, string[]> = {
     'Estado', 'Salario Base', 'Fecha de Admisión'
   ]
 }
+
+export const totalTitles: string[] = ['Total de periodo', 'Total Extraordinario', 'Total Pagado', 'Saldo']
