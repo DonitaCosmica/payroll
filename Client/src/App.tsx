@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { PeriodProvider } from './context/Period'
 import { NavigationActionKind, useNavigationContext } from './context/Navigation'
 import { Titlebar } from './components/titlebar/Titlebar'
@@ -18,6 +18,25 @@ export const App = (): JSX.Element => {
   const [searchFilter, setSearchFilter] = useState<string>('')
   const [content, setContent] = useState<boolean>(false)
   const [updateTableWork, setUpdateTableWork] = useState<boolean>(false)
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const res: Response = await fetch('', {
+          method: 'GET',
+          credentials: 'include'
+        })
+        const data: { loggedIn: boolean } = await res.json()
+        setIsLoggedIn(data.loggedIn)
+      } catch (error) {
+        console.error('Error Loggin: ', error)
+        setIsLoggedIn(false)
+      }
+    }
+
+    checkLogin()
+  }, [])
 
   const renderForm = () =>
     showForm && (
