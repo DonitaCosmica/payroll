@@ -18,77 +18,61 @@ export const App = (): JSX.Element => {
   const [searchFilter, setSearchFilter] = useState<string>('')
   const [content, setContent] = useState<boolean>(false)
   const [updateTableWork, setUpdateTableWork] = useState<boolean>(false)
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
 
   useEffect(() => {
     const checkLogin = async () => {
+      const authUrl: string = 'http://localhost:1234/api/auth/check-login'
+      const loginUrl: string = 'http://localhost:5173/login'
+
       try {
-        const res: Response = await fetch('', {
-          method: 'GET',
+        const res: Response = await fetch(authUrl, {
+          method: 'POST',
           credentials: 'include'
         })
         const data: { loggedIn: boolean } = await res.json()
-        setIsLoggedIn(data.loggedIn)
+        if (!data.loggedIn)
+          window.location.href = loginUrl
       } catch (error) {
         console.error('Error Loggin: ', error)
-        setIsLoggedIn(false)
+        window.location.href = loginUrl
       }
     }
 
     checkLogin()
-  }, [])
+  }, [ option ])
 
-  const renderForm = () =>
-    showForm && (
-      <Suspense fallback={ <div>Loading Form...</div> }>
-        <Form setShowForm={ setShowForm } />
-      </Suspense>
-    )
-  const renderFilter = () =>
-    option === 1 && (
-      <Suspense fallback={ <div>Loading Filter...</div> }>
-        <Filter />
-      </Suspense>
-    ) 
-  const renderFooter = () =>
-    option === 1 && (
-      <Suspense fallback={ <div>Loading Footer...</div> }>
-        <Footer />
-      </Suspense>
-    )
+  const renderWithSuspense = (Component: React.FC<any>, props = {}, fallback='Loading') => (
+    <Suspense fallback={ <div>{ fallback }</div> }>
+      <Component { ...props } />
+    </Suspense>
+  )
 
   return (
     <main className='payroll'>
       <PeriodProvider>
-        { renderForm() }
+        { showForm && renderWithSuspense(Form, { setShowForm }, 'Loading Form...') }
         <Titlebar action='payroll' />
         { !content && <Navbar /> }
-        { renderFilter() }
+        { option === 1 && renderWithSuspense(Filter, {}, 'Loading Filter...') }
         {option !== NavigationActionKind.BANKS ?
           (<>
-            <Suspense fallback={ <div>Loading Toolbar...</div> }>
-              <Toolbar
-                setSearchFilter={ setSearchFilter }
-                setShowForm={ setShowForm }
-                setContent={ setContent }
-                setUpdateTableWork={ setUpdateTableWork }
-              />
-            </Suspense>
-            <Suspense fallback={ <div>Loading List...</div> }>
-              <List
-                searchFilter={ searchFilter }
-                updateTableWork={ updateTableWork }
-                setShowForm={ setShowForm }
-                setUpdateTableWork={ setUpdateTableWork }
-              />
-            </Suspense>
+            {renderWithSuspense(Toolbar, {
+              setSearchFilter,
+              setShowForm,
+              setContent,
+              setUpdateTableWork,
+            }, 'Loading Toolbar...')}
+            {renderWithSuspense(List, {
+              searchFilter,
+              updateTableWork,
+              setShowForm,
+              setUpdateTableWork,
+            }, 'Loading List...')}
           </>) : (
-            <Suspense fallback={ <div>Loading Banks...</div> }>
-              <UploadBanks />
-            </Suspense>
+            renderWithSuspense(UploadBanks, {}, 'Loading Banks...')
           )}
+        { option === 1 && renderWithSuspense(Footer, {}, 'Loading Footer...') }
       </PeriodProvider>
-      { renderFooter() }
     </main>
   )
 }

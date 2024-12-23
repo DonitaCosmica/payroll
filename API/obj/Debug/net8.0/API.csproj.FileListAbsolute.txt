@@ -276,7 +276,6 @@ C:\Users\sistemas\Documents\Work\nomina-tamyccc\API\obj\Debug\net8.0\ref\API.dll
 C:\Users\sistemas\Documents\Work\nomina-tamyccc\API\obj\Debug\net8.0\API.csproj.Up2Date
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\appsettings.json
-C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\API.staticwebassets.endpoints.json
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\API.exe
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\API.deps.json
 C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\API.runtimeconfig.json
@@ -409,9 +408,7 @@ C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.sourcelink.jso
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\scopedcss\bundle\API.styles.css
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets.build.json
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets.development.json
-C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets.build.endpoints.json
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets\msbuild.API.Microsoft.AspNetCore.StaticWebAssets.props
-C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets\msbuild.API.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets\msbuild.build.API.props
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.API.props
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.API.props
@@ -422,3 +419,4 @@ C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\refint\API.dll
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.pdb
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\API.genruntimeconfig.cache
 C:\Users\sistemas\Documents\Work\payroll\API\obj\Debug\net8.0\ref\API.dll
+C:\Users\sistemas\Documents\Work\payroll\API\bin\Debug\net8.0\System.Formats.Asn1.dll

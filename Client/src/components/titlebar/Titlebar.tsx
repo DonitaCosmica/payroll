@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { type IconDefinition } from '../../types'
 import { MENU_ICONS, PRINT_ICONS } from '../../utils/icons'
 import { IoIosArrowDown } from "react-icons/io"
@@ -11,6 +11,13 @@ interface Props {
 
 export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
   const [showDropMenu, setShowDropMenu] = useState<Boolean>(false)
+  const [userName, setUserName] = useState<string>('')
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') ?? '')
+    if ('name' in user)
+      setUserName(user.name)
+  }, [])
 
   return (
     <header id='table-options' className="titlebar" style={{ justifyContent: action === 'payroll' ? 'center' : 'flex-start' }}>
@@ -24,7 +31,7 @@ export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
         </div>
         <div className="titlebar-user">
           <div className='user' onClick={ () => setShowDropMenu(!showDropMenu) }>
-            <p>Jose Solis</p>
+            <p>{ userName.split(' ')[0] + ' ' + userName.split(' ')[1][0] + '.' }</p>
             <IoIosArrowDown />
             {
               showDropMenu && (
