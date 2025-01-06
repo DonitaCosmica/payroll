@@ -73,8 +73,8 @@ export const Filter = (): JSX.Element => {
                   ...op,
                   onClick: () => setPayrollType(op.label)
                 }))}
-                dir={ 'left' }
-                width={ 175 }
+                dir='left'
+                context='dates'
               />  
             </Suspense>}
         </div>

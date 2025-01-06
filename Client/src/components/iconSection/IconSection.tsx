@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useMemo, useState } from "react"
+import React, { Suspense, useCallback, useState } from "react"
 import { useCurrentWeek } from "../../hooks/useCurrentWeek"
 import { type IconDefinition } from "../../types"
 import { NavigationActionKind } from "../../context/Navigation"
@@ -19,31 +19,21 @@ export const IconSection: React.FC<Props> = ({ action, options, handleForm }): J
 
   const handleClick = useCallback((index: number, label: string) => {
     handleForm(index, label)
-    if (label === 'Reportes' || label === 'Layout Bancos')
+    if (label === 'Reportes' || label === 'Layout Bancos' || label === 'ACTIVO/REINGRESO')
       setActiveOption(prev => (prev === label ? null : label))
   }, [ handleForm ])
 
-  const menuWidth = useMemo(() => {
-    switch (action) {
-      case NavigationActionKind.PAYROLLRECEIPTS:
-        return 280
-      case NavigationActionKind.EMPLOYEES:
-        return 210
-      default:
-        return 125
-    }
+  const generateDropMenuOptions = useCallback((label: string) => {
+    const reportingOptions = REPORTING_ACTIONS[action ?? NavigationActionKind.ERROR][label]
+    return reportingOptions ? reportingOptions.map(({ label }) => ({ label })) : []
   }, [ action ])
-
-  const generateDropMenuOptions = useMemo(() =>
-    REPORTING_ACTIONS[action ?? NavigationActionKind.ERROR].map(op => op)
-  , [ action ])
   
   return (
     <>
       {options.map((option: IconDefinition, index: number) => {
         const { label, icon } = option
         const isActive = activeOption
-          && (activeOption === 'Reportes' || activeOption === 'Layout Bancos')
+          && (activeOption === 'Reportes' || activeOption === 'Layout Bancos' || activeOption === 'ACTIVO/REINGRESO')
           && label === activeOption
 
         return (
@@ -51,6 +41,7 @@ export const IconSection: React.FC<Props> = ({ action, options, handleForm }): J
             onClick={ isDisabled && label !== 'Reportes'
               && label !== 'Tabla de trabajo' 
               && label !== 'Layout Bancos'
+              && label !== 'ACTIVO/REINGRESO'
               ? () => {} : () => handleClick(index, label) }
           >
             { icon }
@@ -58,9 +49,12 @@ export const IconSection: React.FC<Props> = ({ action, options, handleForm }): J
             {isActive &&
               <Suspense fallback={ <div>Loading menu...</div> }>
                 <DropMenu 
-                  menuOp={ generateDropMenuOptions } 
-                  dir="right" 
-                  width={ menuWidth } 
+                  menuOp={ generateDropMenuOptions(label).map(op => ({
+                    ...op,
+                    onClick: () => {}
+                  })) } 
+                  dir="right"
+                  context={ label }
                 />  
               </Suspense>}
           </div>

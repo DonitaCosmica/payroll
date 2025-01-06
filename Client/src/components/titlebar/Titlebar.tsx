@@ -31,17 +31,15 @@ export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
         </div>
         <div className="titlebar-user">
           <div className='user' onClick={ () => setShowDropMenu(!showDropMenu) }>
-            <p>{ userName.split(' ')[0] + ' ' + userName.split(' ')[1][0] + '.' }</p>
+            <p>{ userName ? userName.split(' ')[0] + ' ' + userName.split(' ')[1][0] + '.' : 'Unknown' }</p>
             <IoIosArrowDown />
-            {
-              showDropMenu && (
-                <DropMenu 
-                  menuOp={ MENU_ICONS }
-                  dir={ 'right' }
-                  width={ 250 }
-                />
-              )
-            }
+            {showDropMenu && (
+              <DropMenu 
+                menuOp={ MENU_ICONS }
+                dir={ 'right' }
+                context='user'
+              />
+            )}
           </div>
         </div>
       </>) : (<div className='print-icons-section'>

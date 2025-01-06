@@ -6,11 +6,13 @@ interface PeriodState extends IDates {
   loading: boolean,
   error: boolean | null
 }
+
 type PeriodAction =
   | { type: 'SET_DATES', payload: IDates }
   | { type: 'SET_WEEK', payload: IWeekYear }
   | { type: 'SET_LOADING', payload: boolean }
   | { type: 'SET_ERROR', payload: boolean | null }
+
 interface PeriodContextType extends PeriodState {
   setActionType: React.Dispatch<React.SetStateAction<'FETCH_DATA' | 'SET_PERIOD' | 'NONE'>>,
   dispatch: React.Dispatch<PeriodAction>

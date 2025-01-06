@@ -1,4 +1,4 @@
-.toolbar > .container > :is(.main-options, .other-options) > .option {
+.toolbar > .container > :is(.main-options, .other-options, .sorting-employees) > .option {
   position: relative;
   display: flex;
   align-items: center;
@@ -8,8 +8,8 @@
   cursor: pointer;
 }
 
-.toolbar > .container > :is(.main-options, .other-options) > .option::before,
-.toolbar > .container > :is(.main-options, .other-options) > .option::after {
+.toolbar > .container > :is(.main-options, .other-options, .sorting-employees) > .option::before,
+.toolbar > .container > :is(.main-options, .other-options, .sorting-employees) > .option::after {
   position: absolute;
   content: '';
   height: 50%;
@@ -18,7 +18,7 @@
   opacity: 0;
 }
 
-.toolbar > .container > :is(.main-options, .other-options) > .option::before {
+.toolbar > .container > :is(.main-options, .other-options, .sorting-employees) > .option::before {
   right: 0;
   top: 0;
   border-top: 2px solid #6c99dd;
@@ -26,7 +26,7 @@
   transform: translate(-100%, 50%);
 }
 
-.toolbar > .container > :is(.main-options, .other-options) > .option::after {
+.toolbar > .container > :is(.main-options, .other-options, .sorting-employees) > .option::after {
   left: 0;
   bottom: 0;
   border-bottom: 2px solid #6c99dd;
@@ -34,13 +34,13 @@
   transform: translate(100%, -50%);
 }
 
-.toolbar > .container > :is(.main-options, .other-options) > .option:hover:before,
-.toolbar > .container > :is(.main-options, .other-options) > .option:hover:after {
+.toolbar > .container > :is(.main-options, .other-options, .sorting-employees) > .option:hover:before,
+.toolbar > .container > :is(.main-options, .other-options, .sorting-employees) > .option:hover:after {
   transform: translate(0,0);
   opacity: 1;
 }
 
-.toolbar > .container > :is(.main-options, .other-options) > .option > p {
+.toolbar > .container > :is(.main-options, .other-options, .sorting-employees) > .option > p {
   font-size: 0.8rem;
   margin-left: 5px;
 }

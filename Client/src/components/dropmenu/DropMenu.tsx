@@ -1,6 +1,6 @@
 import ReactDOMServer from 'react-dom/server'
 import React, { useMemo } from 'react'
-import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
+import { useNavigationContext } from '../../context/Navigation'
 import { useGeneratePrintPage } from '../../hooks/useGeneratePrintPage'
 import { type FieldConfig, type IconDefinition } from "../../types"
 import { FILTER_COLUMNS, REPORTING_ACTIONS } from '../../consts'
@@ -12,17 +12,16 @@ import './DropMenu.css'
 interface Props {
   menuOp: IconDefinition[],
   dir: 'left' | 'right',
-  width: number,
+  context: string
 }
 
-export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, width }): JSX.Element => {
+export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, context }): JSX.Element => {
   const { option } = useNavigationContext()
   const { styleHtmlTemplate, docName } = useGeneratePrintPage()
   
   const directionStyle = useMemo(() => ({
-    [dir]: 0,
-    minWidth: `${ width }%`
-  }), [ dir, width ])
+    [dir]: 0
+  }), [ dir ])
 
   const firstItemIconKey = useMemo(() => 
     Object.keys(menuOp[0])[0] === 'icon', 
@@ -54,7 +53,8 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, width }): JS
   }
 
   const handleLabel = async (op: IconDefinition): Promise<void> => {
-    const hasForm = REPORTING_ACTIONS[option ?? NavigationActionKind.ERROR].find(rep => rep.label === op.label)?.hasForm ?? false
+    const reports = REPORTING_ACTIONS[option]?.['Reportes']
+    const hasForm = reports ? reports.some(report => report.label === op.label && report.hasForm) : false
     hasForm && await fetchDropdownData(op.label)
     const titlebar = ReactDOMServer.renderToStaticMarkup(<Titlebar action='print' />)
     const filterReport = ReactDOMServer.renderToStaticMarkup(<FilterReport fields={op.label} />)
@@ -227,10 +227,10 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, width }): JS
       <ul>
         {menuOp.map((op: IconDefinition) => (
           <li key={ op.label } onClick={ () => {
-            if (docName && styleHtmlTemplate) handleLabel(op)
+            if (context === 'Reportes' && docName && styleHtmlTemplate) handleLabel(op)
           }}>
             { firstItemIconKey && op.icon }
-            { op.label }
+            <p>{ op.label }</p>
           </li>
         ))}
       </ul>

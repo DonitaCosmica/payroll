@@ -14,6 +14,7 @@ interface Props {
 
 const DropMenu = React.lazy(() => import('../dropmenu/DropMenu').then(module => ({ default: module.DropMenu })))
 const IconSection = React.lazy(() => import('../iconSection/IconSection').then(module => ({ default: module.IconSection })))
+const GrSort = React.lazy(() => import('react-icons/gr').then(module => ({ default: module.GrSort })))
 
 export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setContent, setUpdateTableWork }): JSX.Element => {
   const { option, url, submitCount, selectedId, setSubmitCount, dispatch } = useNavigationContext()
@@ -135,12 +136,24 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
           />
           <AiOutlineSearch />
         </div>}
+      {option === NavigationActionKind.EMPLOYEES && 
+        <div className="container">
+          <div className="sorting-employees">
+            <Suspense fallback={ <div>Loading icons...</div> }>
+                <IconSection
+                  action={ option }
+                  options={ [{ icon: <GrSort />, label: 'ACTIVO/REINGRESO' }] }
+                  handleForm={ handleForm }
+                />
+              </Suspense>
+          </div>
+        </div>}
       {showMoreOptions && option !== NavigationActionKind.TABLEWORK && (
         <div className="more-options">
           <BsThreeDotsVertical onClick={ () => setShowDropMenu(!showDropMenu) } />
           {showDropMenu && (
             <Suspense fallback={ <div>Loading menu...</div> }>
-              <DropMenu menuOp={ menuOp ?? [] } dir={ 'right' } width={ 35 } />
+              <DropMenu menuOp={ menuOp ?? [] } dir={ 'right' } context="doc" />
             </Suspense>
           )}
         </div>

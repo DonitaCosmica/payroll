@@ -1,5 +1,6 @@
 .drop-menu {
   position: absolute;
+  width: max-content;
   height: auto;
   top: 110%;
   background-color: #fff;
@@ -8,20 +9,18 @@
   z-index: 5;
 }
 
+.drop-menu > ul {
+  width: 100%;
+}
+
 .drop-menu > ul > li {
   display: flex;
   align-items: center;
-  padding: 15px 20px;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 12.5px 0;
   transition: 0.5s ease-in-out;
   cursor: pointer;
-}
-
-.drop-menu > ul > li:first-child {
-  padding: 20px 0 15px 20px;
-}
-
-.drop-menu > ul > li:last-child {
-  padding: 15px 0 20px 20px;
 }
 
 .drop-menu > ul > li:hover {
@@ -30,5 +29,9 @@
 }
 
 .drop-menu > ul > li > svg {
-  margin-right: 10px;
+  margin-left: 15px;
+}
+
+.drop-menu > ul > li > p {
+  padding: 0 20px;
 }
