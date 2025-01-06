@@ -33,6 +33,6 @@ export const useGeneratePrintPage = (): { [key: string]: string } => {
     }).join(' ')
 
   const styles = `<style>${ getStyleSheets() }</style>`
-  const styleHtmlTemplate = htmlText.replace('</head>', `${styles}</head>`)
+  const styleHtmlTemplate = htmlText.replace('</head>', `${ styles }</head>`)
   return { styleHtmlTemplate, docName: docName.current }
 }

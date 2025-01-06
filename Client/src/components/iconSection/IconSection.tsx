@@ -1,6 +1,7 @@
 import React, { Suspense, useCallback, useState } from "react"
+import { useSortEmployeesContext } from "../../context/SortEmployees"
 import { useCurrentWeek } from "../../hooks/useCurrentWeek"
-import { type IconDefinition } from "../../types"
+import { SortState, type IconDefinition } from "../../types"
 import { NavigationActionKind } from "../../context/Navigation"
 import { REPORTING_ACTIONS } from "../../consts"
 import './IconSection.css'
@@ -14,6 +15,7 @@ interface Props {
 const DropMenu = React.lazy(() => import('../dropmenu/DropMenu').then(module => ({ default: module.DropMenu })))
 
 export const IconSection: React.FC<Props> = ({ action, options, handleForm }): JSX.Element => {
+  const { dispatch } = useSortEmployeesContext()
   const { isDisabled } = useCurrentWeek({ input: [] })
   const [activeOption, setActiveOption] = useState<string | null>(null)
 
@@ -51,7 +53,10 @@ export const IconSection: React.FC<Props> = ({ action, options, handleForm }): J
                 <DropMenu 
                   menuOp={ generateDropMenuOptions(label).map(op => ({
                     ...op,
-                    onClick: () => {}
+                    onClick: (filter = 'Todos') => {
+                      if (filter && ['Todos', 'Activos', 'Reingreso', 'Activos y Reingreso', 'Baja'].includes(filter))
+                        dispatch({ type: "SET_FILTER", payload: filter as SortState['filter'] })
+                    }
                   })) } 
                   dir="right"
                   context={ label }

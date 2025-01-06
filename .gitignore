@@ -1,2 +1,4 @@
 API/*.http
-API/Migrations
+API/Migrations/
+API/bin/
+API/obj

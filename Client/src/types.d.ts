@@ -31,7 +31,7 @@ export interface IWeekYear {
 export interface IconDefinition {
   icon?: JSX.Element,
   label: string,
-  onClick?: () => void
+  onClick?: (filter?: string) => void
 }
 export interface ReportDefinition {
   label: string,
@@ -88,4 +88,7 @@ export interface IFilterPeriod {
 export interface IDates {
   years: number[],
   dates: IPeriod[][]
+}
+export interface SortState {
+  filter: 'Todos' | 'Activos' | 'Reingreso' | 'Activos y Reingreso' | 'Baja'
 }

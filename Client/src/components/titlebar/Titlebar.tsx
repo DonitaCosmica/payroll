@@ -15,8 +15,7 @@ export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user') ?? '')
-    if ('name' in user)
-      setUserName(user.name)
+    if ('name' in user) setUserName(user.name)
   }, [])
 
   return (
@@ -35,7 +34,10 @@ export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
             <IoIosArrowDown />
             {showDropMenu && (
               <DropMenu 
-                menuOp={ MENU_ICONS }
+                menuOp={ MENU_ICONS.map(op => ({
+                  ...op,
+                  onClick: () => {}
+                })) }
                 dir={ 'right' }
                 context='user'
               />
@@ -43,14 +45,12 @@ export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
           </div>
         </div>
       </>) : (<div className='print-icons-section'>
-          {
-            PRINT_ICONS.map((item: IconDefinition, index: number) => (
-              <div key={ `${ item.label }-${ index }` } className='print-icon-container'>
-                { item.icon }
-                <span>{ item.label }</span>
-              </div>
-            ))
-          }
+          {PRINT_ICONS.map((item: IconDefinition, index: number) => (
+            <div key={ `${ item.label }-${ index }` } className='print-icon-container'>
+              { item.icon }
+              <span>{ item.label }</span>
+            </div>
+          ))}
         </div>)}
     </header>
   )

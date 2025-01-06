@@ -40,13 +40,12 @@ export const useCurrentWeek = ({ input }: Props): { weekRanges: IWeek[], isDisab
   }
   
   const formatDate = (date: Date): string =>
-    new Intl.DateTimeFormat('es-Es', 
-      { 
-        weekday: 'short', 
-        day: 'numeric', 
-        month: 'short', 
-        year: 'numeric'
-      }).format(date).replace(',', '')
+    new Intl.DateTimeFormat('es-Es', { 
+      weekday: 'short', 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric'
+    }).format(date).replace(',', '')
 
   const weekRanges = useMemo(() => {
     const weeks = Array.isArray(input) ? input : [input]

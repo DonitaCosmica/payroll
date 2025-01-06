@@ -167,7 +167,7 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, context }): 
     return sendEmailHtmlTemplate.replace('//openEmailWindow', `
       const openEmailWindow = () => {
         document.getElementById("background").style.display = "flex"
-        document.getElementById("email").innerHTML = "${docName}.pdf"
+        document.getElementById("email").innerHTML = "${ docName }.pdf"
       }
 
       const importPDF = () => {
@@ -182,7 +182,7 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, context }): 
           const imgWidth = doc.internal.pageSize.width - 2 * padding
           const imgHeight = (imgWidth * img.height) / img.width
           doc.addImage(img, "png", xPos, yPos, imgWidth * 2, imgHeight * 2)
-          doc.save("${docName}.pdf")
+          doc.save("${ docName }.pdf")
         }
       }
 
@@ -201,7 +201,7 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, context }): 
         const link = document.createElement('a')
 
         link.href = url
-        link.download = "${docName}.csv"
+        link.download = "${ docName }.csv"
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
@@ -211,7 +211,7 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, context }): 
 
   const printData = (printPageTemplate: string) => {
     const currentUrl = window.location.href
-    const newWin = window.open(`${currentUrl}documents`, '_blank')
+    const newWin = window.open(`${ currentUrl }documents`, '_blank')
     if (!newWin) {
       console.error('Could not open a new window')
       return
@@ -228,6 +228,7 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, context }): 
         {menuOp.map((op: IconDefinition) => (
           <li key={ op.label } onClick={ () => {
             if (context === 'Reportes' && docName && styleHtmlTemplate) handleLabel(op)
+            if (op.onClick) op.onClick(op.label)
           }}>
             { firstItemIconKey && op.icon }
             <p>{ op.label }</p>

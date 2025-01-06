@@ -1,5 +1,6 @@
 import React, { Suspense, useEffect, useState } from 'react'
 import { PeriodProvider } from './context/Period'
+import { SortEmployeesProvider } from './context/SortEmployees'
 import { NavigationActionKind, useNavigationContext } from './context/Navigation'
 import { Titlebar } from './components/titlebar/Titlebar'
 import { Navbar } from './components/navbar/Navbar'
@@ -55,7 +56,7 @@ export const App = (): JSX.Element => {
         { !content && <Navbar /> }
         { option === 1 && renderWithSuspense(Filter, {}, 'Loading Filter...') }
         {option !== NavigationActionKind.BANKS ?
-          (<>
+          (<SortEmployeesProvider>
             {renderWithSuspense(Toolbar, {
               setSearchFilter,
               setShowForm,
@@ -68,7 +69,7 @@ export const App = (): JSX.Element => {
               setShowForm,
               setUpdateTableWork,
             }, 'Loading List...')}
-          </>) : (
+          </SortEmployeesProvider>) : (
             renderWithSuspense(UploadBanks, {}, 'Loading Banks...')
           )}
         { option === 1 && renderWithSuspense(Footer, {}, 'Loading Footer...') }

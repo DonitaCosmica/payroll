@@ -22,14 +22,14 @@ export enum NavigationActionKind {
   ERROR
 }
 
+interface Props {
+  children: ReactNode
+}
+
 interface NavigationContextType extends NavigationState {
   dispatch: React.Dispatch<NavigationAction>,
   submitCount: number,
   setSubmitCount: React.Dispatch<React.SetStateAction<number>>
-}
-
-interface Props {
-  children: ReactNode
 }
 
 const navigationConfig: Record<NavigationActionKind, { url: string, title: string, formSize: number }> = {
@@ -50,7 +50,7 @@ const navigationConfig: Record<NavigationActionKind, { url: string, title: strin
   [NavigationActionKind.UPDATESELECTEDID]: { url: '', title: '', formSize: 0 },
   [NavigationActionKind.UPDATETOOLBAROPT]: { url: '', title: '', formSize: 0 },
   [NavigationActionKind.ERROR]: { url: '', title: '', formSize: 0 }
-}
+} as const
 
 const INITIAL_STATE: NavigationState = {
   payroll: 'Ordinario',

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
+import { useSortEmployeesContext } from "../../context/SortEmployees"
 import { useCurrentWeek } from "../../hooks/useCurrentWeek"
 import { type DataObject, type ListObject } from "../../types"
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md"
@@ -15,6 +16,7 @@ interface Props {
 
 export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowForm, setUpdateTableWork}): JSX.Element => {
   const { option, data, columnNames, formData: formDataRes, dispatch } = useNavigationContext()
+  const { filter } = useSortEmployeesContext()
   const { isDisabled } = useCurrentWeek({ input: [] })
   const [filteredValues, setFilteredValues] = useState<DataObject[]>(data)
   const columnsDictionary = useRef<Record<string, string>>({})
@@ -32,7 +34,9 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
         fetch('/src/data/translations.json')
       ])
       
-      const [perceptionsObj, deductionsObj, translateObj] = await Promise.all([perceptionsRes.json(), deductionsRes.json(), translateRes.json()])
+      const [perceptionsObj, deductionsObj, translateObj] = await Promise.all([
+        perceptionsRes.json(),deductionsRes.json(), translateRes.json()])
+
       perceptions.current = perceptionsObj.data
       deductions.current = deductionsObj.data
       columnsDictionary.current = translateObj[option]
@@ -119,8 +123,11 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
 
   const isDayOfWeek = (day: string): boolean => {
     const daysOfWeek = new Set([
-      'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+      'Sunday', 'Monday',
+      'Tuesday', 'Wednesday',
+      'Thursday', 'Friday', 'Saturday'
     ])
+
     const formattedDay = day.charAt(0).toUpperCase() + day.slice(1).toLowerCase()
     return daysOfWeek.has(formattedDay)
   }
@@ -181,6 +188,7 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
       type: NavigationActionKind.UPDATETOOLBAROPT,
       payload: { toolbarOption: 1 }
     })
+
     setShowForm(true)
   }, [ getIdSelected, dispatch, setShowForm ])
 
@@ -330,7 +338,7 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
                   <td key={ `$data-${ column }-${ cellIndex }` }>
                     {option !== NavigationActionKind.TABLEWORK
                       ? (<p>{ typeof content === 'number' ? content.toFixed(2) : content }</p>
-                      ): (
+                      ) : (
                         <input
                           type="text"
                           id={ `${ getKeyByValue(columnsDictionary.current, column) } - ${ index }` }

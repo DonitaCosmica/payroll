@@ -195,13 +195,13 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
       <select id={ id } style={{ display: 'none' }}></select>
       <div className="multi-select-header">
         {selectedItemsRef.current.length === 0 ? (
-          <span className="multi-select-header-placeholder">{
-            id.toLowerCase().includes('deductions')
+          <span className="multi-select-header-placeholder">
+            {id.toLowerCase().includes('deductions')
               ? 'Seleccionar Deducciones'
               : id.toLowerCase().includes('perceptions')
                 ? 'Seleccionar Percepciones'
-                : 'Seleccionar Proyectos'
-          }</span>
+                : 'Seleccionar Proyectos'}
+          </span>
         ) : (
           <div className="multi-select-header-option-box">
             {selectedItemsRef.current.map((item: ListObject) => (

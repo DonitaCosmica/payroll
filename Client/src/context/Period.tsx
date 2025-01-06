@@ -1,6 +1,10 @@
 import { createContext, ReactNode, useContext, useEffect, useReducer, useState } from "react"
 import { type IFilterPeriod, type IDates, type IWeekYear } from "../types"
 
+interface Props {
+  children: ReactNode
+}
+
 interface PeriodState extends IDates {
   selectedPeriod: IWeekYear,
   loading: boolean,
@@ -25,14 +29,13 @@ const INITIAL_STATE: PeriodState = {
   loading: false,
   error: null,
 } as const
-interface Props {
-  children: ReactNode
-}
+
 export const PeriodContext: React.Context<PeriodContextType> = createContext<PeriodContextType>({
   ...INITIAL_STATE,
   setActionType: () => {},
   dispatch: () => {}
 })
+
 const periodReducer = (state: PeriodState, action: PeriodAction): PeriodState => {
   const { type, payload } = action
   switch (type) {

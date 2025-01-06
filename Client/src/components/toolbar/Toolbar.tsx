@@ -40,15 +40,12 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
     NavigationActionKind.TABLEWORK
   ].includes(option)
 
-  const handleChangeSearch = (e: React.ChangeEvent<HTMLInputElement>): void =>
-    setSearchFilter(e.target.value)
-
   const handleForm = async (index: number, label: string): Promise<void> => {
     const isInvalidAction = label !== 'Nuevo' && label !== 'Editar'
       && label !== 'Eliminar' && label !== 'Tabla de trabajo'
       && label !== 'Actualizar' && label !== 'Layout Bancos'
-    if (isInvalidAction) return
 
+    if (isInvalidAction) return
     if (label === 'Tabla de trabajo') {
       dispatch({ type: 11 })
       setContent(prev => !prev)
@@ -132,7 +129,7 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
             id="search"
             placeholder="Busqueda..."
             autoComplete='off'
-            onChange={ handleChangeSearch }
+            onChange={ (e) => setSearchFilter(e.target.value) }
           />
           <AiOutlineSearch />
         </div>}
