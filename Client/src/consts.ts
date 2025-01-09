@@ -15,27 +15,25 @@ export const LINKS: string[] = [
 ] as const
 
 export const PAYROLL_TYPE_OP: IconDefinition[] = [
-  { label: 'Ordinario' }, 
-  { label: 'ExtraOrdinario' }
+  { id: 'ordinary', label: 'Ordinario' }, 
+  { id: 'extraordinary', label: 'ExtraOrdinario' }
 ] as const
 
 export const REPORTING_ACTIONS: Record<NavigationActionKind, { [key: string]: ReportDefinition[] }> = {
   [NavigationActionKind.PAYROLLRECEIPTS]: {
-    'Reportes': [
-      { label: 'Recibos del Periodo', hasForm: false }, { label: 'Recibos del Periodo (det)', hasForm: false },
-      { label: 'Acumulado x Periodos', hasForm: true }, { label: 'Acumulado x Depto.', hasForm: true },
-      { label: 'Acumulado por Proyecto/Puesto', hasForm: true }, { label: 'Prestamos y Descuentos', hasForm: true },
-      { label: 'Deducciones x Proyecto', hasForm: true }
+    'report': [
+      { id: 'ticketByPeriod', label: 'Recibos del Periodo', hasForm: false }, { id: 'ticketByPeriodDet', label: 'Recibos del Periodo (det)', hasForm: false },
+      { id: 'accumulatedByPeriod', label: 'Acumulado x Periodos', hasForm: true }, { id: 'accumulatedByDepartment', label: 'Acumulado x Depto.', hasForm: true },
+      { id: 'accumulatedByProject', label: 'Acumulado por Proyecto/Puesto', hasForm: true }, { id: 'loans', label: 'Prestamos y Descuentos', hasForm: true },
+      { id: 'deductions', label: 'Deducciones x Proyecto', hasForm: true }
     ]
   },
   [NavigationActionKind.EMPLOYEES]: {
-    'Reportes': [
-      { label: 'Listado a Detalle', hasForm: false }, { label: 'Trabajadores por Fecha', hasForm: true }
+    'report': [
+      { id: 'list', label: 'Listado a Detalle', hasForm: false }, { id: 'employeesByDate', label: 'Trabajadores por Fecha', hasForm: true }
     ],
-    'ACTIVO/REINGRESO': [
-      { label: 'Todos', hasForm: false }, { label: 'Activos', hasForm: false },
-      { label: 'Reingreso', hasForm: false }, { label: 'Activos y Reingreso', hasForm: false },
-      { label: 'Baja', hasForm: false }
+    'filter': [
+      { id: 'default', label: 'Todos', hasForm: false }
     ]
   },
   [NavigationActionKind.JOBPOSITIONS]: {},
@@ -44,14 +42,14 @@ export const REPORTING_ACTIONS: Record<NavigationActionKind, { [key: string]: Re
   [NavigationActionKind.PERCEPTIONS]: {},
   [NavigationActionKind.DEDUCTIONS]: {},
   [NavigationActionKind.PROJECTCATALOG]: {
-    'Reportes': [
-      { label: 'Acumulado', hasForm: false }
+    'report': [
+      { id: 'accumulated', label: 'Acumulado', hasForm: false }
     ]
   },
   [NavigationActionKind.COMPANIES]: {},
   [NavigationActionKind.TABLEWORK]: {
-    'Layout': [
-      { label: 'Generar Layout', hasForm: true }
+    'layout': [
+      { id: 'layout', label: 'Generar Layout', hasForm: true }
     ]
   },
   [NavigationActionKind.BANKS]: {},
@@ -74,6 +72,6 @@ export const FILTER_COLUMNS: Record<string, string[]> = {
     'Proyectos', 'Nombre', 'Puesto de trabajo',
     'Estado', 'Salario Base', 'Fecha de Admisión'
   ]
-}
+} as const
 
-export const totalTitles: string[] = ['Total de periodo', 'Total Extraordinario', 'Total Pagado', 'Saldo']
+export const totalTitles: string[] = ['Total de periodo', 'Total Extraordinario', 'Total Pagado', 'Saldo'] as const

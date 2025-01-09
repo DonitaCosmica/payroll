@@ -29,11 +29,13 @@ export interface IWeekYear {
   year: number
 }
 export interface IconDefinition {
+  id: string,
   icon?: JSX.Element,
   label: string,
-  onClick?: (filter?: string) => void
+  onClick?: (id?: string) => void
 }
 export interface ReportDefinition {
+  id: string,
   label: string,
   hasForm: boolean
 }
@@ -89,6 +91,9 @@ export interface IDates {
   years: number[],
   dates: IPeriod[][]
 }
-export interface SortState {
-  filter: 'Todos' | 'Activos' | 'Reingreso' | 'Activos y Reingreso' | 'Baja'
+export interface IStatus {
+  statusId: string,
+  name: string,
+  statusType: string,
+  statusOption: 'Positive' | 'Negative'
 }

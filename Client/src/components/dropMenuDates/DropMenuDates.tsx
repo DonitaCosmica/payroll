@@ -7,8 +7,8 @@ import { Accordion } from '../accordion/Accordion'
 import { FaCheck } from "react-icons/fa"
 import './DropMenuDates.css'
 
-export const DropMenuDates = ({  }): JSX.Element => {
-  const ICONS = [...ICON_OPTIONS.common, { label: 'Enviar', icon: <FaCheck fontSize='1rem' color='#73ba69' /> }]
+export const DropMenuDates = React.memo((): JSX.Element => {
+  const ICONS = [...ICON_OPTIONS.common, { id: 'send', label: 'Enviar', icon: <FaCheck fontSize='1rem' color='#73ba69' /> }]
   const { years, dates, selectedPeriod, setActionType } = usePeriodContext()
   const [showOptionsPeriod, setShowOptionsPeriod] = useState<boolean>(false)
   const selectedOption = useRef<number>(-1)
@@ -145,4 +145,4 @@ export const DropMenuDates = ({  }): JSX.Element => {
       </ul>
     </div>
   )
-}
+})

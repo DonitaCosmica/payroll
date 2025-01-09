@@ -38,9 +38,13 @@ namespace API.Data
     {
       modelBuilder.UseCollation("Latin1_General_CI_AS");
 
-      modelBuilder.Entity<Status>()
-        .Property(s => s.StatusType)
-        .HasConversion(v => v.ToString(), v => (StatusType)Enum.Parse(typeof(StatusType), v));
+      modelBuilder.Entity<Status>(entity =>
+      {
+        entity.Property(s => s.StatusType)
+          .HasConversion(v => v.ToString(), v => (StatusType)Enum.Parse(typeof(StatusType), v));
+        entity.Property(s => s.StatusOption)
+          .HasConversion(v => v.ToString(), v => (StatusOption)Enum.Parse(typeof(StatusOption), v));
+      });
 
       modelBuilder.Entity<JobPosition>(entity =>
       {

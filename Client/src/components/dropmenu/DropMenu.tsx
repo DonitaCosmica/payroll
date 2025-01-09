@@ -23,10 +23,6 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, context }): 
     [dir]: 0
   }), [ dir ])
 
-  const firstItemIconKey = useMemo(() => 
-    Object.keys(menuOp[0])[0] === 'icon', 
-  [ menuOp ])
-
   const fetchDropdownData = async (label: string): Promise<void> => {
     const fetchPromises = fieldsReport[label]
       .filter(({ type, fetchUrl }: FieldConfig) => type === 'dropmenu' && fetchUrl)
@@ -227,10 +223,10 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, context }): 
       <ul>
         {menuOp.map((op: IconDefinition) => (
           <li key={ op.label } onClick={ () => {
-            if (context === 'Reportes' && docName && styleHtmlTemplate) handleLabel(op)
-            if (op.onClick) op.onClick(op.label)
+            if (context === 'report' && docName && styleHtmlTemplate) handleLabel(op)
+            if (op.onClick) op.onClick(op.id)
           }}>
-            { firstItemIconKey && op.icon }
+            { op.icon }
             <p>{ op.label }</p>
           </li>
         ))}

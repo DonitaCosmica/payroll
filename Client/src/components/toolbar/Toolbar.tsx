@@ -1,8 +1,6 @@
 import React, { Suspense, useMemo, useState } from "react"
 import { ICON_OPTIONS } from "../../utils/icons"
 import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
-import { AiOutlineSearch } from "react-icons/ai"
-import { BsThreeDotsVertical } from "react-icons/bs"
 import './Toolbar.css'
 
 interface Props {
@@ -14,6 +12,8 @@ interface Props {
 
 const DropMenu = React.lazy(() => import('../dropmenu/DropMenu').then(module => ({ default: module.DropMenu })))
 const IconSection = React.lazy(() => import('../iconSection/IconSection').then(module => ({ default: module.IconSection })))
+const AiOutlineSearch = React.lazy(() => import('react-icons/ai').then(module => ({ default: module.AiOutlineSearch })))
+const BsThreeDotsVertical = React.lazy(() => import('react-icons/bs').then(module => ({ default: module.BsThreeDotsVertical })))
 const GrSort = React.lazy(() => import('react-icons/gr').then(module => ({ default: module.GrSort })))
 
 export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setContent, setUpdateTableWork }): JSX.Element => {
@@ -40,27 +40,22 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
     NavigationActionKind.TABLEWORK
   ].includes(option)
 
-  const handleForm = async (index: number, label: string): Promise<void> => {
-    const isInvalidAction = label !== 'Nuevo' && label !== 'Editar'
-      && label !== 'Eliminar' && label !== 'Tabla de trabajo'
-      && label !== 'Actualizar' && label !== 'Layout Bancos'
+  const handleForm = async (id: string, index: number): Promise<void> => {
+    if (!id.includes('basic') && id !== 'update' && id !== 'table') return
 
-    if (isInvalidAction) return
-    if (label === 'Tabla de trabajo') {
+    if (id === 'table') {
       dispatch({ type: 11 })
       setContent(prev => !prev)
       return
     }
 
-    if (label === 'Actualizar' || label === 'Layout Bancos') {
+    if (id === 'update') {
       setUpdateTableWork(true)
       return
     }
 
-    const isInvalidSelection = (index === 1 || index === 2) && selectedId === ''
-    if (isInvalidSelection) return
-
-    (index === 2) ? await deleteResource() : showFormAndSetToolbar(index)
+    if ((!id.includes('basic')) && selectedId === '') return
+    id.includes('delete') ? await deleteResource() : showFormAndSetToolbar(index)
   }
 
   const deleteResource = async (): Promise<void> => {
@@ -98,7 +93,8 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
       >
         <div className='main-options'>
           <Suspense fallback={ <div>Loading icons...</div> }>
-            <IconSection 
+            <IconSection
+              token={ 1 }
               options={ showMoreOptions 
                 ? option !== NavigationActionKind.TABLEWORK
                   ? options.slice(0, end)
@@ -113,6 +109,7 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
           <div className='other-options'>
             <Suspense fallback={ <div>Loading icons...</div> }>
               <IconSection
+                token={ 2 }
                 action={ option }
                 options={ options.slice(end) }
                 handleForm={ handleForm }
@@ -131,15 +128,18 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
             autoComplete='off'
             onChange={ (e) => setSearchFilter(e.target.value) }
           />
-          <AiOutlineSearch />
+          <Suspense fallback={ <div>Loading search...</div> }>
+            <AiOutlineSearch />
+          </Suspense>
         </div>}
       {option === NavigationActionKind.EMPLOYEES && 
         <div className="container">
           <div className="sorting-employees">
             <Suspense fallback={ <div>Loading icons...</div> }>
                 <IconSection
+                  token={ 3 }
                   action={ option }
-                  options={ [{ icon: <GrSort />, label: 'ACTIVO/REINGRESO' }] }
+                  options={ [{ id: 'filter', icon: <GrSort />, label: 'ACTIVO/REINGRESO' }] }
                   handleForm={ handleForm }
                 />
               </Suspense>
@@ -147,7 +147,9 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
         </div>}
       {showMoreOptions && option !== NavigationActionKind.TABLEWORK && (
         <div className="more-options">
-          <BsThreeDotsVertical onClick={ () => setShowDropMenu(!showDropMenu) } />
+          <Suspense fallback={ <div>Loading dots...</div> }>
+            <BsThreeDotsVertical onClick={ () => setShowDropMenu(!showDropMenu) } />
+          </Suspense>
           {showDropMenu && (
             <Suspense fallback={ <div>Loading menu...</div> }>
               <DropMenu menuOp={ menuOp ?? [] } dir={ 'right' } context="doc" />

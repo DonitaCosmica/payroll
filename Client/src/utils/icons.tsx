@@ -19,40 +19,40 @@ export const ICON_OPTIONS: {
   menu: Record<NavigationActionKind, IconDefinition[]>
 } = {
   common: [
-    { icon: <GrAdd fontSize='1.2rem' color="#73ba69" />, label: 'Nuevo' },
-    { icon: <BiEditAlt fontSize='1.2rem' color="#e5ac3b" />, label: 'Editar' },
-    { icon: <RiDeleteBin6Line fontSize='1.2rem' color="#de4645" />, label: 'Eliminar' }
+    { id: 'basic-new', icon: <GrAdd fontSize='1.2rem' color="#73ba69" />, label: 'Nuevo' },
+    { id: 'basic-edit', icon: <BiEditAlt fontSize='1.2rem' color="#e5ac3b" />, label: 'Editar' },
+    { id: 'basic-delete', icon: <RiDeleteBin6Line fontSize='1.2rem' color="#de4645" />, label: 'Eliminar' }
   ],
   special: {
     [NavigationActionKind.PAYROLLRECEIPTS]: [
-      { icon: <BiSolidCalculator fontSize='1.2rem' color="#dd7e7b" />, label: 'Tabla de trabajo' },
-      { icon: <TbReportSearch fontSize='1.2rem' color="#ffb380" />, label: 'Reportes' }
+      { id: 'table', icon: <BiSolidCalculator fontSize='1.2rem' color="#dd7e7b" />, label: 'Tabla de trabajo' },
+      { id: 'report', icon: <TbReportSearch fontSize='1.2rem' color="#ffb380" />, label: 'Reportes' }
     ],
     [NavigationActionKind.EMPLOYEES]: [
-      { icon: <AiFillFlag fontSize='1.2rem' color="#70b2fb" />, label: 'Status' },
-      { icon: <TbCalendarTime fontSize='1.2rem' color="#333" />, label: 'Historial' },
-      { icon: <TbReportSearch fontSize='1.2rem' color="#ffb380" />, label: 'Reportes' }
+      { id: 'status', icon: <AiFillFlag fontSize='1.2rem' color="#70b2fb" />, label: 'Status' },
+      { id: 'history', icon: <TbCalendarTime fontSize='1.2rem' color="#333" />, label: 'Historial' },
+      { id: 'report', icon: <TbReportSearch fontSize='1.2rem' color="#ffb380" />, label: 'Reportes' }
     ],
     [NavigationActionKind.JOBPOSITIONS]: [
-      { icon: <TbReportSearch fontSize='1.2rem' color="#ffb380" />, label: 'Prenomina' }
+      { id: '', icon: <TbReportSearch fontSize='1.2rem' color="#ffb380" />, label: 'Prenomina' }
     ],
     [NavigationActionKind.DEPARTMENTS]: [],
     [NavigationActionKind.COMMERCIALAREAS]: [],
     [NavigationActionKind.PERCEPTIONS]: [
-      { icon: <AiOutlineStop fontSize='1.2rem' color="#d92928" />, label: 'Ocultar' }
+      { id: 'hide', icon: <AiOutlineStop fontSize='1.2rem' color="#d92928" />, label: 'Ocultar' }
     ],
     [NavigationActionKind.DEDUCTIONS]: [
-      { icon: <AiOutlineStop fontSize='1.2rem' color="#d92928" />, label: 'Ocultar' }
+      { id: 'hide', icon: <AiOutlineStop fontSize='1.2rem' color="#d92928" />, label: 'Ocultar' }
     ],
     [NavigationActionKind.PROJECTCATALOG]: [
-      { icon: <TbReportSearch fontSize='1.2rem' color="#ffb380" />, label: 'Reportes' }
+      { id: 'report', icon: <TbReportSearch fontSize='1.2rem' color="#ffb380" />, label: 'Reportes' }
     ],
     [NavigationActionKind.COMPANIES]: [],
     [NavigationActionKind.BANKS]: [],
     [NavigationActionKind.TABLEWORK]: [
-      { icon: <IoReload color="#333" />, label: 'Actualizar' },
-      { icon: <LuClipboardList color="#70b2fb" />, label: 'Reportes' },
-      { icon: <LuClipboardList color="#70b2fb" />, label: 'Layout Bancos' }
+      { id: 'update', icon: <IoReload color="#333" />, label: 'Actualizar' },
+      { id: 'report', icon: <LuClipboardList color="#70b2fb" />, label: 'Reportes' },
+      { id: 'update', icon: <LuClipboardList color="#70b2fb" />, label: 'Layout Bancos' }
     ],
     [NavigationActionKind.UPDATEDATA]: [],
     [NavigationActionKind.UPDATETABLE]: [],
@@ -63,11 +63,11 @@ export const ICON_OPTIONS: {
   },
   menu: {
     [NavigationActionKind.PAYROLLRECEIPTS]: [
-      { icon: <BsBoxArrowInDownLeft color="#73ba69" />, label: 'Importar xlsx' },
-      { icon: <RiDeleteBin6Line color="#de4645" />, label: 'Eliminar recibo' }
+      { id: 'import', icon: <BsBoxArrowInDownLeft color="#73ba69" />, label: 'Importar xlsx' },
+      { id: 'delete', icon: <RiDeleteBin6Line color="#de4645" />, label: 'Eliminar recibo' }
     ],
     [NavigationActionKind.EMPLOYEES]: [
-      { icon: <BsBoxArrowInDownLeft color="#73ba69" />, label: 'Importar xlsx' }
+      { id: 'import', icon: <BsBoxArrowInDownLeft color="#73ba69" />, label: 'Importar xlsx' }
     ],
     [NavigationActionKind.JOBPOSITIONS]: [],
     [NavigationActionKind.DEPARTMENTS]: [],
@@ -75,7 +75,7 @@ export const ICON_OPTIONS: {
     [NavigationActionKind.PERCEPTIONS]: [],
     [NavigationActionKind.DEDUCTIONS]: [],
     [NavigationActionKind.PROJECTCATALOG]: [
-      { icon: <TbCalendarTime color="#333" />, label: 'Registro de Actividad' }
+      { id: 'register', icon: <TbCalendarTime color="#333" />, label: 'Registro de Actividad' }
     ],
     [NavigationActionKind.COMPANIES]: [],
     [NavigationActionKind.BANKS]: [],
@@ -90,16 +90,16 @@ export const ICON_OPTIONS: {
 } as const
 
 export const MENU_ICONS: IconDefinition[] = [
-  { icon: <FiSettings />, label: 'Configuración Avanzada' },
-  { icon: <FiUsers color='#0747A6' />, label: 'Usuarios' }, 
-  { icon: <BiLogOut color='#d95a54' />, label: 'Cerrar Sesión' }
+  { id: 'settings', icon: <FiSettings />, label: 'Configuración Avanzada' },
+  { id: 'users', icon: <FiUsers color='#0747A6' />, label: 'Usuarios' }, 
+  { id: 'logout', icon: <BiLogOut color='#d95a54' />, label: 'Cerrar Sesión' }
 ] as const
 
 export const PRINT_ICONS: IconDefinition[] = [
-  { icon: <TfiClose color="#fff" fontSize='1.3rem' />, label: 'Cerrar' },
-  { icon: <BsArrowClockwise color="#fff" fontSize='1.3rem' />, label: 'Recargar' },
-  { icon: <PiPrinter color="#fff" fontSize='1.3rem' />, label: 'Imprimir' },
-  { icon: <MdOutlineEmail color="#fff" fontSize='1.3rem' />, label: 'Enviar' },
-  { icon: <BsFiletypePdf color="#fff" fontSize='1.3rem' />, label: 'Exportar a pdf' },
-  { icon: <BsFiletypeXls color="#fff" fontSize='1.3rem' />, label: 'Exportar a Excel' },
-]
+  { id: 'close', icon: <TfiClose color="#fff" fontSize='1.3rem' />, label: 'Cerrar' },
+  { id: 'load', icon: <BsArrowClockwise color="#fff" fontSize='1.3rem' />, label: 'Recargar' },
+  { id: 'print', icon: <PiPrinter color="#fff" fontSize='1.3rem' />, label: 'Imprimir' },
+  { id: 'send', icon: <MdOutlineEmail color="#fff" fontSize='1.3rem' />, label: 'Enviar' },
+  { id: 'export', icon: <BsFiletypePdf color="#fff" fontSize='1.3rem' />, label: 'Exportar a pdf' },
+  { id: 'export', icon: <BsFiletypeXls color="#fff" fontSize='1.3rem' />, label: 'Exportar a Excel' },
+] as const

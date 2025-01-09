@@ -87,6 +87,7 @@ export const PeriodProvider: React.FC<Props> = ({ children }) => {
       return (currentDate < nextMonday) ? 52 :
         (currentDate > nextMonday ? Math.ceil((currentDate.getTime() - nextMonday.getTime()) / (24 * 3600 * 1000) / 7) : 1)
     }
+
     const createYearlyPeriodArray = (filterPeriod: IFilterPeriod): IWeekYear[][] => {
       const periodsByYear: Record<number, IWeekYear[]> = {}
       filterPeriod.periods.map(period => {
@@ -96,6 +97,7 @@ export const PeriodProvider: React.FC<Props> = ({ children }) => {
       })
       return filterPeriod.years.map(year => periodsByYear[year] || [])
     }
+
     const fetchData = async(): Promise<void> => {
       try {
         const res: Response = await fetch('http://localhost:5239/api/Period')
@@ -112,6 +114,7 @@ export const PeriodProvider: React.FC<Props> = ({ children }) => {
         setActionType('NONE')
       }
     }
+
     const setPeriod = (): void => {
       if (state.selectedPeriod.week === 0) {
         const today = new Date()
@@ -122,16 +125,14 @@ export const PeriodProvider: React.FC<Props> = ({ children }) => {
         setActionType('NONE')
       }
     }
-    switch (actionType) {
-      case 'SET_PERIOD':
-        setPeriod()
-        break
-      case 'FETCH_DATA':
-        fetchData()
-        break
-      case 'NONE':
-    }
-  }, [ actionType ])
+
+    if (actionType === 'SET_PERIOD')
+      setPeriod()
+    else if (actionType === 'FETCH_DATA')
+      fetchData()
+
+  }, [ actionType, state.selectedPeriod ])
+
   return (
     <PeriodContext.Provider 
       value={{ 

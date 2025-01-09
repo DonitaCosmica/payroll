@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, useState } from 'react'
 import { type ListObject, type IDropDownMenu } from '../../types'
 import './DropDown.css'
 
@@ -11,7 +11,7 @@ interface Props {
   setLoading?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const DropDown: React.FC<Props> = ({ options, selectedId, value, isDisabled, setFormData, setLoading }): JSX.Element => {
+export const DropDown: React.FC<Props> = React.memo(({ options, selectedId, value, isDisabled, setFormData, setLoading }): JSX.Element => {
   const [selectedValue, setSelectedValue] = useState<string>(value)
   const sortedOptions = [...options].sort((a, b) => {
     const extractNumber = (str: string): number | null => {
@@ -53,4 +53,4 @@ export const DropDown: React.FC<Props> = ({ options, selectedId, value, isDisabl
       )}
     </select>
   )
-}
+})

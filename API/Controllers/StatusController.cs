@@ -39,7 +39,8 @@ namespace API.Controllers
         {
           StatusId = s.StatusId,
           Name = s.Name,
-          StatusType = s.StatusType.ToString()
+          StatusType = s.StatusType.ToString(),
+          StatusOption = s.StatusOption.ToString()
         }).ToList();
 
       return Ok(statuses);
@@ -77,11 +78,15 @@ namespace API.Controllers
       if(string.IsNullOrEmpty(statusCreate.StatusType) || !TryConvertToStatusType(statusCreate.StatusType, out StatusType statusType))
         statusType = StatusType.Error;
 
+      if(string.IsNullOrEmpty(statusCreate.StatusOption) || !TryConvertToStatusType(statusCreate.StatusOption, out StatusOption statusOption))
+        statusOption = StatusOption.Error;
+
       var status = new Status
       {
         StatusId = Guid.NewGuid().ToString(),
         Name = statusCreate.Name,
-        StatusType = statusType
+        StatusType = statusType,
+        StatusOption = statusOption
       };
 
       if(!statusRepository.CreateStatus(status))
@@ -105,9 +110,13 @@ namespace API.Controllers
       if(string.IsNullOrEmpty(statusUpdate.StatusType) || !TryConvertToStatusType(statusUpdate.StatusType, out StatusType statusType))
         statusType = StatusType.Error;
 
+      if(string.IsNullOrEmpty(statusUpdate.StatusOption) || !TryConvertToStatusType(statusUpdate.StatusOption, out StatusOption statusOption))
+        statusOption = StatusOption.Error;
+
       var status = statusRepository.GetStatus(statusId);
       status.Name = statusUpdate.Name;
       status.StatusType = statusType;
+      status.StatusOption = statusOption;
       
       if(!statusRepository.UpdateStatus(status))
         return StatusCode(500, "Something went wrong updating status");

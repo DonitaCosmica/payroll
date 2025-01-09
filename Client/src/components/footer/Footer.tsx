@@ -1,3 +1,4 @@
+import React from "react"
 import { RiMoneyDollarCircleLine } from "react-icons/ri"
 import { totalTitles } from "../../consts"
 import './Footer.css'
@@ -11,7 +12,7 @@ const elements: JSX.Element[] = Array.from({ length: 4 }, (_, index: number) => 
   </div>
 ))
 
-export const Footer = (): JSX.Element => {
+export const Footer = React.memo((): JSX.Element => {
   return (
     <footer className='footer'>
       { elements.map((element: JSX.Element) => element) }
@@ -21,4 +22,4 @@ export const Footer = (): JSX.Element => {
       </div>
     </footer>
   )
-}
+})

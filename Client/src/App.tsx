@@ -5,6 +5,7 @@ import { NavigationActionKind, useNavigationContext } from './context/Navigation
 import { Titlebar } from './components/titlebar/Titlebar'
 import { Navbar } from './components/navbar/Navbar'
 import './App.css'
+import { ListSkeleton } from './components/list/List'
 
 const Filter = React.lazy(() => import('./components/filter/Filter').then(module => ({ default: module.Filter })))
 const Toolbar = React.lazy(() => import('./components/toolbar/Toolbar').then(module => ({ default: module.Toolbar })))
@@ -42,8 +43,8 @@ export const App = (): JSX.Element => {
     checkLogin()
   }, [ option ])
 
-  const renderWithSuspense = (Component: React.FC<any>, props = {}, fallback='Loading') => (
-    <Suspense fallback={ <div>{ fallback }</div> }>
+  const renderWithSuspense = (Component: React.FC<any>, props = {}, fallback: React.ReactNode) => (
+    <Suspense fallback={ fallback }>
       <Component { ...props } />
     </Suspense>
   )
@@ -51,10 +52,10 @@ export const App = (): JSX.Element => {
   return (
     <main className='payroll'>
       <PeriodProvider>
-        { showForm && renderWithSuspense(Form, { setShowForm }, 'Loading Form...') }
+        { showForm && renderWithSuspense(Form, { setShowForm }, <div>Loading Form...</div>) }
         <Titlebar action='payroll' />
         { !content && <Navbar /> }
-        { option === 1 && renderWithSuspense(Filter, {}, 'Loading Filter...') }
+        { option === 1 && renderWithSuspense(Filter, {}, <div>Loading Filter...</div>) }
         {option !== NavigationActionKind.BANKS ?
           (<SortEmployeesProvider>
             {renderWithSuspense(Toolbar, {
@@ -62,17 +63,17 @@ export const App = (): JSX.Element => {
               setShowForm,
               setContent,
               setUpdateTableWork,
-            }, 'Loading Toolbar...')}
+            }, <div>Loading Toolbar...</div>)}
             {renderWithSuspense(List, {
               searchFilter,
               updateTableWork,
               setShowForm,
               setUpdateTableWork,
-            }, 'Loading List...')}
+            }, <ListSkeleton />)}
           </SortEmployeesProvider>) : (
-            renderWithSuspense(UploadBanks, {}, 'Loading Banks...')
+            renderWithSuspense(UploadBanks, {}, <div>Loading Banks...</div>)
           )}
-        { option === 1 && renderWithSuspense(Footer, {}, 'Loading Footer...') }
+        { option === 1 && renderWithSuspense(Footer, {}, <div>Loading Footer...</div>) }
       </PeriodProvider>
     </main>
   )

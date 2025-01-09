@@ -14,32 +14,59 @@ interface Props {
   setUpdateTableWork: React.Dispatch<React.SetStateAction<boolean>>
 }
 
+export const ListSkeleton = (): JSX.Element => {
+  return (
+    <section className="list">
+      <div className="list-container">
+        <table id="data-list" className="content-skeleton">
+          <tbody>
+            {[...Array(20)].map((_, index) => (
+              <tr key={ `row-${ index }` }>
+                {[...Array(8)].map((_, id) => (
+                  <td key={ `cell-${ index }-${ id }` } className="cell-skeleton"></td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
+}
+
 export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowForm, setUpdateTableWork}): JSX.Element => {
   const { option, data, columnNames, formData: formDataRes, dispatch } = useNavigationContext()
   const { filter } = useSortEmployeesContext()
   const { isDisabled } = useCurrentWeek({ input: [] })
   const [filteredValues, setFilteredValues] = useState<DataObject[]>(data)
-  const columnsDictionary = useRef<Record<string, string>>({})
+  const [_, setLoading] = useState<boolean>(true)
   const rowSelected = useRef<number>(-1)
   const columnCountSelected = useRef<number>(0)
   const formData = useRef<DataObject[]>([])
   const perceptions = useRef<ListObject[]>([])
   const deductions = useRef<ListObject[]>([])
+  const columnsDictionary = useRef<Record<string, string>>({})
 
   useEffect(() => {
     const fetchDataAsync = async (): Promise<void> => {
-      const [perceptionsRes, deductionsRes, translateRes]: [Response, Response, Response] = await Promise.all([
-        fetch('http://localhost:5239/api/Perception'),
-        fetch('http://localhost:5239/api/Deduction'),
-        fetch('/src/data/translations.json')
-      ])
-      
-      const [perceptionsObj, deductionsObj, translateObj] = await Promise.all([
-        perceptionsRes.json(),deductionsRes.json(), translateRes.json()])
-
-      perceptions.current = perceptionsObj.data
-      deductions.current = deductionsObj.data
-      columnsDictionary.current = translateObj[option]
+      try {
+        const [perceptionsRes, deductionsRes, translateRes]: [Response, Response, Response] = await Promise.all([
+          fetch('http://localhost:5239/api/Perception'),
+          fetch('http://localhost:5239/api/Deduction'),
+          fetch('/src/data/translations.json')
+        ])
+        
+        const [perceptionsObj, deductionsObj, translateObj] = await Promise.all([
+          perceptionsRes.json(),deductionsRes.json(), translateRes.json()])
+  
+        perceptions.current = perceptionsObj.data
+        deductions.current = deductionsObj.data
+        columnsDictionary.current = translateObj[option]
+      } catch (error) {
+        console.error('Error fetching data: ', error)
+      } finally {
+        setLoading(false)
+      }
     }
 
     rowSelected.current = -1
@@ -58,6 +85,21 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
 
     setFilteredValues(filtered)
   }, [ searchFilter, data, option ])
+
+  useEffect(() => {
+    if (filter === 'default') {
+      setFilteredValues(data)
+      return
+    }
+
+    const filtered = data.filter((value: DataObject) =>
+      Object.keys(value).some((val) => {
+        if ('status' in value && value.status === filter)
+          return value
+      }))
+
+    setFilteredValues(filtered)
+  }, [ filter ])
 
   useEffect(() => {
     const updateData = async () => {

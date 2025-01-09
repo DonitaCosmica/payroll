@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react"
+import { useMemo } from "react"
 import { usePeriodContext } from "../context/Period"
 import { type IWeek, type IWeekYear } from "../types"
 import { getWeekNumber } from "../utils/modifyData"
@@ -9,14 +9,6 @@ interface Props {
 
 export const useCurrentWeek = ({ input }: Props): { weekRanges: IWeek[], isDisabled: boolean } => {
   const { selectedPeriod } = usePeriodContext()
-  const currentPeriod = useRef<{ week: number, year: number }>({ week: 0, year: 0 })
-
-  useEffect(() => {
-    currentPeriod.current = {
-      week: getWeekNumber(new Date),
-      year: new Date().getFullYear()
-    }
-  },[ selectedPeriod ])
 
   const getStartOfWeek = (date: Date): Date => {
     const day = date.getDay()
@@ -58,10 +50,10 @@ export const useCurrentWeek = ({ input }: Props): { weekRanges: IWeek[], isDisab
         sunday: formatDate(sunday)
       }
     })
-  }, [ input ])
+  }, [ input, selectedPeriod ])
 
-  const isDisabled = selectedPeriod.year !== currentPeriod.current.year
-    || selectedPeriod.week !== currentPeriod.current.week
+  const isDisabled = selectedPeriod.year !== new Date().getFullYear()
+    || selectedPeriod.week !== getWeekNumber(new Date)
 
   return { weekRanges, isDisabled }
 }
