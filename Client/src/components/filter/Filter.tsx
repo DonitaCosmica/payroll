@@ -1,9 +1,8 @@
-import React, { Suspense, useCallback, useMemo, useState } from 'react'
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
 import { usePeriodContext } from '../../context/Period'
 import { useCurrentWeek } from '../../hooks/useCurrentWeek'
-import { type IMenuState } from "../../types"
-import { PAYROLL_TYPE_OP } from '../../consts'
+import { type IPayrollType, type IMenuState, type IconDefinition } from "../../types"
 import './Filter.css'
 
 const DropMenu = React.lazy(() => import('../dropmenu/DropMenu').then(module => ({ default: module.DropMenu })))
@@ -13,8 +12,29 @@ const IoIosArrowDown = React.lazy(() => import('react-icons/io').then(module => 
 export const Filter = (): JSX.Element => {
   const { payroll, dispatch } = useNavigationContext()
   const { selectedPeriod } = usePeriodContext()
-  const [showDropMenu, setShowDropMenu] = useState<IMenuState>({ date: false, text: false })
   const { weekRanges } = useCurrentWeek({ input: selectedPeriod })
+  const [showDropMenu, setShowDropMenu] = useState<IMenuState>({ date: false, text: false })
+  const payrollTypesRef = useRef<IconDefinition[]>([])
+
+  useEffect(() => {
+    const fetchPayrollTypes = async (): Promise<void> => {
+      try {
+        const res: Response = await fetch('http://localhost:5239/api/Payroll')
+        if (!res.ok) throw new Error('Failed to fetch payroll types')
+        const data: IPayrollType[] = await res.json()
+        payrollTypesRef.current = data.map((type) => ({
+          id: type.payrollId,
+          label: type.name
+        }))
+      } catch (error) {
+        console.error('Error fetching Payroll Types: ', error)
+      }
+    }
+
+    fetchPayrollTypes()
+  }, [])
+
+  const payrollTypes = useMemo(() => payrollTypesRef.current, [ payrollTypesRef.current ])
 
   const filterData = useMemo(() => {
     if (selectedPeriod.week === 0 || selectedPeriod.year === 0) return []
@@ -69,7 +89,7 @@ export const Filter = (): JSX.Element => {
           {showDropMenu.text && 
             <Suspense fallback={ <div>Loading menu...</div> }>
               <DropMenu
-                menuOp={PAYROLL_TYPE_OP.map(op => ({
+                menuOp={payrollTypes.map(op => ({
                   ...op,
                   onClick: () => setPayrollType(op.label)
                 }))}

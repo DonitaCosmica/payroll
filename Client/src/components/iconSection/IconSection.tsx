@@ -50,9 +50,12 @@ export const IconSection: React.FC<Props> = ({ token, action, options, handleFor
                 <DropMenu 
                   menuOp={(id !== 'filter' ? generateDropMenuOptions(id) : statuses).map(op => ({
                     ...op,
-                    onClick: id === 'filter' ? (id) => {
-                      if (id && typeof id === 'string')
-                        dispatch({ type: "SET_FILTER", payload: id })
+                    onClick: id === 'filter' ? (id, label) => {
+                      if (id && label)
+                        dispatch({
+                          type: "SET_FILTER",
+                          payload: { filter: id, label: label }
+                        })
                     } : () => {}
                   }))} 
                   dir='left'

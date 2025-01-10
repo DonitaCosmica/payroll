@@ -32,7 +32,7 @@ export interface IconDefinition {
   id: string,
   icon?: JSX.Element,
   label: string,
-  onClick?: (id?: string) => void
+  onClick?: (id?: string, label?: string) => void
 }
 export interface ReportDefinition {
   id: string,
@@ -96,4 +96,9 @@ export interface IStatus {
   name: string,
   statusType: string,
   statusOption: 'Positive' | 'Negative'
+}
+
+export interface IPayrollType {
+  payrollId: string,
+  name: string
 }

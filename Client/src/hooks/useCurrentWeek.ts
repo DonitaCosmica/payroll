@@ -3,11 +3,17 @@ import { usePeriodContext } from "../context/Period"
 import { type IWeek, type IWeekYear } from "../types"
 import { getWeekNumber } from "../utils/modifyData"
 
+interface ICurrentWeek {
+  selectedPeriod: IWeekYear,
+  weekRanges: IWeek[],
+  isDisabled: boolean
+}
+
 interface Props {
   input: IWeekYear | IWeekYear[]
 }
 
-export const useCurrentWeek = ({ input }: Props): { weekRanges: IWeek[], isDisabled: boolean } => {
+export const useCurrentWeek = ({ input }: Props): ICurrentWeek => {
   const { selectedPeriod } = usePeriodContext()
 
   const getStartOfWeek = (date: Date): Date => {
@@ -23,6 +29,7 @@ export const useCurrentWeek = ({ input }: Props): { weekRanges: IWeek[], isDisab
     const startOfWeek = new Date(firstDayOfYear)
     const firstMonday = getStartOfWeek(firstDayOfYear)
     startOfWeek.setDate(firstMonday.getDate() + (weekNumber - 1) * 7)
+    console.log({ firstDayOfYear, startOfWeek, firstMonday })
     
     const monday = getStartOfWeek(startOfWeek)
     const sunday = new Date(monday)
@@ -45,6 +52,7 @@ export const useCurrentWeek = ({ input }: Props): { weekRanges: IWeek[], isDisab
     
     return weeks.map(({ year, week }) => {
       const { monday, sunday } = getDatesOfWeek(year, week)
+      //console.log({ weeks, selectedPeriod, monday, sunday })
       return {
         monday: formatDate(monday),
         sunday: formatDate(sunday)
@@ -55,5 +63,5 @@ export const useCurrentWeek = ({ input }: Props): { weekRanges: IWeek[], isDisab
   const isDisabled = selectedPeriod.year !== new Date().getFullYear()
     || selectedPeriod.week !== getWeekNumber(new Date)
 
-  return { weekRanges, isDisabled }
+  return { selectedPeriod, weekRanges, isDisabled }
 }

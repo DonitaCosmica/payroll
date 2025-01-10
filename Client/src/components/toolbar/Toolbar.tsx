@@ -1,6 +1,7 @@
 import React, { Suspense, useMemo, useState } from "react"
 import { ICON_OPTIONS } from "../../utils/icons"
 import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
+import { useSortEmployeesContext } from "../../context/SortEmployees"
 import './Toolbar.css'
 
 interface Props {
@@ -18,6 +19,7 @@ const GrSort = React.lazy(() => import('react-icons/gr').then(module => ({ defau
 
 export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setContent, setUpdateTableWork }): JSX.Element => {
   const { option, url, submitCount, selectedId, setSubmitCount, dispatch } = useNavigationContext()
+  const { label } = useSortEmployeesContext()
   const [showDropMenu, setShowDropMenu] = useState<boolean>(false)
 
   const { options, menuOp, end } = useMemo(() => {
@@ -139,7 +141,7 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
                 <IconSection
                   token={ 3 }
                   action={ option }
-                  options={ [{ id: 'filter', icon: <GrSort />, label: 'ACTIVO/REINGRESO' }] }
+                  options={ [{ id: 'filter', icon: <GrSort />, label: label }] }
                   handleForm={ handleForm }
                 />
               </Suspense>

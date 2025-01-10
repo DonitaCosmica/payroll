@@ -21,8 +21,8 @@ export const Accordion: React.FC<Props> = React.memo(({ year, period }) => {
   useEffect(() => setActionType('SET_PERIOD'), [ setActionType ])
 
   const sortedPeriods = useMemo(() =>
-    [...period].sort((a, b) => b.week - a.week),
-    [ period ])
+    [...period].sort((a, b) => b.week - a.week)
+  , [ period ])
 
   const handleCollapsed = (event: React.MouseEvent<HTMLLIElement>): void => {
     event.stopPropagation();

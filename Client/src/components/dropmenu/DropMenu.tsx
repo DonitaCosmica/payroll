@@ -224,7 +224,7 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, context }): 
         {menuOp.map((op: IconDefinition) => (
           <li key={ op.label } onClick={ () => {
             if (context === 'report' && docName && styleHtmlTemplate) handleLabel(op)
-            if (op.onClick) op.onClick(op.id)
+            if (op.onClick) op.onClick(op.id, op.label)
           }}>
             { op.icon }
             <p>{ op.label }</p>

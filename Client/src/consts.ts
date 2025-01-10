@@ -1,5 +1,5 @@
 import { NavigationActionKind } from "./context/Navigation"
-import { type ReportDefinition, type IconDefinition } from "./types"
+import { type ReportDefinition } from "./types"
 
 export const LINKS: string[] = [
   'RECIBOS DE NOMINA',
@@ -12,11 +12,6 @@ export const LINKS: string[] = [
   'CATALOGO DE PROYECTOS',
   'EMPRESAS',
   'BANCOS'
-] as const
-
-export const PAYROLL_TYPE_OP: IconDefinition[] = [
-  { id: 'ordinary', label: 'Ordinario' }, 
-  { id: 'extraordinary', label: 'ExtraOrdinario' }
 ] as const
 
 export const REPORTING_ACTIONS: Record<NavigationActionKind, { [key: string]: ReportDefinition[] }> = {

@@ -38,6 +38,7 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
   const { option, data, columnNames, formData: formDataRes, dispatch } = useNavigationContext()
   const { filter } = useSortEmployeesContext()
   const { isDisabled } = useCurrentWeek({ input: [] })
+
   const [filteredValues, setFilteredValues] = useState<DataObject[]>(data)
   const [_, setLoading] = useState<boolean>(true)
   const rowSelected = useRef<number>(-1)
@@ -47,28 +48,47 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
   const deductions = useRef<ListObject[]>([])
   const columnsDictionary = useRef<Record<string, string>>({})
 
-  useEffect(() => {
-    const fetchDataAsync = async (): Promise<void> => {
-      try {
-        const [perceptionsRes, deductionsRes, translateRes]: [Response, Response, Response] = await Promise.all([
-          fetch('http://localhost:5239/api/Perception'),
-          fetch('http://localhost:5239/api/Deduction'),
-          fetch('/src/data/translations.json')
-        ])
-        
-        const [perceptionsObj, deductionsObj, translateObj] = await Promise.all([
-          perceptionsRes.json(),deductionsRes.json(), translateRes.json()])
-  
-        perceptions.current = perceptionsObj.data
-        deductions.current = deductionsObj.data
-        columnsDictionary.current = translateObj[option]
-      } catch (error) {
-        console.error('Error fetching data: ', error)
-      } finally {
-        setLoading(false)
-      }
+  const normalizeValue = useCallback((val: unknown): string =>
+  (typeof val === 'boolean' ? (val ? 'Verdadero' : 'Falso') : String(val))
+    .toLowerCase()
+    .trim()
+  , [])
+
+  const fetchDataAsync = useCallback(async (): Promise<void> => {
+    try {
+      const [perceptionsRes, deductionsRes, translateRes]: [Response, Response, Response] = await Promise.all([
+        fetch('http://localhost:5239/api/Perception'),
+        fetch('http://localhost:5239/api/Deduction'),
+        fetch('/src/data/translations.json')
+      ])
+      
+      const [perceptionsObj, deductionsObj, translateObj] = await Promise.all([
+        perceptionsRes.json(),deductionsRes.json(), translateRes.json()])
+
+      perceptions.current = perceptionsObj.data
+      deductions.current = deductionsObj.data
+      columnsDictionary.current = translateObj[option]
+    } catch (error) {
+      console.error('Error fetching data: ', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [ option ])
+
+  const applyFilter = useCallback(() => {
+    if (filter === 'default') {
+      setFilteredValues(data)
+      return
     }
 
+    const filtered = data.filter((value: DataObject) =>
+      'status' in value && filter.includes(value.status as string)
+    )
+
+    setFilteredValues(filtered)
+  }, [ filter, data ])
+
+  useEffect(() => {
     rowSelected.current = -1
     formData.current = formDataRes
     setFilteredValues(data)
@@ -77,29 +97,17 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
 
   useEffect(() => {
     const filtered = data.filter((value: DataObject) =>
-      Object.values(value).some((val) => {
-        const normalizedVal = (typeof val === 'boolean' ? (val ? 'Verdadero' : 'Falso') : String(val)).toLowerCase().trim()
-        return normalizedVal.includes(searchFilter.toLowerCase().trim())
-      })
+      Object.values(value).some((val) =>
+        normalizeValue(val).includes(searchFilter.toLowerCase().trim())
+      )
     )
 
     setFilteredValues(filtered)
-  }, [ searchFilter, data, option ])
+  }, [ searchFilter, data, option, normalizeValue ])
 
-  useEffect(() => {
-    if (filter === 'default') {
-      setFilteredValues(data)
-      return
-    }
-
-    const filtered = data.filter((value: DataObject) =>
-      Object.keys(value).some((val) => {
-        if ('status' in value && value.status === filter)
-          return value
-      }))
-
-    setFilteredValues(filtered)
-  }, [ filter ])
+  useEffect(() =>
+    applyFilter()
+  , [ filter, applyFilter ])
 
   useEffect(() => {
     const updateData = async () => {
