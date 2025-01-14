@@ -28,6 +28,13 @@ export interface IWeekYear {
   week: number,
   year: number
 }
+export interface IPeriod {
+  periodId: string,
+  week: number
+}
+export interface IDates {
+  [year: number]: IPeriod[]
+}
 export interface IconDefinition {
   id: string,
   icon?: JSX.Element,
@@ -83,21 +90,12 @@ export interface NavigationAction {
     names?: string[]
   }
 }
-export interface IFilterPeriod {
-  periods: IPeriod[],
-  years: number[]
-}
-export interface IDates {
-  years: number[],
-  dates: IPeriod[][]
-}
 export interface IStatus {
   statusId: string,
   name: string,
   statusType: string,
   statusOption: 'Positive' | 'Negative'
 }
-
 export interface IPayrollType {
   payrollId: string,
   name: string

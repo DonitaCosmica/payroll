@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
 import { usePeriodContext } from '../../context/Period'
-import { useCurrentWeek } from '../../hooks/useCurrentWeek'
 import { type IDropDownMenu, type FieldConfig, type DataObject, type ListObject } from '../../types'
 import { fieldsConfig } from '../../utils/fields'
 import { FaArrowLeft } from "react-icons/fa"
@@ -130,7 +129,7 @@ const createObject = (formDataRes: DataObject[], keys: string[], selectedId: str
 export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const { option, title, formSize, url, data, formData: formDataRes, keys, submitCount, selectedId, toolbarOption, setSubmitCount } = useNavigationContext()
   const { selectedPeriod } = usePeriodContext()
-  const { isDisabled } = useCurrentWeek({ input: [] })
+  const { isCurrentWeek } = usePeriodContext()
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
   const [loading, setLoading] = useState<boolean>(false)
   const [department, setDepartment] = useState<string>('')
@@ -313,7 +312,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                       ? department
                       : ''}
                   readOnly={ modify ? undefined : true }
-                  disabled={ isDisabled }
+                  disabled={ isCurrentWeek }
                   checked={ toolbarOption === 1 
                     && objectsForm 
                     && typeof objectsForm[String(id.toLocaleLowerCase())] === 'boolean' 
@@ -325,7 +324,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   options={ dropdownData[id ?? ''] } 
                   selectedId={ fieldId }
                   value={ value }
-                  isDisabled={ isDisabled }
+                  isDisabled={ isCurrentWeek }
                   setFormData={ formData } 
                   setLoading={
                     option === NavigationActionKind.PAYROLLRECEIPTS || option === NavigationActionKind.EMPLOYEES
@@ -338,7 +337,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   options={ dropdownData[id ?? ''] || [] }
                   value={ toolbarOption === 1 && objectsForm ? objectsForm[String(id.toLowerCase())] as ListObject[] : [] }
                   idKey={ pluralToSingular(id) + 'Id' }
-                  isDisabled={ isDisabled }
+                  isDisabled={ isCurrentWeek }
                   showAmount={ amount ?? false }
                   setFormData={ formData }
                   discount={ discount }
@@ -351,7 +350,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   placeholder={ label }
                   onChange={ (e) => handleChange(e) }
                   defaultValue={ value }
-                  disabled={ isDisabled }
+                  disabled={ isCurrentWeek }
                 />
               ) : null}
             </div>

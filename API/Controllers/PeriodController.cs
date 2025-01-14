@@ -15,14 +15,19 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<PeriodDTO>))]
     public IActionResult GetPeriods()
     {
-      var periods = periodRepository.GetPeriods().Select(MapToPeriodDTORequest);
-      var result = new
-      {
-        Periods = periods,
-        Years = periodRepository.GetYears()
-      };
+      var periods = periodRepository.GetPeriods();
+      var groupedPeriods = periods.GroupBy(p => p.Year)
+        .OrderByDescending(g => g.Key)
+        .ToDictionary(
+          g => g.Key,
+          g => g.Select(p => new
+          {
+            p.PeriodId,
+            p.Week
+          }).ToList()
+        );
 
-      return Ok(result);
+      return Ok(groupedPeriods);
     }
 
     [HttpGet("{periodId}")]

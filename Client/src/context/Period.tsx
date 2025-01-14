@@ -1,30 +1,32 @@
-import { createContext, ReactNode, useContext, useEffect, useReducer, useState } from "react"
-import { type IFilterPeriod, type IDates, type IWeekYear } from "../types"
+import { createContext, ReactNode, useContext, useEffect, useMemo, useReducer, useState } from "react"
+import { type IDates, type IWeekYear } from "../types"
+import { getWeekNumber } from "../utils/modifyDates" 
 
 interface Props {
   children: ReactNode
 }
 
-interface PeriodState extends IDates {
+interface PeriodState {
+  dates: IDates
   selectedPeriod: IWeekYear,
   loading: boolean,
   error: boolean | null
 }
 
 type PeriodAction =
-  | { type: 'SET_DATES', payload: IDates }
+  | { type: 'SET_DATES', payload: { dates: IDates } }
   | { type: 'SET_WEEK', payload: IWeekYear }
   | { type: 'SET_LOADING', payload: boolean }
   | { type: 'SET_ERROR', payload: boolean | null }
 
 interface PeriodContextType extends PeriodState {
+  isCurrentWeek: boolean,
   setActionType: React.Dispatch<React.SetStateAction<'FETCH_DATA' | 'SET_PERIOD' | 'NONE'>>,
   dispatch: React.Dispatch<PeriodAction>
 }
 
 const INITIAL_STATE: PeriodState = {
-  years: [],
-  dates: [[]],
+  dates: {},
   selectedPeriod: { periodId: '', week: 0, year: 0 },
   loading: false,
   error: null,
@@ -32,6 +34,7 @@ const INITIAL_STATE: PeriodState = {
 
 export const PeriodContext: React.Context<PeriodContextType> = createContext<PeriodContextType>({
   ...INITIAL_STATE,
+  isCurrentWeek: true,
   setActionType: () => {},
   dispatch: () => {}
 })
@@ -43,7 +46,6 @@ const periodReducer = (state: PeriodState, action: PeriodAction): PeriodState =>
       return {
         ...state,
         dates: payload.dates,
-        years: payload.years,
         loading: false,
         error: null
       }
@@ -77,36 +79,15 @@ export const PeriodProvider: React.FC<Props> = ({ children }) => {
   const [actionType, setActionType] = useState<'FETCH_DATA' | 'SET_PERIOD' | 'NONE'>('SET_PERIOD')
 
   useEffect(() => {
-    const getWeekNumber = (date: Date): number => {
-      const currentDate = (typeof date === 'object') ? date : new Date()
-      const januaryFirst = new Date(currentDate.getFullYear(), 0, 1)
-      const daysToNextMonday = (januaryFirst.getDay() === 1) ? 0 :
-        (7 - januaryFirst.getDay()) % 7
-      const nextMonday = new Date(currentDate.getFullYear(), 0, januaryFirst.getDate() + daysToNextMonday)
-    
-      return (currentDate < nextMonday) ? 52 :
-        (currentDate > nextMonday ? Math.ceil((currentDate.getTime() - nextMonday.getTime()) / (24 * 3600 * 1000) / 7) : 1)
-    }
-
-    const createYearlyPeriodArray = (filterPeriod: IFilterPeriod): IWeekYear[][] => {
-      const periodsByYear: Record<number, IWeekYear[]> = {}
-      filterPeriod.periods.map(period => {
-        if (!periodsByYear[period.year]) 
-          periodsByYear[period.year] = []
-        periodsByYear[period.year].push(period)
-      })
-      return filterPeriod.years.map(year => periodsByYear[year] || [])
-    }
-
     const fetchData = async(): Promise<void> => {
       try {
         const res: Response = await fetch('http://localhost:5239/api/Period')
-        const data: IFilterPeriod = await res.json()
-        data.years.sort((a: number, b: number) => b - a)
+        const data: IDates = await res.json()
+
+        for (const year in data)
+          data[year].sort((a, b) => b.week - a.week)
         
-        const periods: IWeekYear[][] = createYearlyPeriodArray(data)
-        periods.map(period => period.sort((a, b) => a.week - b.week))
-        dispatch({ type: "SET_DATES", payload: { years: data.years, dates: periods } })
+        dispatch({ type: "SET_DATES", payload: { dates: data } })
       } catch (error) {
         console.error(error)
         dispatch({ type: "SET_ERROR", payload: true })
@@ -117,26 +98,29 @@ export const PeriodProvider: React.FC<Props> = ({ children }) => {
 
     const setPeriod = (): void => {
       if (state.selectedPeriod.week === 0) {
-        const today = new Date()
+        const { week, year } = getWeekNumber(new Date())
         dispatch({
           type: 'SET_WEEK',
-          payload: { week: getWeekNumber(today), year: today.getFullYear() }
+          payload: { week, year }
         })
         setActionType('NONE')
       }
     }
 
-    if (actionType === 'SET_PERIOD')
-      setPeriod()
-    else if (actionType === 'FETCH_DATA')
-      fetchData()
-
+    if (actionType === 'SET_PERIOD') setPeriod()
+    else if (actionType === 'FETCH_DATA') fetchData()
   }, [ actionType, state.selectedPeriod ])
+
+  const isCurrentWeek = useMemo(() =>
+    state.selectedPeriod.year !== getWeekNumber(new Date).year
+      || state.selectedPeriod.week !== getWeekNumber(new Date).week
+  , [ state.selectedPeriod ])
 
   return (
     <PeriodContext.Provider 
       value={{ 
         ...state,
+        isCurrentWeek,
         setActionType,
         dispatch
       }}>

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
+import { usePeriodContext } from "../../context/Period"
 import { useSortEmployeesContext } from "../../context/SortEmployees"
-import { useCurrentWeek } from "../../hooks/useCurrentWeek"
 import { type DataObject, type ListObject } from "../../types"
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md"
 import { toCamelCase } from '../../utils/modifyData'
@@ -36,8 +36,8 @@ export const ListSkeleton = (): JSX.Element => {
 
 export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowForm, setUpdateTableWork}): JSX.Element => {
   const { option, data, columnNames, formData: formDataRes, dispatch } = useNavigationContext()
+  const { isCurrentWeek } = usePeriodContext()
   const { filter } = useSortEmployeesContext()
-  const { isDisabled } = useCurrentWeek({ input: [] })
 
   const [filteredValues, setFilteredValues] = useState<DataObject[]>(data)
   const [_, setLoading] = useState<boolean>(true)
@@ -203,7 +203,7 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
   }
 
   const selectedRow = useCallback((row: (string | number | boolean)[], index: number): void => {
-    if (!isDisabled) getIdSelected(row)
+    if (!isCurrentWeek) getIdSelected(row)
     rowSelected.current = index
   }, [ getIdSelected ])
 
@@ -380,7 +380,7 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
                   ? 'selected-row' : '' 
                 }
                 onClick={ () => selectedRow(Object.values(row), index) } 
-                onDoubleClick={ () => isDisabled ? () => {} : showFormDoubleClick(Object.values(row)) }
+                onDoubleClick={ () => isCurrentWeek ? () => {} : showFormDoubleClick(Object.values(row)) }
               >
                 {columnNames.map((column: string, cellIndex: number) => {
                   const content = renderCellContent(row, column)

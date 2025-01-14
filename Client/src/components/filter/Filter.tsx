@@ -1,8 +1,8 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
 import { usePeriodContext } from '../../context/Period'
-import { useCurrentWeek } from '../../hooks/useCurrentWeek'
 import { type IPayrollType, type IMenuState, type IconDefinition } from "../../types"
+import { weekRange } from '../../utils/modifyDates'
 import './Filter.css'
 
 const DropMenu = React.lazy(() => import('../dropmenu/DropMenu').then(module => ({ default: module.DropMenu })))
@@ -12,7 +12,6 @@ const IoIosArrowDown = React.lazy(() => import('react-icons/io').then(module => 
 export const Filter = (): JSX.Element => {
   const { payroll, dispatch } = useNavigationContext()
   const { selectedPeriod } = usePeriodContext()
-  const { weekRanges } = useCurrentWeek({ input: selectedPeriod })
   const [showDropMenu, setShowDropMenu] = useState<IMenuState>({ date: false, text: false })
   const payrollTypesRef = useRef<IconDefinition[]>([])
 
@@ -39,13 +38,14 @@ export const Filter = (): JSX.Element => {
   const filterData = useMemo(() => {
     if (selectedPeriod.week === 0 || selectedPeriod.year === 0) return []
 
-    const { monday, sunday } = weekRanges[0] || { monday: '', sunday: '' }
+    const { monday, sunday } = weekRange(selectedPeriod.week, selectedPeriod.year)
     const { week, year } = selectedPeriod
+
     return [
       `${ year } - Periodo ${ week }`,
       `${ monday } a ${ sunday }`
     ]
-  }, [ weekRanges, selectedPeriod ])
+  }, [ selectedPeriod ])
 
   const handleDropMenu = useCallback((value: number | string): void => {
     const key: string = typeof value === 'number' ? 'date' : 'text'

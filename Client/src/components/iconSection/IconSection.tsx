@@ -1,6 +1,6 @@
 import React, { Suspense, useCallback, useState } from "react"
+import { usePeriodContext } from "../../context/Period"
 import { useSortEmployeesContext } from "../../context/SortEmployees"
-import { useCurrentWeek } from "../../hooks/useCurrentWeek"
 import { type IconDefinition } from "../../types"
 import { NavigationActionKind } from "../../context/Navigation"
 import { REPORTING_ACTIONS } from "../../consts"
@@ -17,7 +17,7 @@ const DropMenu = React.lazy(() => import('../dropmenu/DropMenu').then(module => 
 
 export const IconSection: React.FC<Props> = ({ token, action, options, handleForm }): JSX.Element => {
   const { statuses, dispatch } = useSortEmployeesContext()
-  const { isDisabled } = useCurrentWeek({ input: [] })
+  const { isCurrentWeek } = usePeriodContext()
   const [showDropMenu, setShowDropMenu] = useState<Boolean>(false)
 
   const handleClick = useCallback((id: string, index: number, isActive: boolean) => {
@@ -41,7 +41,7 @@ export const IconSection: React.FC<Props> = ({ token, action, options, handleFor
 
         return (
           <div className="option" key={ label }
-            onClick={ !isDisabled ? () => handleClick(id, index, isActive) : () => {} }
+            onClick={ !isCurrentWeek ? () => handleClick(id, index, isActive) : () => {} }
           >
             { icon }
             <p>{ label }</p>

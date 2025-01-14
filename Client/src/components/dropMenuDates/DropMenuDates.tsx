@@ -2,14 +2,14 @@ import React, { useEffect, useRef, useState } from 'react'
 import { usePeriodContext } from '../../context/Period'
 import { IWeekYear, type IconDefinition } from '../../types'
 import { ICON_OPTIONS } from '../../utils/icons'
-import { getWeekNumber } from '../../utils/modifyData'
+import { getWeekNumber } from '../../utils/modifyDates'
 import { Accordion } from '../accordion/Accordion'
 import { FaCheck } from "react-icons/fa"
 import './DropMenuDates.css'
 
 export const DropMenuDates = React.memo((): JSX.Element => {
   const ICONS = [...ICON_OPTIONS.common, { id: 'send', label: 'Enviar', icon: <FaCheck fontSize='1rem' color='#73ba69' /> }]
-  const { years, dates, selectedPeriod, setActionType } = usePeriodContext()
+  const { dates, selectedPeriod, setActionType } = usePeriodContext()
   const [showOptionsPeriod, setShowOptionsPeriod] = useState<boolean>(false)
   const selectedOption = useRef<number>(-1)
   const period = useRef<IWeekYear>({ week: 0, year: 0 })
@@ -95,11 +95,11 @@ export const DropMenuDates = React.memo((): JSX.Element => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     e.stopPropagation()
 
-    const selectedDate = new Date(e.target.value)
+    const { week, year } = getWeekNumber(new Date(e.target.value))
     period.current = {
       periodId: selectedPeriod.periodId,
-      week: getWeekNumber(selectedDate), 
-      year: selectedDate.getFullYear()
+      week,
+      year
     }
   }
   
@@ -135,12 +135,14 @@ export const DropMenuDates = React.memo((): JSX.Element => {
         />
       </div>
       <ul style={{ height: showOptionsPeriod ? '75%' : '85%' }}>
-        {years.map((year: number, index: number) => 
-          <Accordion 
-            key={ year }
-            year={ year }
-            period={ dates[index] }
-          />
+        {Object.entries(dates)
+          .sort(([yearA], [yearB]) => parseInt(yearB) - parseInt(yearA))
+          .map(([year, periods]) => 
+            <Accordion 
+              key={ year }
+              year={ parseInt(year) }
+              periods={ periods }
+            />
         )}
       </ul>
     </div>
