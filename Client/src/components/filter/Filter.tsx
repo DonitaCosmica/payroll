@@ -1,7 +1,7 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
 import { usePeriodContext } from '../../context/Period'
-import { type IPayrollType, type IMenuState, type IconDefinition } from "../../types"
+import { type IPayrollType, type IMenuState, type IIconDefinition } from "../../types"
 import { weekRange } from '../../utils/modifyDates'
 import './Filter.css'
 
@@ -13,7 +13,7 @@ export const Filter = (): JSX.Element => {
   const { payroll, dispatch } = useNavigationContext()
   const { selectedPeriod } = usePeriodContext()
   const [showDropMenu, setShowDropMenu] = useState<IMenuState>({ date: false, text: false })
-  const payrollTypesRef = useRef<IconDefinition[]>([])
+  const payrollTypesRef = useRef<IIconDefinition[]>([])
 
   useEffect(() => {
     const fetchPayrollTypes = async (): Promise<void> => {

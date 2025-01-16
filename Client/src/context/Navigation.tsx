@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useReducer, useState } from "react"
-import { type NavigationAction, type NavigationState, type IDataResponse, type DataObject } from "../types"
+import { type IDataResponse, type IDataObject } from "../types"
 import { reorganizeData } from "../utils/modifyData"
 
 export enum NavigationActionKind {
@@ -24,6 +24,35 @@ export enum NavigationActionKind {
 
 interface Props {
   children: ReactNode
+}
+
+interface NavigationState {
+  payroll: 'Ordinario' | 'ExtraOrdinario',
+  selectedId: string,
+  toolbarOption: number,
+  title: string,
+  option: NavigationActionKind,
+  loading: boolean,
+  url?: string
+  keys: string[],
+  columnNames: string[],
+  data: IDataObject[],
+  formData: IDataObject[],
+  formSize: number,
+  error: boolean | null
+}
+interface NavigationAction {
+  type: NavigationActionKind,
+  payload?: {
+    payrollType?: 'Ordinario' | 'ExtraOrdinario',
+    selectedId?: string,
+    toolbarOption?: number,
+    columns?: string[],
+    newData?: IDataObject[],
+    formData?: IDataObject[],
+    formColumns?: string[],
+    names?: string[]
+  }
 }
 
 interface NavigationContextType extends NavigationState {
@@ -213,13 +242,13 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
         const newData = reorganizeData(dataResponse.data)
 
         if (columns.includes('Code') || columns.includes('Key')) {
-          newData.sort((a: DataObject, b: DataObject): number => {
+          newData.sort((a: IDataObject, b: IDataObject): number => {
             const aValue = getValue((a['code'] || a['key']) as number)
             const bValue = getValue((b['code'] || b['key']) as number)
             return (aValue as number) - (bValue as number)
           })
         } else if (columns.includes('Name')) {
-          newData.sort((a: DataObject, b: DataObject): number => {
+          newData.sort((a: IDataObject, b: IDataObject): number => {
             const aValue = getValue(a['name'] as string)
             const bValue = getValue(b['name'] as string)
             return (aValue as string).localeCompare(bValue as string)

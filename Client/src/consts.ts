@@ -1,5 +1,5 @@
 import { NavigationActionKind } from "./context/Navigation"
-import { type ReportDefinition } from "./types"
+import { type IReportDefinition } from "./types"
 
 export const LINKS: string[] = [
   'RECIBOS DE NOMINA',
@@ -14,7 +14,7 @@ export const LINKS: string[] = [
   'BANCOS'
 ] as const
 
-export const REPORTING_ACTIONS: Record<NavigationActionKind, { [key: string]: ReportDefinition[] }> = {
+export const REPORTING_ACTIONS: Record<NavigationActionKind, { [key: string]: IReportDefinition[] }> = {
   [NavigationActionKind.PAYROLLRECEIPTS]: {
     'report': [
       { id: 'ticketByPeriod', label: 'Recibos del Periodo', hasForm: false }, { id: 'ticketByPeriodDet', label: 'Recibos del Periodo (det)', hasForm: false },

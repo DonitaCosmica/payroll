@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react'
-import { type IconDefinition } from '../../types'
+import { type IIconDefinition } from '../../types'
 import { MENU_ICONS, PRINT_ICONS } from '../../utils/icons'
 import { IoIosArrowDown } from "react-icons/io"
 import './Titlebar.css'
@@ -67,7 +67,7 @@ export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
           </div>
         </div>
       </>) : (<div className='print-icons-section'>
-          {PRINT_ICONS.map((item: IconDefinition, index: number) => (
+          {PRINT_ICONS.map((item: IIconDefinition, index: number) => (
             <div key={ `${ item.label }-${ index }` } className='print-icon-container'>
               { item.icon }
               <span>{ item.label }</span>

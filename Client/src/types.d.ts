@@ -1,102 +1,82 @@
 import { NavigationActionKind } from "./context/Navigation"
 
-interface DataObject {
-  [key: string]: string | number | boolean;
+export enum FieldType {
+  Input = "input",
+  DropMenu = "dropmenu",
+  Section = "section",
+  TextArea = "textarea",
+  MultiOption = "multi-option"
+}
+export enum InputType {
+  Text = "text",
+  Tel = "tel",
+  Number = "number",
+  Email = "email",
+  Date = "date",
+  Checkbox = "checkbox"
+}
+
+interface IDataObject {
+  [key: string]: string | number | boolean | object;
+}
+export interface IDropDownMenu extends IDataObject {
+  readonly value: string,
+  readonly name: string
 }
 export interface IDataResponse {
-  columns: string[],
-  data: DataObject[],
-  formData: DataObject[],
-  formColumns: string[]
+  readonly columns: string[],
+  readonly data: IDataObject[],
+  readonly formData: IDataObject[],
+  readonly formColumns: string[]
 }
-export interface ListObject {
-  [key: string]: string | number,
-  id?: string,
-  name: string | number
+export interface IListObject extends Record<string, string | number> {
+  readonly id?: string,
+  readonly name: string | number
 }
-export interface IMenuState {
-  date: boolean,
-  text: boolean,
-  [key: string]: boolean
+export interface IMenuState extends Record<string, boolean> {
+  readonly date: boolean,
+  readonly text: boolean
 }
 export interface IWeek {
-  monday: string,
-  sunday: string
+  readonly monday: string | Date,
+  readonly sunday: string | Date
 }
 export interface IWeekYear {
-  periodId?: string,
-  week: number,
-  year: number
+  readonly periodId?: string,
+  readonly week: number,
+  readonly year: number
 }
-export interface IPeriod {
-  periodId: string,
-  week: number
+export interface IPeriod extends Pick<IWeekYear, 'periodId' | 'week'> {}
+export interface IDates extends Record<number, IPeriod[]> {}
+export interface IIconDefinition {
+  readonly id: string,
+  readonly icon?: JSX.Element,
+  readonly label: string,
+  readonly onClick?: (id?: string, label?: string) => void
 }
-export interface IDates {
-  [year: number]: IPeriod[]
+export interface IReportDefinition {
+  readonly id: string,
+  readonly label: string,
+  readonly hasForm: boolean
 }
-export interface IconDefinition {
-  id: string,
-  icon?: JSX.Element,
-  label: string,
-  onClick?: (id?: string, label?: string) => void
-}
-export interface ReportDefinition {
-  id: string,
-  label: string,
-  hasForm: boolean
-}
-export interface IDropDownMenu {
-  value: string,
-  name: string,
-  [key: string]: string | number
-}
-export interface FieldConfig {
-  type: 'input' | 'dropmenu' | 'section' | 'textarea' | 'multi-option',
-  name: string,
-  label?: string,
-  inputType?: 'text' | 'tel' | 'number' | 'email' | 'date' | 'checkbox',
-  fetchUrl?: string,
-  uriComponent?: string,
-  modify?: boolean,
-  amount?: boolean,
-  id: string
-}
-export interface NavigationState {
-  payroll: 'Ordinario' | 'ExtraOrdinario',
-  selectedId: string,
-  toolbarOption: number,
-  title: string,
-  option: NavigationActionKind,
-  loading: boolean,
-  url?: string
-  keys: string[],
-  columnNames: string[],
-  data: DataObject[],
-  formData: DataObject[],
-  formSize: number,
-  error: boolean | null
-}
-export interface NavigationAction {
-  type: NavigationActionKind,
-  payload?: {
-    payrollType?: 'Ordinario' | 'ExtraOrdinario',
-    selectedId?: string,
-    toolbarOption?: number,
-    columns?: string[],
-    newData?: DataObject[],
-    formData?: DataObject[],
-    formColumns?: string[],
-    names?: string[]
-  }
+export interface IFieldConfig {
+  readonly type: FieldType,
+  readonly name: string,
+  readonly label?: string,
+  readonly inputType?: InputType,
+  readonly fetchUrl?: string,
+  readonly uriComponent?: string,
+  readonly modify?: boolean,
+  readonly amount?: boolean,
+  readonly id: string
 }
 export interface IStatus {
-  statusId: string,
-  name: string,
-  statusType: string,
-  statusOption: 'Positive' | 'Negative'
+  readonly statusId: string,
+  readonly name: string,
+  readonly statusType: string,
+  readonly statusOption: 'Positive' | 'Negative'
 }
 export interface IPayrollType {
-  payrollId: string,
-  name: string
+  readonly payrollId: string,
+  readonly name: string
 }

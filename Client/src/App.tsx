@@ -4,8 +4,8 @@ import { SortEmployeesProvider } from './context/SortEmployees'
 import { NavigationActionKind, useNavigationContext } from './context/Navigation'
 import { Titlebar } from './components/titlebar/Titlebar'
 import { Navbar } from './components/navbar/Navbar'
-import './App.css'
 import { ListSkeleton } from './components/list/List'
+import './App.css'
 
 const Filter = React.lazy(() => import('./components/filter/Filter').then(module => ({ default: module.Filter })))
 const Toolbar = React.lazy(() => import('./components/toolbar/Toolbar').then(module => ({ default: module.Toolbar })))

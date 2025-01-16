@@ -1,7 +1,7 @@
 import React, { Suspense, useCallback, useState } from "react"
 import { usePeriodContext } from "../../context/Period"
 import { useSortEmployeesContext } from "../../context/SortEmployees"
-import { type IconDefinition } from "../../types"
+import { type IIconDefinition } from "../../types"
 import { NavigationActionKind } from "../../context/Navigation"
 import { REPORTING_ACTIONS } from "../../consts"
 import './IconSection.css'
@@ -9,7 +9,7 @@ import './IconSection.css'
 interface Props {
   token: number,
   action?: NavigationActionKind,
-  options: IconDefinition[],
+  options: IIconDefinition[],
   handleForm: (id: string, index: number) => void
 }
 
@@ -34,7 +34,7 @@ export const IconSection: React.FC<Props> = ({ token, action, options, handleFor
   
   return (
     <>
-      {options.map((option: IconDefinition, index: number) => {
+      {options.map((option: IIconDefinition, index: number) => {
         const { id, label, icon } = option
         const dropMenuoptions = generateDropMenuOptions(id)
         const isActive = dropMenuoptions.length > 0 && token !== 1

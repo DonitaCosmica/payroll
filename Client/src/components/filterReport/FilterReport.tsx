@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { type FieldConfig, type ListObject } from '../../types'
+import { type IFieldConfig, type IListObject } from '../../types'
 import { fieldsReport } from '../../utils/fields'
 import { DropDown } from '../dropdown/DropDown'
 import './FilterReport.css'
@@ -9,14 +9,14 @@ interface Props {
 }
 
 export const FilterReport: React.FC<Props> = ({ fields }): JSX.Element => {
-  const formData = useRef<{ [key: string]: string | string[] | boolean | number | ListObject[] }>({})
+  const formData = useRef<{ [key: string]: string | string[] | boolean | number | IListObject[] }>({})
 
   return (
     <section id="filter-report-background">
       <div className="filter-report-container">
         <h1>Parametros del Reporte</h1>
         <div id="fields-container">
-          {fieldsReport[fields]?.map(({ type, name, label, id, inputType, modify }: FieldConfig, index: number) => {
+          {fieldsReport[fields]?.map(({ type, name, label, id, inputType, modify }: IFieldConfig, index: number) => {
             const fieldId = id || `field-${index}`
             const isCheckbox = inputType === 'checkbox'
             return (

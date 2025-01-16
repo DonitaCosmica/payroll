@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { type ListObject, type IDropDownMenu } from "../../types"
+import { type IListObject, type IDropDownMenu } from "../../types"
 import './MultiDropDown.css'
 
 interface Props {
   id: string,
   options: IDropDownMenu[] | [],
-  value: ListObject[],
+  value: IListObject[],
   idKey: string,
   isDisabled: boolean,
   discount: React.MutableRefObject<number | null>,
   showAmount: boolean,
-  setFormData: React.MutableRefObject<{ [key: string]: string | number | boolean | string[] | ListObject[] }>
+  setFormData: React.MutableRefObject<{ [key: string]: string | number | boolean | string[] | IListObject[] }>
 }
 
 export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDisabled, discount, showAmount, setFormData }): JSX.Element => {  
@@ -18,7 +18,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
   const [isOptionSelected, setIsOptionSelected] = useState<boolean[]>([])
   const [isAllOptionsSelected, setIsAllOptionsSelected] = useState<boolean>(false)
   const [showMenu, setShowMenu] = useState<boolean>(false)
-  const selectedItemsRef = useRef<ListObject[]>([])
+  const selectedItemsRef = useRef<IListObject[]>([])
     
   const getDisplayValue = useCallback((item: IDropDownMenu): string =>
     (item.name ?? item.description ?? "").toString(), [])
@@ -39,12 +39,12 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
     const updatedIsOptionSelected = selectedIds.map(id => selectedIdsSet.has(id))
     const sortValues = value.sort((a, b) => (a.name as string).localeCompare(b.name as string))
 
-    const addItemIfNotPresent = (name: string, matchFn: (item: ListObject) => boolean) => {
+    const addItemIfNotPresent = (name: string, matchFn: (item: IListObject) => boolean) => {
       if (!sortValues.some(item => item.name === name)) {
-        const itemToAdd = sortedOptions.find(matchFn)
+        const itemToAdd = sortedOptions.find(matchFn as (item: IDropDownMenu) => boolean)
         if (itemToAdd) {
-          sortValues.push(itemToAdd)
-          const itemPosition = sortedOptions.findIndex(matchFn)
+          sortValues.push(itemToAdd as IListObject)
+          const itemPosition = sortedOptions.findIndex(matchFn as (item: IDropDownMenu) => boolean)
           updatedIsOptionSelected[itemPosition] = true
         }
       }
@@ -74,15 +74,15 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
     setFilteredOptions(filtered)
   }, [ sortedOptions, getDisplayValue ])
 
-  const updateFormData = useCallback((items: ListObject[]): void => {
+  const updateFormData = useCallback((items: IListObject[]): void => {
     setFormData.current[id] = items
   }, [ setFormData, id ])
 
-  const createListObject = (option: IDropDownMenu): ListObject => {
-    const newItem: ListObject = {
-      [idKey]: option[idKey],
-      name: getDisplayValue(option),
-      compensationType: getCompensationType(option),
+  const createListObject = (option: IDropDownMenu): IListObject => {
+    const newItem: IListObject = {
+      [idKey]: option[idKey] as string | number,
+      name: getDisplayValue(option) as string | number,
+      compensationType: getCompensationType(option) as string | number,
       ...Object.keys(option).reduce((acc, key) => {
         if (isDateKey(key))
           acc[key.toLowerCase().includes('date') ? 'date' : key] = new Date().toISOString().split('T')[0]
@@ -134,7 +134,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
     updateItemValue(opt, newValue)
   }, [ idKey, updateFormData ])
 
-  const handleContent = useCallback((e: React.FormEvent<HTMLSpanElement>, opt: IDropDownMenu, selectedItem: ListObject | undefined) => {
+  const handleContent = useCallback((e: React.FormEvent<HTMLSpanElement>, opt: IDropDownMenu, selectedItem: IListObject | undefined) => {
     const salary = localStorage.getItem('salary')
     const value = parseFloat(e.currentTarget.textContent ?? '0')
 
@@ -168,7 +168,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
       : discount.current = value
   }
 
-  const renderContent = useCallback((value: number, selectedItem: ListObject | undefined): number | null => {
+  const renderContent = useCallback((value: number, selectedItem: IListObject | undefined): number | null => {
     const salary = localStorage.getItem('salary')
     if (isNaN(value)) return -1
     if (!salary || isNaN(parseFloat(salary))) return -1
@@ -204,7 +204,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
           </span>
         ) : (
           <div className="multi-select-header-option-box">
-            {selectedItemsRef.current.map((item: ListObject) => (
+            {selectedItemsRef.current.map((item: IListObject) => (
               <span key={ `values-${ item[idKey] as string }` } className="multi-select-header-option" aria-selected="false">
                 { item.name }
               </span>

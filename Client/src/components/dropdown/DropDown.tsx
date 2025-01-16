@@ -1,5 +1,6 @@
 import React, { ChangeEvent, useState } from 'react'
-import { type ListObject, type IDropDownMenu } from '../../types'
+import { type IListObject, type IDropDownMenu } from '../../types'
+import { compareNames, findKeyAndGetValue } from '../../utils/modifyData'
 import './DropDown.css'
 
 interface Props {
@@ -7,7 +8,7 @@ interface Props {
   selectedId: string,
   value: string,
   isDisabled: boolean,
-  setFormData: React.MutableRefObject<{ [key: string]: string | number | boolean | string[] | ListObject[] }>
+  setFormData: React.MutableRefObject<{ [key: string]: string | number | boolean | string[] | IListObject[] }>
   setLoading?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -20,15 +21,13 @@ export const DropDown: React.FC<Props> = React.memo(({ options, selectedId, valu
     }
   
     const getNameOrDescription = (obj: { [key: string]: any }) => 
-      'name' in obj ? obj.name : obj.description || ''
+      obj.name ?? obj.description ?? ''
   
     const nameA = getNameOrDescription(a)
     const nameB = getNameOrDescription(b)
     const numA = typeof nameA === 'string' ? extractNumber(nameA) : nameA
     const numB = typeof nameB === 'string' ? extractNumber(nameB) : nameB
-  
-    return (numA !== null && numB !== null) ? numA - numB
-      : String(nameA).localeCompare(String(nameB))
+    return compareNames(numA ?? nameA, numB ?? nameB)
   })
   
   const handleChange = (event: ChangeEvent<HTMLSelectElement>): void => {
@@ -40,16 +39,11 @@ export const DropDown: React.FC<Props> = React.memo(({ options, selectedId, valu
     setFormData.current[id] = value
   }
 
-  const filterAttributesContainingId = (obj: IDropDownMenu): string | undefined => {
-    const key = Object.keys(obj).find((key: string) => key.includes('Id'))
-    return key ? (obj as any)[key] : undefined
-  }
-
   return (
-    <select id={`${ selectedId }`} value={ selectedValue } onChange={ handleChange } disabled={ isDisabled ? true : undefined } autoComplete='off'>
+    <select id={ `${ selectedId }` } value={ selectedValue } onChange={ handleChange } disabled={ isDisabled ? true : undefined } autoComplete='off'>
       <option value='0'>Elije una opción...</option>
       {sortedOptions.map((option: IDropDownMenu, index: number) => 
-        <option key={`${ selectedId }-${ index }`} value={ filterAttributesContainingId(option) }>{ option.name ?? option.description }</option>
+        <option key={`${ selectedId }-${ index }`} value={ findKeyAndGetValue(option, 'Id')?.toString() }>{ option.name ?? option.description }</option>
       )}
     </select>
   )

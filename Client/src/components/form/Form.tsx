@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
 import { usePeriodContext } from '../../context/Period'
-import { type IDropDownMenu, type FieldConfig, type DataObject, type ListObject } from '../../types'
+import { type IDropDownMenu, type IFieldConfig, type IDataObject, type IListObject } from '../../types'
 import { fieldsConfig } from '../../utils/fields'
 import { FaArrowLeft } from "react-icons/fa"
 import { DropDown } from '../dropdown/DropDown'
 import { MultiDropDown } from '../multiDropDown/MultiDropDown'
+import { getProperty, pluralToSingular } from '../../utils/modifyData'
 import './Form.css'
 
 interface Props {
@@ -43,10 +44,10 @@ function* fetchDataGenerator(option: NavigationActionKind) {
 
 const fetchInitialDropdownData = async (option: NavigationActionKind) => {
   const fetchPromises = fieldsConfig[option]
-    .filter(({ type, fetchUrl }: FieldConfig) => (type === 'dropmenu' || type === 'multi-option') && fetchUrl)
-    .map(async ({ fetchUrl, id, uriComponent }: FieldConfig) => {
+    .filter(({ type, fetchUrl }: IFieldConfig) => (type === 'dropmenu' || type === 'multi-option') && fetchUrl)
+    .map(async ({ fetchUrl, id, uriComponent }: IFieldConfig) => {
       try {
-        const urlToUse = uriComponent ? `${fetchUrl}/byType?type=${encodeURIComponent(uriComponent)}` : fetchUrl || ''
+        const urlToUse = uriComponent ? `${ fetchUrl }/byType?type=${ encodeURIComponent(uriComponent) }` : fetchUrl || ''
         const res: Response = await fetch(urlToUse)
         const data = await res.json()
         const dataResponse = Array.isArray(data) ? data : data.formData
@@ -71,8 +72,8 @@ const fetchPerceptionsAndDeductions = async (employeeId: string | undefined): Pr
     const deductionsResponse: Response = await fetch('http://localhost:5239/api/Deduction/by')
     const deductionsData: IDropDownMenu[] = await deductionsResponse.json()
     const salary = perceptionsData.find(perception => 
-      'compensationType' in perception && perception.compensationType
-        ? perception.value : null)
+      'compensationType' in perception && perception.compensationType ? perception.value : null)
+
     localStorage.setItem('salary', JSON.stringify(salary?.value))
 
     return {
@@ -99,17 +100,8 @@ const fetchDepartment = async (jobPositionId: string | undefined): Promise<IDrop
   }
 }
 
-const getProperty = (obj: DataObject, key: string): string | number | boolean => {
-  const propertyMap: { [key: string]: string } = Object.keys(obj).reduce((item, originalKey) => {
-    item[originalKey.toLowerCase()] = originalKey
-    return item
-  }, {} as { [key: string]: string });
-
-  return obj[propertyMap[key.toLowerCase()]]
-}
-
-const createObject = (formDataRes: DataObject[], keys: string[], selectedId: string, dropdownData: { [key: string]: IDropDownMenu[] }, option: NavigationActionKind): { [key: string]: string | string[] | boolean | number | ListObject[] } | null => {
-  const selectedObj = formDataRes.find((item: DataObject) => Object.keys(item).some(key => key.endsWith('Id') && item[key] === selectedId))
+const createObject = (formDataRes: IDataObject[], keys: string[], selectedId: string, dropdownData: { [key: string]: IDropDownMenu[] }, option: NavigationActionKind): { [key: string]: string | string[] | boolean | number | IListObject[] } | null => {
+  const selectedObj = formDataRes.find((item: IDataObject) => Object.keys(item).some(key => key.endsWith('Id') && item[key] === selectedId))
   if (!selectedObj) return null
 
   return keys.slice(1).reduce((obj: { [key: string]: string | string[] | boolean | number }, key: string) => {
@@ -120,7 +112,7 @@ const createObject = (formDataRes: DataObject[], keys: string[], selectedId: str
 
     const field = fieldsConfig[option].find(item => item.id.toLowerCase() === newKey.toLowerCase())
     const dropDownDataFound = Array.isArray(value) ? value : (dropdownData[newKey]?.filter((dropData: IDropDownMenu) => dropData.name === value) || []);
-    const newValue = Array.isArray(dropDownDataFound) ? dropDownDataFound.map(item => item[`${newKey}Id`] || item) : value            
+    const newValue = Array.isArray(dropDownDataFound) ? dropDownDataFound.map(item => item[`${ newKey }Id`] || item) : value            
     const oneValueInAnArray = field?.type === 'dropmenu' && Array.isArray(newValue)
     return { ...obj, [dropDownKey]: oneValueInAnArray ? newValue[0] : newValue }
   }, {} as { [key: string]: string | string[] | boolean | number })
@@ -133,7 +125,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
   const [loading, setLoading] = useState<boolean>(false)
   const [department, setDepartment] = useState<string>('')
-  const formData = useRef<{ [key: string]: string | string[] | boolean | number | ListObject[] }>({})
+  const formData = useRef<{ [key: string]: string | string[] | boolean | number | IListObject[] }>({})
   const discount = useRef<number | null>(null)
 
   useEffect(() => {
@@ -200,7 +192,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
 
   const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault()
-    const cleanCompensationType = (items: ListObject[]) =>
+    const cleanCompensationType = (items: IListObject[]) =>
       items.map(item => {
         if (typeof item === 'object' && 'compensationType' in item) {
           const { compensationType, ...rest } = item
@@ -218,8 +210,8 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
           week: selectedPeriod.week,
           year: selectedPeriod.year,
           discount: parseFloat(discount),
-          deductions: Array.isArray(deductions) ? cleanCompensationType(deductions as ListObject[]) : deductions,
-          perceptions: Array.isArray(perceptions) ? cleanCompensationType(perceptions as ListObject[]) : perceptions
+          deductions: Array.isArray(deductions) ? cleanCompensationType(deductions as IListObject[]) : deductions,
+          perceptions: Array.isArray(perceptions) ? cleanCompensationType(perceptions as IListObject[]) : perceptions
         }
       else {
         if ('discount' in formData.current) delete formData.current.discount
@@ -227,8 +219,8 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
           ...formData.current,
           week: selectedPeriod.week,
           year: selectedPeriod.year,
-          deductions: Array.isArray(deductions) ? cleanCompensationType(deductions as ListObject[]) : deductions,
-          perceptions: Array.isArray(perceptions) ? cleanCompensationType(perceptions as ListObject[]) : perceptions
+          deductions: Array.isArray(deductions) ? cleanCompensationType(deductions as IListObject[]) : deductions,
+          perceptions: Array.isArray(perceptions) ? cleanCompensationType(perceptions as IListObject[]) : perceptions
         }
       }
     }
@@ -267,16 +259,9 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     localStorage.removeItem('discount')
   }
 
-  const pluralToSingular = (word: string): string => {
-    if (word.endsWith('ies')) return word.slice(0, -3) + 'y'
-    else if (word.endsWith('es')) return word.slice(0, -2)
-    else if (word.endsWith('s')) return word.slice(0, -1)
-    else return word
-  }
-
   const elements = useMemo(() => {
     const objectsForm = createObject(formDataRes, keys, selectedId, dropdownData, option)
-    return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType, modify, amount }: FieldConfig, index: number) => {
+    return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType, modify, amount }: IFieldConfig, index: number) => {
       const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
       const appendCurrentGroup = (group: JSX.Element[]) =>
         group.length > 0 ? [...acc.slice(0, -1), <div key={ `input-group-${ index }` } className='input-group'>{ group }</div>] : acc
@@ -314,10 +299,9 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   readOnly={ modify ? undefined : true }
                   disabled={ isCurrentWeek }
                   checked={ toolbarOption === 1 
-                    && objectsForm 
-                    && typeof objectsForm[String(id.toLocaleLowerCase())] === 'boolean' 
-                    ? objectsForm[String(id.toLocaleLowerCase())] as boolean 
-                    : undefined }
+                    && objectsForm && typeof objectsForm[String(id.toLocaleLowerCase())] === 'boolean' 
+                      ? objectsForm[String(id.toLocaleLowerCase())] as boolean 
+                      : undefined }
                 />
               ) : type === 'dropmenu' && Object.keys(dropdownData).length > 0 ? (
                 <DropDown 
@@ -328,14 +312,14 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   setFormData={ formData } 
                   setLoading={
                     option === NavigationActionKind.PAYROLLRECEIPTS || option === NavigationActionKind.EMPLOYEES
-                    ? setLoading : () => {}
+                      ? setLoading : () => {}
                   }
                 />
               ) : type === 'multi-option' ? (
                 <MultiDropDown
                   id={ fieldId }
                   options={ dropdownData[id ?? ''] || [] }
-                  value={ toolbarOption === 1 && objectsForm ? objectsForm[String(id.toLowerCase())] as ListObject[] : [] }
+                  value={ toolbarOption === 1 && objectsForm ? objectsForm[String(id.toLowerCase())] as IListObject[] : [] }
                   idKey={ pluralToSingular(id) + 'Id' }
                   isDisabled={ isCurrentWeek }
                   showAmount={ amount ?? false }
@@ -357,7 +341,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
           </div>
         )
 
-        return [...acc.slice(0, -1), <div key={`input-group-${ index }`} className='input-group'>{ [...currentGroup, fieldElement] }</div>]
+        return [...acc.slice(0, -1), <div key={ `input-group-${ index }` } className='input-group'>{ [...currentGroup, fieldElement] }</div>]
       }
     }, [])
   }, [ fieldsConfig, option, dropdownData, toolbarOption, selectedId, data, keys, department ])

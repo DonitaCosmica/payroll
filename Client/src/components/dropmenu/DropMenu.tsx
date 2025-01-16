@@ -2,7 +2,7 @@ import ReactDOMServer from 'react-dom/server'
 import React, { useMemo } from 'react'
 import { useNavigationContext } from '../../context/Navigation'
 import { useGeneratePrintPage } from '../../hooks/useGeneratePrintPage'
-import { type FieldConfig, type IconDefinition } from "../../types"
+import { type IFieldConfig, type IIconDefinition } from "../../types"
 import { FILTER_COLUMNS, REPORTING_ACTIONS } from '../../consts'
 import { fieldsReport } from '../../utils/fields'
 import { FilterReport } from '../filterReport/FilterReport'
@@ -10,7 +10,7 @@ import { Titlebar } from '../titlebar/Titlebar'
 import './DropMenu.css'
 
 interface Props {
-  menuOp: IconDefinition[],
+  menuOp: IIconDefinition[],
   dir: 'left' | 'right',
   context: string
 }
@@ -25,8 +25,8 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, context }): 
 
   const fetchDropdownData = async (label: string): Promise<void> => {
     const fetchPromises = fieldsReport[label]
-      .filter(({ type, fetchUrl }: FieldConfig) => type === 'dropmenu' && fetchUrl)
-      .map(async ({ fetchUrl, id }: FieldConfig) => {
+      .filter(({ type, fetchUrl }: IFieldConfig) => type === 'dropmenu' && fetchUrl)
+      .map(async ({ fetchUrl, id }: IFieldConfig) => {
         try {
           const urlToUse: string = fetchUrl ? fetchUrl: ''
           const res: Response = await fetch(urlToUse)
@@ -48,8 +48,8 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, context }): 
     localStorage.setItem('dropdownData', JSON.stringify(combinedResults))
   }
 
-  const handleLabel = async (op: IconDefinition): Promise<void> => {
-    const reports = REPORTING_ACTIONS[option]?.['Reportes']
+  const handleLabel = async (op: IIconDefinition): Promise<void> => {
+    const reports = REPORTING_ACTIONS[option]?.['report']
     const hasForm = reports ? reports.some(report => report.label === op.label && report.hasForm) : false
     hasForm && await fetchDropdownData(op.label)
     const titlebar = ReactDOMServer.renderToStaticMarkup(<Titlebar action='print' />)
@@ -221,7 +221,7 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, context }): 
   return (
     <div className='drop-menu' style={ directionStyle }>
       <ul>
-        {menuOp.map((op: IconDefinition) => (
+        {menuOp.map((op: IIconDefinition) => (
           <li key={ op.label } onClick={ () => {
             if (context === 'report' && docName && styleHtmlTemplate) handleLabel(op)
             if (op.onClick) op.onClick(op.id, op.label)

@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { usePeriodContext } from '../../context/Period'
-import { IWeekYear, type IconDefinition } from '../../types'
+import { IWeekYear, type IIconDefinition } from '../../types'
 import { ICON_OPTIONS } from '../../utils/icons'
-import { getWeekNumber } from '../../utils/modifyDates'
+import { getMondayOfWeek, getWeekNumber } from '../../utils/modifyDates'
 import { Accordion } from '../accordion/Accordion'
 import { FaCheck } from "react-icons/fa"
 import './DropMenuDates.css'
@@ -15,20 +15,6 @@ export const DropMenuDates = React.memo((): JSX.Element => {
   const period = useRef<IWeekYear>({ week: 0, year: 0 })
 
   useEffect(() => { setActionType('FETCH_DATA') }, [])
-
-  const getMondayOfWeek = ({ week, year }: IWeekYear): string => {
-    const janFirst = new Date(year, 0, 1)
-    const firstMonday = janFirst.getDay() <= 1 
-        ? new Date(year, 0, 1 + (1 - janFirst.getDay())) 
-        : new Date(year, 0, 1 + (8 - janFirst.getDay()))
-    const targetMonday = new Date(firstMonday)
-    targetMonday.setDate(firstMonday.getDate() + (week - 1) * 7)
-    
-    const yearStr = targetMonday.getFullYear()
-    const monthStr = String(targetMonday.getMonth() + 1).padStart(2, '0')
-    const dayStr = String(targetMonday.getDate()).padStart(2, '0')
-    return `${ yearStr }-${ monthStr }-${ dayStr }`
-  }
 
   const handleForm = async (e: React.MouseEvent<HTMLDivElement>, index: number): Promise<void> => {
     e.stopPropagation()
@@ -108,7 +94,7 @@ export const DropMenuDates = React.memo((): JSX.Element => {
       <div className='title-menu'>
         <p>Seleccionar Periodo</p>
         <div className='title-menu-options'>
-          {ICONS.map((iconOption: IconDefinition, index: number) => (
+          {ICONS.map((iconOption: IIconDefinition, index: number) => (
             <div
               key={ iconOption.label }
               className='title-menu-option-box'

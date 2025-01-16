@@ -1,4 +1,6 @@
-const getDatesOfWeek = (week: number, year: number): { monday: Date, sunday: Date } => {
+import { type IWeek, type IWeekYear } from "../types"
+
+const getDatesOfWeek = (week: number, year: number): IWeek => {
   const simple = new Date(year, 0, 1 + (week - 1) * 7)
   const dayOfWeek = simple.getDay()
   const monday = new Date(simple)
@@ -24,11 +26,26 @@ const formatDate = (date: Date): string =>
     year: 'numeric'
   }).format(date).replace(',', '')
 
-export const weekRange = (week: number, year: number): { monday: string, sunday: string } => {
+export const getMondayOfWeek = ({ week, year }: IWeekYear): string => {
+  const janFirst = new Date(year, 0, 1)
+  const firstMonday = janFirst.getDay() <= 1 
+    ? new Date(year, 0, 1 + (1 - janFirst.getDay())) 
+    : new Date(year, 0, 1 + (8 - janFirst.getDay()))
+
+  const targetMonday = new Date(firstMonday)
+  targetMonday.setDate(firstMonday.getDate() + (week - 1) * 7)
+
+  const yearStr = targetMonday.getFullYear()
+  const monthStr = String(targetMonday.getMonth() + 1).padStart(2, '0')
+  const dayStr = String(targetMonday.getDate()).padStart(2, '0')
+  return `${ yearStr }-${ monthStr }-${ dayStr }`
+}
+
+export const weekRange = (week: number, year: number): IWeek => {
   const { monday, sunday } = getDatesOfWeek(week, year)
   return {
-    monday: formatDate(monday),
-    sunday: formatDate(sunday)
+    monday: formatDate(monday as Date),
+    sunday: formatDate(sunday as Date)
   }
 }
 

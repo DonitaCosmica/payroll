@@ -2,9 +2,9 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
 import { usePeriodContext } from "../../context/Period"
 import { useSortEmployeesContext } from "../../context/SortEmployees"
-import { type DataObject, type ListObject } from "../../types"
+import { type IDataObject, type IListObject } from "../../types"
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md"
-import { toCamelCase } from '../../utils/modifyData'
+import { compareNames, findKeyAndGetValue, getKeyByValue, getKeyId, isDayOfWeek, normalizeValue, toCamelCase } from '../../utils/modifyData'
 import './List.css'
 
 interface Props {
@@ -39,20 +39,14 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
   const { isCurrentWeek } = usePeriodContext()
   const { filter } = useSortEmployeesContext()
 
-  const [filteredValues, setFilteredValues] = useState<DataObject[]>(data)
+  const [filteredValues, setFilteredValues] = useState<IDataObject[]>(data)
   const [_, setLoading] = useState<boolean>(true)
   const rowSelected = useRef<number>(-1)
   const columnCountSelected = useRef<number>(0)
-  const formData = useRef<DataObject[]>([])
-  const perceptions = useRef<ListObject[]>([])
-  const deductions = useRef<ListObject[]>([])
+  const formData = useRef<IDataObject[]>([])
+  const perceptions = useRef<IListObject[]>([])
+  const deductions = useRef<IListObject[]>([])
   const columnsDictionary = useRef<Record<string, string>>({})
-
-  const normalizeValue = useCallback((val: unknown): string =>
-  (typeof val === 'boolean' ? (val ? 'Verdadero' : 'Falso') : String(val))
-    .toLowerCase()
-    .trim()
-  , [])
 
   const fetchDataAsync = useCallback(async (): Promise<void> => {
     try {
@@ -76,12 +70,14 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
   }, [ option ])
 
   const applyFilter = useCallback(() => {
+    if (option !== NavigationActionKind.EMPLOYEES) return
+
     if (filter === 'default') {
       setFilteredValues(data)
       return
     }
 
-    const filtered = data.filter((value: DataObject) =>
+    const filtered = data.filter((value: IDataObject) =>
       'status' in value && filter.includes(value.status as string)
     )
 
@@ -96,14 +92,14 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
   }, [ option, data ])
 
   useEffect(() => {
-    const filtered = data.filter((value: DataObject) =>
+    const filtered = data.filter((value: IDataObject) =>
       Object.values(value).some((val) =>
         normalizeValue(val).includes(searchFilter.toLowerCase().trim())
       )
     )
 
     setFilteredValues(filtered)
-  }, [ searchFilter, data, option, normalizeValue ])
+  }, [ searchFilter, data, option ])
 
   useEffect(() =>
     applyFilter()
@@ -146,51 +142,17 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
     updateData()
   }, [ updateTableWork ])
 
-  const getIdSelected = useCallback((info: (string | number | boolean)[]): void => {
-    const uuid = info.find(item => typeof item === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item))
+  const getIdSelected = useCallback((info: IDataObject): void => {
+    const uuid = findKeyAndGetValue(info, 'Id')
     uuid ? dispatch({
       type: NavigationActionKind.UPDATESELECTEDID,
       payload: { selectedId: uuid as string }
     }) : console.error('No valid UUID found in the provided info.')
   }, [ dispatch ])
 
-  const getValueByKeyIncludes = (obj: DataObject, searchKey: string): string | number | boolean | object | undefined => {
-    const foundKey = Object.keys(obj).find((key: string) => searchKey.includes(key))
-    return foundKey ? obj[foundKey as keyof DataObject] : undefined
-  }
-
-  const getKeyByValue = (obj: Record<string, string>, valueToFind: string): string | undefined => {
-    for (const key in obj)
-      if (obj[key] === valueToFind) return toCamelCase(key)
-    return toCamelCase(valueToFind)
-  }
-
-  const getKeyId = (obj: ListObject): string | undefined => {
-    for (const key in obj)
-      if (key.toLowerCase().includes('id')) return key
-    return undefined
-  }
-
-  const isDayOfWeek = (day: string): boolean => {
-    const daysOfWeek = new Set([
-      'Sunday', 'Monday',
-      'Tuesday', 'Wednesday',
-      'Thursday', 'Friday', 'Saturday'
-    ])
-
-    const formattedDay = day.charAt(0).toUpperCase() + day.slice(1).toLowerCase()
-    return daysOfWeek.has(formattedDay)
-  }
-
-  const compareNames = (a: number | string, b: number | string): number => {
-    if (typeof a === 'string' && typeof b === 'string') return a.localeCompare(b)
-    if (typeof a === 'number' && typeof b === 'number') return a - b
-    return 0
-  }
-
   const renderArray = (info: object[]): string => {
     if (info.length > 0 && typeof info[0] === 'object') {
-      return (info as ListObject[])
+      return (info as IListObject[])
         .sort((a, b) => compareNames(a.name, b.name))
         .map(obj => obj.name)
         .join(', ')
@@ -202,37 +164,28 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
     return ''
   }
 
-  const selectedRow = useCallback((row: (string | number | boolean)[], index: number): void => {
+  const selectedRow = useCallback((row: IDataObject, index: number): void => {
     if (!isCurrentWeek) getIdSelected(row)
     rowSelected.current = index
   }, [ getIdSelected ])
 
   const selectedColumn = useCallback((index: number): void => {
-    const columnType = typeof Object.values(data[0])[index]
     columnCountSelected.current++
 
-    const compareValues = (a: DataObject, b: DataObject): number => {
+    const compareValues = (a: IDataObject, b: IDataObject): number => {
       const aValue = Object.values(a)[index]
       const bValue = Object.values(b)[index]
       const isAsc = columnCountSelected.current % 2 === 0
-
-      if (columnType === 'string')
-        return isAsc ? 
-          (aValue as string).localeCompare(bValue as string) : 
-          (bValue as string).localeCompare(aValue as string)
-
-      if (columnType === 'number')
-        return isAsc ?
-          (bValue as number) - (aValue as number) :
-          (aValue as number) - (bValue as number)
-      
-      return 0
-    } 
+      const safeAValue = typeof aValue === "number" || typeof aValue === "string" ? aValue : ""
+      const safeBValue = typeof bValue === "number" || typeof bValue === "string" ? bValue : ""
+      const comparisonResult = compareNames(safeAValue, safeBValue)
+      return isAsc ? comparisonResult : -comparisonResult
+    }
 
     setFilteredValues((prevValues) => [...prevValues].sort(compareValues))
   }, [ data ])
 
-  const showFormDoubleClick = useCallback((info: (string | number | boolean)[]): void => {
+  const showFormDoubleClick = useCallback((info: IDataObject): void => {
     getIdSelected(info)
     dispatch({
       type: NavigationActionKind.UPDATETOOLBAROPT,
@@ -242,10 +195,10 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
     setShowForm(true)
   }, [ getIdSelected, dispatch, setShowForm ])
 
-  const renderCellContent = useCallback((row: DataObject, column: string): number | string => {
+  const renderCellContent = useCallback((row: IDataObject, column: string): number | string => {
     const key = Object.keys(columnsDictionary.current).find(key => columnsDictionary.current[key] === column) ?? column
     const newKey = key === key.toUpperCase() ? key.toLowerCase() : toCamelCase(key)
-    const info = getValueByKeyIncludes(row, newKey)
+    const info = findKeyAndGetValue(row, newKey)
 
     if (info === undefined || info === null) return 'Error'
     if (Array.isArray(info)) return renderArray(info)
@@ -273,7 +226,7 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
 
       const resultItems = property === 'perceptions' ? perceptions.current : (property === 'deductions' ? deductions.current : [])
       if (property !== 'none') {
-        const targetArray: ListObject = form[property] as any
+        const targetArray: IListObject = form[property] as any
         if (Array.isArray(targetArray)) {
           const objIndex = targetArray.findIndex(item => typeof item !== 'string' && toCamelCase(item.name as string).trim() === key.trim())
           if (objIndex !== -1 && typeof targetArray[objIndex] !== 'string' && 'value' in targetArray[objIndex])
@@ -284,7 +237,7 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
               const id = getKeyId(item)
               if (!id) return
 
-              const newItem: ListObject = {
+              const newItem: IListObject = {
                 [id]: item[id],
                 name: item.description,
                 value: parseInt(value)
@@ -333,7 +286,7 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
 
   const calculateTotals = useCallback((column: string): Record<string, number> => {
     const totals: Record<string, number> = {}
-    filteredValues.forEach((row: DataObject) => {
+    filteredValues.forEach((row: IDataObject) => {
       const property = getKeyByValue(columnsDictionary.current, column)
       if (row[property as string] !== undefined && !isNaN(Number(row[property as string]))) {
         const numberValue = parseFloat(row[property as string] as string)
@@ -371,7 +324,7 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
             </tr>
           </thead>
           <tbody>
-            {filteredValues.map((row: DataObject, index: number) => (
+            {filteredValues.map((row: IDataObject, index: number) => (
               <tr 
                 key={ index }
                 className={
@@ -379,8 +332,8 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
                   option !== NavigationActionKind.TABLEWORK
                   ? 'selected-row' : '' 
                 }
-                onClick={ () => selectedRow(Object.values(row), index) } 
-                onDoubleClick={ () => isCurrentWeek ? () => {} : showFormDoubleClick(Object.values(row)) }
+                onClick={ () => selectedRow(row, index) } 
+                onDoubleClick={ () => isCurrentWeek ? () => {} : showFormDoubleClick(row) }
               >
                 {columnNames.map((column: string, cellIndex: number) => {
                   const content = renderCellContent(row, column)

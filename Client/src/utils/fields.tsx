@@ -1,82 +1,82 @@
 import { NavigationActionKind } from "../context/Navigation"
-import { type FieldConfig } from "../types" 
+import { FieldType, InputType, type IFieldConfig } from "../types.d" 
 
-export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
+export const fieldsConfig: Record<NavigationActionKind, IFieldConfig[]> = {
   [NavigationActionKind.PAYROLLRECEIPTS]: [
-    { type: 'dropmenu', name: 'Tipo de Nomina', fetchUrl: 'http://localhost:5239/api/Payroll', id: 'payroll' },
-    { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status', uriComponent: 'Ticket' },
-    { type: 'dropmenu', name: 'Empleado', fetchUrl: 'http://localhost:5239/api/Employee', id: 'employee' },
-    { type: 'multi-option', name: 'Percepciones', amount: true, id: 'perceptions' },
-    { type: 'multi-option', name: 'Deducciones', amount: true, id: 'deductions' },
-    { type: 'textarea', name: 'Observaciones', label: 'Observaciones...', id: 'observations' }
+    { type: FieldType.DropMenu, name: 'Tipo de Nomina', fetchUrl: 'http://localhost:5239/api/Payroll', id: 'payroll' },
+    { type: FieldType.DropMenu, name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status', uriComponent: 'Ticket' },
+    { type: FieldType.DropMenu, name: 'Empleado', fetchUrl: 'http://localhost:5239/api/Employee', id: 'employee' },
+    { type: FieldType.MultiOption, name: 'Percepciones', amount: true, id: 'perceptions' },
+    { type: FieldType.MultiOption, name: 'Deducciones', amount: true, id: 'deductions' },
+    { type: FieldType.TextArea, name: 'Observaciones', label: 'Observaciones...', id: 'observations' }
   ],
   [NavigationActionKind.EMPLOYEES]: [
-    { type: 'section', name: 'Datos Generales', id: 'general-data' },
-    { type: 'input', name: 'Código', label: '0', inputType: 'number', modify: true, id: 'key' },
-    { type: 'input', name: 'Nombre', label: 'Nombre...', inputType: 'text', modify: true, id: 'name' },
-    { type: 'input', name: 'RFC', label: 'RFC...', inputType: 'text', modify: true, id: 'rfc' },
-    { type: 'input', name: 'CURP', label: 'CURP...', inputType: 'text', modify: true, id: 'curp' },
-    { type: 'dropmenu', name: 'Banco', fetchUrl: 'http://localhost:5239/api/Bank', id: 'bank' },
-    { type: 'input', name: 'CLABE', label: 'CLABE...', inputType: 'number', modify: true, id: 'interbankCode' },
-    { type: 'input', name: 'Cuenta de Banco', label: 'Cuenta Banco...', inputType: 'text', modify: true, id: 'bankAccount' },
-    { type: 'input', name: 'ID Portal Banco', label: 'Portal ID...', modify: true, id: 'bankPortal' },
-    { type: 'input', name: 'Titular', inputType: 'checkbox', modify: true, id: 'isAStarter' },
-    { type: 'section', name: 'Datos Laborales', id: 'labor-data' },
-    { type: 'dropmenu', name: 'Régimen', fetchUrl: 'http://localhost:5239/api/Regime', id: 'regime' },
-    { type: 'input', name: 'NSS', label: 'NSS...', inputType: 'number', modify: true, id: 'nss' },
-    { type: 'input', name: 'Fecha de Ingreso', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: 'date', modify: true, id: 'dateAdmission' },
-    { type: 'dropmenu', name: 'Puesto', fetchUrl: 'http://localhost:5239/api/JobPosition', id: 'jobPosition' },
-    { type: 'input', name: 'Departamento', label: 'Departmento...', inputType: 'text', modify: false, id: 'department' },
-    { type: 'dropmenu', name: 'Area Comercial', fetchUrl: 'http://localhost:5239/api/CommercialArea', id: 'commercialArea' },
-    { type: 'dropmenu', name: 'Entidad Federativa', fetchUrl: 'http://localhost:5239/api/FederalEntity', id: 'federalEntity' },
-    { type: 'multi-option', name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', amount: false, id: 'projects' },
-    { type: 'dropmenu', name: 'Contrato', fetchUrl: 'http://localhost:5239/api/Contract', id: 'contract' },
-    { type: 'input', name: 'Salario Semanal', label: '0.00', inputType: 'number', modify: true, id: 'baseSalary' },
-    { type: 'section', name: 'Contacto', id: 'contact-data' },
-    { type: 'input', name: 'Teléfono', label: 'Teléfono...', inputType: 'tel', modify: true, id: 'phone' },
-    { type: 'input', name: 'Email', label: 'Email...', inputType: 'email', modify: true, id: 'email' },
-    { type: 'section', name: 'Otros', id: 'other-data' },
-    { type: 'input', name: 'Dirección', label: 'Dirección...', inputType: 'text', modify: true, id: 'direction' },
-    { type: 'input', name: 'Colonia', label: 'Colonia...', inputType: 'text', modify: true, id: 'suburb' },
-    { type: 'input', name: 'Codigo Postal', label: 'Código Postal...', inputType: 'number', modify: true, id: 'postalCode' },
-    { type: 'input', name: 'Ciudad', label: 'Ciudad...', inputType: 'text', modify: true, id: 'city' },
-    { type: 'dropmenu', name: 'Estado', fetchUrl: 'http://localhost:5239/api/State', id: 'state' },
-    { type: 'input', name: 'País', label: 'País...', inputType: 'text', modify: true, id: 'country' },
-    { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status', uriComponent: 'Employee' },
-    { type: 'input', name: 'Proveedor', inputType: 'checkbox', id: 'isProvider' },
-    { type: 'input', name: 'Crédito', label: 'Crédito...', inputType: 'text', modify: true, id: 'credit' },
-    { type: 'input', name: 'Contacto', label: '0', inputType: 'number', modify: true, id: 'contact' },
-    { type: 'dropmenu', name: 'Empresa', fetchUrl: 'http://localhost:5239/api/Company', id: 'company' }
+    { type: FieldType.Section, name: 'Datos Generales', id: 'general-data' },
+    { type: FieldType.Input, name: 'Código', label: '0', inputType: InputType.Number, modify: true, id: 'key' },
+    { type: FieldType.Input, name: 'Nombre', label: 'Nombre...', inputType: InputType.Text, modify: true, id: 'name' },
+    { type: FieldType.Input, name: 'RFC', label: 'RFC...', inputType: InputType.Text, modify: true, id: 'rfc' },
+    { type: FieldType.Input, name: 'CURP', label: 'CURP...', inputType: InputType.Text, modify: true, id: 'curp' },
+    { type: FieldType.DropMenu, name: 'Banco', fetchUrl: 'http://localhost:5239/api/Bank', id: 'bank' },
+    { type: FieldType.Input, name: 'CLABE', label: 'CLABE...', inputType: InputType.Number, modify: true, id: 'interbankCode' },
+    { type: FieldType.Input, name: 'Cuenta de Banco', label: 'Cuenta Banco...', inputType: InputType.Text, modify: true, id: 'bankAccount' },
+    { type: FieldType.Input, name: 'ID Portal Banco', label: 'Portal ID...', modify: true, id: 'bankPortal' },
+    { type: FieldType.Input, name: 'Titular', inputType: InputType.Checkbox, modify: true, id: 'isAStarter' },
+    { type: FieldType.Section, name: 'Datos Laborales', id: 'labor-data' },
+    { type: FieldType.DropMenu, name: 'Régimen', fetchUrl: 'http://localhost:5239/api/Regime', id: 'regime' },
+    { type: FieldType.Input, name: 'NSS', label: 'NSS...', inputType: InputType.Number, modify: true, id: 'nss' },
+    { type: FieldType.Input, name: 'Fecha de Ingreso', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: InputType.Date, modify: true, id: 'dateAdmission' },
+    { type: FieldType.DropMenu, name: 'Puesto', fetchUrl: 'http://localhost:5239/api/JobPosition', id: 'jobPosition' },
+    { type: FieldType.Input, name: 'Departamento', label: 'Departmento...', inputType: InputType.Text, modify: false, id: 'department' },
+    { type: FieldType.DropMenu, name: 'Area Comercial', fetchUrl: 'http://localhost:5239/api/CommercialArea', id: 'commercialArea' },
+    { type: FieldType.DropMenu, name: 'Entidad Federativa', fetchUrl: 'http://localhost:5239/api/FederalEntity', id: 'federalEntity' },
+    { type: FieldType.MultiOption, name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', amount: false, id: 'projects' },
+    { type: FieldType.DropMenu, name: 'Contrato', fetchUrl: 'http://localhost:5239/api/Contract', id: 'contract' },
+    { type: FieldType.Input, name: 'Salario Semanal', label: '0.00', inputType: InputType.Number, modify: true, id: 'baseSalary' },
+    { type: FieldType.Section, name: 'Contacto', id: 'contact-data' },
+    { type: FieldType.Input, name: 'Teléfono', label: 'Teléfono...', inputType: InputType.Tel, modify: true, id: 'phone' },
+    { type: FieldType.Input, name: 'Email', label: 'Email...', inputType: InputType.Email, modify: true, id: 'email' },
+    { type: FieldType.Section, name: 'Otros', id: 'other-data' },
+    { type: FieldType.Input, name: 'Dirección', label: 'Dirección...', inputType: InputType.Text, modify: true, id: 'direction' },
+    { type: FieldType.Input, name: 'Colonia', label: 'Colonia...', inputType: InputType.Text, modify: true, id: 'suburb' },
+    { type: FieldType.Input, name: 'Codigo Postal', label: 'Código Postal...', inputType: InputType.Number, modify: true, id: 'postalCode' },
+    { type: FieldType.Input, name: 'Ciudad', label: 'Ciudad...', inputType: InputType.Text, modify: true, id: 'city' },
+    { type: FieldType.DropMenu, name: 'Estado', fetchUrl: 'http://localhost:5239/api/State', id: 'state' },
+    { type: FieldType.Input, name: 'País', label: 'País...', inputType: InputType.Text, modify: true, id: 'country' },
+    { type: FieldType.DropMenu, name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status', uriComponent: 'Employee' },
+    { type: FieldType.Input, name: 'Proveedor', inputType: InputType.Checkbox, id: 'isProvider' },
+    { type: FieldType.Input, name: 'Crédito', label: 'Crédito...', inputType: InputType.Text, modify: true, id: 'credit' },
+    { type: FieldType.Input, name: 'Contacto', label: '0', inputType: InputType.Number, modify: true, id: 'contact' },
+    { type: FieldType.DropMenu, name: 'Empresa', fetchUrl: 'http://localhost:5239/api/Company', id: 'company' }
   ],
   [NavigationActionKind.JOBPOSITIONS]: [
-    { type: 'input', name: 'Puesto', label: 'Puesto...', inputType: 'text', modify: true, id: 'name' },
-    { type: 'dropmenu', name: 'Departamento', fetchUrl: 'http://localhost:5239/api/Department', id: 'department' }
+    { type: FieldType.Input, name: 'Puesto', label: 'Puesto...', inputType: InputType.Text, modify: true, id: 'name' },
+    { type: FieldType.DropMenu, name: 'Departamento', fetchUrl: 'http://localhost:5239/api/Department', id: 'department' }
   ],
   [NavigationActionKind.DEPARTMENTS]: [
-    { type: 'input', name: 'Departamento', label: 'Departamento...', inputType: 'text', modify: true, id: 'name' },
-    { type: 'input', name: 'Subcontrato', label: 'Subcontrato...', inputType: 'checkbox', modify: true, id: 'subcontract' }
+    { type: FieldType.Input, name: 'Departamento', label: 'Departamento...', inputType: InputType.Text, modify: true, id: 'name' },
+    { type: FieldType.Input, name: 'Subcontrato', label: 'Subcontrato...', inputType: InputType.Checkbox, modify: true, id: 'subcontract' }
   ],
   [NavigationActionKind.COMMERCIALAREAS]: [
-    { type: 'input', name: 'Area Comercial', label: 'Area Comercial...', inputType: 'text', modify: true, id: 'name' }
+    { type: FieldType.Input, name: 'Area Comercial', label: 'Area Comercial...', inputType: InputType.Text, modify: true, id: 'name' }
   ],
   [NavigationActionKind.PERCEPTIONS]: [
-    { type: 'input', name: 'Clave', label: 'Clave...', inputType: 'text', modify: true, id: 'key' },
-    { type: 'input', name: 'Descripción', label: 'Descripción...', inputType: 'text', modify: true, id: 'description' }
+    { type: FieldType.Input, name: 'Clave', label: 'Clave...', inputType: InputType.Text, modify: true, id: 'key' },
+    { type: FieldType.Input, name: 'Descripción', label: 'Descripción...', inputType: InputType.Text, modify: true, id: 'description' }
   ],
   [NavigationActionKind.DEDUCTIONS]: [
-    { type: 'input', name: 'Clave', label: 'Clave...', inputType: 'number', modify: true, id: 'key' },
-    { type: 'input', name: 'Descripción', label: 'Descripción...', inputType: 'text', modify: true, id: 'description' }
+    { type: FieldType.Input, name: 'Clave', label: 'Clave...', inputType: InputType.Number, modify: true, id: 'key' },
+    { type: FieldType.Input, name: 'Descripción', label: 'Descripción...', inputType: InputType.Text, modify: true, id: 'description' }
   ],
   [NavigationActionKind.PROJECTCATALOG]: [
-    { type: 'input', name: 'Clave', label: 'Clave...', inputType: 'text', modify: true, id: 'code' },
-    { type: 'input', name: 'Nombre', label: 'Nombre...', inputType: 'text', modify: true, id: 'name' },
-    { type: 'input', name: 'Fecha de inicio', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: 'date', modify: true, id: 'startDate' },
-    { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status', uriComponent: 'Project' },
-    { type: 'dropmenu', name: 'Compañia', fetchUrl: 'http://localhost:5239/api/Company', id: 'company' },
-    { type: 'textarea', name: 'Descripción', label: 'Descripción...', inputType: 'text', modify: true, id: 'description' }
+    { type: FieldType.Input, name: 'Clave', label: 'Clave...', inputType: InputType.Text, modify: true, id: 'code' },
+    { type: FieldType.Input, name: 'Nombre', label: 'Nombre...', inputType: InputType.Text, modify: true, id: 'name' },
+    { type: FieldType.Input, name: 'Fecha de inicio', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: InputType.Date, modify: true, id: 'startDate' },
+    { type: FieldType.DropMenu, name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status', uriComponent: 'Project' },
+    { type: FieldType.DropMenu, name: 'Compañia', fetchUrl: 'http://localhost:5239/api/Company', id: 'company' },
+    { type: FieldType.TextArea, name: 'Descripción', label: 'Descripción...', inputType: InputType.Text, modify: true, id: 'description' }
   ],
   [NavigationActionKind.COMPANIES]: [
-    { type: 'input', name: 'Nombre', label: 'Nombre...', inputType: 'text', modify: true, id: 'name' }
+    { type: FieldType.Input, name: 'Nombre', label: 'Nombre...', inputType: InputType.Text, modify: true, id: 'name' }
   ],
   [NavigationActionKind.BANKS]: [],
   [NavigationActionKind.TABLEWORK]: [],
@@ -88,20 +88,20 @@ export const fieldsConfig: Record<NavigationActionKind, FieldConfig[]> = {
   [NavigationActionKind.ERROR]: []
 } as const
 
-export const fieldsReport: Record<string, FieldConfig[]> = {
+export const fieldsReport: Record<string, IFieldConfig[]> = {
   ['Acumulado x Periodos']: [
-    { type: 'input', name: 'Periodo Inicial', inputType: 'date', modify: true, id: 'inicialPeriod' },
-    { type: 'input', name: 'Periodo Final', inputType: 'date', modify: true, id: 'finalPeriod' }
+    { type: FieldType.Input, name: 'Periodo Inicial', inputType: InputType.Date, modify: true, id: 'inicialPeriod' },
+    { type: FieldType.Input, name: 'Periodo Final', inputType: InputType.Date, modify: true, id: 'finalPeriod' }
   ],
   ['Acumulado x Depto.']: [
-    { type: 'dropmenu', name: 'Departamento', fetchUrl: 'http://localhost:5239/api/Department', id: 'department' },
+    { type: FieldType.DropMenu, name: 'Departamento', fetchUrl: 'http://localhost:5239/api/Department', id: 'department' },
   ],
   ['Acumulado por Proyecto/Puesto']: [
-    { type: 'input', name: 'Periodo Inicial', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: 'date', modify: true, id: 'inicialPeriod' },
-    { type: 'input', name: 'Periodo Final', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: 'date', modify: true, id: 'finalPeriod' },
-    { type: 'dropmenu', name: 'Departamento', fetchUrl: 'http://localhost:5239/api/Department', id: 'department' },
-    { type: 'dropmenu', name: 'Concepto', fetchUrl: 'http://localhost:5239/api/Perception', id: 'perception' },
-    { type: 'input', name: 'Resumen', inputType: 'checkbox', modify: true, id: 'resumen' }
+    { type: FieldType.Input, name: 'Periodo Inicial', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: InputType.Date, modify: true, id: 'inicialPeriod' },
+    { type: FieldType.Input, name: 'Periodo Final', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: InputType.Date, modify: true, id: 'finalPeriod' },
+    { type: FieldType.DropMenu, name: 'Departamento', fetchUrl: 'http://localhost:5239/api/Department', id: 'department' },
+    { type: FieldType.DropMenu, name: 'Concepto', fetchUrl: 'http://localhost:5239/api/Perception', id: 'perception' },
+    { type: FieldType.Input, name: 'Resumen', inputType: InputType.Checkbox, modify: true, id: 'resumen' }
   ],
   ['Prestamos y Descuentos']: [
 
@@ -110,13 +110,13 @@ export const fieldsReport: Record<string, FieldConfig[]> = {
 
   ],
   ['Trabajadores por Fecha']: [
-    { type: 'dropmenu', name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', id: 'projects' },
-    { type: 'dropmenu', name: 'Puesto', fetchUrl: 'http://localhost:5239/api/JobPosition', id: 'jobPosition' },
-    { type: 'dropmenu', name: 'Status', fetchUrl: 'http://localhost:5239/api/Status/byType?type=Employee', id: 'status', uriComponent: 'Employee' }
+    { type: FieldType.DropMenu, name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', id: 'projects' },
+    { type: FieldType.DropMenu, name: 'Puesto', fetchUrl: 'http://localhost:5239/api/JobPosition', id: 'jobPosition' },
+    { type: FieldType.DropMenu, name: 'Status', fetchUrl: 'http://localhost:5239/api/Status/byType?type=Employee', id: 'status', uriComponent: 'Employee' }
   ],
   ['Generar Layout']: [
-    { type: 'dropmenu', name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', id: 'projects' },
-    { type: 'dropmenu', name: 'Cuenta', fetchUrl: 'http://localhost:5239/api/Account', id: 'account' },
-    { type: 'input', name: 'Agrupar no titulares', inputType: 'checkbox', modify: true, id: 'titular' }
+    { type: FieldType.DropMenu, name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', id: 'projects' },
+    { type: FieldType.DropMenu, name: 'Cuenta', fetchUrl: 'http://localhost:5239/api/Account', id: 'account' },
+    { type: FieldType.Input, name: 'Agrupar no titulares', inputType: InputType.Checkbox, modify: true, id: 'titular' }
   ]
 } as const

@@ -1,4 +1,4 @@
-import { type IconDefinition } from "../types"
+import { type IIconDefinition } from "../types"
 import { NavigationActionKind } from "../context/Navigation"
 import { AiFillFlag, AiOutlineStop } from "react-icons/ai"
 import { BsBoxArrowInDownLeft, BsArrowClockwise, BsFiletypePdf , BsFiletypeXls  } from "react-icons/bs"
@@ -14,9 +14,9 @@ import { IoReload } from "react-icons/io5"
 import { LuClipboardList } from "react-icons/lu"
 
 export const ICON_OPTIONS: {
-  common: IconDefinition[]
-  special: Record<NavigationActionKind, IconDefinition[]>
-  menu: Record<NavigationActionKind, IconDefinition[]>
+  common: IIconDefinition[]
+  special: Record<NavigationActionKind, IIconDefinition[]>
+  menu: Record<NavigationActionKind, IIconDefinition[]>
 } = {
   common: [
     { id: 'basic-new', icon: <GrAdd fontSize='1.2rem' color="#73ba69" />, label: 'Nuevo' },
@@ -89,13 +89,13 @@ export const ICON_OPTIONS: {
   }
 } as const
 
-export const MENU_ICONS: IconDefinition[] = [
+export const MENU_ICONS: IIconDefinition[] = [
   { id: 'settings', icon: <FiSettings />, label: 'Configuración Avanzada' },
   { id: 'users', icon: <FiUsers color='#0747A6' />, label: 'Usuarios' }, 
   { id: 'logout', icon: <BiLogOut color='#d95a54' />, label: 'Cerrar Sesión' }
 ] as const
 
-export const PRINT_ICONS: IconDefinition[] = [
+export const PRINT_ICONS: IIconDefinition[] = [
   { id: 'close', icon: <TfiClose color="#fff" fontSize='1.3rem' />, label: 'Cerrar' },
   { id: 'load', icon: <BsArrowClockwise color="#fff" fontSize='1.3rem' />, label: 'Recargar' },
   { id: 'print', icon: <PiPrinter color="#fff" fontSize='1.3rem' />, label: 'Imprimir' },
