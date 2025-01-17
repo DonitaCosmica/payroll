@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from 'react'
+import React, { JSX, Suspense, useEffect, useState } from 'react'
 import { type IIconDefinition } from '../../types'
 import { MENU_ICONS, PRINT_ICONS } from '../../utils/icons'
 import { IoIosArrowDown } from "react-icons/io"
@@ -15,8 +15,9 @@ export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
   const [userName, setUserName] = useState<string>('')
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') ?? '')
-    if ('name' in user) setUserName(user.name)
+    /*const user = JSON.parse(localStorage.getItem('user') ?? '')
+    if ('name' in user) setUserName(user.name)*/
+    setUserName('Donnet Hazael Pitalua Santana')
   }, [])
 
   const logout = async () => {

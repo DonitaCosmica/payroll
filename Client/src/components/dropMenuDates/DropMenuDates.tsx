@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { JSX, useEffect, useRef, useState } from 'react'
 import { usePeriodContext } from '../../context/Period'
 import { IWeekYear, type IIconDefinition } from '../../types'
 import { ICON_OPTIONS } from '../../utils/icons'

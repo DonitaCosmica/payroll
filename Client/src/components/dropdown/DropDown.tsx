@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, JSX, useState } from 'react'
 import { type IListObject, type IDropDownMenu } from '../../types'
 import { compareNames, findKeyAndGetValue } from '../../utils/modifyData'
 import './DropDown.css'
@@ -8,7 +8,7 @@ interface Props {
   selectedId: string,
   value: string,
   isDisabled: boolean,
-  setFormData: React.MutableRefObject<{ [key: string]: string | number | boolean | string[] | IListObject[] }>
+  setFormData: React.RefObject<{ [key: string]: string | number | boolean | string[] | IListObject[] }>
   setLoading?: React.Dispatch<React.SetStateAction<boolean>>
 }
 

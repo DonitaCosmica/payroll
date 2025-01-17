@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from 'react'
+import React, { JSX, Suspense, useEffect, useState } from 'react'
 import { PeriodProvider } from './context/Period'
 import { SortEmployeesProvider } from './context/SortEmployees'
 import { NavigationActionKind, useNavigationContext } from './context/Navigation'

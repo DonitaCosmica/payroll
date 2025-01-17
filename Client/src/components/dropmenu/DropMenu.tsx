@@ -1,5 +1,5 @@
 import ReactDOMServer from 'react-dom/server'
-import React, { useMemo } from 'react'
+import React, { JSX, useMemo } from 'react'
 import { useNavigationContext } from '../../context/Navigation'
 import { useGeneratePrintPage } from '../../hooks/useGeneratePrintPage'
 import { type IFieldConfig, type IIconDefinition } from "../../types"

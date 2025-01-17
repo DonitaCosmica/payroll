@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useState } from "react"
+import React, { JSX, Suspense, useCallback, useState } from "react"
 import { usePeriodContext } from "../../context/Period"
 import { useSortEmployeesContext } from "../../context/SortEmployees"
 import { type IIconDefinition } from "../../types"

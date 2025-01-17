@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { JSX, useState } from "react"
 import { IoCloudUploadOutline } from "react-icons/io5"
 import { FaCircleCheck } from "react-icons/fa6"
 import './UploadBanks.css'

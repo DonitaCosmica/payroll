@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo, useState } from "react"
+import React, { JSX, Suspense, useMemo, useState } from "react"
 import { ICON_OPTIONS } from "../../utils/icons"
 import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
 import { useSortEmployeesContext } from "../../context/SortEmployees"

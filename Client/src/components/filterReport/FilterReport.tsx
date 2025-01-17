@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { JSX, useRef } from 'react'
 import { type IFieldConfig, type IListObject } from '../../types'
 import { fieldsReport } from '../../utils/fields'
 import { DropDown } from '../dropdown/DropDown'

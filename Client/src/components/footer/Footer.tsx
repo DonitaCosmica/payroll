@@ -1,4 +1,4 @@
-import React from "react"
+import React, { JSX } from "react"
 import { RiMoneyDollarCircleLine } from "react-icons/ri"
 import { totalTitles } from "../../consts"
 import './Footer.css'

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { JSX, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { type IListObject, type IDropDownMenu } from "../../types"
 import './MultiDropDown.css'
 
@@ -8,9 +8,9 @@ interface Props {
   value: IListObject[],
   idKey: string,
   isDisabled: boolean,
-  discount: React.MutableRefObject<number | null>,
+  discount: React.RefObject<number | null>,
   showAmount: boolean,
-  setFormData: React.MutableRefObject<{ [key: string]: string | number | boolean | string[] | IListObject[] }>
+  setFormData: React.RefObject<{ [key: string]: string | number | boolean | string[] | IListObject[] }>
 }
 
 export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDisabled, discount, showAmount, setFormData }): JSX.Element => {  

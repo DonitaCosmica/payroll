@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { JSX, useCallback, useEffect, useState } from 'react'
 import { usePeriodContext } from '../../context/Period'
 import { IPeriod, type IDataResponse } from '../../types'
 import { IoIosArrowForward } from "react-icons/io"
@@ -12,7 +12,7 @@ interface Props {
   periods: IPeriod[]
 }
 
-export const Accordion: React.FC<Props> = React.memo(({ year, periods }) => {
+export const Accordion: React.FC<Props> = React.memo(({ year, periods }): JSX.Element => {
   const { dispatch: updateList } = useNavigationContext()
   const { selectedPeriod, setActionType, dispatch: updatePeriod } = usePeriodContext()
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true)

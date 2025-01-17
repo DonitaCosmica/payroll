@@ -1,3 +1,4 @@
+import { JSX } from 'react'
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
 import { LINKS } from '../../consts'
 import './Navbar.css'
