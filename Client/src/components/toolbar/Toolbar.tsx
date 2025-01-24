@@ -7,7 +7,6 @@ import './Toolbar.css'
 interface Props {
   setSearchFilter: React.Dispatch<React.SetStateAction<string>>
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
-  setContent: React.Dispatch<React.SetStateAction<boolean>>
   setUpdateTableWork: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -17,7 +16,7 @@ const AiOutlineSearch = React.lazy(() => import('react-icons/ai').then(module =>
 const BsThreeDotsVertical = React.lazy(() => import('react-icons/bs').then(module => ({ default: module.BsThreeDotsVertical })))
 const GrSort = React.lazy(() => import('react-icons/gr').then(module => ({ default: module.GrSort })))
 
-export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setContent, setUpdateTableWork }): JSX.Element => {
+export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setUpdateTableWork }): JSX.Element => {
   const { option, url, submitCount, selectedId, setSubmitCount, dispatch } = useNavigationContext()
   const { label } = useSortEmployeesContext()
   const [showDropMenu, setShowDropMenu] = useState<boolean>(false)
@@ -47,7 +46,6 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setCont
 
     if (id === 'table') {
       dispatch({ type: 11 })
-      setContent(prev => !prev)
       return
     }
 

@@ -4,21 +4,20 @@ import { SortEmployeesProvider } from './context/SortEmployees'
 import { NavigationActionKind, useNavigationContext } from './context/Navigation'
 import { Titlebar } from './components/titlebar/Titlebar'
 import { Navbar } from './components/navbar/Navbar'
-import { ListSkeleton } from './components/list/List'
+import { Form } from './components/form/Form'
+import { ListSkeleton } from './loading/listSkeleton/ListSkeleton' 
 import './App.css'
 
 const Filter = React.lazy(() => import('./components/filter/Filter').then(module => ({ default: module.Filter })))
 const Toolbar = React.lazy(() => import('./components/toolbar/Toolbar').then(module => ({ default: module.Toolbar })))
 const List = React.lazy(() => import('./components/list/List').then(module => ({ default: module.List })))
 const Footer = React.lazy(() => import('./components/footer/Footer').then(module => ({ default: module.Footer })))
-const Form = React.lazy(() => import('./components/form/Form').then(module => ({ default: module.Form })))
 const UploadBanks = React.lazy(() => import('./components/uploadBanks/UploadBanks').then(module => ({ default: module.UploadBanks })))
 
 export const App = (): JSX.Element => {
   const { option } = useNavigationContext()
   const [showForm, setShowForm] = useState<boolean>(false)
   const [searchFilter, setSearchFilter] = useState<string>('')
-  const [content, setContent] = useState<boolean>(false)
   const [updateTableWork, setUpdateTableWork] = useState<boolean>(false)
 
   useEffect(() => {
@@ -52,16 +51,15 @@ export const App = (): JSX.Element => {
   return (
     <main className='payroll'>
       <PeriodProvider>
-        { showForm && renderWithSuspense(Form, { setShowForm }, <div>Loading Form...</div>) }
+        { showForm && <Form setShowForm={ setShowForm } /> }
         <Titlebar action='payroll' />
-        { !content && <Navbar /> }
+        <Navbar />
         { option === 1 && renderWithSuspense(Filter, {}, <div>Loading Filter...</div>) }
         {option !== NavigationActionKind.BANKS ?
           (<SortEmployeesProvider>
             {renderWithSuspense(Toolbar, {
               setSearchFilter,
               setShowForm,
-              setContent,
               setUpdateTableWork,
             }, <div>Loading Toolbar...</div>)}
             {renderWithSuspense(List, {

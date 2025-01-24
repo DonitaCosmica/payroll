@@ -1,5 +1,5 @@
 import { JSX, useRef } from 'react'
-import { type IFieldConfig, type IListObject } from '../../types'
+import { type IFieldConfig } from '../../types'
 import { fieldsReport } from '../../utils/fields'
 import { DropDown } from '../dropdown/DropDown'
 import './FilterReport.css'
@@ -9,7 +9,7 @@ interface Props {
 }
 
 export const FilterReport: React.FC<Props> = ({ fields }): JSX.Element => {
-  const formData = useRef<{ [key: string]: string | string[] | boolean | number | IListObject[] }>({})
+  const formData = useRef<Record<string, unknown>>({})
 
   return (
     <section id="filter-report-background">

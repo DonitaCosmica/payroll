@@ -26,7 +26,7 @@ namespace API.Models
     public float Total { get; set; }
     [Required]
     public string Projects { get; set; } = default!;
-    public string? Observations { get; set; }
+    public string Observations { get; set; } = default!;
     [Required]
     public string Company { get; set; } = default!;
     [Required]

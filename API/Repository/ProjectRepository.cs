@@ -12,6 +12,8 @@ namespace API.Repository
 
     public ICollection<Project> GetProjects() =>
       [.. context.Projects.Include(p => p.Company).Include(p => p.Status)];
+    public ICollection<Project> GetProjectsByCompany(string companyId) =>
+      [.. context.Projects.Include(p => p.Company).Include(p => p.Status).Where(p => p.CompanyId == companyId)];
     public Project GetProject(string projectId) => 
       context.Projects.Include(p => p.Company).Include(p => p.Status)
       .FirstOrDefault(p => p.ProjectId == projectId) ??

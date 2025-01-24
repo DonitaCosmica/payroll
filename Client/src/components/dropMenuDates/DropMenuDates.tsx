@@ -1,5 +1,6 @@
 import React, { JSX, useEffect, useRef, useState } from 'react'
 import { usePeriodContext } from '../../context/Period'
+import { useFetchData } from '../../hooks/useFetchData'
 import { IWeekYear, type IIconDefinition } from '../../types'
 import { ICON_OPTIONS } from '../../utils/icons'
 import { getMondayOfWeek, getWeekNumber } from '../../utils/modifyDates'
@@ -8,6 +9,7 @@ import { FaCheck } from "react-icons/fa"
 import './DropMenuDates.css'
 
 export const DropMenuDates = React.memo((): JSX.Element => {
+  const { fetchData, error } = useFetchData()
   const ICONS = [...ICON_OPTIONS.common, { id: 'send', label: 'Enviar', icon: <FaCheck fontSize='1rem' color='#73ba69' /> }]
   const { dates, selectedPeriod, setActionType } = usePeriodContext()
   const [showOptionsPeriod, setShowOptionsPeriod] = useState<boolean>(false)
@@ -33,59 +35,40 @@ export const DropMenuDates = React.memo((): JSX.Element => {
   }
 
   const showFormAndSetOption = (index: number): void => {
-    setShowOptionsPeriod(true)
+    setShowOptionsPeriod((prevStatus) => !prevStatus)
     selectedOption.current = index
   }
 
   const handleSubmit = async (): Promise<void> => {
-    const requestOptions = {
-      method: period.current.periodId && selectedOption.current === 1 ? 'PATCH' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(period.current)
-    }
-
-    const urlToUse: string = period.current.periodId && selectedOption.current === 1 
+    const method = period.current.periodId && selectedOption.current === 1 ? 'PATCH' : 'POST'
+    const url: string = period.current.periodId && selectedOption.current === 1 
       ? `http://localhost:5239/api/Period/${ selectedPeriod.periodId }`
       : 'http://localhost:5239/api/Period/'
 
-    try {
-      const res: Response = await fetch(urlToUse, requestOptions)
-      if (!res.ok) {
-        const errorData = await res.json()
-        console.error('Request error: ', errorData)
-      } else {
-        setShowOptionsPeriod(false)
-        setActionType('FETCH_DATA')
-      }
-    } catch (error) {
-      console.error('Request error: ', error)
+    await fetchData(url, { method, body: period.current })
+    if (!error) {
+      setShowOptionsPeriod(false)
+      setActionType('FETCH_DATA')
     }
   }
 
   const deletePeriod = async (): Promise<void> => {
     if (!selectedPeriod.periodId) return
-    const requestOptions = { method: 'DELETE' }
-
-    try {
-      const res: Response = await fetch(`http://localhost:5239/api/Period/${ selectedPeriod.periodId }`, requestOptions)
-      if (!res.ok) {
-        const errorData = await res.json()
-        console.error('Request error: ', errorData)
-      } else
-        setActionType('FETCH_DATA')
-    } catch (error) {
-      console.error('Request error: ', error)
-    }
+    const url = `http://localhost:5239/api/Period/${ selectedPeriod.periodId }`
+    await fetchData(url, { method: 'DELETE' })
+    if (!error) setActionType('FETCH_DATA')
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     e.stopPropagation()
 
-    const { week, year } = getWeekNumber(new Date(e.target.value))
+    const [year, month, day] = e.target.value.split('-').map(Number)
+    const { week, year: yr } = getWeekNumber(new Date(year, month - 1, day))
+
     period.current = {
       periodId: selectedPeriod.periodId,
       week,
-      year
+      year: yr
     }
   }
   

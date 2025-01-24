@@ -1,6 +1,7 @@
 import React, { JSX, useCallback, useEffect, useState } from 'react'
 import { usePeriodContext } from '../../context/Period'
-import { IPeriod, type IDataResponse } from '../../types'
+import { useFetchData } from '../../hooks/useFetchData'
+import { type IPeriod, type IDataResponse } from '../../types'
 import { IoIosArrowForward } from "react-icons/io"
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
 import { reorganizeData } from '../../utils/modifyData'
@@ -15,6 +16,7 @@ interface Props {
 export const Accordion: React.FC<Props> = React.memo(({ year, periods }): JSX.Element => {
   const { dispatch: updateList } = useNavigationContext()
   const { selectedPeriod, setActionType, dispatch: updatePeriod } = usePeriodContext()
+  const { fetchData } = useFetchData<IDataResponse>()
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true)
 
   useEffect(() => setActionType('SET_PERIOD'), [ setActionType ])
@@ -25,24 +27,18 @@ export const Accordion: React.FC<Props> = React.memo(({ year, periods }): JSX.El
   }
 
   const setNewList = useCallback(async (period: IPeriod): Promise<void> => {
-    try {
-      const res: Response = await fetch(`http://localhost:5239/api/Ticket/by?week=${ period.week }&year=${ year }`)
-      const dataResponse: IDataResponse = await res.json()
-      if (!res.ok) {
-        console.error('Response Error: ', dataResponse)
-        updateList({ type: NavigationActionKind.ERROR })
-        return
-      }
-
-      const newData = reorganizeData(dataResponse.data)
-      updateList({
-        type: NavigationActionKind.UPDATETABLE,
-        payload: { newData, formData: dataResponse.formData }
-      })
-    } catch (error) {
-      console.error(error)
+    const url = `http://localhost:5239/api/Ticket/by?week=${ period.week }&year=${ year }`
+    const result = await fetchData(url)
+    if (!result) {
       updateList({ type: NavigationActionKind.ERROR })
+      return
     }
+
+    const newData = reorganizeData(result.data)
+    updateList({
+      type: NavigationActionKind.UPDATETABLE,
+      payload: { newData, formData: result.formData }
+    })
   }, [ updateList ])
 
   const getPeriodSelected = useCallback((e: React.MouseEvent<HTMLLIElement>, period: IPeriod): void => {

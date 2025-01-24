@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useContext, useEffect, useReducer, useState } from "react"
 import { type IDataResponse, type IDataObject } from "../types"
-import { reorganizeData } from "../utils/modifyData"
+import { compareNames, reorganizeData } from "../utils/modifyData"
 
 export enum NavigationActionKind {
   PAYROLLRECEIPTS = 1,
@@ -27,7 +27,7 @@ interface Props {
 }
 
 interface NavigationState {
-  payroll: 'Ordinario' | 'ExtraOrdinario',
+  payroll: string,
   selectedId: string,
   toolbarOption: number,
   title: string,
@@ -44,7 +44,7 @@ interface NavigationState {
 interface NavigationAction {
   type: NavigationActionKind,
   payload?: {
-    payrollType?: 'Ordinario' | 'ExtraOrdinario',
+    payrollType?: string,
     selectedId?: string,
     toolbarOption?: number,
     columns?: string[],
@@ -225,6 +225,16 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
       localStorage.setItem('navigationState', JSON.stringify(stateToSave))
     }
 
+    const getSortingKey = (item: IDataObject, keys: string[]): number | string | undefined => {
+      for (const key of keys) {
+        const value = item[key]
+        if (typeof value === 'string' || typeof value === 'number')
+          return getValue(value)
+      }
+
+      return undefined
+    }
+
     const fetchData = async (): Promise<void> => {
       try {
         if(!state.url) return
@@ -241,19 +251,10 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
         const names: string[] = await translateColumns({ opt: state.option, columnsNames: dataResponse.columns })
         const newData = reorganizeData(dataResponse.data)
 
-        if (columns.includes('Code') || columns.includes('Key')) {
-          newData.sort((a: IDataObject, b: IDataObject): number => {
-            const aValue = getValue((a['code'] || a['key']) as number)
-            const bValue = getValue((b['code'] || b['key']) as number)
-            return (aValue as number) - (bValue as number)
-          })
-        } else if (columns.includes('Name')) {
-          newData.sort((a: IDataObject, b: IDataObject): number => {
-            const aValue = getValue(a['name'] as string)
-            const bValue = getValue(b['name'] as string)
-            return (aValue as string).localeCompare(bValue as string)
-          })
-        }
+        if (columns.includes('Code') || columns.includes('Key'))
+          newData.sort((a, b) => compareNames(getSortingKey(a, ['code', 'key']) ?? 0, getSortingKey(b, ['code', 'key']) ?? 0))
+        else if (columns.includes('Name'))
+          newData.sort((a, b) => compareNames(getSortingKey(a, ['name']) ?? '', getSortingKey(b, ['name']) ?? ''))
         
         dispatch({ 
           type: NavigationActionKind.UPDATEDATA, 

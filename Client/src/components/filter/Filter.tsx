@@ -1,33 +1,31 @@
 import React, { JSX, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
 import { usePeriodContext } from '../../context/Period'
+import { useFetchData } from '../../hooks/useFetchData'
 import { type IPayrollType, type IMenuState, type IIconDefinition } from "../../types"
 import { weekRange } from '../../utils/modifyDates'
+import { DropMenu } from '../dropmenu/DropMenu'
+import { IoIosArrowDown } from 'react-icons/io'
 import './Filter.css'
 
-const DropMenu = React.lazy(() => import('../dropmenu/DropMenu').then(module => ({ default: module.DropMenu })))
 const DropMenuDates = React.lazy(() => import('../dropMenuDates/DropMenuDates').then(module => ({ default: module.DropMenuDates })))
-const IoIosArrowDown = React.lazy(() => import('react-icons/io').then(module => ({ default: module.IoIosArrowDown })))
 
 export const Filter = (): JSX.Element => {
   const { payroll, dispatch } = useNavigationContext()
   const { selectedPeriod } = usePeriodContext()
+  const { fetchData, error } = useFetchData<IPayrollType[]>()
   const [showDropMenu, setShowDropMenu] = useState<IMenuState>({ date: false, text: false })
   const payrollTypesRef = useRef<IIconDefinition[]>([])
 
   useEffect(() => {
     const fetchPayrollTypes = async (): Promise<void> => {
-      try {
-        const res: Response = await fetch('http://localhost:5239/api/Payroll')
-        if (!res.ok) throw new Error('Failed to fetch payroll types')
-        const data: IPayrollType[] = await res.json()
-        payrollTypesRef.current = data.map((type) => ({
-          id: type.payrollId,
-          label: type.name
-        }))
-      } catch (error) {
-        console.error('Error fetching Payroll Types: ', error)
-      }
+      const url = 'http://localhost:5239/api/Payroll'
+      const result = await fetchData(url)
+      if (error) throw new Error(error)
+      payrollTypesRef.current = result?.map((type) => ({
+        id: type.payrollId,
+        label: type.name
+      })) || []
     }
 
     fetchPayrollTypes()
@@ -41,10 +39,7 @@ export const Filter = (): JSX.Element => {
     const { monday, sunday } = weekRange(selectedPeriod.week, selectedPeriod.year)
     const { week, year } = selectedPeriod
 
-    return [
-      `${ year } - Periodo ${ week }`,
-      `${ monday } a ${ sunday }`
-    ]
+    return [ `${ year } - Periodo ${ week }`, `${ monday } a ${ sunday }` ]
   }, [ selectedPeriod ])
 
   const handleDropMenu = useCallback((value: number | string): void => {
@@ -55,11 +50,8 @@ export const Filter = (): JSX.Element => {
      }))
   }, [])
 
-  const setPayrollType = useCallback((opt: string): void =>
-    (opt === 'Ordinario' || opt === 'ExtraOrdinario')
-      ? dispatch({ type: NavigationActionKind.UPDATEPAYROLL, payload: { payrollType: opt } })
-      : console.error('Invalid payroll type: ', opt)
-    , [ dispatch ])
+  if (payrollTypes.length === 0)
+    return <p>Cargando datos...</p>
 
   return (
     <section className='filters'>
@@ -70,9 +62,7 @@ export const Filter = (): JSX.Element => {
           }}>
             <p>{ filter }</p>
             {index === 0 && (
-              <Suspense fallback={ <div>Loading icon...</div> }>
-                <IoIosArrowDown />
-              </Suspense>
+              <IoIosArrowDown />
             )}
             {index === 0 && showDropMenu.date && (
               <Suspense fallback={ <div>Loading dates ...</div> }>
@@ -83,20 +73,20 @@ export const Filter = (): JSX.Element => {
         ))}
         <div className='filter' onClick={ () => handleDropMenu(payroll) }>
           <p>{ payroll }</p>
-          <Suspense fallback={ <div>Loading icon...</div> }>
-            <IoIosArrowDown />
-          </Suspense>
+          <IoIosArrowDown />
           {showDropMenu.text && 
-            <Suspense fallback={ <div>Loading menu...</div> }>
-              <DropMenu
-                menuOp={payrollTypes.map(op => ({
-                  ...op,
-                  onClick: () => setPayrollType(op.label)
-                }))}
-                dir='left'
-                context='dates'
-              />  
-            </Suspense>}
+            <DropMenu
+              menuOp={payrollTypes.map(op => ({
+                ...op,
+                onClick: () => dispatch({
+                  type: NavigationActionKind.UPDATEPAYROLL,
+                  payload: { payrollType: op.label }
+                })
+              }))}
+              dir='left'
+              context='dates'
+            />  
+          }
         </div>
       </div>
     </section>

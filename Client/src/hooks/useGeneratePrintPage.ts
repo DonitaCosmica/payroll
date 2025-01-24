@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { useNavigationContext } from "../context/Navigation"
 import { LINKS } from "../consts"
 
-export const useGeneratePrintPage = (): { [key: string]: string } => {
+export const useGeneratePrintPage = (): Record<string, string> => {
   const { option } = useNavigationContext()
   const [htmlText, setHtmlText] = useState<string>('')
   const docName = useRef<string>('')

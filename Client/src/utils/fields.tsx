@@ -24,12 +24,13 @@ export const fieldsConfig: Record<NavigationActionKind, IFieldConfig[]> = {
     { type: FieldType.Section, name: 'Datos Laborales', id: 'labor-data' },
     { type: FieldType.DropMenu, name: 'Régimen', fetchUrl: 'http://localhost:5239/api/Regime', id: 'regime' },
     { type: FieldType.Input, name: 'NSS', label: 'NSS...', inputType: InputType.Number, modify: true, id: 'nss' },
+    { type: FieldType.DropMenu, name: 'Empresa', fetchUrl: 'http://localhost:5239/api/Company', id: 'company' },
     { type: FieldType.Input, name: 'Fecha de Ingreso', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: InputType.Date, modify: true, id: 'dateAdmission' },
     { type: FieldType.DropMenu, name: 'Puesto', fetchUrl: 'http://localhost:5239/api/JobPosition', id: 'jobPosition' },
     { type: FieldType.Input, name: 'Departamento', label: 'Departmento...', inputType: InputType.Text, modify: false, id: 'department' },
     { type: FieldType.DropMenu, name: 'Area Comercial', fetchUrl: 'http://localhost:5239/api/CommercialArea', id: 'commercialArea' },
     { type: FieldType.DropMenu, name: 'Entidad Federativa', fetchUrl: 'http://localhost:5239/api/FederalEntity', id: 'federalEntity' },
-    { type: FieldType.MultiOption, name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', amount: false, id: 'projects' },
+    { type: FieldType.MultiOption, name: 'Proyecto', amount: false, id: 'projects' },
     { type: FieldType.DropMenu, name: 'Contrato', fetchUrl: 'http://localhost:5239/api/Contract', id: 'contract' },
     { type: FieldType.Input, name: 'Salario Semanal', label: '0.00', inputType: InputType.Number, modify: true, id: 'baseSalary' },
     { type: FieldType.Section, name: 'Contacto', id: 'contact-data' },
@@ -45,8 +46,7 @@ export const fieldsConfig: Record<NavigationActionKind, IFieldConfig[]> = {
     { type: FieldType.DropMenu, name: 'Status', fetchUrl: 'http://localhost:5239/api/Status', id: 'status', uriComponent: 'Employee' },
     { type: FieldType.Input, name: 'Proveedor', inputType: InputType.Checkbox, id: 'isProvider' },
     { type: FieldType.Input, name: 'Crédito', label: 'Crédito...', inputType: InputType.Text, modify: true, id: 'credit' },
-    { type: FieldType.Input, name: 'Contacto', label: '0', inputType: InputType.Number, modify: true, id: 'contact' },
-    { type: FieldType.DropMenu, name: 'Empresa', fetchUrl: 'http://localhost:5239/api/Company', id: 'company' }
+    { type: FieldType.Input, name: 'Contacto', label: '0', inputType: InputType.Number, modify: true, id: 'contact' }
   ],
   [NavigationActionKind.JOBPOSITIONS]: [
     { type: FieldType.Input, name: 'Puesto', label: 'Puesto...', inputType: InputType.Text, modify: true, id: 'name' },

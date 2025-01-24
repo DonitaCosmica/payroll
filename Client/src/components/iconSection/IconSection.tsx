@@ -1,9 +1,10 @@
-import React, { JSX, Suspense, useCallback, useState } from "react"
+import React, { JSX, useCallback, useState } from "react"
 import { usePeriodContext } from "../../context/Period"
 import { useSortEmployeesContext } from "../../context/SortEmployees"
 import { type IIconDefinition } from "../../types"
 import { NavigationActionKind } from "../../context/Navigation"
 import { REPORTING_ACTIONS } from "../../consts"
+import { DropMenu } from "../dropmenu/DropMenu"
 import './IconSection.css'
 
 interface Props {
@@ -13,8 +14,6 @@ interface Props {
   handleForm: (id: string, index: number) => void
 }
 
-const DropMenu = React.lazy(() => import('../dropmenu/DropMenu').then(module => ({ default: module.DropMenu })))
-
 export const IconSection: React.FC<Props> = ({ token, action, options, handleForm }): JSX.Element => {
   const { statuses, dispatch } = useSortEmployeesContext()
   const { isCurrentWeek } = usePeriodContext()
@@ -22,9 +21,7 @@ export const IconSection: React.FC<Props> = ({ token, action, options, handleFor
 
   const handleClick = useCallback((id: string, index: number, isActive: boolean) => {
     handleForm(id, index)
-  
-    if (isActive)
-      setShowDropMenu(currentState => !currentState)
+    if (isActive) setShowDropMenu(currentState => !currentState)
   }, [ handleForm ])
 
   const generateDropMenuOptions = useCallback((id: string) => {
@@ -46,22 +43,21 @@ export const IconSection: React.FC<Props> = ({ token, action, options, handleFor
             { icon }
             <p>{ label }</p>
             {isActive && showDropMenu &&
-              <Suspense fallback={ <div>Loading menu...</div> }>
-                <DropMenu 
-                  menuOp={(id !== 'filter' ? generateDropMenuOptions(id) : statuses).map(op => ({
-                    ...op,
-                    onClick: id === 'filter' ? (id, label) => {
-                      if (id && label)
-                        dispatch({
-                          type: "SET_FILTER",
-                          payload: { filter: id, label: label }
-                        })
-                    } : () => {}
-                  }))} 
-                  dir='left'
-                  context={ id }
-                />  
-              </Suspense>}
+              <DropMenu
+                menuOp={(id !== 'filter' ? generateDropMenuOptions(id) : statuses).map(op => ({
+                  ...op,
+                  onClick: id === 'filter' ? (id, label) => {
+                    if (id && label)
+                      dispatch({
+                        type: "SET_FILTER",
+                        payload: { filter: id, label: label }
+                      })
+                  } : () => {}
+                }))} 
+                dir='left'
+                context={ id }
+              />  
+            }
           </div>
         )
       })}

@@ -6,6 +6,7 @@ namespace API.Interfaces
   public interface IProjectRepository
   {
     ICollection<Project> GetProjects();
+    ICollection<Project> GetProjectsByCompany(string companyId);
     Project GetProject(string projectId);
     Project? GetProjectByName(string projectName);
     (Company, Status)? GetRelatedEntities(ProjectDTO projectDTO);

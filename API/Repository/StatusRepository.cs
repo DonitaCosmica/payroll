@@ -15,7 +15,8 @@ namespace API.Repository
     public Status GetStatus(string statusId) => 
       context.Statuses.Where(s => s.StatusId == statusId).FirstOrDefault() ??
       throw new Exception("No Status with the specified id was found");
-    public Status? GetStatusByName(string statusName) => context.GetEntityByName<Status>(statusName);
+    public Status? GetStatusByName(string statusName, StatusType statusType) =>
+      context.Statuses.FirstOrDefault(s => s.Name == statusName && s.StatusType == statusType);
     public bool CreateStatus(Status status) => context.CreateEntity(status);
     public bool UpdateStatus(Status status) => context.UpdateEntity(status);
     public bool DeleteStatus(Status status) => context.DeleteEntity(status);

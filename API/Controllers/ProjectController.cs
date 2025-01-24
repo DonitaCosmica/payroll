@@ -29,6 +29,24 @@ namespace API.Controllers
       return Ok(result);
     }
 
+    [HttpGet("by")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<ProjectDTO>))]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public IActionResult GetProjects([FromQuery] string companyId) {
+      var projects = projectRepository.GetProjectsByCompany(companyId).Select(MapToProjectDTORequest).ToList();
+      var columns = projectRepository.GetColumns();
+      var result = new
+      {
+        Columns = columns,
+        FormColumns = columns,
+        Data = projects,
+        FormData = projects
+      };
+
+      return Ok(result);
+    }
+
     [HttpGet("{projectId}")]
     [ProducesResponseType(200, Type = typeof(ProjectDTO))]
     [ProducesResponseType(400)]

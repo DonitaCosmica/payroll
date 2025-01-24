@@ -1,5 +1,6 @@
 import { JSX, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { type IListObject, type IDropDownMenu } from "../../types"
+import { compareNames } from "../../utils/modifyData"
 import './MultiDropDown.css'
 
 interface Props {
@@ -10,7 +11,7 @@ interface Props {
   isDisabled: boolean,
   discount: React.RefObject<number | null>,
   showAmount: boolean,
-  setFormData: React.RefObject<{ [key: string]: string | number | boolean | string[] | IListObject[] }>
+  setFormData: React.RefObject<Record<string, unknown>>
 }
 
 export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDisabled, discount, showAmount, setFormData }): JSX.Element => {  
@@ -26,12 +27,9 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
   const getCompensationType = useCallback((item: IDropDownMenu): string =>
     'compensationType' in item ? String(item.compensationType) : 'Normal', [])
 
-  const sortedOptions = useMemo(() =>
-    Array.isArray(options) ? [...options].sort((a, b) => {
-      const aName = a.name ?? a.description
-      const bName = b.name ?? b.description
-      return (aName as string).localeCompare(bName as string)
-    }) : [], [ options ])
+  const sortedOptions = useMemo(() => Array.isArray(options)
+    ? [...options].sort((a, b) => compareNames(a.name ?? a.description, b.name ?? b.description)) : []
+  , [ options ])
 
   useEffect(() => {
     const selectedIds = sortedOptions.map(item => item[idKey] as string)
@@ -39,7 +37,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
     const updatedIsOptionSelected = selectedIds.map(id => selectedIdsSet.has(id))
     const sortValues = value.sort((a, b) => (a.name as string).localeCompare(b.name as string))
 
-    const addItemIfNotPresent = (name: string, matchFn: (item: IListObject) => boolean) => {
+    const addItemIfNotPresent = (name: string, matchFn: (item: IListObject) => boolean): void => {
       if (!sortValues.some(item => item.name === name)) {
         const itemToAdd = sortedOptions.find(matchFn as (item: IDropDownMenu) => boolean)
         if (itemToAdd) {
@@ -120,21 +118,20 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
     setIsAllOptionsSelected(newSelection.length === sortedOptions.length)
   }, [ sortedOptions, isOptionSelected, updateFormData ])
 
-  const updateItemValue = (opt: IDropDownMenu, value: number) => {
-    const updatedItems = selectedItemsRef.current.map(item =>
-      item[idKey] === opt[idKey] ? { ...item, value } : item)
+  const updateItemValue = (opt: IDropDownMenu, value: number): void => {
+    const updatedItems = selectedItemsRef.current.map(item => item[idKey] === opt[idKey] ? { ...item, value } : item)
     if (JSON.stringify(updatedItems) !== JSON.stringify(selectedItemsRef.current)) {
       selectedItemsRef.current = updatedItems
       updateFormData(updatedItems)
     }
   }
 
-  const handleInput = useCallback((e: React.FormEvent<HTMLSpanElement>, opt: IDropDownMenu) => {
+  const handleInput = useCallback((e: React.FormEvent<HTMLSpanElement>, opt: IDropDownMenu): void => {
     const newValue = parseFloat(e.currentTarget.textContent?.replace('$', '') ?? '0');
     updateItemValue(opt, newValue)
   }, [ idKey, updateFormData ])
 
-  const handleContent = useCallback((e: React.FormEvent<HTMLSpanElement>, opt: IDropDownMenu, selectedItem: IListObject | undefined) => {
+  const handleContent = useCallback((e: React.FormEvent<HTMLSpanElement>, opt: IDropDownMenu, selectedItem: IListObject | undefined): void => {
     const salary = localStorage.getItem('salary')
     const value = parseFloat(e.currentTarget.textContent ?? '0')
 
@@ -256,7 +253,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
                         <span
                           contentEditable={ true }
                           suppressContentEditableWarning={ true }
-                          onInput={(e) => handleInput(e, opt)}
+                          onInput={ (e) => handleInput(e, opt) }
                         >
                           { `$${ selectedItem.value }` || '$0.00' }
                         </span>
@@ -265,7 +262,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
                           <span
                             contentEditable={ !isDisabled }
                             suppressContentEditableWarning={ !isDisabled }
-                            onInput={(e) => !isDisabled ? handleContent(e, opt, selectedItem) : () => {} }
+                            onInput={ (e) => !isDisabled ? handleContent(e, opt, selectedItem) : () => {} }
                           >
                             { renderContent(selectedItem?.value as number, selectedItem) || '0' }
                           </span>
@@ -275,11 +272,11 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
                             suppressContentEditableWarning={ isEditabled }
                             onInput={ (e) => isEditabled ? handleDiscount(e) : {} }
                           >
-                          { `$${ selectedItem?.compensationType === 'Discount' && discount.current === null
+                          { `$${selectedItem?.compensationType === 'Discount' && discount.current === null
                             ?  parseFloat(localStorage.getItem('discount') || '0') || '0.00'
                             : selectedItem?.compensationType === 'Discount' && discount.current !== null
                               ? discount.current
-                              : Number(selectedItem?.value).toFixed(2) }` || '$0.00' }
+                              : Number(selectedItem?.value).toFixed(2) }` || '$0.00'}
                           </span>
                         </>
                       )}

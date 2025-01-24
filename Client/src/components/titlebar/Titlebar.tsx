@@ -15,9 +15,17 @@ export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
   const [userName, setUserName] = useState<string>('')
 
   useEffect(() => {
-    /*const user = JSON.parse(localStorage.getItem('user') ?? '')
-    if ('name' in user) setUserName(user.name)*/
-    setUserName('Donnet Hazael Pitalua Santana')
+    const storedUser = localStorage.getItem('user')
+    if (storedUser) {
+      try {
+        const user: { name: string, role: string } = JSON.parse(storedUser)
+        setUserName(user.name)
+      } catch (error) {
+        console.error('Error parsing user from localStorage: ', error)
+        setUserName('Unknown')
+      }
+    } else
+      setUserName('Unknown')
   }, [])
 
   const logout = async () => {
@@ -36,6 +44,11 @@ export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
     }
   }
 
+  const renderUserName = (): string => {
+    const parts = userName.split(' ')
+    return parts.length > 1 ? `${ parts[0] } ${ parts[1][0] }.` : parts[0]
+  }
+
   return (
     <header id='table-options' className="titlebar" style={{ justifyContent: action === 'payroll' ? 'center' : 'flex-start' }}>
       {action === 'payroll' ?
@@ -48,7 +61,7 @@ export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
         </div>
         <div className="titlebar-user">
           <div className='user' onClick={ () => setShowDropMenu(!showDropMenu) }>
-            <p>{ userName ? userName.split(' ')[0] + ' ' + userName.split(' ')[1][0] + '.' : 'Unknown' }</p>
+            <p>{ renderUserName() }</p>
             <IoIosArrowDown />
             {showDropMenu && (
               <Suspense fallback={ <div>Loading menu...</div> }>

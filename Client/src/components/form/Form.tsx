@@ -1,38 +1,47 @@
 import { JSX, useEffect, useMemo, useRef, useState } from 'react'
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
 import { usePeriodContext } from '../../context/Period'
-import { type IDropDownMenu, type IFieldConfig, type IDataObject, type IListObject } from '../../types'
+import { useFetchData } from '../../hooks/useFetchData'
+import { type IDropDownMenu, type IFieldConfig, type IDataObject, type IListObject, type IDataResponse } from '../../types'
 import { fieldsConfig } from '../../utils/fields'
 import { FaArrowLeft } from "react-icons/fa"
 import { DropDown } from '../dropdown/DropDown'
 import { MultiDropDown } from '../multiDropDown/MultiDropDown'
 import { getProperty, pluralToSingular } from '../../utils/modifyData'
 import './Form.css'
+import { FormSkeleton } from '../../loading/formSkeleton/FormSkeleton'
 
 interface Props {
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-interface InitialDropdownData {
+interface IInitialDropdownData {
   [key: string]: IDropDownMenu[]
 }
 
-interface PerceptionsAndDeductions {
+interface IPerceptionsAndDeductions {
   perceptions: IDropDownMenu[],
   deductions: IDropDownMenu[]
 }
 
+type PerceptionsDeductionsTuple = [
+  perceptions: IPerceptionsAndDeductions['perceptions'],
+  deductions: IPerceptionsAndDeductions['deductions']
+]
+
 function* fetchDataGenerator(option: NavigationActionKind) {
   try {
-    const initialDropdownData: InitialDropdownData = yield fetchInitialDropdownData(option)
+    const initialDropdownData: IInitialDropdownData = yield fetchInitialDropdownData(option)
     if (option === NavigationActionKind.PAYROLLRECEIPTS) {
       const employeeId: string = yield
-      const perceptionsAndDeductions: PerceptionsAndDeductions = yield fetchPerceptionsAndDeductions(employeeId)
+      const perceptionsAndDeductions: IPerceptionsAndDeductions = yield fetchPerceptionsAndDeductions(employeeId)
       return perceptionsAndDeductions
     } else if (option === NavigationActionKind.EMPLOYEES) {
+      const companyId: string = yield
+      const projects: IDropDownMenu[] = yield fetchProjectsByCompany(companyId)
       const jobPositionId: string = yield
       const department: IDropDownMenu = yield fetchDepartment(jobPositionId)
-      return department
+      return { department, projects }
     }
 
     return initialDropdownData
@@ -43,49 +52,54 @@ function* fetchDataGenerator(option: NavigationActionKind) {
 }
 
 const fetchInitialDropdownData = async (option: NavigationActionKind) => {
-  const fetchPromises = fieldsConfig[option]
-    .filter(({ type, fetchUrl }: IFieldConfig) => (type === 'dropmenu' || type === 'multi-option') && fetchUrl)
-    .map(async ({ fetchUrl, id, uriComponent }: IFieldConfig) => {
-      try {
-        const urlToUse = uriComponent ? `${ fetchUrl }/byType?type=${ encodeURIComponent(uriComponent) }` : fetchUrl || ''
-        const res: Response = await fetch(urlToUse)
-        const data = await res.json()
-        const dataResponse = Array.isArray(data) ? data : data.formData
-        const dataOptions: IDropDownMenu[] = Object.keys(dataResponse)
-          .filter((key) => key !== 'columns')
-          .flatMap(key => dataResponse[key])
-        return { [String(id)]: dataOptions }
-      } catch (error) {
-        console.error(`Error fetching dropdown data for ${ id }`, error)
-        return { [String(id)]: [] }
-      }
-    })
+  try {
+    const fetchPromises = fieldsConfig[option]
+      .filter(({ type, fetchUrl }: IFieldConfig) => ['dropmenu', 'multi-option'].includes(type) && fetchUrl)
+      .map(async ({ fetchUrl, id, uriComponent }: IFieldConfig) => {
+        try {
+          const urlToUse = uriComponent ? `${ fetchUrl }/byType?type=${ encodeURIComponent(uriComponent) }` : fetchUrl || ''
+          const res: Response = await fetch(urlToUse)
+          const data = await res.json()
+          const dataResponse = Array.isArray(data) ? data : data.formData
+          return { [String(id)]: Object.keys(dataResponse).filter(key => key !== 'columns').flatMap(key => dataResponse[key]) }
+        } catch (error) {
+          console.error(`Error fetching dropdown data for ${ id }`, error)
+          return { [String(id)]: [] }
+        }
+      })
 
-  const results = await Promise.all(fetchPromises)
-  return results.reduce((acc, result) => ({ ...acc, ...result }), {})
+    return Object.assign({}, ...(await Promise.all(fetchPromises)))
+  } catch (error) {
+    console.error('Error fetching initial dropdown data: ', error)
+    return {}
+  }
 }
 
-const fetchPerceptionsAndDeductions = async (employeeId: string | undefined): Promise<PerceptionsAndDeductions> => {
+const fetchPerceptionsAndDeductions = async (employeeId: string | undefined): Promise<IPerceptionsAndDeductions> => {
   try {
-    const perceptionsResponse: Response = await fetch(`http://localhost:5239/api/Perception/by?employeeId=${ employeeId }`)
-    const perceptionsData: IDropDownMenu[] = await perceptionsResponse.json()
-    const deductionsResponse: Response = await fetch('http://localhost:5239/api/Deduction/by')
-    const deductionsData: IDropDownMenu[] = await deductionsResponse.json()
-    const salary = perceptionsData.find(perception => 
-      'compensationType' in perception && perception.compensationType ? perception.value : null)
+    const [perceptionsRes, deductionsRes] = await Promise.all([
+      fetch(`http://localhost:5239/api/Perception/by?employeeId=${ employeeId }`),
+      fetch('http://localhost:5239/api/Deduction/by')
+    ])
 
-    localStorage.setItem('salary', JSON.stringify(salary?.value))
-
-    return {
-      perceptions: perceptionsData || [],
-      deductions: deductionsData || []
-    }
+    const [perceptionsData, deductionsData]: PerceptionsDeductionsTuple = await Promise.all([perceptionsRes.json(), deductionsRes.json()])
+    const salary = perceptionsData.find(p => p.compensationType === 'Principal')?.value || null
+    localStorage.setItem('salary', JSON.stringify(salary))
+    return { perceptions: perceptionsData || [], deductions: deductionsData || [] }
   } catch (error) {
     console.error('Error fetching perceptions or deductions: ', error)
-    return {
-      perceptions: [],
-      deductions: []
-    }
+    return { perceptions: [], deductions: [] }
+  }
+}
+
+const fetchProjectsByCompany = async (companyId: string | undefined): Promise<IDropDownMenu[]> => {
+  try {
+    const projectsResponse: Response = await fetch(`http://localhost:5239/api/Project/by?companyId=${ companyId }`)
+    const projectsData: IDataResponse = await projectsResponse.json()
+    return projectsData.data as IDropDownMenu[] || []
+  } catch (error) {
+    console.error('Error fetching projects: ', error)
+    return []
   }
 }
 
@@ -100,11 +114,11 @@ const fetchDepartment = async (jobPositionId: string | undefined): Promise<IDrop
   }
 }
 
-const createObject = (formDataRes: IDataObject[], keys: string[], selectedId: string, dropdownData: { [key: string]: IDropDownMenu[] }, option: NavigationActionKind): { [key: string]: string | string[] | boolean | number | IListObject[] } | null => {
+const createObject = (formDataRes: IDataObject[], keys: string[], selectedId: string, dropdownData: { [key: string]: IDropDownMenu[] }, option: NavigationActionKind): Record<string, unknown> | null => {
   const selectedObj = formDataRes.find((item: IDataObject) => Object.keys(item).some(key => key.endsWith('Id') && item[key] === selectedId))
   if (!selectedObj) return null
 
-  return keys.slice(1).reduce((obj: { [key: string]: string | string[] | boolean | number }, key: string) => {
+  return keys.slice(1).reduce((obj: Record<string, unknown>, key: string) => {
     const dropDownKey = key.replace(/Id$/i, '').toLowerCase()
     const value = getProperty(selectedObj, dropDownKey)
     const newKey = Object.keys(dropdownData).find((key: string) => (key.toLowerCase() === dropDownKey) ? dropdownData[key] : undefined) as string
@@ -115,24 +129,25 @@ const createObject = (formDataRes: IDataObject[], keys: string[], selectedId: st
     const newValue = Array.isArray(dropDownDataFound) ? dropDownDataFound.map(item => item[`${ newKey }Id`] || item) : value            
     const oneValueInAnArray = field?.type === 'dropmenu' && Array.isArray(newValue)
     return { ...obj, [dropDownKey]: oneValueInAnArray ? newValue[0] : newValue }
-  }, {} as { [key: string]: string | string[] | boolean | number })
+  }, {} as Record<string, unknown>)
 }
 
 export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const { option, title, formSize, url, data, formData: formDataRes, keys, submitCount, selectedId, toolbarOption, setSubmitCount } = useNavigationContext()
   const { selectedPeriod } = usePeriodContext()
   const { isCurrentWeek } = usePeriodContext()
-  const [dropdownData, setDropdownData] = useState<{ [key: string]: IDropDownMenu[] }>({})
+  const { fetchData } = useFetchData()
+  const [dropdownData, setDropdownData] = useState<IInitialDropdownData>({})
   const [loading, setLoading] = useState<boolean>(false)
   const [department, setDepartment] = useState<string>('')
-  const formData = useRef<{ [key: string]: string | string[] | boolean | number | IListObject[] }>({})
+  const formData = useRef<Record<string, unknown>>({})
   const discount = useRef<number | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
       const generator = fetchDataGenerator(option)
       const initialDropdownData = await generator.next().value
-      if (initialDropdownData) setDropdownData(initialDropdownData as InitialDropdownData)
+      setDropdownData(initialDropdownData as IInitialDropdownData || {})
 
       if (option === NavigationActionKind.PAYROLLRECEIPTS) {
         const selectedEmployeeId = formData.current?.employee as any
@@ -140,23 +155,25 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
           generator.next()
           const { value: perceptionsAndDeductions } = generator.next(selectedEmployeeId)
           if (perceptionsAndDeductions) {
-            const { perceptions, deductions } = await perceptionsAndDeductions as PerceptionsAndDeductions
-            setDropdownData((prevData) => ({
-              ...prevData,
-              perceptions,
-              deductions
-            }))
+            const { perceptions, deductions } = await perceptionsAndDeductions as IPerceptionsAndDeductions
+            setDropdownData((prevData) => ({ ...prevData, perceptions, deductions }))
           }
         }
       } else if (option === NavigationActionKind.EMPLOYEES) {
+        const selectedCompanyId = formData.current?.company as any
+        if (selectedCompanyId) {
+          generator.next()
+          const { value: projects } = generator.next(selectedCompanyId)
+          if (projects) {
+            const prs = await projects as IDropDownMenu[]
+            setDropdownData((prevData) => ({ ...prevData, projects: prs }))
+          }
+        }
+
         const selectedJobPositionId = formData.current?.jobPosition as any
         if (selectedJobPositionId) {
           generator.next()
-          const { value: department } = generator.next(selectedJobPositionId)
-          if (department) {
-            const dep = await department as IDropDownMenu
-            setDepartment(dep.name)
-          }
+          setDepartment((await generator.next(selectedJobPositionId).value).name)
         }
       }
     }
@@ -225,30 +242,16 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
       }
     }
 
-    const requestOptions = {
-       method: selectedId && toolbarOption === 1 ? 'PATCH' : 'POST',
-       headers: {
-        'Content-Type': 'application/json'
-       },
-       body: JSON.stringify(formData.current)
-    }
-
     const urlToUse: string = selectedId && toolbarOption === 1 ? `${ String(url) }/${ selectedId } ` : String(url)
-    try {
-      const res: Response = await fetch(urlToUse, requestOptions)
-      if (!res.ok) {
-        const errorData = await res.json()
-        console.error('Request error: ', errorData)
-      } else {
-        setShowForm(false)
-        setSubmitCount(submitCount + 1)
-        discount.current = null
-        localStorage.removeItem('salary')
-        localStorage.removeItem('discount')
-      }
-    } catch (error) {
-      console.error('Request error: ', error)
-    }
+    const method = selectedId && toolbarOption === 1 ? 'PATCH' : 'POST'
+    const result = await fetchData(urlToUse, { method, body: formData.current })
+    if (result === null) return
+
+    setShowForm(false)
+    setSubmitCount(submitCount + 1)
+    discount.current = null
+    localStorage.removeItem('salary')
+    localStorage.removeItem('discount')
   }
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement | SVGElement>): void => {
@@ -260,6 +263,9 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   }
 
   const elements = useMemo(() => {
+    if ((!dropdownData || Object.keys(dropdownData).length === 0))
+      return [] as JSX.Element[]
+
     const objectsForm = createObject(formDataRes, keys, selectedId, dropdownData, option)
     return fieldsConfig[option].reduce((acc: JSX.Element[], { type, name, label, id, inputType, modify, amount }: IFieldConfig, index: number) => {
       const currentGroup = [...acc[acc.length - 1]?.props?.children ?? []]
@@ -344,15 +350,18 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
         return [...acc.slice(0, -1), <div key={ `input-group-${ index }` } className='input-group'>{ [...currentGroup, fieldElement] }</div>]
       }
     }, [])
-  }, [ fieldsConfig, option, dropdownData, toolbarOption, selectedId, data, keys, department ])
+  }, [ option, dropdownData, toolbarOption, selectedId, data, keys, department ])
+
+  if ((!dropdownData || Object.keys(dropdownData).length === 0))
+    return <FormSkeleton />
 
   return (
     <section className='background'>
       <div className='form-container' style={{ height: `${ formSize }%` }}>
         <FaArrowLeft onClick={ handleCancel } />
-        <h2>{`${ toolbarOption === 0 ? 'Crear' : 'Editar' } ${ title }`}</h2>
+        <h2>{ `${ toolbarOption === 0 ? 'Crear' : 'Editar' } ${ title }` }</h2>
         <form className='fields-container' onSubmit={ handleSubmit }>
-          {elements}
+          { elements }
           <div className='button-container'>
             <button type='submit'>{ toolbarOption === 1 ? 'Actualizar' : 'Crear' }</button>
             <button onClick={ (e) => handleCancel(e) } type='button'>Cancelar</button>

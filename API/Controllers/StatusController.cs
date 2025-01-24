@@ -72,11 +72,11 @@ namespace API.Controllers
       if(statusCreate == null || string.IsNullOrEmpty(statusCreate.Name))
         return BadRequest();
 
-      if(statusRepository.GetStatusByName(statusCreate.Name.Trim()) != null)
-        return Conflict("Status already exists");
-
       if(string.IsNullOrEmpty(statusCreate.StatusType) || !TryConvertToStatusType(statusCreate.StatusType, out StatusType statusType))
         statusType = StatusType.Error;
+
+      if(statusRepository.GetStatusByName(statusCreate.Name.Trim(), statusType) != null)
+        return Conflict("Status already exists");
 
       if(string.IsNullOrEmpty(statusCreate.StatusOption) || !TryConvertToStatusType(statusCreate.StatusOption, out StatusOption statusOption))
         statusOption = StatusOption.Error;

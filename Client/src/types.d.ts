@@ -21,7 +21,9 @@ interface IDataObject {
 }
 export interface IDropDownMenu extends IDataObject {
   readonly value: string,
-  readonly name: string
+  readonly name: string,
+  readonly description?: string,
+  readonly compensationType?: string
 }
 export interface IDataResponse {
   readonly columns: string[],

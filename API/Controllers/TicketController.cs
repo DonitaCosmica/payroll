@@ -132,7 +132,7 @@ namespace API.Controllers
         Department = relatedEntities.Department.Name,
         Total = totalPerceptions - totalDeductions,
         Projects = projects,
-        Observations = createTicket.Observations,
+        Observations = createTicket.Observations ?? "Sin Observaciones",
         Company = relatedEntities.Company.Name,
         PayrollType = payrollType,
         Status = relatedEntities.Status.Name,
@@ -158,7 +158,7 @@ namespace API.Controllers
       ticket.JobPosition = relatedEntities.JobPosition.Name;
       ticket.Department = relatedEntities.Department.Name;
       ticket.Total = totalPerceptions - totalDeductions;
-      ticket.Observations = updateTicket.Observations;
+      ticket.Observations = updateTicket.Observations ?? "Sin Observaciones";
       ticket.PayrollType = payrollType;
       ticket.Status = relatedEntities.Status.Name;
       ticket.PeriodId = relatedEntities.Period.PeriodId;

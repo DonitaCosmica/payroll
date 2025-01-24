@@ -1,6 +1,5 @@
-import { JSX, useState } from "react"
-import { IoCloudUploadOutline } from "react-icons/io5"
-import { FaCircleCheck } from "react-icons/fa6"
+import React, { JSX, useState } from "react"
+import { useFetchData } from "../../hooks/useFetchData"
 import './UploadBanks.css'
 
 interface IData {
@@ -8,7 +7,11 @@ interface IData {
   success: boolean
 }
 
+const FaCircleCheck = React.lazy(() => import('react-icons/fa6').then(module => ({ default: module.FaCircleCheck })))
+const IoCloudUploadOutline = React.lazy(() => import('react-icons/io5').then(module => ({ default: module.IoCloudUploadOutline })))
+
 export const UploadBanks = (): JSX.Element => {
+  const { fetchData } = useFetchData<IData>()
   const [successUpload, setSuccessUpload] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -38,35 +41,21 @@ export const UploadBanks = (): JSX.Element => {
     reader.onload = async (e: ProgressEvent<FileReader>) => {
       const text = e.target?.result
 
-      if (typeof text !== "string") {
+      if (typeof text !== 'string') {
         console.error('Error: The file does not contain valid text.')
         setErrorMessage('Error processing the file.')
         return
       }
 
-      try {
-        const objectsArray = csvToObjectsArray(text)
-        const requestOptions = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(objectsArray),
-        }
+      const url: string = 'http://localhost:5239/api/Bank/csv'
+      const method = 'POST'
+      const objectsArray = csvToObjectsArray(text)
+      const result = await fetchData(url, { method, body: objectsArray })
+      if (!result) return
 
-        const response = await fetch("http://localhost:5239/api/Bank/csv", requestOptions);
-        if (!response.ok)
-          throw new Error(`Error in the request: ${ response.statusText }`)
-
-        const data: IData = await response.json()
-        setSuccessUpload(data.success);
-        if (!data.success)
-          setErrorMessage(data.message || 'Unknown error on the server.');
-      } catch (error) {
-        console.error('File processing error: ', error);
-        setErrorMessage((error as Error).message);
-      }
-    };
+      setSuccessUpload(result.success)
+      if (!result.success) setErrorMessage(result.message || 'Unknown error on the server.')
+    }
 
     reader.onerror = () => {
       console.error('Error reading the file.')

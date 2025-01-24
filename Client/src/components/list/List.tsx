@@ -1,10 +1,12 @@
-import { JSX, useCallback, useEffect, useRef, useState } from "react"
+import { JSX, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
 import { usePeriodContext } from "../../context/Period"
 import { useSortEmployeesContext } from "../../context/SortEmployees"
+import { useFetchData } from "../../hooks/useFetchData"
 import { type IDataObject, type IListObject } from "../../types"
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md"
 import { compareNames, findKeyAndGetValue, getKeyByValue, getKeyId, isDayOfWeek, normalizeValue, toCamelCase } from '../../utils/modifyData'
+import { ListSkeleton } from "../../loading/listSkeleton/ListSkeleton"
 import './List.css'
 
 interface Props {
@@ -14,30 +16,11 @@ interface Props {
   setUpdateTableWork: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const ListSkeleton = (): JSX.Element => {
-  return (
-    <section className="list">
-      <div className="list-container">
-        <table id="data-list" className="content-skeleton">
-          <tbody>
-            {[...Array(20)].map((_, index) => (
-              <tr key={ `row-${ index }` }>
-                {[...Array(8)].map((_, id) => (
-                  <td key={ `cell-${ index }-${ id }` } className="cell-skeleton"></td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  )
-}
-
 export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowForm, setUpdateTableWork}): JSX.Element => {
   const { option, data, columnNames, formData: formDataRes, dispatch } = useNavigationContext()
   const { isCurrentWeek } = usePeriodContext()
   const { filter } = useSortEmployeesContext()
+  const { fetchData } = useFetchData()
 
   const [filteredValues, setFilteredValues] = useState<IDataObject[]>(data)
   const [_, setLoading] = useState<boolean>(true)
@@ -93,29 +76,17 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
 
   useEffect(() => {
     const filtered = data.filter((value: IDataObject) =>
-      Object.values(value).some((val) =>
-        normalizeValue(val).includes(searchFilter.toLowerCase().trim())
-      )
+      Object.values(value).some((val) => normalizeValue(val).includes(searchFilter.toLowerCase().trim()))
     )
 
     setFilteredValues(filtered)
   }, [ searchFilter, data, option ])
 
-  useEffect(() =>
-    applyFilter()
-  , [ filter, applyFilter ])
+  useEffect(() => applyFilter(), [ filter, applyFilter ])
 
   useEffect(() => {
     const updateData = async () => {
       if (!updateTableWork) return
-
-      const requestOptions = {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData.current)
-      }
 
       formData.current.forEach(item => {
         if ('perceptions' in item && Array.isArray(item.perceptions)) {
@@ -126,21 +97,26 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
         }
       })
 
-      try {
-        const res: Response = await fetch('http://localhost:5239/api/TableWork', requestOptions)
-        if (!res.ok) {
-          const errorData = await res.json()
-          console.error('Request error: ', errorData)
-        }
-      } catch (error) {
-        console.error('Request error: ', error)
-      } finally {
-        setUpdateTableWork(false)
-      }
+      const url: string = 'http://localhost:5239/api/TableWork'
+      const method = 'PATCH'
+      const result = await fetchData(url, { method, body: formData.current })
+      if (result) console.error('Request error: ', result)
+      setUpdateTableWork(false)
     }
 
     updateData()
   }, [ updateTableWork ])
+
+  const valuesTest = useMemo(() => {
+    const filteredBySearch = data.filter((value: IDataObject) =>
+      Object.values(value).some((val) => normalizeValue(val).includes(searchFilter.toLowerCase().trim())))
+
+    const filteredByStatus = option === NavigationActionKind.EMPLOYEES && filter !== 'default' 
+      ? filteredBySearch.filter((value: IDataObject) => 'status' in value && filter.includes(value.status as string)) 
+      : filteredBySearch
+
+    return option === NavigationActionKind.EMPLOYEES ? filteredByStatus : filteredBySearch
+  }, [ searchFilter, data, option, filter ])
 
   const getIdSelected = useCallback((info: IDataObject): void => {
     const uuid = findKeyAndGetValue(info, 'Id')
@@ -200,6 +176,8 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
     const newKey = key === key.toUpperCase() ? key.toLowerCase() : toCamelCase(key)
     const info = findKeyAndGetValue(row, newKey)
 
+    //console.log({ row, column, key, newKey, info })
+
     if (info === undefined || info === null) return 'Error'
     if (Array.isArray(info)) return renderArray(info)
     if (typeof info === 'boolean') return info ? 'Verdadero' : 'Falso'
@@ -207,7 +185,7 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
       return info.toFixed(2)
 
     return info.toString()
-  }, [formData.current])
+  }, [ formData.current ])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number): void => {
     const { id, value } = e.target
@@ -244,7 +222,7 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
               }
 
               targetArray.push(newItem)
-              targetArray.sort((a, b) => (a.name as string).localeCompare(b.name as string))
+              targetArray.sort((a, b) => compareNames(String(a), String(b)))
             }
           }
         }
@@ -306,6 +284,11 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
     return totals[column] ?? ''
   }, [ filteredValues ])
 
+  if (!columnsDictionary.current || Object.keys(columnsDictionary.current).length === 0)
+    return <ListSkeleton />
+
+  console.log({ valuesTest })
+
   return (
     <section className="list">
       <div className="list-container">
@@ -337,6 +320,7 @@ export const List: React.FC<Props> = ({ searchFilter, updateTableWork, setShowFo
               >
                 {columnNames.map((column: string, cellIndex: number) => {
                   const content = renderCellContent(row, column)
+                  //console.log({ content, column })
                   return (
                   <td key={ `$data-${ column }-${ cellIndex }` }>
                     {option !== NavigationActionKind.TABLEWORK

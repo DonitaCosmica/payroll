@@ -55,8 +55,8 @@ export const SortEmployeesProvider: React.FC<Props> = ({ children }) => {
       return Object.values(groupedByOption).flatMap(statusGroup =>
         statusGroup.flatMap((status1, index) =>
           statusGroup.slice(index + 1).map(status2 => ({
-            id: `${status1.name}/${status2.name}`,
-            label: `${status1.name}/${status2.name}`,
+            id: `${ status1.name }/${ status2.name }`,
+            label: `${ status1.name }/${ status2.name }`,
           }))
         )
       )
