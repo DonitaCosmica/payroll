@@ -5,7 +5,7 @@ import { NavigationActionKind, useNavigationContext } from './context/Navigation
 import { Titlebar } from './components/titlebar/Titlebar'
 import { Navbar } from './components/navbar/Navbar'
 import { Form } from './components/form/Form'
-import { ListSkeleton } from './loading/listSkeleton/ListSkeleton' 
+import { ListSkeleton } from './custom/listSkeleton/ListSkeleton' 
 import './App.css'
 
 const Filter = React.lazy(() => import('./components/filter/Filter').then(module => ({ default: module.Filter })))
@@ -18,10 +18,9 @@ export const App = (): JSX.Element => {
   const { option } = useNavigationContext()
   const [showForm, setShowForm] = useState<boolean>(false)
   const [searchFilter, setSearchFilter] = useState<string>('')
-  const [updateTableWork, setUpdateTableWork] = useState<boolean>(false)
 
   useEffect(() => {
-    const checkLogin = async () => {
+    const checkLogin = async (): Promise<void> => {
       const authUrl: string = 'http://localhost:1234/api/auth/check-login'
       const loginUrl: string = 'http://localhost:5173/login'
 
@@ -42,7 +41,7 @@ export const App = (): JSX.Element => {
     checkLogin()
   }, [ option ])
 
-  const renderWithSuspense = (Component: React.FC<any>, props = {}, fallback: React.ReactNode) => (
+  const renderWithSuspense = (Component: React.FC<any>, props = {}, fallback: React.ReactNode): JSX.Element => (
     <Suspense fallback={ fallback }>
       <Component { ...props } />
     </Suspense>
@@ -60,13 +59,10 @@ export const App = (): JSX.Element => {
             {renderWithSuspense(Toolbar, {
               setSearchFilter,
               setShowForm,
-              setUpdateTableWork,
             }, <div>Loading Toolbar...</div>)}
             {renderWithSuspense(List, {
               searchFilter,
-              updateTableWork,
               setShowForm,
-              setUpdateTableWork,
             }, <ListSkeleton />)}
           </SortEmployeesProvider>) : (
             renderWithSuspense(UploadBanks, {}, <div>Loading Banks...</div>)

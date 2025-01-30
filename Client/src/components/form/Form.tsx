@@ -3,13 +3,13 @@ import { NavigationActionKind, useNavigationContext } from '../../context/Naviga
 import { usePeriodContext } from '../../context/Period'
 import { useFetchData } from '../../hooks/useFetchData'
 import { type IDropDownMenu, type IFieldConfig, type IDataObject, type IListObject, type IDataResponse } from '../../types'
-import { fieldsConfig } from '../../utils/fields'
-import { FaArrowLeft } from "react-icons/fa"
 import { DropDown } from '../dropdown/DropDown'
 import { MultiDropDown } from '../multiDropDown/MultiDropDown'
+import { FormSkeleton } from '../../custom/formSkeleton/FormSkeleton'
+import { fieldsConfig } from '../../utils/fields'
+import { FaArrowLeft } from "react-icons/fa"
 import { getProperty, pluralToSingular } from '../../utils/modifyData'
 import './Form.css'
-import { FormSkeleton } from '../../loading/formSkeleton/FormSkeleton'
 
 interface Props {
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
@@ -51,7 +51,7 @@ function* fetchDataGenerator(option: NavigationActionKind) {
   }
 }
 
-const fetchInitialDropdownData = async (option: NavigationActionKind) => {
+const fetchInitialDropdownData = async (option: NavigationActionKind): Promise<any> => {
   try {
     const fetchPromises = fieldsConfig[option]
       .filter(({ type, fetchUrl }: IFieldConfig) => ['dropmenu', 'multi-option'].includes(type) && fetchUrl)
@@ -61,10 +61,10 @@ const fetchInitialDropdownData = async (option: NavigationActionKind) => {
           const res: Response = await fetch(urlToUse)
           const data = await res.json()
           const dataResponse = Array.isArray(data) ? data : data.formData
-          return { [String(id)]: Object.keys(dataResponse).filter(key => key !== 'columns').flatMap(key => dataResponse[key]) }
+          return { [ String(id) ]: Object.keys(dataResponse).filter(key => key !== 'columns').flatMap(key => dataResponse[key]) }
         } catch (error) {
           console.error(`Error fetching dropdown data for ${ id }`, error)
-          return { [String(id)]: [] }
+          return { [ String(id) ]: [] }
         }
       })
 
@@ -114,7 +114,7 @@ const fetchDepartment = async (jobPositionId: string | undefined): Promise<IDrop
   }
 }
 
-const createObject = (formDataRes: IDataObject[], keys: string[], selectedId: string, dropdownData: { [key: string]: IDropDownMenu[] }, option: NavigationActionKind): Record<string, unknown> | null => {
+const createObject = (formDataRes: IDataObject[], keys: string[], selectedId: string, dropdownData: Record<string, IDropDownMenu[]>, option: NavigationActionKind): Record<string, unknown> | null => {
   const selectedObj = formDataRes.find((item: IDataObject) => Object.keys(item).some(key => key.endsWith('Id') && item[key] === selectedId))
   if (!selectedObj) return null
 
@@ -144,7 +144,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const discount = useRef<number | null>(null)
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (): Promise<void> => {
       const generator = fetchDataGenerator(option)
       const initialDropdownData = await generator.next().value
       setDropdownData(initialDropdownData as IInitialDropdownData || {})
@@ -217,6 +217,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
         }
         return item
       })
+
     if (option === NavigationActionKind.PAYROLLRECEIPTS && selectedPeriod.week && selectedPeriod.year) {
       const { deductions, perceptions } = formData.current
       const discount = localStorage.getItem('discount')

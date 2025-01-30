@@ -66,15 +66,15 @@ export const normalizeValue = (val: unknown): string =>
     .trim()
 
 export const getProperty = (obj: IDataObject, key: string): string | number | boolean | object => {
-  const propertyMap: { [key: string]: string } = Object.keys(obj).reduce((item, originalKey) => {
+  const propertyMap: Record<string, string> = Object.keys(obj).reduce((item, originalKey) => {
     item[originalKey.toLowerCase()] = originalKey
     return item
-  }, {} as { [key: string]: string })
+  }, {} as Record<string, string>)
 
   return obj[propertyMap[key.toLowerCase()]]
 }
 
-export const reorganizeData = (data: IDataObject[]) =>
+export const reorganizeData = (data: IDataObject[]): IDataObject[] =>
   data.map((item: IDataObject) => {
     if ('additionalProperties' in item && item.additionalProperties && typeof item.additionalProperties === 'object') {
       const { additionalProperties, ...rest } = item

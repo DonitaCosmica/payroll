@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useEffect, useReducer, useState } from "react"
+import { createContext, JSX, ReactNode, useContext, useEffect, useReducer, useState } from "react"
 import { type IDataResponse, type IDataObject } from "../types"
 import { compareNames, reorganizeData } from "../utils/modifyData"
 
@@ -58,10 +58,18 @@ interface NavigationAction {
 interface NavigationContextType extends NavigationState {
   dispatch: React.Dispatch<NavigationAction>,
   submitCount: number,
-  setSubmitCount: React.Dispatch<React.SetStateAction<number>>
+  updateTableWork: boolean,
+  setSubmitCount: React.Dispatch<React.SetStateAction<number>>,
+  setUpdateTableWork: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const navigationConfig: Record<NavigationActionKind, { url: string, title: string, formSize: number }> = {
+interface IFormConfig {
+  url: string,
+  title: string,
+  formSize: number
+}
+
+const navigationConfig: Record<NavigationActionKind, IFormConfig> = {
   [NavigationActionKind.PAYROLLRECEIPTS]: { url: 'http://localhost:5239/api/Ticket', title: 'Periodo', formSize: 75 },
   [NavigationActionKind.EMPLOYEES]: { url: 'http://localhost:5239/api/Employee', title: 'Trabajador', formSize: 75 },
   [NavigationActionKind.JOBPOSITIONS]: { url: 'http://localhost:5239/api/JobPosition', title: 'Puesto', formSize: 37.5 },
@@ -119,7 +127,9 @@ const NavigationContext: React.Context<NavigationContextType> = createContext<Na
   ...loadStateFromLocalStorage(), 
   dispatch: () => {},
   submitCount: 0,
-  setSubmitCount: () => {}
+  updateTableWork: false,
+  setSubmitCount: () => {},
+  setUpdateTableWork: () => {}
 })
 
 const NavigationReducer = (state: NavigationState, action: NavigationAction): NavigationState => {
@@ -195,9 +205,10 @@ const NavigationReducer = (state: NavigationState, action: NavigationAction): Na
   }
 }
 
-export const NavigationProvider: React.FC<Props> = ({ children }) => {
+export const NavigationProvider: React.FC<Props> = ({ children }): JSX.Element => {
   const [state, dispatch] = useReducer(NavigationReducer, loadStateFromLocalStorage())
   const [submitCount, setSubmitCount] = useState<number>(0)
+  const [updateTableWork, setUpdateTableWork] = useState<boolean>(false)
 
   useEffect(() => {
     const getValue = (value: string | number): number | string => 
@@ -283,7 +294,9 @@ export const NavigationProvider: React.FC<Props> = ({ children }) => {
         ...state,
         dispatch,
         submitCount,
-        setSubmitCount
+        updateTableWork,
+        setSubmitCount,
+        setUpdateTableWork
       }}
     >
       { children }

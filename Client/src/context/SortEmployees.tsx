@@ -1,5 +1,5 @@
-import { createContext, ReactNode, useContext, useEffect, useMemo, useReducer, useRef } from "react"
-import { type IStatus } from "../types"
+import { createContext, JSX, ReactNode, useContext, useEffect, useMemo, useReducer, useRef } from "react"
+import { type IDropMenu, type IStatus } from "../types"
 
 interface Props {
   children: ReactNode
@@ -39,12 +39,12 @@ const sortReducer = (state: SortState, action: SortAction): SortState => {
   }
 };
 
-export const SortEmployeesProvider: React.FC<Props> = ({ children }) => {
+export const SortEmployeesProvider: React.FC<Props> = ({ children }): JSX.Element => {
   const [state, dispatch] = useReducer(sortReducer, INITIAL_STATE)
   const statusesRef = useRef<{ id: string; label: string }[]>([])
 
   useEffect(() => {
-    const generateStatusCombinations = (data: IStatus[]): { id: string, label: string }[] => {
+    const generateStatusCombinations = (data: IStatus[]): IDropMenu[] => {
       const groupedByOption = data.reduce<Record<IStatus['statusOption'], IStatus[]>>((acc, status) => {
         const { statusOption } = status
         acc[statusOption] = acc[statusOption] || []
@@ -62,7 +62,7 @@ export const SortEmployeesProvider: React.FC<Props> = ({ children }) => {
       )
     }
 
-    const fetchStatuses = async () => {
+    const fetchStatuses = async (): Promise<void> => {
       try {
         const res: Response = await fetch('http://localhost:5239/api/Status/byType?type=Employee')
         if (!res.ok) throw new Error('Failed to fetch statuses')

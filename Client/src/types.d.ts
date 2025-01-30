@@ -50,10 +50,12 @@ export interface IWeekYear {
 }
 export interface IPeriod extends Pick<IWeekYear, 'periodId' | 'week'> {}
 export interface IDates extends Record<number, IPeriod[]> {}
-export interface IIconDefinition {
+export interface IDropMenu {
   readonly id: string,
+  readonly label: string
+}
+export interface IIconDefinition extends IDropMenu {
   readonly icon?: JSX.Element,
-  readonly label: string,
   readonly onClick?: (id?: string, label?: string) => void
 }
 export interface IReportDefinition {
@@ -81,4 +83,8 @@ export interface IStatus {
 export interface IPayrollType {
   readonly payrollId: string,
   readonly name: string
+}
+export interface IPageComponents {
+  titlebar: string,
+  filterReport: string
 }

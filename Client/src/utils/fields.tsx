@@ -89,32 +89,28 @@ export const fieldsConfig: Record<NavigationActionKind, IFieldConfig[]> = {
 } as const
 
 export const fieldsReport: Record<string, IFieldConfig[]> = {
-  ['Acumulado x Periodos']: [
+  ['accumulatedByPeriod']: [
     { type: FieldType.Input, name: 'Periodo Inicial', inputType: InputType.Date, modify: true, id: 'inicialPeriod' },
     { type: FieldType.Input, name: 'Periodo Final', inputType: InputType.Date, modify: true, id: 'finalPeriod' }
   ],
-  ['Acumulado x Depto.']: [
+  ['accumulatedByDepartment']: [
     { type: FieldType.DropMenu, name: 'Departamento', fetchUrl: 'http://localhost:5239/api/Department', id: 'department' },
   ],
-  ['Acumulado por Proyecto/Puesto']: [
+  ['accumulatedByProject']: [
     { type: FieldType.Input, name: 'Periodo Inicial', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: InputType.Date, modify: true, id: 'inicialPeriod' },
     { type: FieldType.Input, name: 'Periodo Final', label: `${ new Date().toLocaleDateString("en-GB").replace('/', '/') }`, inputType: InputType.Date, modify: true, id: 'finalPeriod' },
     { type: FieldType.DropMenu, name: 'Departamento', fetchUrl: 'http://localhost:5239/api/Department', id: 'department' },
     { type: FieldType.DropMenu, name: 'Concepto', fetchUrl: 'http://localhost:5239/api/Perception', id: 'perception' },
     { type: FieldType.Input, name: 'Resumen', inputType: InputType.Checkbox, modify: true, id: 'resumen' }
   ],
-  ['Prestamos y Descuentos']: [
-
-  ],
-  ['Deducciones x Proyecto']: [
-
-  ],
-  ['Trabajadores por Fecha']: [
+  ['loans']: [],
+  ['deductions']: [],
+  ['employeesByDate']: [
     { type: FieldType.DropMenu, name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', id: 'projects' },
     { type: FieldType.DropMenu, name: 'Puesto', fetchUrl: 'http://localhost:5239/api/JobPosition', id: 'jobPosition' },
     { type: FieldType.DropMenu, name: 'Status', fetchUrl: 'http://localhost:5239/api/Status/byType?type=Employee', id: 'status', uriComponent: 'Employee' }
   ],
-  ['Generar Layout']: [
+  ['update-layout']: [
     { type: FieldType.DropMenu, name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', id: 'projects' },
     { type: FieldType.DropMenu, name: 'Cuenta', fetchUrl: 'http://localhost:5239/api/Account', id: 'account' },
     { type: FieldType.Input, name: 'Agrupar no titulares', inputType: InputType.Checkbox, modify: true, id: 'titular' }

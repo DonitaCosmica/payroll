@@ -1,22 +1,21 @@
 import React, { JSX, Suspense, useMemo, useState } from "react"
-import { ICON_OPTIONS } from "../../utils/icons"
 import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
 import { useSortEmployeesContext } from "../../context/SortEmployees"
+import { AiOutlineSearch } from 'react-icons/ai'
+import { ICON_OPTIONS } from "../../utils/icons"
 import './Toolbar.css'
 
 interface Props {
   setSearchFilter: React.Dispatch<React.SetStateAction<string>>
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
-  setUpdateTableWork: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const DropMenu = React.lazy(() => import('../dropmenu/DropMenu').then(module => ({ default: module.DropMenu })))
 const IconSection = React.lazy(() => import('../iconSection/IconSection').then(module => ({ default: module.IconSection })))
-const AiOutlineSearch = React.lazy(() => import('react-icons/ai').then(module => ({ default: module.AiOutlineSearch })))
 const BsThreeDotsVertical = React.lazy(() => import('react-icons/bs').then(module => ({ default: module.BsThreeDotsVertical })))
 const GrSort = React.lazy(() => import('react-icons/gr').then(module => ({ default: module.GrSort })))
 
-export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setUpdateTableWork }): JSX.Element => {
+export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm }): JSX.Element => {
   const { option, url, submitCount, selectedId, setSubmitCount, dispatch } = useNavigationContext()
   const { label } = useSortEmployeesContext()
   const [showDropMenu, setShowDropMenu] = useState<boolean>(false)
@@ -42,15 +41,10 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setUpda
   ].includes(option)
 
   const handleForm = async (id: string, index: number): Promise<void> => {
-    if (!id.includes('basic') && id !== 'update' && id !== 'table') return
+    if (!id.includes('basic') && id !== 'table') return
 
     if (id === 'table') {
       dispatch({ type: 11 })
-      return
-    }
-
-    if (id === 'update') {
-      setUpdateTableWork(true)
       return
     }
 
@@ -128,9 +122,7 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm, setUpda
             autoComplete='off'
             onChange={ (e) => setSearchFilter(e.target.value) }
           />
-          <Suspense fallback={ <div>Loading search...</div> }>
-            <AiOutlineSearch />
-          </Suspense>
+          <AiOutlineSearch />
         </div>}
       {option === NavigationActionKind.EMPLOYEES && 
         <div className="container">

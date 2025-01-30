@@ -5,14 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reportes</title>
     <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        height: 100vh;
+      }
+
       #content {
         overflow-x: scroll;
+        flex-grow: 1;
       }
 
       .layout-generator {
         display: flex;
         flex-direction: column;
         align-items: center;
+        padding: 25px 0;
       }
 
       .layout-generator:first-child {
@@ -316,7 +325,7 @@
       }
     </style>
   </head>
-  <body style="position: relative; height: 100vh">
+  <body>
     <section id="background">
       <div class="mail-form-container">
         <h2>Enviar Correo Electrónico</h2>
@@ -649,6 +658,12 @@
           }
         }
 
+        const compareNames = (a, b) => {
+          if (typeof a === 'string' && typeof b === 'string') return a.localeCompare(b)
+          if (typeof a === 'number' && typeof b === 'number') return a - b
+          return 0
+        }
+
         const fillSelectTag = () => {
           const item = localStorage.getItem('dropdownData')
           if (!item) return
@@ -664,6 +679,12 @@
               option.value = '0'
               option.textContent = 'Elije una opcion'
               selectElement.appendChild(option)
+
+              options.sort((a, b) => {
+                const nameA = a.name ?? a.description ?? ''
+                const nameB = b.name ?? b.description ?? ''
+                return compareNames(nameA, nameB)
+              })
 
               options.forEach(opt => {
                 const option = document.createElement('option')
@@ -695,10 +716,39 @@
           document.getElementById('filter-report-background').style.display = 'none'
           document.getElementById('content').style.overflowX = 'auto'
           localStorage.removeItem('dropdownData')
+
           const hasAccount = Object.keys(filterData).some(key => key === 'account')
-          if (!hasAccount) return
+          if (!hasAccount) {
+            const selectTags = document.getElementsByTagName('select')
+            Array.from(selectTags).forEach(tag => {
+              const option = tag.options[tag.selectedIndex].value
+              const valuesDropDown = filterData[tag.id]
+              const selectedValue = valuesDropDown.find(item => {
+                for (const value in item)
+                  if (item[value] === option) return item
+              })
+
+              const table = document.querySelector('#data-list tbody')
+              const rows = table.getElementsByTagName('tr')
+              Array.from(rows).forEach(row => {
+                const cells = row.getElementsByTagName('td')
+                const value = (selectedValue.name ?? selectedValue.description ?? '').toLowerCase().trim()
+                const matchFound = Array.from(cells).some(cell =>
+                  (cell.textContent || cell.innerText).toLowerCase().trim().includes(value)
+                )
+
+                row.style.display = matchFound ? '' : 'none'
+              })
+            })
+
+            return
+          }
 
           try {
+            const selectTags = document.getElementsByTagName('select')
+            const project = Array.from(selectTags).find(({ id }) => id === 'projects') && filterData['projects']
+
+            document.getElementById('data-list').style.display = 'none'
             const banorteTable = []
             const otherBanksTable = []
             const columns = [
@@ -721,6 +771,8 @@
             ])
 
             const contentTable = document.getElementById('content')
+            contentTable.style.padding = '10px 20px'
+
             const createTableWithHeader = (columns, tableId, className, index) => {
               const table = document.createElement('table')
               table.id = `${ tableId }-${ index }`
@@ -740,7 +792,7 @@
               thead.appendChild(tr)
               table.appendChild(thead)
               return table;
-            };
+            }
 
             const divA = document.createElement('div')
             const divB = document.createElement('div')
@@ -761,7 +813,7 @@
 
             const tableA = createTableWithHeader(columns, 'data-list', 'content', 'A')
             const tableB = createTableWithHeader(columns, 'data-list', 'content', 'B')
-            
+
             h1A.appendChild(buttonA)
             h1B.appendChild(buttonB)
             div2A.appendChild(h1A)
@@ -772,6 +824,7 @@
             divB.appendChild(div2B)
             contentTable.appendChild(divA)
             contentTable.appendChild(divB)
+            contentTable.style.padding = '10px 20px'
 
             dataEmployee.formData.forEach((employee) => {
               const code = getBankCode(employee.bank, dataBank)
@@ -816,9 +869,10 @@
                 const p = document.createElement('p')
                 if (index === 3) p.textContent = `${ rowCount } Movimientos`
                 if (index === 4) {
-                  p.textContent = sumColumn5.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  p.textContent = `$${ sumColumn5.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }`
                   p.className = 'total-salary'
                 }
+                if (index === 10) p.textContent = project.name ?? 'Error'
                 td.appendChild(p)
                 extraRow1.appendChild(td)
               })
@@ -832,7 +886,7 @@
                 if (index === 2) p.textContent = 'Total'
                 if (index === 3) p.textContent = `${ rowCount } Movimientos`
                 if (index === 4) {
-                  p.textContent = sumColumn5.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                  p.textContent = `$${ sumColumn5.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }`
                   p.className = 'total-salary'
                 }
                 if (index === 10) p.textContent = `Periodo ${ getWeekNumber(new Date()) } ${ new Date().getFullYear() }`
@@ -849,7 +903,7 @@
             const tbody = document.querySelector('#data-list-B tbody')
             if (tbody) {
               const pBanks = document.getElementsByClassName('total-salary')
-              const totalSalaries = Array.from(pBanks).reduce((sum, bank) => sum + parseFloat(bank.textContent), 0) / 2
+              const totalSalaries = Array.from(pBanks).reduce((sum, bank) => sum + parseFloat(bank.textContent.replace(',', '').replace('$', '')), 0) / 2
               const blankRows = Array.from({ length: 3 }, (_ ,index) => {
                 const tr = document.createElement('tr')
                 if (index <= 1) {
@@ -866,17 +920,17 @@
                     const p = document.createElement('p')
                     if (index === 2) p.textContent = 'GRAN TOTAL'
                     if (index === 3) p.textContent = dataEmployee.formData.length
-                    if (index === 4) p.textContent = totalSalaries.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                    if (index === 4) p.textContent = `$${ totalSalaries.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }`
                     td.appendChild(p)
                     tr.appendChild(td)
                     tr.className = 'subtotal-banorte'
                   })
                 }
 
-                return tr;
-              });
+                return tr
+              })
 
-              tbody.append(...blankRows);
+              tbody.append(...blankRows)
             }
 
             buttonA.addEventListener('click', () => exportTableToTxt(tableA))
@@ -885,7 +939,10 @@
             console.error('Error getting data: ', error)
           }
         })
-        document.getElementById('cancel-report').addEventListener('click', () => window.close())
+        document.getElementById('cancel-report').addEventListener('click', () => {
+          localStorage.removeItem('dropdownData')
+          window.close()
+        })
         document.getElementById('receiver').onchange = handleChange
         document.getElementById('subject').onchange = handleChange
         document.getElementById('msg').onchange = handleChange

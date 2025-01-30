@@ -13,11 +13,13 @@ import { TfiClose } from "react-icons/tfi"
 import { IoReload } from "react-icons/io5"
 import { LuClipboardList } from "react-icons/lu"
 
-export const ICON_OPTIONS: {
-  common: IIconDefinition[]
-  special: Record<NavigationActionKind, IIconDefinition[]>
+interface IIConOptions {
+  common: IIconDefinition[],
+  special: Record<NavigationActionKind, IIconDefinition[]>,
   menu: Record<NavigationActionKind, IIconDefinition[]>
-} = {
+}
+
+export const ICON_OPTIONS: IIConOptions = {
   common: [
     { id: 'basic-new', icon: <GrAdd fontSize='1.2rem' color="#73ba69" />, label: 'Nuevo' },
     { id: 'basic-edit', icon: <BiEditAlt fontSize='1.2rem' color="#e5ac3b" />, label: 'Editar' },
@@ -51,8 +53,8 @@ export const ICON_OPTIONS: {
     [NavigationActionKind.BANKS]: [],
     [NavigationActionKind.TABLEWORK]: [
       { id: 'update', icon: <IoReload color="#333" />, label: 'Actualizar' },
-      { id: 'report', icon: <LuClipboardList color="#70b2fb" />, label: 'Reportes' },
-      { id: 'update', icon: <LuClipboardList color="#70b2fb" />, label: 'Layout Bancos' }
+      { id: 'report-layout', icon: <LuClipboardList color="#70b2fb" />, label: 'Reportes' },
+      { id: 'update-layout', icon: <LuClipboardList color="#70b2fb" />, label: 'Layout Bancos' }
     ],
     [NavigationActionKind.UPDATEDATA]: [],
     [NavigationActionKind.UPDATETABLE]: [],

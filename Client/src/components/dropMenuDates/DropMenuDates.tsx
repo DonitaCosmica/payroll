@@ -1,7 +1,7 @@
-import React, { JSX, useEffect, useRef, useState } from 'react'
+import React, { JSX, useEffect, useMemo, useRef, useState } from 'react'
 import { usePeriodContext } from '../../context/Period'
 import { useFetchData } from '../../hooks/useFetchData'
-import { IWeekYear, type IIconDefinition } from '../../types'
+import { type IWeekYear, type IIconDefinition } from '../../types'
 import { ICON_OPTIONS } from '../../utils/icons'
 import { getMondayOfWeek, getWeekNumber } from '../../utils/modifyDates'
 import { Accordion } from '../accordion/Accordion'
@@ -10,13 +10,22 @@ import './DropMenuDates.css'
 
 export const DropMenuDates = React.memo((): JSX.Element => {
   const { fetchData, error } = useFetchData()
-  const ICONS = [...ICON_OPTIONS.common, { id: 'send', label: 'Enviar', icon: <FaCheck fontSize='1rem' color='#73ba69' /> }]
   const { dates, selectedPeriod, setActionType } = usePeriodContext()
   const [showOptionsPeriod, setShowOptionsPeriod] = useState<boolean>(false)
   const selectedOption = useRef<number>(-1)
   const period = useRef<IWeekYear>({ week: 0, year: 0 })
 
   useEffect(() => { setActionType('FETCH_DATA') }, [])
+
+  const ICONS = useMemo(() =>
+    [
+      ...ICON_OPTIONS.common,
+      {
+        id: 'send',
+        label: 'Enviar',
+        icon: <FaCheck fontSize='1rem' color='#73ba69' />
+      }]
+  , [ ICON_OPTIONS ])
 
   const handleForm = async (e: React.MouseEvent<HTMLDivElement>, index: number): Promise<void> => {
     e.stopPropagation()

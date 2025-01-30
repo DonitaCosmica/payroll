@@ -78,7 +78,7 @@ export const Filter = (): JSX.Element => {
             <DropMenu
               menuOp={payrollTypes.map(op => ({
                 ...op,
-                onClick: () => dispatch({
+                onClick: (): void => dispatch({
                   type: NavigationActionKind.UPDATEPAYROLL,
                   payload: { payrollType: op.label }
                 })

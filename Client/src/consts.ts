@@ -14,7 +14,7 @@ export const LINKS: string[] = [
   'BANCOS'
 ] as const
 
-export const REPORTING_ACTIONS: Record<NavigationActionKind, { [key: string]: IReportDefinition[] }> = {
+export const REPORTING_ACTIONS: Record<NavigationActionKind, Record<string, IReportDefinition[]>> = {
   [NavigationActionKind.PAYROLLRECEIPTS]: {
     'report': [
       { id: 'ticketByPeriod', label: 'Recibos del Periodo', hasForm: false }, { id: 'ticketByPeriodDet', label: 'Recibos del Periodo (det)', hasForm: false },
@@ -44,7 +44,7 @@ export const REPORTING_ACTIONS: Record<NavigationActionKind, { [key: string]: IR
   [NavigationActionKind.COMPANIES]: {},
   [NavigationActionKind.TABLEWORK]: {
     'layout': [
-      { id: 'layout', label: 'Generar Layout', hasForm: true }
+      { id: 'update-layout', label: 'Generar Layout', hasForm: true }
     ]
   },
   [NavigationActionKind.BANKS]: {},
@@ -57,13 +57,13 @@ export const REPORTING_ACTIONS: Record<NavigationActionKind, { [key: string]: IR
 } as const
 
 export const FILTER_COLUMNS: Record<string, string[]> = {
-  ['Prestamos y Descuentos']: [
+  ['loans']: [
     'Folio', 'Proyectos', 'Trabajador'
   ],
-  ['Deducciones x Proyecto']: [
+  ['deductions']: [
     'Proyectos'
   ],
-  ['Trabajadores por Fecha']: [
+  ['employeesByDate']: [
     'Proyectos', 'Nombre', 'Puesto de trabajo',
     'Estado', 'Salario Base', 'Fecha de Admisión'
   ]

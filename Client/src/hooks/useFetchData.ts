@@ -6,7 +6,7 @@ interface IFetchOptions {
   headers?: HeadersInit
 }
 
-export const useFetchData = <T,>() => {
+export const useFetchData = <T,>(): { loading: boolean, error: string | null, fetchData: (url: string, options?: IFetchOptions) => Promise<T | null> } => {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -21,7 +21,7 @@ export const useFetchData = <T,>() => {
     }
 
     try {
-      const response = await fetch(url, requestOptions)
+      const response: Response = await fetch(url, requestOptions)
       if (!response.ok) {
         const errorMessage = response.headers.get('content-type')?.includes('application/json')
           ? `Request failed: ${ response.status } - ${ (await response.json()).message || 'Unknown error' }`

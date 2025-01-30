@@ -1,14 +1,13 @@
 import React, { JSX, useState } from "react"
 import { useFetchData } from "../../hooks/useFetchData"
+import { FaCircleCheck } from "react-icons/fa6"
+import { IoCloudUploadOutline } from "react-icons/io5"
 import './UploadBanks.css'
 
 interface IData {
   message: string,
   success: boolean
 }
-
-const FaCircleCheck = React.lazy(() => import('react-icons/fa6').then(module => ({ default: module.FaCircleCheck })))
-const IoCloudUploadOutline = React.lazy(() => import('react-icons/io5').then(module => ({ default: module.IoCloudUploadOutline })))
 
 export const UploadBanks = (): JSX.Element => {
   const { fetchData } = useFetchData<IData>()

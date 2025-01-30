@@ -94,24 +94,24 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
 
   const handleSelectAllOptions = useCallback((): void => {
     const allSelected = !isAllOptionsSelected;
-    setIsAllOptionsSelected(allSelected);
-    const updatedItems = allSelected ? sortedOptions.map(option => createListObject(option)) : [];
-    selectedItemsRef.current = updatedItems;
-    setIsOptionSelected(new Array(sortedOptions.length).fill(allSelected));
+    setIsAllOptionsSelected(allSelected)
+    const updatedItems = allSelected ? sortedOptions.map(option => createListObject(option)) : []
+    selectedItemsRef.current = updatedItems
+    setIsOptionSelected(new Array(sortedOptions.length).fill(allSelected))
     updateFormData(updatedItems)
   }, [ isAllOptionsSelected, sortedOptions, updateFormData ])
 
   const handleSelectOption = useCallback((index: number): void => {
-    const option = sortedOptions[index];
-    const isSelected = isOptionSelected[index];
+    const option = sortedOptions[index]
+    const isSelected = isOptionSelected[index]
     const newSelection = isSelected ? selectedItemsRef.current.filter(item => item[idKey] !== option[idKey]) :
-      [...selectedItemsRef.current, createListObject(option)];
+      [...selectedItemsRef.current, createListObject(option)]
 
-    selectedItemsRef.current = newSelection;
+    selectedItemsRef.current = newSelection
     setIsOptionSelected(prev => {
-      const newSelectionState = [...prev];
-      newSelectionState[index] = !isSelected;
-      return newSelectionState;
+      const newSelectionState = [...prev]
+      newSelectionState[index] = !isSelected
+      return newSelectionState
     });
 
     updateFormData(newSelection);
@@ -127,7 +127,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
   }
 
   const handleInput = useCallback((e: React.FormEvent<HTMLSpanElement>, opt: IDropDownMenu): void => {
-    const newValue = parseFloat(e.currentTarget.textContent?.replace('$', '') ?? '0');
+    const newValue = parseFloat(e.currentTarget.textContent?.replace('$', '') ?? '0')
     updateItemValue(opt, newValue)
   }, [ idKey, updateFormData ])
 

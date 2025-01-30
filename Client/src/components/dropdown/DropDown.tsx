@@ -20,7 +20,7 @@ export const DropDown: React.FC<Props> = React.memo(({ options, selectedId, valu
       return match ? parseInt(match[0], 10) : null
     }
   
-    const getNameOrDescription = (obj: { [key: string]: any }) => 
+    const getNameOrDescription = (obj: Record<string, any>): any => 
       obj.name ?? obj.description ?? ''
   
     const nameA = getNameOrDescription(a)

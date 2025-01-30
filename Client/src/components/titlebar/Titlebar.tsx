@@ -1,6 +1,7 @@
-import React, { JSX, Suspense, useEffect, useState } from 'react'
+import React, { JSX, useEffect, useState } from 'react'
 import { type IIconDefinition } from '../../types'
 import { MENU_ICONS, PRINT_ICONS } from '../../utils/icons'
+import { DropMenu } from '../dropmenu/DropMenu'
 import { IoIosArrowDown } from "react-icons/io"
 import './Titlebar.css'
 
@@ -8,7 +9,10 @@ interface Props {
   action: 'print' | 'payroll'
 }
 
-const DropMenu = React.lazy(() => import('../dropmenu/DropMenu').then(module => ({ default: module.DropMenu }))) 
+interface IUser {
+  name: string,
+  role: string
+}
 
 export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
   const [showDropMenu, setShowDropMenu] = useState<Boolean>(false)
@@ -18,7 +22,7 @@ export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
     const storedUser = localStorage.getItem('user')
     if (storedUser) {
       try {
-        const user: { name: string, role: string } = JSON.parse(storedUser)
+        const user: IUser = JSON.parse(storedUser)
         setUserName(user.name)
       } catch (error) {
         console.error('Error parsing user from localStorage: ', error)
@@ -28,7 +32,7 @@ export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
       setUserName('Unknown')
   }, [])
 
-  const logout = async () => {
+  const logout = async (): Promise<void> => {
     try {
       const res: Response = await fetch('http://localhost:1234/api/auth/logout', {
         method: 'POST',
@@ -64,30 +68,28 @@ export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
             <p>{ renderUserName() }</p>
             <IoIosArrowDown />
             {showDropMenu && (
-              <Suspense fallback={ <div>Loading menu...</div> }>
-                <DropMenu 
-                  menuOp={MENU_ICONS.map(op => ({
-                    ...op,
-                    onClick: async (id) => {
-                      if (id === 'logout')
-                        logout()
-                    }
-                  }))}
-                  dir={ 'right' }
-                  context='user'
-                />
-              </Suspense>
+              <DropMenu
+                menuOp={MENU_ICONS.map(op => ({
+                  ...op,
+                  onClick: async (id): Promise<void> => {
+                    if (id === 'logout') logout()
+                  }
+                }))}
+                dir='right'
+                context='user'
+              />
             )}
           </div>
         </div>
-      </>) : (<div className='print-icons-section'>
-          {PRINT_ICONS.map((item: IIconDefinition, index: number) => (
-            <div key={ `${ item.label }-${ index }` } className='print-icon-container'>
-              { item.icon }
-              <span>{ item.label }</span>
-            </div>
-          ))}
-        </div>)}
+      </>) : (
+      <div className='print-icons-section'>
+        {PRINT_ICONS.map((item: IIconDefinition, index: number) => (
+          <div key={ `${ item.label }-${ index }` } className='print-icon-container'>
+            { item.icon }
+            <span>{ item.label }</span>
+          </div>
+        ))}
+      </div>)}
     </header>
   )
 }

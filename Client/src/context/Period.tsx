@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useEffect, useMemo, useReducer, useState } from "react"
+import { createContext, JSX, ReactNode, useContext, useEffect, useMemo, useReducer, useState } from "react"
 import { type IDates, type IWeekYear } from "../types"
 import { getWeekNumber } from "../utils/modifyDates" 
 
@@ -74,7 +74,7 @@ const periodReducer = (state: PeriodState, action: PeriodAction): PeriodState =>
       return state
   }
 }
-export const PeriodProvider: React.FC<Props> = ({ children }) => {
+export const PeriodProvider: React.FC<Props> = ({ children }): JSX.Element => {
   const [state, dispatch] = useReducer(periodReducer, INITIAL_STATE)
   const [actionType, setActionType] = useState<'FETCH_DATA' | 'SET_PERIOD' | 'NONE'>('SET_PERIOD')
 
