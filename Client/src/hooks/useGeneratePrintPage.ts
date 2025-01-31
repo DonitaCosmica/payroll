@@ -165,28 +165,26 @@ export const useGeneratePrintPage = (): IPrintPage => {
   }
 
   const filterTable = (dataToPrint: string, id: string): string | undefined => {
-    const columns = FILTER_COLUMNS[id]
+    const columnIndexes: number[] = FILTER_COLUMNS[id]
     const parser = new DOMParser()
     const doc = parser.parseFromString(dataToPrint, 'text/html')
     const table = doc.querySelector('table')
       
-    if (table && columns) {
+    if (table && columnIndexes) {
       const headers: Element[] = Array.from(table.querySelectorAll('thead th'))
       const rows = Array.from(table.querySelectorAll('tbody tr')) as HTMLTableRowElement[]
   
-      const columnIndexes = headers
-        .map((header: Element, index: number) => (columns.includes(header.textContent?.trim() ?? '') ? index : -1))
-        .filter(index => index !== -1)
-  
-      headers.forEach((header: Element, index: number) => {
-        if (!columnIndexes.includes(index)) header.remove()
+     headers.forEach((header: Element, index: number) => {
+      if (!columnIndexes.includes(index))
+        header.remove()
+     })
+
+     rows.forEach((row: HTMLTableRowElement) => {
+      Array.from(row.cells).forEach((cell: HTMLTableCellElement, index: number) => {
+        if (!columnIndexes.includes(index))
+          cell.remove()
       })
-  
-      rows.forEach((row: HTMLTableRowElement) => {
-        Array.from(row.cells).forEach((cell, index) => {
-          if (!columnIndexes.includes(index)) cell.remove()
-        })
-      })
+     })
     }
   
     return table?.outerHTML

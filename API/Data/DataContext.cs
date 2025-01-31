@@ -38,6 +38,19 @@ namespace API.Data
     {
       modelBuilder.UseCollation("Latin1_General_CI_AS");
 
+      modelBuilder.Entity<EmployeeProject>(entity =>
+      {
+        entity.HasKey(ep => new { ep.EmployeeId, ep.ProjectId });
+        entity.HasOne(e => e.Employee)
+          .WithMany(ep => ep.EmployeeProjects)
+          .HasForeignKey(e => e.EmployeeId)
+          .OnDelete(DeleteBehavior.Cascade);
+        entity.HasOne(p => p.Project)
+          .WithMany(ep => ep.EmployeeProjects)
+          .HasForeignKey(p => p.ProjectId)
+          .OnDelete(DeleteBehavior.Restrict);
+      });
+
       modelBuilder.Entity<Status>(entity =>
       {
         entity.Property(s => s.StatusType)
@@ -102,26 +115,18 @@ namespace API.Data
           .OnDelete(DeleteBehavior.Restrict);
       });
 
-      modelBuilder.Entity<EmployeeProject>(entity =>
+      modelBuilder.Entity<Payroll>(entity =>
       {
-        entity.HasKey(ep => new { ep.EmployeeId, ep.ProjectId });
-        entity.HasOne(e => e.Employee)
-          .WithMany(ep => ep.EmployeeProjects)
-          .HasForeignKey(e => e.EmployeeId)
-          .OnDelete(DeleteBehavior.Cascade);
-        entity.HasOne(p => p.Project)
-          .WithMany(ep => ep.EmployeeProjects)
-          .HasForeignKey(p => p.ProjectId)
-          .OnDelete(DeleteBehavior.Restrict);
+        entity.HasKey(pr => pr.PayrollId);
+        entity.Property(pr => pr.PayrollType)
+          .HasConversion(
+            v => v.ToString(),
+            v => (PayrollType)Enum.Parse(typeof(PayrollType), v));
       });
 
       modelBuilder.Entity<Ticket>(entity =>
       {
         entity.HasKey(t => t.TicketId);
-        entity.Property(t => t.PayrollType)
-          .HasConversion(
-            v => v.ToString(),
-            v => (PayrollType)Enum.Parse(typeof(PayrollType), v));
         entity.HasOne(t => t.Period)
           .WithMany(pr => pr.Tickets)
           .HasForeignKey(t => t.PeriodId)

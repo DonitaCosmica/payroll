@@ -20,7 +20,7 @@ interface SortContextType extends SortState {
 const INITIAL_STATE: SortState = {
   filter: '',
   label: ''
-}
+} as const
 
 export const SortEmployeesContext = createContext<SortContextType>({
   ...INITIAL_STATE,

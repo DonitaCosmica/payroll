@@ -82,7 +82,8 @@ export interface IStatus {
 }
 export interface IPayrollType {
   readonly payrollId: string,
-  readonly name: string
+  readonly name: string,
+  readonly payrollType: 'Principal' | 'Secondary'
 }
 export interface IPageComponents {
   titlebar: string,

@@ -30,7 +30,7 @@ namespace API.Models
     [Required]
     public string Company { get; set; } = default!;
     [Required]
-    public PayrollType PayrollType { get; set; }
+    public string PayrollType { get; set; } = default!;
     [Required]
     public string Status { get; set; } = default!;
     [Required]

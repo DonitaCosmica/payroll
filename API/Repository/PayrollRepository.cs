@@ -12,9 +12,13 @@ namespace API.Repository
     public Payroll GetPayroll(string payroll) => 
       context.Payrolls.FirstOrDefault(pr => pr.PayrollId == payroll)
       ?? throw new Exception("No Payroll with the specified id was found.");
+    public Payroll GetPrincipalPayroll() =>
+      context.Payrolls.FirstOrDefault(pr => pr.PayrollType == Enums.PayrollType.Principal)
+      ?? throw new Exception("No Payroll with the specified id was found.");
     public bool CreatePayroll(Payroll payroll) => context.CreateEntity(payroll);
     public bool UpdatePayroll(Payroll payroll) => context.UpdateEntity(payroll);
     public bool DeletePayroll(Payroll payroll) => context.DeleteEntity(payroll);
     public bool PayrollExists(string payrollId) => context.Payrolls.Any(pr => pr.PayrollId == payrollId);
+    public bool PrimaryPayrollExists() => context.Payrolls.Any(pr => pr.PayrollType == Enums.PayrollType.Principal);
   }
 }

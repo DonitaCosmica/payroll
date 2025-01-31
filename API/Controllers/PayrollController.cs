@@ -1,4 +1,5 @@
 using API.DTO;
+using API.Enums;
 using API.Interfaces;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -19,25 +20,27 @@ namespace API.Controllers
         .Select(pr => new PayrollDTO
         {
           PayrollId = pr.PayrollId,
-          Name = pr.Name
+          Name = pr.Name,
+          PayrollType = pr.PayrollType.ToString()
         }).ToList();
 
       return Ok(payrolls);
     }
 
-    [HttpGet("{payrollId}")]
+    [HttpGet("{payrollType}")]
     [ProducesResponseType(200, Type = typeof(PayrollDTO))]
     [ProducesResponseType(400)]
-    public IActionResult GetPayroll(string payrollId)
+    public IActionResult GetPayroll(string payrollType)
     {
-      if(!payrollRepository.PayrollExists(payrollId))
+      if(!payrollRepository.PrimaryPayrollExists())
         return NotFound();
 
-      var payroll = payrollRepository.GetPayroll(payrollId);
+      var payroll = payrollRepository.GetPrincipalPayroll();
       var payrollDTO = new PayrollDTO
       {
         PayrollId = payroll.PayrollId,
-        Name = payroll.Name
+        Name = payroll.Name,
+        PayrollType = payroll.PayrollType.ToString()
       };
 
       return Ok(payrollDTO);
@@ -51,10 +54,17 @@ namespace API.Controllers
       if(createPayroll == null)
         return BadRequest();
 
+      if(string.IsNullOrEmpty(createPayroll.PayrollType) || !TryConvertToStatusType(createPayroll.PayrollType, out PayrollType payrollType))
+        payrollType = PayrollType.Error;
+
+      if(payrollType == PayrollType.Principal && payrollRepository.PrimaryPayrollExists())
+        return Conflict("There is already a principal payroll");
+      
       var payroll = new Payroll
       {
         PayrollId = Guid.NewGuid().ToString(),
-        Name = createPayroll.Name
+        Name = createPayroll.Name,
+        PayrollType = payrollType
       };
 
       if(!payrollRepository.CreatePayroll(payroll))
@@ -72,11 +82,18 @@ namespace API.Controllers
       if(updatePayroll == null)
         return BadRequest();
 
+      if(string.IsNullOrEmpty(updatePayroll.PayrollType) || !TryConvertToStatusType(updatePayroll.PayrollType, out PayrollType payrollType))
+        payrollType = PayrollType.Error;
+
+      if(payrollType == PayrollType.Principal && payrollRepository.PrimaryPayrollExists())
+        return Conflict("There is already a principal payroll");
+
       var payroll = payrollRepository.GetPayroll(payrollId);
       if(payroll == null)
         return NotFound("Payroll Not Found");
 
       payroll.Name = updatePayroll.Name;
+      payroll.PayrollType = payrollType;
 
       if(!payrollRepository.UpdatePayroll(payroll))
         return StatusCode(500, "Something went wrong updating payroll");
@@ -98,5 +115,8 @@ namespace API.Controllers
 
       return NoContent();
     }
+
+    private static bool TryConvertToStatusType<TEnum>(string value, out TEnum enumValue) where TEnum : struct, Enum =>
+      Enum.TryParse(value, ignoreCase: true, out enumValue);
   }
 }

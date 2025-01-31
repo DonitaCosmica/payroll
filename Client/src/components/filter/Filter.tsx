@@ -22,7 +22,12 @@ export const Filter = (): JSX.Element => {
       const url = 'http://localhost:5239/api/Payroll'
       const result = await fetchData(url)
       if (error) throw new Error(error)
-      payrollTypesRef.current = result?.map((type) => ({
+      
+      const sortedPayrollTypes = result?.sort((a, _) =>
+        a.payrollType === 'Principal' ? -1 : 1
+      )
+
+      payrollTypesRef.current = sortedPayrollTypes?.map((type) => ({
         id: type.payrollId,
         label: type.name
       })) || []
@@ -42,7 +47,7 @@ export const Filter = (): JSX.Element => {
     return [ `${ year } - Periodo ${ week }`, `${ monday } a ${ sunday }` ]
   }, [ selectedPeriod ])
 
-  const handleDropMenu = useCallback((value: number | string): void => {
+  const handleDropMenu = useCallback((value: number | IPayrollType): void => {
     const key: string = typeof value === 'number' ? 'date' : 'text'
     setShowDropMenu(prevState => ({
       ...prevState,
@@ -72,7 +77,7 @@ export const Filter = (): JSX.Element => {
           </div>
         ))}
         <div className='filter' onClick={ () => handleDropMenu(payroll) }>
-          <p>{ payroll }</p>
+          <p>{ payroll.name }</p>
           <IoIosArrowDown />
           {showDropMenu.text && 
             <DropMenu
@@ -80,11 +85,11 @@ export const Filter = (): JSX.Element => {
                 ...op,
                 onClick: (): void => dispatch({
                   type: NavigationActionKind.UPDATEPAYROLL,
-                  payload: { payrollType: op.label }
+                  payload: { payrollType: { payrollId: op.id, name: op.label, payrollType: 'Secondary' } }
                 })
               }))}
               dir='left'
-              context='dates'
+              context='payroll'
             />  
           }
         </div>

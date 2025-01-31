@@ -56,17 +56,10 @@ export const REPORTING_ACTIONS: Record<NavigationActionKind, Record<string, IRep
   [NavigationActionKind.ERROR]: {}
 } as const
 
-export const FILTER_COLUMNS: Record<string, string[]> = {
-  ['loans']: [
-    'Folio', 'Proyectos', 'Trabajador'
-  ],
-  ['deductions']: [
-    'Proyectos'
-  ],
-  ['employeesByDate']: [
-    'Proyectos', 'Nombre', 'Puesto de trabajo',
-    'Estado', 'Salario Base', 'Fecha de Admisión'
-  ]
+export const FILTER_COLUMNS: Record<string, number[]> = {
+  ['loans']: [ 2, 3, 10 ],
+  ['deductions']: [ 10 ],
+  ['employeesByDate']: [ 2, 7, 9, 10, 11, 13, 17, 18 ]
 } as const
 
 export const totalTitles: string[] = ['Total de periodo', 'Total Extraordinario', 'Total Pagado', 'Saldo'] as const

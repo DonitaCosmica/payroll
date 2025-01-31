@@ -14,7 +14,7 @@ interface Props {
 
 export const DropDown: React.FC<Props> = React.memo(({ options, selectedId, value, isDisabled, setFormData, setLoading }): JSX.Element => {
   const [selectedValue, setSelectedValue] = useState<string>(value)
-  const sortedOptions = [...options].sort((a, b) => {
+  const sortedOptions = [...options].sort((a: IDropDownMenu, b: IDropDownMenu) => {
     const extractNumber = (str: string): number | null => {
       const match = str.match(/\d+/)
       return match ? parseInt(match[0], 10) : null

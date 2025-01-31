@@ -106,9 +106,6 @@ namespace API.Controllers
 
     private Ticket MapToTicketModel(TicketDTO createTicket, TicketRelatedEntities relatedEntities)
     {
-      if(string.IsNullOrEmpty(relatedEntities.Payroll.Name) || !TryConvertToStatusType(relatedEntities.Payroll.Name, out PayrollType payrollType))
-        payrollType = PayrollType.Error;
-
       var (nextSerie, nextBill) = ticketRepository.GenerateNextTicket();
       DateTime friday = GetTicketDates();
       float totalPerceptions = createTicket.Perceptions.Sum(p => p.Value);
@@ -132,9 +129,9 @@ namespace API.Controllers
         Department = relatedEntities.Department.Name,
         Total = totalPerceptions - totalDeductions,
         Projects = projects,
-        Observations = createTicket.Observations ?? "Sin Observaciones",
+        Observations = createTicket.Observations?.Length > 0 ? createTicket.Observations : "Sin Observaciones",
         Company = relatedEntities.Company.Name,
-        PayrollType = payrollType,
+        PayrollType = relatedEntities.Payroll.Name,
         Status = relatedEntities.Status.Name,
         ReceiptOfDate = friday,
         PaymentDate = friday,
@@ -148,9 +145,6 @@ namespace API.Controllers
 
     private static void MapToUpdateTicketModel(Ticket ticket, TicketDTO updateTicket, TicketRelatedEntities relatedEntities)
     {
-      if(string.IsNullOrEmpty(relatedEntities.Payroll.Name) || !TryConvertToStatusType(relatedEntities.Payroll.Name, out PayrollType payrollType))
-        payrollType = PayrollType.Error;
-
       float totalPerceptions = updateTicket.Perceptions.Sum(p => p.Value);
       float totalDeductions = updateTicket.Deductions.Sum(d => d.Value);
 
@@ -159,7 +153,7 @@ namespace API.Controllers
       ticket.Department = relatedEntities.Department.Name;
       ticket.Total = totalPerceptions - totalDeductions;
       ticket.Observations = updateTicket.Observations ?? "Sin Observaciones";
-      ticket.PayrollType = payrollType;
+      ticket.PayrollType = relatedEntities.Payroll.Name;
       ticket.Status = relatedEntities.Status.Name;
       ticket.PeriodId = relatedEntities.Period.PeriodId;
       ticket.Period = relatedEntities.Period;
@@ -280,11 +274,11 @@ namespace API.Controllers
       {
         var additionalProperties = auxTicket.Perceptions
           .Where(p => p.Value > 0 && p.Name != "Sueldo" && p.Name != "Hora Extra")
-          .Select((p, i) => new KeyValuePair<string, object>(p.Name ?? $"Unknown Perception {i}", p.Value))
+          .Select((p, i) => new KeyValuePair<string, object>(p.Name ?? $"Unknown Perception { i }", p.Value))
           .Concat(
               auxTicket.Deductions
                   .Where(d => d.Value > 0)
-                  .Select((d, i) => new KeyValuePair<string, object>(d.Name ?? $"Unknown Deduction {i}", d.Value))
+                  .Select((d, i) => new KeyValuePair<string, object>(d.Name ?? $"Unknown Deduction { i }", d.Value))
           )
           .GroupBy(kv => kv.Key)
           .ToDictionary(g => g.Key, g => g.First().Value);
@@ -363,8 +357,5 @@ namespace API.Controllers
 
       return CompensationType.Normal;
     }
-
-    private static bool TryConvertToStatusType<TEnum>(string value, out TEnum enumValue) where TEnum : struct, Enum =>
-      Enum.TryParse(value, ignoreCase: true, out enumValue);
   }
 }

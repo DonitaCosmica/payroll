@@ -6,9 +6,11 @@ namespace API.Interfaces
   {
     ICollection<Payroll> GetPayrolls();
     Payroll GetPayroll(string payrollId);
+    Payroll GetPrincipalPayroll();
     bool CreatePayroll(Payroll payroll);
     bool UpdatePayroll(Payroll payroll);
     bool DeletePayroll(Payroll payroll);
     bool PayrollExists(string payrollId);
+    bool PrimaryPayrollExists();
   }
 }

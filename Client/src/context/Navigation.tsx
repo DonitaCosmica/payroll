@@ -1,5 +1,5 @@
 import { createContext, JSX, ReactNode, useContext, useEffect, useReducer, useState } from "react"
-import { type IDataResponse, type IDataObject } from "../types"
+import { type IDataResponse, type IDataObject, type IPayrollType } from "../types"
 import { compareNames, reorganizeData } from "../utils/modifyData"
 
 export enum NavigationActionKind {
@@ -27,7 +27,7 @@ interface Props {
 }
 
 interface NavigationState {
-  payroll: string,
+  payroll: IPayrollType,
   selectedId: string,
   toolbarOption: number,
   title: string,
@@ -44,7 +44,7 @@ interface NavigationState {
 interface NavigationAction {
   type: NavigationActionKind,
   payload?: {
-    payrollType?: string,
+    payrollType?: IPayrollType,
     selectedId?: string,
     toolbarOption?: number,
     columns?: string[],
@@ -90,7 +90,7 @@ const navigationConfig: Record<NavigationActionKind, IFormConfig> = {
 } as const
 
 const INITIAL_STATE: NavigationState = {
-  payroll: 'Ordinario',
+  payroll: { payrollId: '', name: '', payrollType: 'Principal' },
   selectedId: '',
   toolbarOption: -1,
   title: '',
@@ -282,10 +282,21 @@ export const NavigationProvider: React.FC<Props> = ({ children }): JSX.Element =
   }, [ state.url, submitCount ])
 
   useEffect(() => {
-    dispatch({
-      type: NavigationActionKind.UPDATEPAYROLL,
-      payload: { payrollType: 'Ordinario' }
-    })
+    const fetchPrincipalPayroll = async (): Promise<void> => {
+      try {
+        const res: Response = await fetch('http://localhost:5239/api/Payroll/Principal')
+        const data: IPayrollType = await res.json()
+        dispatch({
+          type: NavigationActionKind.UPDATEPAYROLL,
+          payload: { payrollType: { payrollId: data.payrollId, name: data.name, payrollType: 'Principal' } }
+        })
+      } catch (error) {
+        console.error(error)
+        dispatch({ type: NavigationActionKind.ERROR })
+      }
+    }
+
+    fetchPrincipalPayroll()
   }, [])
 
   return (
