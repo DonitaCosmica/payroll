@@ -10,9 +10,10 @@ namespace API.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
-  public class TicketController(ITicketRepository ticketRepository) : Controller
+  public class TicketController(ITicketRepository ticketRepository, IPayrollRepository payrollRepository) : Controller
   {
     private readonly ITicketRepository ticketRepository = ticketRepository;
+    private readonly IPayrollRepository payrollRepository = payrollRepository;
 
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<TicketDTO>))]
@@ -23,13 +24,38 @@ namespace API.Controllers
       return Ok(result);
     }
 
-    [HttpGet("by")]
+    [HttpGet("type")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<TicketDTO>))]
-    public IActionResult GetTicketsByWeekAndYear([FromQuery] ushort week, [FromQuery] ushort year)
+    public IActionResult GetTicketsByPayroll([FromQuery] string payrollType)
     {
-      IEnumerable<TicketDTO> tickets = ticketRepository.GetTicketsByWeekAndYear(week, year).Select(MapToTicketDTORequest);
+      IEnumerable<TicketDTO> tickets = ticketRepository.GetTickets(payrollType).Select(MapToTicketDTORequest);
       object result = CreateResult(tickets);
       return Ok(result);
+    }
+
+    [HttpGet("by")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<TicketDTO>))]
+    public IActionResult GetTicketsByWeekAndYear([FromQuery] ushort week, [FromQuery] ushort year, [FromQuery] string payrollType)
+    {
+      IEnumerable<TicketDTO> tickets = ticketRepository.GetTicketsByWeekAndYear(week, year, payrollType).Select(MapToTicketDTORequest);
+      object result = CreateResult(tickets);
+      return Ok(result);
+    }
+
+    [HttpGet("amount")]
+    [ProducesResponseType(200, Type = typeof(float))]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public IActionResult GetTicketsAmount([FromQuery] string payrollType)
+    {
+      if (payrollType == "Principal")
+      {
+        var payroll = payrollRepository.GetPrincipalPayroll();
+        payrollType = payroll.Name;
+      } else if(payrollRepository.GetPayrollByName(payrollType) == null)
+        return NotFound();
+
+      return Ok(ticketRepository.GetTotalSum(payrollType));
     }
 
     [HttpGet("{ticketId}")]
@@ -207,7 +233,7 @@ namespace API.Controllers
       List<string> columns = [];
       List<string> formColumns = [];
 
-      List<TicketFormDTO> formTickets = tickets.Select(t =>
+      List<TicketFormDTO> formTickets = [.. tickets.Select(t =>
       {
         TicketFormDTO ticket = new()
         {
@@ -227,9 +253,9 @@ namespace API.Controllers
         ticket.Deductions = t.Deductions;
         ticket.Discount = t.Discount ?? 0;
         return ticket;
-      }).ToList();
+      })];
 
-      List<TicketList> listTickets = tickets.Select(t =>
+      List<TicketList> listTickets = [.. tickets.Select(t =>
       {
         float totalPerceptions = t.Perceptions.Sum(p => p.Value);
         float totalDeductions = t.Deductions.Sum(d => d.Value);
@@ -267,7 +293,7 @@ namespace API.Controllers
         ticket.Deductions = [.. ticket.Deductions.OrderByDescending(d => d.Value)];
         ticketRepository.GetColumnsFromRelatedEntity(ticket, columns);
         return ticket;
-      }).ToList();
+      })];
 
       var (filteredPerceptions, filteredDeductions) = ticketRepository.GetFilteredPerceptionsAndDeductions(columns);
       IEnumerable<TicketListDTO> ticketsToSend = listTickets.Select(auxTicket =>
@@ -330,7 +356,7 @@ namespace API.Controllers
       columns.Remove("EmployeeId");
       return new
       {
-        Columns = columns,
+        Columns = columns.Count > 0 ? columns : ticketRepository.GetColumns(),
         FormColumns = formColumns,
         Data = ticketsToSend,
         FormData = formTickets

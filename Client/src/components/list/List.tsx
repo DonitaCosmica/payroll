@@ -78,8 +78,8 @@ export const List: React.FC<Props> = ({ searchFilter, setShowForm }): JSX.Elemen
 
       const url: string = 'http://localhost:5239/api/TableWork'
       const method = 'PATCH'
-      /*const result = await fetchData(url, { method, body: formData.current })
-      if (result) console.error('Request error: ', result)*/
+      const result = await fetchData(url, { method, body: formData.current })
+      if (result) console.error('Request error: ', result)
       setUpdateTableWork(false)
     }
 
@@ -262,8 +262,38 @@ export const List: React.FC<Props> = ({ searchFilter, setShowForm }): JSX.Elemen
     return totals[column] ?? ''
   }, [ filteredValues ])
 
-  if (Object.keys(columnsDictionary.current).length === 0 || filteredValues.length === 0 || loading)
+  if (Object.keys(columnsDictionary.current).length === 0 || loading)
     return <ListSkeleton />
+
+  if (filteredValues.length === 0)
+    return (
+      <section className="list">
+        <div className="list-container">
+          <table className="content">
+            <thead>
+              <tr>
+                {columnNames.map((column: string) => (
+                  <th key={ column }>
+                    <p>{ column }</p>
+                    <div className="filter-list">
+                      <MdArrowDropUp />
+                      <MdArrowDropDown />
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="empty-table">
+              <tr>
+                {[...Array(18)].map((_, id: number) => (
+                  <td key={ `cell-${ id }` } className='empty-cell'></td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )
 
   return (
     <section className="list">

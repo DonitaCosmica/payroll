@@ -14,7 +14,7 @@ interface Props {
 }
 
 export const Accordion: React.FC<Props> = React.memo(({ year, periods }): JSX.Element => {
-  const { dispatch: updateList } = useNavigationContext()
+  const { payroll, dispatch: updateList } = useNavigationContext()
   const { selectedPeriod, setActionType, dispatch: updatePeriod } = usePeriodContext()
   const { fetchData } = useFetchData<IDataResponse>()
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true)
@@ -27,7 +27,7 @@ export const Accordion: React.FC<Props> = React.memo(({ year, periods }): JSX.El
   }
 
   const setNewList = useCallback(async (period: IPeriod): Promise<void> => {
-    const url = `http://localhost:5239/api/Ticket/by?week=${ period.week }&year=${ year }`
+    const url = `http://localhost:5239/api/Ticket/by?week=${ period.week }&year=${ year }&payrollType=${ payroll.name }`
     const result = await fetchData(url)
     if (!result) {
       updateList({ type: NavigationActionKind.ERROR })
@@ -37,7 +37,7 @@ export const Accordion: React.FC<Props> = React.memo(({ year, periods }): JSX.El
     const newData = reorganizeData(result.data)
     updateList({
       type: NavigationActionKind.UPDATETABLE,
-      payload: { newData, formData: result.formData }
+      payload: { data: newData, formData: result.formData }
     })
   }, [ updateList ])
 

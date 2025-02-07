@@ -11,7 +11,7 @@ import './Filter.css'
 const DropMenuDates = React.lazy(() => import('../dropMenuDates/DropMenuDates').then(module => ({ default: module.DropMenuDates })))
 
 export const Filter = (): JSX.Element => {
-  const { payroll, dispatch } = useNavigationContext()
+  const { payroll, dispatch } = useNavigationContext() || { payroll: null }
   const { selectedPeriod } = usePeriodContext()
   const { fetchData, error } = useFetchData<IPayrollType[]>()
   const [showDropMenu, setShowDropMenu] = useState<IMenuState>({ date: false, text: false })
@@ -77,16 +77,17 @@ export const Filter = (): JSX.Element => {
           </div>
         ))}
         <div className='filter' onClick={ () => handleDropMenu(payroll) }>
-          <p>{ payroll.name }</p>
+          <p>{ payroll && payroll.name ? payroll.name : 'Error' }</p>
           <IoIosArrowDown />
           {showDropMenu.text && 
             <DropMenu
               menuOp={payrollTypes.map(op => ({
                 ...op,
-                onClick: (): void => dispatch({
-                  type: NavigationActionKind.UPDATEPAYROLL,
-                  payload: { payrollType: { payrollId: op.id, name: op.label, payrollType: 'Secondary' } }
-                })
+                onClick: (): void =>
+                  dispatch({
+                    type: NavigationActionKind.UPDATEPAYROLL,
+                    payload: { payroll: { payrollId: op.id, name: op.label, payrollType: 'Secondary' } }
+                  })
               }))}
               dir='left'
               context='payroll'

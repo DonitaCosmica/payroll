@@ -6,12 +6,13 @@ namespace API.Interfaces
 {
   public interface ITicketRepository
   {
-    ICollection<Ticket> GetTickets();
-    ICollection<Ticket> GetTicketsByWeekAndYear(ushort week, ushort year);
+    ICollection<Ticket> GetTickets(string? payrollType = null);
+    ICollection<Ticket> GetTicketsByWeekAndYear(ushort week, ushort year, string? payrollType = null);
     Ticket GetTicket(string ticketId);
     TicketRelatedEntities? GetRelatedEntities(TicketDTO ticketDTO);
     float GetBaseSalaryEmployee(string employeeName, string jobPosition, string department);
     (char nextSerie, ushort nextBill) GenerateNextTicket();
+    float GetTotalSum(string payrollType);
     bool TicketExists(string ticketId);
     bool CreateTicket(HashSet<TicketPerceptionRelatedEntities> perceptions, 
       HashSet<TicketDeductionRelatedEntities> deductions, Ticket ticket);

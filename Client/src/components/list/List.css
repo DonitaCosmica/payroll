@@ -28,6 +28,15 @@
   background-color: #f3f3f3;
 }
 
+.content > .empty-table {
+  height: 15px;
+}
+
+.content > .empty-table > tr {
+  background-color: #489aff;
+  cursor: auto;
+}
+
 .content > :is(thead, tbody) > tr > :where(th, td) > input {
   border: none;
   width: 100%;

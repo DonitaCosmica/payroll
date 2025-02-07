@@ -41,19 +41,15 @@ interface NavigationState {
   formSize: number,
   error: boolean | null
 }
-interface NavigationAction {
-  type: NavigationActionKind,
-  payload?: {
-    payrollType?: IPayrollType,
-    selectedId?: string,
-    toolbarOption?: number,
-    columns?: string[],
-    newData?: IDataObject[],
-    formData?: IDataObject[],
-    formColumns?: string[],
-    names?: string[]
-  }
-}
+
+type NavigationAction =
+  | { type: NavigationActionKind.UPDATETABLE, payload: { data: IDataObject[], formData: IDataObject[] } }
+  | { type: NavigationActionKind.UPDATEDATA, payload: { columnNames: string[], keys: string[], data: IDataObject[], formData: IDataObject[] } }
+  | { type: NavigationActionKind.UPDATEPAYROLL, payload: { payroll: IPayrollType } }
+  | { type: NavigationActionKind.UPDATESELECTEDID, payload: { selectedId: string } }
+  | { type: NavigationActionKind.UPDATETOOLBAROPT, payload: { toolbarOption: number } }
+  | { type: NavigationActionKind.ERROR }
+  | { type: NavigationActionKind; payload?: undefined }
 
 interface NavigationContextType extends NavigationState {
   dispatch: React.Dispatch<NavigationAction>,
@@ -96,7 +92,7 @@ const INITIAL_STATE: NavigationState = {
   title: '',
   option: NavigationActionKind.PAYROLLRECEIPTS,
   loading: false,
-  url: '',
+  url: 'http://localhost:5239/api/Ticket',
   keys: [],
   columnNames: [],
   data: [],
@@ -133,55 +129,65 @@ const NavigationContext: React.Context<NavigationContextType> = createContext<Na
 })
 
 const NavigationReducer = (state: NavigationState, action: NavigationAction): NavigationState => {
-  const { type, payload } = action
-
-  switch(type) {
+  switch(action.type) {
     case NavigationActionKind.UPDATETABLE: {
-      const { newData = state.data, formData = state.formData } = payload || {}
-      return {
-        ...state,
-        data: newData,
-        formData,
-        loading: false
-      }
+      const { payload } = action
+      if (payload)
+        return {
+          ...state,
+          data: payload.data,
+          formData: payload.formData,
+          loading: false
+        }
+
+      return state
     }
     case NavigationActionKind.UPDATEDATA: {
-      const { columns = state.columnNames, newData = state.data, names = state.columnNames, formData = state.formData } = payload || {}
-      return {
-        ...state,
-        columnNames: names,
-        keys: columns,
-        data: newData,
-        formData,
-        loading: false
-      }
+      const { payload } = action
+      if (payload)
+        return {
+          ...state,
+          columnNames: payload.columnNames,
+          keys: payload.keys,
+          data: payload.data,
+          formData: payload.formData,
+          loading: false
+        }
+
+      return state
     }
     case NavigationActionKind.UPDATEPAYROLL: {
-      const { payrollType = state.payroll } = payload || {}
-      return {
-        ...state,
-        payroll: payrollType,
-        loading: false,
-        error: null
-      }
+      if (action.payload)
+        return {
+          ...state,
+          payroll: action.payload.payroll,
+          loading: false,
+          error: null
+        }
+
+      return state
     }
     case NavigationActionKind.UPDATESELECTEDID: {
-      const { selectedId = state.selectedId } = payload || {}
-      return {
-        ...state,
-        selectedId,
-        loading: false,
-        error: null
-      }
+      if (action.payload)
+        return {
+          ...state,
+          selectedId: action.payload.selectedId,
+          loading: false,
+          error: null
+        }
+
+      return state
     }
     case NavigationActionKind.UPDATETOOLBAROPT: {
-      const { toolbarOption = state.toolbarOption } = payload || {}
-      return {
-        ...state,
-        toolbarOption,
-        loading: false,
-        error: null
-      }
+      if (action.payload)
+        return {
+          ...state,
+          toolbarOption: action.payload.toolbarOption,
+          loading: false,
+          error: null
+        }
+
+      return state
     }
     case NavigationActionKind.ERROR: {
       return {
@@ -191,14 +197,14 @@ const NavigationReducer = (state: NavigationState, action: NavigationAction): Na
       }
     }
     default: {
-      const { url, title, formSize } = navigationConfig[type]
+      const config = navigationConfig[action.type] || { url: '', title: '', formSize: 0 }
       return {
         ...state,
-        title,
-        formSize,
-        option: type,
+        title: config.title,
+        formSize: config.formSize,
+        option: action.type,
         loading: true,
-        url,
+        url: config.url,
         error: null
       }
     }
@@ -209,6 +215,25 @@ export const NavigationProvider: React.FC<Props> = ({ children }): JSX.Element =
   const [state, dispatch] = useReducer(NavigationReducer, loadStateFromLocalStorage())
   const [submitCount, setSubmitCount] = useState<number>(0)
   const [updateTableWork, setUpdateTableWork] = useState<boolean>(false)
+
+  useEffect(() => {
+    const fetchPrincipalPayroll = async (): Promise<void> => {
+      try {
+        const res: Response = await fetch(`http://localhost:5239/api/Payroll/by?payrollType=${ state.payroll ? state.payroll.payrollType : 'Principal' }`)
+        const data: IPayrollType = await res.json()
+        const { payrollId, name, payrollType } = data
+        dispatch({
+          type: NavigationActionKind.UPDATEPAYROLL,
+          payload: { payroll: { payrollId: payrollId, name: name, payrollType: payrollType } }
+        })
+      } catch (error) {
+        console.error(error)
+        dispatch({ type: NavigationActionKind.ERROR })
+      }
+    }
+
+    fetchPrincipalPayroll()
+  }, [])
 
   useEffect(() => {
     const getValue = (value: string | number): number | string => 
@@ -250,7 +275,12 @@ export const NavigationProvider: React.FC<Props> = ({ children }): JSX.Element =
       try {
         if(!state.url) return
         
-        const res: Response = await fetch(state.url)
+        const payrollType = state.payroll && state.payroll.name.length > 0 ? state.payroll.name : 'Principal'
+        const url: string = NavigationActionKind.PAYROLLRECEIPTS === state.option
+          ? `${ state.url }/type?payrollType=${ payrollType }`
+          : state.url
+
+        const res: Response = await fetch(url)
         const dataResponse: IDataResponse = await res.json()
         if (!res.ok) {
           console.error('Response Error: ', dataResponse)
@@ -269,7 +299,7 @@ export const NavigationProvider: React.FC<Props> = ({ children }): JSX.Element =
         
         dispatch({ 
           type: NavigationActionKind.UPDATEDATA, 
-          payload: { columns, newData, formData: dataResponse.formData, names } 
+          payload: { columnNames: names, keys: columns, data: newData, formData: dataResponse.formData } 
         })
       } catch (error) {
         console.error(error)
@@ -279,25 +309,7 @@ export const NavigationProvider: React.FC<Props> = ({ children }): JSX.Element =
 
     fetchData()
     saveToLocalStorage()
-  }, [ state.url, submitCount ])
-
-  useEffect(() => {
-    const fetchPrincipalPayroll = async (): Promise<void> => {
-      try {
-        const res: Response = await fetch('http://localhost:5239/api/Payroll/Principal')
-        const data: IPayrollType = await res.json()
-        dispatch({
-          type: NavigationActionKind.UPDATEPAYROLL,
-          payload: { payrollType: { payrollId: data.payrollId, name: data.name, payrollType: 'Principal' } }
-        })
-      } catch (error) {
-        console.error(error)
-        dispatch({ type: NavigationActionKind.ERROR })
-      }
-    }
-
-    fetchPrincipalPayroll()
-  }, [])
+  }, [ state.url, state.payroll, submitCount ])
 
   return (
     <NavigationContext.Provider

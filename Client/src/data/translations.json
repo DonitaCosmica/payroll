@@ -12,7 +12,12 @@
     "Projects": "Proyectos",
     "Company": "Compañia",
     "JobPosition": "Puesto",
-    "Department": "Departamento"
+    "Department": "Departamento",
+    "PayrollType": "Tipo de Nomina",
+    "PeriodId": "Periodo",
+    "TotalPerceptions": "Total Percepciones",
+    "TotalDeductions": "Total Deducciones",
+    "Discount": "Descuento"
   },
   "2": {
     "EmployeeId": "ID del Trabajador",

@@ -15,6 +15,7 @@ namespace API.Repository
     public Payroll GetPrincipalPayroll() =>
       context.Payrolls.FirstOrDefault(pr => pr.PayrollType == Enums.PayrollType.Principal)
       ?? throw new Exception("No Payroll with the specified id was found.");
+    public Payroll? GetPayrollByName(string payrollName) => context.GetEntityByName<Payroll>(payrollName);
     public bool CreatePayroll(Payroll payroll) => context.CreateEntity(payroll);
     public bool UpdatePayroll(Payroll payroll) => context.UpdateEntity(payroll);
     public bool DeletePayroll(Payroll payroll) => context.DeleteEntity(payroll);

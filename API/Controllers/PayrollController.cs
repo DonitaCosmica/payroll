@@ -27,12 +27,32 @@ namespace API.Controllers
       return Ok(payrolls);
     }
 
-    [HttpGet("{payrollType}")]
+    [HttpGet("{payrollId}")]
     [ProducesResponseType(200, Type = typeof(PayrollDTO))]
     [ProducesResponseType(400)]
-    public IActionResult GetPayroll(string payrollType)
+    [ProducesResponseType(404)]
+    public IActionResult GetPayroll(string payrollId)
     {
-      if(!payrollRepository.PrimaryPayrollExists())
+      if(!payrollRepository.PayrollExists(payrollId))
+        return NotFound();
+
+      var payroll = payrollRepository.GetPayroll(payrollId);
+      var payrollDTO = new PayrollDTO
+      {
+        PayrollId = payroll.PayrollId,
+        Name = payroll.Name
+      };
+
+      return Ok(payrollDTO);
+    }
+
+    [HttpGet("by")]
+    [ProducesResponseType(200, Type = typeof(PayrollDTO))]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public IActionResult GetPrincipalPayroll([FromQuery] string payrollType)
+    {
+      if(!payrollRepository.PrimaryPayrollExists() && payrollType != "Principal")
         return NotFound();
 
       var payroll = payrollRepository.GetPrincipalPayroll();
@@ -54,7 +74,7 @@ namespace API.Controllers
       if(createPayroll == null)
         return BadRequest();
 
-      if(string.IsNullOrEmpty(createPayroll.PayrollType) || !TryConvertToStatusType(createPayroll.PayrollType, out PayrollType payrollType))
+      if(string.IsNullOrEmpty(createPayroll.PayrollType) || !TryConvertToPayrollType(createPayroll.PayrollType, out PayrollType payrollType))
         payrollType = PayrollType.Error;
 
       if(payrollType == PayrollType.Principal && payrollRepository.PrimaryPayrollExists())
@@ -82,7 +102,7 @@ namespace API.Controllers
       if(updatePayroll == null)
         return BadRequest();
 
-      if(string.IsNullOrEmpty(updatePayroll.PayrollType) || !TryConvertToStatusType(updatePayroll.PayrollType, out PayrollType payrollType))
+      if(string.IsNullOrEmpty(updatePayroll.PayrollType) || !TryConvertToPayrollType(updatePayroll.PayrollType, out PayrollType payrollType))
         payrollType = PayrollType.Error;
 
       if(payrollType == PayrollType.Principal && payrollRepository.PrimaryPayrollExists())
@@ -116,7 +136,7 @@ namespace API.Controllers
       return NoContent();
     }
 
-    private static bool TryConvertToStatusType<TEnum>(string value, out TEnum enumValue) where TEnum : struct, Enum =>
+    private static bool TryConvertToPayrollType<TEnum>(string value, out TEnum enumValue) where TEnum : struct, Enum =>
       Enum.TryParse(value, ignoreCase: true, out enumValue);
   }
 }

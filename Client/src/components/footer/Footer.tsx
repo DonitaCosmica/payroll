@@ -1,18 +1,44 @@
-import React, { JSX } from "react"
+import { JSX, useEffect } from "react"
+import { useNavigationContext } from "../../context/Navigation"
 import { RiMoneyDollarCircleLine } from "react-icons/ri"
 import { totalTitles } from "../../consts"
 import './Footer.css'
 
 const elements: JSX.Element[] = Array.from({ length: 4 }, (_, index: number) => (
-  <div key={index} className='total-container'>
+  <div key={ index } className='total-container'>
     <div className='title'>{ totalTitles[index] }</div>
     <div className='total-box'>
-      <p>$ 7,000.00</p>
+      <p>$7,000.00</p>
     </div>
   </div>
 ))
 
-export const Footer = React.memo((): JSX.Element => {
+export const Footer = (): JSX.Element => {
+  const { data, payroll } = useNavigationContext()
+
+  useEffect(() => {
+    const fetchTotals = async (): Promise<void> => {
+      try {
+        const payrollType = payroll && payroll.name ? payroll.name : 'Principal'
+        const res: Response = await fetch(`http://localhost:5239/api/Ticket/amount?payrollType=${ payrollType }`)
+        const total: number = await res.json()
+        console.log({ total })
+      } catch (error) {
+        console.error('Error fetching totals: ', error)
+      }
+    }
+
+    const totalPeriod = data.reduce((acc, item) => {
+      if (item['total'] !== undefined && !isNaN(Number(item['total']))) {
+        const value = parseFloat(item['total'] as string)
+        return acc + value
+      }
+      return acc
+    }, 0)
+
+    fetchTotals()
+  }, [ data, payroll ])
+
   return (
     <footer className='footer'>
       { elements.map((element: JSX.Element) => element) }
@@ -22,4 +48,4 @@ export const Footer = React.memo((): JSX.Element => {
       </div>
     </footer>
   )
-})
+}

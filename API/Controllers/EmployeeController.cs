@@ -227,13 +227,13 @@ namespace API.Controllers
         IsProvider = employee.IsProvider,
         Credit = employee.Credit,
         Contact = employee.Contact,
-        Projects = new HashSet<EmployeeProjectRelatedEntities>(employee.EmployeeProjects.Select(ep => 
+        Projects = [.. employee.EmployeeProjects.Select(ep => 
           new EmployeeProjectRelatedEntities
           {
             ProjectId = ep.ProjectId,
             Name = ep.Project.Name,
             Date = ep.AssignedDate.ToString("yyyy-MM-dd")
-          }))
+          })]
       };
     }
 
@@ -275,7 +275,7 @@ namespace API.Controllers
 
       return new
       {
-        Columns = columns,
+        Columns = columns.Count > 0 ? columns : employeeRepository.GetColumns(),
         FormColumns = formColumns,
         Data = auxEmployees,
         FormData = employees

@@ -11,25 +11,35 @@ namespace API.Repository
   public class TicketRepository(DataContext context) : ITicketRepository
   {
     private readonly DataContext context = context;
-
-    public ICollection<Ticket> GetTickets()
+    public ICollection<Ticket> GetTickets(string? payrollType = null)
     {
       var (currentWeek, currentYear, previousWeek, previousYear) = GetWeekAndYearInfo();
-      var tickets = GetTicketsByWeekAndYear(currentWeek, currentYear);
+      var tickets = GetTicketsByWeekAndYear(currentWeek, currentYear, payrollType);
       if(tickets.Count > 0) return tickets;
 
-      var period = context.Periods.FirstOrDefault(pr => pr.Week == currentWeek && pr.Year == currentYear);
-      if(period == null)
+      var period = context.Periods.FirstOrDefault(pr => pr.Week == currentWeek && pr.Year == currentYear)
+        ?? CreateNewPeriod(currentWeek, currentYear);
+
+      if (period == null) return Enumerable.Empty<Ticket>().ToList();
+      return CopyTicketsFromPreviousPeriod(previousWeek, previousYear, period);
+    }
+    public ICollection<Ticket> GetTicketsByWeekAndYear(ushort week, ushort year, string? payrollType = null)
+    {
+      var query = IncludeRelatedEntities(context.Tickets).Where(t => t.Period.Week == week && t.Period.Year == year);
+      if(!string.IsNullOrEmpty(payrollType))
       {
-        period = CreateNewPeriod(currentWeek, currentYear);
-        if(period == null) return Enumerable.Empty<Ticket>().ToList();
+        if(payrollType == "Principal")
+        {
+          var payroll = context.Payrolls.FirstOrDefault(pr => pr.PayrollType == Enums.PayrollType.Principal);
+          if(payroll == null) return [];
+          query = query.Where(t => t.PayrollType == payroll.Name);
+        }
+        else
+          query = query.Where(t => t.PayrollType == payrollType);
       }
 
-      var newTickets = CopyTicketsFromPreviousPeriod(previousWeek, previousYear, period);
-      return newTickets;
+      return [.. query];
     }
-    public ICollection<Ticket> GetTicketsByWeekAndYear(ushort week, ushort year) =>
-      [.. IncludeRelatedEntities(context.Tickets).Where(t => t.Period.Week == week && t.Period.Year == year)];
     public Ticket GetTicket(string ticketId) => 
       IncludeRelatedEntities(context.Tickets).FirstOrDefault(t => t.TicketId == ticketId)
       ?? throw new Exception("No Ticket with the specified id was found");
@@ -103,6 +113,8 @@ namespace API.Repository
         return (nexSerie, 1);
       }
     }
+    public float GetTotalSum(string payrollType) =>
+      context.Tickets.Where(t => t.PayrollType != payrollType).Sum(t => t.Total);
     public bool CreateTicket(HashSet<TicketPerceptionRelatedEntities> perceptions, 
       HashSet<TicketDeductionRelatedEntities> deductions, Ticket ticket)
     {
@@ -247,11 +259,23 @@ namespace API.Repository
     {
       var tickets = GetTicketsByWeekAndYear(previousWeek, previousYear) ?? [];
       var newTickets = new List<Ticket>();
+      var principalPayroll = context.Payrolls.FirstOrDefault(pr => pr.PayrollType == Enums.PayrollType.Principal)
+        ?? throw new InvalidOperationException("Principal payroll not found.");
+
       foreach(var ticket in tickets)
       {
-        var newTicket = CreateNewTicketFromExisting(ticket, newPeriod);
-        if(context.CreateEntity(newTicket))
-          newTickets.Add(newTicket);
+        if(ticket.PayrollType == principalPayroll.Name)
+        {
+          var newTicket = CreateNewTicketFromExisting(ticket, newPeriod);
+          if(context.CreateEntity(newTicket))
+            newTickets.Add(newTicket);
+        }
+        else
+        {
+          ticket.PeriodId = newPeriod.PeriodId;
+          ticket.Period = newPeriod;
+          context.UpdateEntity(ticket);
+        }
       }
 
       return newTickets;
@@ -288,7 +312,7 @@ namespace API.Repository
     }
     private void CopyTicketPerceptions(Ticket ticket, Ticket newTicket)
     {
-      foreach (var perception in ticket.TicketPerceptions)
+      foreach(var perception in ticket.TicketPerceptions)
       {
         if(perception.Name == "Sueldo" || perception.Name == "Hora Extra")
         {
@@ -310,7 +334,7 @@ namespace API.Repository
     }
     private void CopyTicketDeductions(Ticket ticket, Ticket newTicket)
     {
-      foreach (var deduction in ticket.TicketDeductions)
+      foreach(var deduction in ticket.TicketDeductions)
       {
         if(deduction.Name == "Desc. x Prestamos" && deduction.Total > 0)
         {
