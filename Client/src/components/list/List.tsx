@@ -33,6 +33,8 @@ export const List: React.FC<Props> = ({ searchFilter, setShowForm }): JSX.Elemen
   const columnNumber = useRef<number>(-1)
 
   const fetchDataAsync = useCallback(async (): Promise<void> => {
+    setLoading(true)
+
     try {
       const [perceptionsRes, deductionsRes, translateRes]: [Response, Response, Response] = await Promise.all([
         fetch('http://localhost:5239/api/Perception'),
@@ -54,8 +56,6 @@ export const List: React.FC<Props> = ({ searchFilter, setShowForm }): JSX.Elemen
   }, [ option ])
 
   useEffect(() => {
-    setLoading(true)
-
     if (JSON.stringify(data) !== JSON.stringify(prevValue)) {
       rowSelected.current = -1
       formData.current = formDataRes

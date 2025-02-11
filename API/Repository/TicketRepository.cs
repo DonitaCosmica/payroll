@@ -17,11 +17,18 @@ namespace API.Repository
       var tickets = GetTicketsByWeekAndYear(currentWeek, currentYear, payrollType);
       if(tickets.Count > 0) return tickets;
 
-      var period = context.Periods.FirstOrDefault(pr => pr.Week == currentWeek && pr.Year == currentYear)
-        ?? CreateNewPeriod(currentWeek, currentYear);
+      var payroll = context.Payrolls.FirstOrDefault(pr => pr.Name == payrollType);
 
-      if (period == null) return Enumerable.Empty<Ticket>().ToList();
-      return CopyTicketsFromPreviousPeriod(previousWeek, previousYear, period);
+      if(payroll != null || payrollType == "Principal")
+      {
+        var period = context.Periods.FirstOrDefault(pr => pr.Week == currentWeek && pr.Year == currentYear)
+          ?? CreateNewPeriod(currentWeek, currentYear);
+
+        if (period == null) return Enumerable.Empty<Ticket>().ToList();
+        return CopyTicketsFromPreviousPeriod(previousWeek, previousYear, period);
+      }
+
+      return [];
     }
     public ICollection<Ticket> GetTicketsByWeekAndYear(ushort week, ushort year, string? payrollType = null)
     {
@@ -113,8 +120,13 @@ namespace API.Repository
         return (nexSerie, 1);
       }
     }
-    public float GetTotalSum(string payrollType) =>
-      context.Tickets.Where(t => t.PayrollType != payrollType).Sum(t => t.Total);
+    public float GetTotalSum(string payrollType)
+    {
+      var (currentWeek, currentYear) = GetCurrentWeekAndYear();
+      return IncludeRelatedEntities(context.Tickets)
+        .Where(t => t.PayrollType != payrollType && t.Period.Week == currentWeek && t.Period.Year == currentYear)
+        .Sum(t => t.Total);
+    }
     public bool CreateTicket(HashSet<TicketPerceptionRelatedEntities> perceptions, 
       HashSet<TicketDeductionRelatedEntities> deductions, Ticket ticket)
     {
@@ -227,16 +239,27 @@ namespace API.Repository
       context.GetColumns(ticket, columns);
     public List<string> GetColumns() => context.GetColumns<Ticket>();
     public bool TicketExists(string ticketId) => context.Tickets.Any(t => t.TicketId == ticketId);
-    private static (ushort currentWeek, ushort currentYear, ushort previousWeek, ushort previousYear) GetWeekAndYearInfo()
+    private static (ushort currentWeek, ushort currentYear) GetCurrentWeekAndYear()
     {
       DateTime today = DateTime.Now;
-      CultureInfo culture = new("es-MX");
+      CultureInfo culture = new("es-Mx");
+      Calendar calendar = culture.Calendar;
+
+      ushort currentWeek = (ushort)calendar.GetWeekOfYear(today, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
+      ushort currentYear = (ushort)today.Year;
+
+      return (currentWeek, currentYear);
+    }
+    private static (ushort currentWeek, ushort currentYear, ushort previousWeek, ushort previousYear) GetWeekAndYearInfo()
+    {
+      var (currentWeek, currentYear) = GetCurrentWeekAndYear();
+
+      DateTime today = DateTime.Now;
+      CultureInfo culture = new("es-Mx");
       Calendar calendar = culture.Calendar;
       DateTime startOfWeek = today.AddDays(-(int)today.DayOfWeek + (int)DayOfWeek.Monday);
       DateTime startOfPreviousWeek = startOfWeek.AddDays(-7);
 
-      ushort currentWeek = (ushort)calendar.GetWeekOfYear(today, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
-      ushort currentYear = (ushort)today.Year;
       ushort previousWeek = (ushort)calendar.GetWeekOfYear(startOfPreviousWeek, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
       ushort previousYear = (ushort)startOfPreviousWeek.Year;
       if (previousWeek > currentWeek && previousYear == currentYear)

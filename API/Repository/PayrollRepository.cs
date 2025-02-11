@@ -8,7 +8,7 @@ namespace API.Repository
   {
     private readonly DataContext context = context;
 
-    public ICollection<Payroll> GetPayrolls() => context.Payrolls.ToList();
+    public ICollection<Payroll> GetPayrolls() => [.. context.Payrolls];
     public Payroll GetPayroll(string payroll) => 
       context.Payrolls.FirstOrDefault(pr => pr.PayrollId == payroll)
       ?? throw new Exception("No Payroll with the specified id was found.");

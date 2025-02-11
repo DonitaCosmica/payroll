@@ -13,10 +13,13 @@ namespace API.Repository
     public ICollection<TableWork> GetTableWorks()
     {
       var (currentWeek, currentYear) = GetWeekAndYearInfo();
+      var principalPayroll = context.Payrolls.FirstOrDefault(pr => pr.PayrollType == Enums.PayrollType.Principal)
+        ?? throw new InvalidOperationException("No se encontró una nómina principal.");
+
       CreateNewTableWorkFromTickets(currentWeek, currentYear);
       return [.. IncludeRelatedEntities(context.TableWorks)
         .Where(tw => tw.Ticket.Period.Week == currentWeek &&
-          tw.Ticket.Period.Year == currentYear)];
+          tw.Ticket.Period.Year == currentYear && tw.Ticket.PayrollType == principalPayroll.Name)];
     }
     public TableWork GetTableWork(string tableWorkId) =>
       IncludeRelatedEntities(context.TableWorks).FirstOrDefault(tw => tw.TableWorkId == tableWorkId) ??

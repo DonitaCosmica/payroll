@@ -1,28 +1,19 @@
-import { JSX, useEffect } from "react"
+import { JSX, useEffect, useState } from "react"
 import { useNavigationContext } from "../../context/Navigation"
 import { RiMoneyDollarCircleLine } from "react-icons/ri"
 import { totalTitles } from "../../consts"
 import './Footer.css'
 
-const elements: JSX.Element[] = Array.from({ length: 4 }, (_, index: number) => (
-  <div key={ index } className='total-container'>
-    <div className='title'>{ totalTitles[index] }</div>
-    <div className='total-box'>
-      <p>$7,000.00</p>
-    </div>
-  </div>
-))
-
 export const Footer = (): JSX.Element => {
   const { data, payroll } = useNavigationContext()
+  const [totals, setTotals] = useState<number[]>([])
 
   useEffect(() => {
-    const fetchTotals = async (): Promise<void> => {
+    const fetchTotals = async (): Promise<number | undefined> => {
       try {
         const payrollType = payroll && payroll.name ? payroll.name : 'Principal'
         const res: Response = await fetch(`http://localhost:5239/api/Ticket/amount?payrollType=${ payrollType }`)
-        const total: number = await res.json()
-        console.log({ total })
+        return await res.json() as number
       } catch (error) {
         console.error('Error fetching totals: ', error)
       }
@@ -35,13 +26,20 @@ export const Footer = (): JSX.Element => {
       }
       return acc
     }, 0)
-
-    fetchTotals()
+    
+    fetchTotals().then((otherTotals) => setTotals([totalPeriod, otherTotals ?? 0, 0, 0]))
   }, [ data, payroll ])
 
   return (
     <footer className='footer'>
-      { elements.map((element: JSX.Element) => element) }
+      {totals.map((total: number, index: number) => (
+        <div key={ `${ index }-${ total }` } className='total-container'>
+          <div className='title'>{ totalTitles[index] }</div>
+          <div className='total-box'>
+            <p>{ `$${ total.toFixed(2) }` }</p>
+          </div>
+        </div>
+      ))}
       <div className='payments'>
         <RiMoneyDollarCircleLine color="#de9400" fontSize="1.5rem" />
         <p>Pagos</p>
