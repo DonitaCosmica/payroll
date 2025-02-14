@@ -43,7 +43,7 @@ export const Titlebar: React.FC<Props> = ({ action }): JSX.Element => {
         document.cookie = 'accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
         window.location.href = 'http://localhost:5173/'
       }
-      } catch (error) {
+    } catch (error) {
       console.error('Error loging out: ', error)
     }
   }

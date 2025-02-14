@@ -10,6 +10,8 @@ interface Props {
 
 export const FilterReport: React.FC<Props> = ({ fields }): JSX.Element => {
   const formData = useRef<Record<string, unknown>>({})
+  const setFormData = (newData: Record<string, unknown>) =>
+    Object.assign(formData.current, newData)
 
   return (
     <section id="filter-report-background">
@@ -39,7 +41,7 @@ export const FilterReport: React.FC<Props> = ({ fields }): JSX.Element => {
                       options={ [] }
                       selectedId={ fieldId }
                       value={ formData.current[fieldId] as string }
-                      setFormData={ formData }
+                      setFormData={ setFormData }
                       isDisabled={ false }
                     />
                   )}

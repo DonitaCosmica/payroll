@@ -8,7 +8,7 @@ interface Props {
   selectedId: string,
   value: string,
   isDisabled: boolean,
-  setFormData: React.RefObject<Record<string, unknown>>
+  setFormData: (data: Record<string, unknown>) => void
   setLoading?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -36,7 +36,7 @@ export const DropDown: React.FC<Props> = React.memo(({ options, selectedId, valu
       setLoading(prev => !prev)
 
     setSelectedValue(value)
-    setFormData.current[id] = value
+    setFormData({ [id]: value })
   }
 
   return (

@@ -143,6 +143,14 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   const formData = useRef<Record<string, unknown>>({})
   const discount = useRef<number | null>(null)
 
+  const setFormData = (newData: Record<string, unknown>): void => {
+    Object.assign(formData.current, newData)
+  }
+
+  const setDiscount = (newData: number | null): void => {
+    Object.assign(discount, newData)
+  }
+
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
       const generator = fetchDataGenerator(option)
@@ -316,7 +324,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   selectedId={ fieldId }
                   value={ value }
                   isDisabled={ isCurrentWeek }
-                  setFormData={ formData } 
+                  setFormData={ setFormData } 
                   setLoading={
                     option === NavigationActionKind.PAYROLLRECEIPTS || option === NavigationActionKind.EMPLOYEES
                       ? setLoading : () => {}
@@ -330,8 +338,9 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   idKey={ pluralToSingular(id) + 'Id' }
                   isDisabled={ isCurrentWeek }
                   showAmount={ amount ?? false }
-                  setFormData={ formData }
+                  setFormData={ setFormData }
                   discount={ discount }
+                  setDiscount={ setDiscount }
                 />
               ) : type === 'textarea' ? (
                 <textarea

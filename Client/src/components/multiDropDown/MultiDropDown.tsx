@@ -11,10 +11,11 @@ interface Props {
   isDisabled: boolean,
   discount: React.RefObject<number | null>,
   showAmount: boolean,
-  setFormData: React.RefObject<Record<string, unknown>>
+  setFormData: (data: Record<string, unknown>) => void,
+  setDiscount: (data: number | null) => void
 }
 
-export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDisabled, discount, showAmount, setFormData }): JSX.Element => {  
+export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDisabled, discount, showAmount, setFormData, setDiscount }): JSX.Element => {  
   const [filteredOptions, setFilteredOptions] = useState<IDropDownMenu[]>([])
   const [isOptionSelected, setIsOptionSelected] = useState<boolean[]>([])
   const [isAllOptionsSelected, setIsAllOptionsSelected] = useState<boolean>(false)
@@ -73,7 +74,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
   }, [ sortedOptions, getDisplayValue ])
 
   const updateFormData = useCallback((items: IListObject[]): void => {
-    setFormData.current[id] = items
+    setFormData({ [id]: items })
   }, [ setFormData, id ])
 
   const createListObject = (option: IDropDownMenu): IListObject => {
@@ -162,7 +163,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
     const value = parseFloat(e.currentTarget.textContent?.replace('$', '') ?? '0')
     discount.current === null
       ? localStorage.setItem('discount', JSON.stringify(value))
-      : discount.current = value
+      : setDiscount(value)
   }
 
   const renderContent = useCallback((value: number, selectedItem: IListObject | undefined): number | null => {
