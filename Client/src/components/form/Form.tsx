@@ -283,7 +283,6 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
 
       if (type === 'section') {
         const updatedAcc = appendCurrentGroup(currentGroup)
-
         return [
           ...updatedAcc,
           <div key={`${ name }-${ index }`} className='title'>

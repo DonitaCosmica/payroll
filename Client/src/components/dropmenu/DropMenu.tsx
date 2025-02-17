@@ -4,6 +4,7 @@ import { useGeneratePrintPage } from '../../hooks/useGeneratePrintPage'
 import { type IPageComponents, type IIconDefinition } from "../../types"
 import { FilterReport } from '../filterReport/FilterReport'
 import { Titlebar } from '../titlebar/Titlebar'
+import { Each } from '../../utils/Each'
 import './DropMenu.css'
 
 interface Props {
@@ -24,7 +25,7 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, context }): 
   return (
     <div className='drop-menu' style={{ [dir]: 0 }}>
       <ul>
-        {menuOp.map((op: IIconDefinition) => (
+        <Each of={ menuOp } render={(op) => (
           <li key={ op.label } onClick={() => {
             if (context === 'report' && docName ) {
               const { titlebar, filterReport } = getHtmlComponent(op)
@@ -36,7 +37,7 @@ export const DropMenu: React.FC<Props> = React.memo(({ menuOp, dir, context }): 
             { op.icon }
             <p>{ op.label }</p>
           </li>
-        ))}
+        )} />
       </ul>
     </div>
   )

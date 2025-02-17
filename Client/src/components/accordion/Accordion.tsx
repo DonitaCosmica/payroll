@@ -4,6 +4,7 @@ import { useFetchData } from '../../hooks/useFetchData'
 import { type IPeriod, type IDataResponse } from '../../types'
 import { IoIosArrowForward } from "react-icons/io"
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
+import { Each } from '../../utils/Each'
 import { reorganizeData } from '../../utils/modifyData'
 import { weekRange } from '../../utils/modifyDates'
 import './Accordion.css'
@@ -57,7 +58,7 @@ export const Accordion: React.FC<Props> = React.memo(({ year, periods }): JSX.El
         <strong>{ year }</strong>
       </li>
       <ul className={`accordion ${ isCollapsed ? 'collapsed' : 'expanded' }`}>
-        {periods.map((period: IPeriod) => {
+        <Each of={ periods } render={(period) => {
           const { monday, sunday } = weekRange(period.week, year)
           const selectedWeek = period.week === selectedPeriod.week && year === selectedPeriod.year
 
@@ -70,7 +71,7 @@ export const Accordion: React.FC<Props> = React.memo(({ year, periods }): JSX.El
               { `${ period.week } [ ${ monday } - ${ sunday } ]` }
             </li>
           )
-        })}
+        }} />
       </ul>
     </div>
   )

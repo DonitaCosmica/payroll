@@ -2,6 +2,7 @@ import React, { JSX, useEffect, useMemo, useRef, useState } from 'react'
 import { usePeriodContext } from '../../context/Period'
 import { useFetchData } from '../../hooks/useFetchData'
 import { type IWeekYear, type IIconDefinition } from '../../types'
+import { Each } from '../../utils/Each'
 import { ICON_OPTIONS } from '../../utils/icons'
 import { getMondayOfWeek, getWeekNumber } from '../../utils/modifyDates'
 import { Accordion } from '../accordion/Accordion'
@@ -24,7 +25,8 @@ export const DropMenuDates = React.memo((): JSX.Element => {
         id: 'send',
         label: 'Enviar',
         icon: <FaCheck fontSize='1rem' color='#73ba69' />
-      }]
+      }
+    ]
   , [ ICON_OPTIONS ])
 
   const handleForm = async (e: React.MouseEvent<HTMLDivElement>, index: number): Promise<void> => {
@@ -86,7 +88,7 @@ export const DropMenuDates = React.memo((): JSX.Element => {
       <div className='title-menu'>
         <p>Seleccionar Periodo</p>
         <div className='title-menu-options'>
-          {ICONS.map((iconOption: IIconDefinition, index: number) => (
+          <Each of={ ICONS } render={(iconOption: IIconDefinition, index: number) => (
             <div
               key={ iconOption.label }
               className='title-menu-option-box'
@@ -94,7 +96,7 @@ export const DropMenuDates = React.memo((): JSX.Element => {
             >
               { iconOption.icon }
             </div>
-          ))}
+          )} />
         </div>
       </div>
       <div className='set-date-box' style={{ display: showOptionsPeriod ? 'flex' : 'none' }}>
@@ -106,22 +108,22 @@ export const DropMenuDates = React.memo((): JSX.Element => {
           autoComplete='off'
           onChange={ (e) => handleChange(e) }
           onClick={ (e) => e.stopPropagation() }
-          defaultValue={ 
-            selectedOption.current === 1 && selectedPeriod.periodId 
+          defaultValue={selectedOption.current === 1 && selectedPeriod.periodId
             ? getMondayOfWeek({ week: selectedPeriod.week, year: selectedPeriod.year })
             : undefined}
         />
       </div>
       <ul style={{ height: showOptionsPeriod ? '75%' : '85%' }}>
-        {Object.entries(dates)
-          .sort(([yearA], [yearB]) => parseInt(yearB) - parseInt(yearA))
-          .map(([year, periods]) => 
+        <Each 
+          of={ Object.entries(dates).sort(([yearA], [yearB]) => parseInt(yearB) - parseInt(yearA)) }
+          render={([year, periods]) =>
             <Accordion 
               key={ year }
               year={ parseInt(year) }
               periods={ periods }
             />
-        )}
+          }
+        />
       </ul>
     </div>
   )

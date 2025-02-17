@@ -5,7 +5,9 @@ import { NavigationActionKind, useNavigationContext } from './context/Navigation
 import { Titlebar } from './components/titlebar/Titlebar'
 import { Navbar } from './components/navbar/Navbar'
 import { Form } from './components/form/Form'
-import { ListSkeleton } from './custom/listSkeleton/ListSkeleton' 
+import { FilterSkeleton } from './custom/filterSkeleton/FilterSkeleton'
+import { ListSkeleton } from './custom/listSkeleton/ListSkeleton'
+import { FooterSkeleton } from './custom/footerSkeleton/FooterSkeleton'
 import './App.css'
 
 const Filter = React.lazy(() => import('./components/filter/Filter').then(module => ({ default: module.Filter })))
@@ -53,7 +55,7 @@ export const App = (): JSX.Element => {
         { showForm && <Form setShowForm={ setShowForm } /> }
         <Titlebar action='payroll' />
         <Navbar />
-        { option === 1 && renderWithSuspense(Filter, {}, <div>Loading Filter...</div>) }
+        { option === 1 && renderWithSuspense(Filter, {}, <FilterSkeleton />) }
         {option !== NavigationActionKind.BANKS ?
           (<SortEmployeesProvider>
             {renderWithSuspense(Toolbar, {
@@ -67,7 +69,7 @@ export const App = (): JSX.Element => {
           </SortEmployeesProvider>) : (
             renderWithSuspense(UploadBanks, {}, <div>Loading Banks...</div>)
           )}
-        { option === 1 && renderWithSuspense(Footer, {}, <div>Loading Footer...</div>) }
+        { option === 1 && renderWithSuspense(Footer, {}, <FooterSkeleton />) }
       </PeriodProvider>
     </main>
   )

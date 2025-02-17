@@ -1,5 +1,6 @@
 import { JSX } from 'react'
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
+import { Each } from '../../utils/Each'
 import { LINKS } from '../../consts'
 import './Navbar.css'
 
@@ -8,10 +9,8 @@ export const Navbar = (): JSX.Element => {
 
   return (
     <nav className='navbar'>
-      {LINKS.map((link: string, index: number) => (
-        <div 
-          className={ `link ${ option === index + 1 ? 'selected' : '' }` } 
-          key={ link } 
+      <Each of={ LINKS } render={(link, index) => (
+        <div className={ `link ${ option === index + 1 ? 'selected' : '' }` } key={ link }
           onClick={() => {
             dispatch({ type: index + 1 })
             dispatch({
@@ -22,7 +21,7 @@ export const Navbar = (): JSX.Element => {
         >
           <p>{ link }</p>
         </div>
-      ))}
+      )} />
     </nav>
   )
 }

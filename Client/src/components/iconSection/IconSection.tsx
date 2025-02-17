@@ -6,6 +6,7 @@ import { useGeneratePrintPage } from "../../hooks/useGeneratePrintPage"
 import { type IPageComponents, type IDropMenu, type IIconDefinition } from "../../types"
 import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
 import { REPORTING_ACTIONS } from "../../consts"
+import { Each } from '../../utils/Each'
 import { DropMenu } from "../dropmenu/DropMenu"
 import { Titlebar } from '../titlebar/Titlebar'
 import { FilterReport } from '../filterReport/FilterReport'
@@ -50,37 +51,33 @@ export const IconSection: React.FC<Props> = ({ token, action, options, handleFor
   }, [ action ])
   
   return (
-    <>
-      {options.map((option: IIconDefinition, index: number) => {
-        const { id, label, icon } = option
-        const dropMenuoptions = generateDropMenuOptions(id)
-        const isActive = dropMenuoptions.length > 0 && token !== 1
+    <Each of={ options } render={(option, index) => {
+      const { id, label, icon } = option
+      const dropMenuoptions = generateDropMenuOptions(id)
+      const isActive = dropMenuoptions.length > 0 && token !== 1
 
-        return (
-          <div className="option" key={ label }
-            onClick={ !isCurrentWeek ? () => handleClick(id, label, index, isActive) : () => {} }
-          >
-            { icon }
-            <p>{ label }</p>
-            {isActive && showDropMenu &&
-              <DropMenu
-                menuOp={(id !== 'filter' ? generateDropMenuOptions(id) : statuses).map(op => ({
-                  ...op,
-                  onClick: id === 'filter' ? (id, label): void => {
-                    if (id && label)
-                      dispatch({
-                        type: "SET_FILTER",
-                        payload: { filter: id, label: label }
-                      })
-                  } : (): void => {}
-                }))} 
-                dir='left'
-                context={ id }
-              />  
-            }
-          </div>
-        )
-      })}
-    </>
+      return (
+        <div className="option" key={ label } onClick={ !isCurrentWeek ? () => handleClick(id, label, index, isActive) : () => {} }>
+          { icon }
+          <p>{ label }</p>
+          {isActive && showDropMenu &&
+            <DropMenu
+              menuOp={(id !== 'filter' ? generateDropMenuOptions(id) : statuses).map(op => ({
+                ...op,
+                onClick: id === 'filter' ? (id, label): void => {
+                  if (id && label)
+                    dispatch({
+                      type: "SET_FILTER",
+                      payload: { filter: id, label: label }
+                    })
+                } : (): void => {}
+              }))}
+              dir='left'
+              context={ id }
+            />
+          }
+        </div>
+      )
+    }} />
   )
 }

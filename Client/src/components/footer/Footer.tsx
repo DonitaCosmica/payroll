@@ -1,6 +1,7 @@
 import { JSX, useEffect, useState } from "react"
 import { useNavigationContext } from "../../context/Navigation"
 import { RiMoneyDollarCircleLine } from "react-icons/ri"
+import { Each } from "../../utils/Each"
 import { totalTitles } from "../../consts"
 import './Footer.css'
 
@@ -32,14 +33,14 @@ export const Footer = (): JSX.Element => {
 
   return (
     <footer className='footer'>
-      {totals.map((total: number, index: number) => (
-        <div key={ `${ index }-${ total }` } className='total-container'>
+      <Each of={ totals } render={(total, index) => (
+        <div key={`${ index }-${ total }`} className='total-container'>
           <div className='title'>{ totalTitles[index] }</div>
           <div className='total-box'>
             <p>{ `$${ total.toFixed(2) }` }</p>
           </div>
         </div>
-      ))}
+      )} />
       <div className='payments'>
         <RiMoneyDollarCircleLine color="#de9400" fontSize="1.5rem" />
         <p>Pagos</p>

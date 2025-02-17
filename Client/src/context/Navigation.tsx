@@ -309,7 +309,7 @@ export const NavigationProvider: React.FC<Props> = ({ children }): JSX.Element =
 
     fetchData()
     saveToLocalStorage()
-  }, [ state.url, state.payroll, submitCount ])
+  }, [ state.url, submitCount ])
 
   return (
     <NavigationContext.Provider

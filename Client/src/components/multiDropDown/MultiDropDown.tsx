@@ -2,6 +2,7 @@ import { JSX, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { type IListObject, type IDropDownMenu } from "../../types"
 import { compareNames } from "../../utils/modifyData"
 import './MultiDropDown.css'
+import { Each } from "../../utils/Each"
 
 interface Props {
   id: string,
@@ -202,11 +203,11 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
           </span>
         ) : (
           <div className="multi-select-header-option-box">
-            {selectedItemsRef.current.map((item: IListObject) => (
+            <Each of={ selectedItemsRef.current } render={(item) => (
               <span key={ `values-${ item[idKey] as string }` } className="multi-select-header-option" aria-selected="false">
                 { item.name }
               </span>
-            ))}
+            )} />
           </div>
         )}
         <div className="multi-select-header-box" onClick={ () => setShowMenu(!showMenu) }>
@@ -230,7 +231,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
               <span>Seleccionar todos</span>
             </div>
           </div>
-          {filteredOptions.map((opt: IDropDownMenu, index: number) => {
+          <Each of={ filteredOptions } render={(opt, index) => {
             const selectedItem = selectedItemsRef.current.find(item => item[idKey] === opt[idKey])
             const isEditabled = !isDisabled && selectedItem?.compensationType === 'Discount'
               && (discount.current === null || discount.current === 0)
@@ -284,7 +285,8 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
                   </div>
                 )}
               </div>
-          )})}
+            )
+          }} />
           {showAmount && (
             <>
               <hr />

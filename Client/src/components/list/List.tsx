@@ -285,9 +285,9 @@ export const List: React.FC<Props> = ({ searchFilter, setShowForm }): JSX.Elemen
             </thead>
             <tbody className="empty-table">
               <tr>
-                {[...Array(18)].map((_, id: number) => (
+                {[...Array(18)].map((_, id: number) =>
                   <td key={ `cell-${ id }` } className='empty-cell'></td>
-                ))}
+                )}
               </tr>
             </tbody>
           </table>
@@ -330,35 +330,35 @@ export const List: React.FC<Props> = ({ searchFilter, setShowForm }): JSX.Elemen
               >
                 {columnNames.map((column: string, cellIndex: number) => {
                   const content = renderCellContent(row, column)
-
                   return (
-                  <td key={ `$data-${ column }-${ cellIndex }` }>
-                    {option !== NavigationActionKind.TABLEWORK
-                      ? (<p>{ typeof content === 'number' ? content.toFixed(2) : content }</p>
-                      ) : (
-                        <input
-                          type="text"
-                          id={ `${ getKeyByValue(columnsDictionary.current, column) } - ${ index }` }
-                          autoComplete="off"
-                          onChange={ (e) => handleChange(e, index) }
-                          defaultValue={ column !== 'Hora Extra' && column !== 'Total' ? content : undefined }
-                          value={ column === 'Hora Extra' || column === 'Total' ? content : undefined }
-                        />
-                      )}
-                  </td>
-                )})}
+                    <td key={ `$data-${ column }-${ cellIndex }` }>
+                      {option !== NavigationActionKind.TABLEWORK
+                        ? (<p>{ typeof content === 'number' ? content.toFixed(2) : content }</p>
+                        ) : (
+                          <input
+                            type="text"
+                            id={ `${ getKeyByValue(columnsDictionary.current, column) } - ${ index }` }
+                            autoComplete="off"
+                            onChange={ (e) => handleChange(e, index) }
+                            defaultValue={ column !== 'Hora Extra' && column !== 'Total' ? content : undefined }
+                            value={ column === 'Hora Extra' || column === 'Total' ? content : undefined }
+                          />
+                        )}
+                    </td>
+                  )
+                })}
               </tr>
             ))}
             {option === NavigationActionKind.TABLEWORK && (
               <tr className="total-row">
                 {columnNames.map((column: string, cellIndex: number) => {
                   const content = renderTotalContent(column, cellIndex)
-
                   return (
-                  <td key={ `total-${ column }-${ cellIndex }` }>
-                    <p>{ typeof content === 'number' && cellIndex !== 3 ? content.toFixed(2) : content }</p>
-                  </td>
-                )})}
+                    <td key={ `total-${ column }-${ cellIndex }` }>
+                      <p>{ typeof content === 'number' && cellIndex !== 3 ? content.toFixed(2) : content }</p>
+                    </td>
+                  )
+                })}
               </tr>
             )}
           </tbody>

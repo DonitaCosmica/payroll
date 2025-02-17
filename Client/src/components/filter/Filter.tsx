@@ -1,14 +1,15 @@
-import React, { JSX, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { JSX, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
 import { usePeriodContext } from '../../context/Period'
 import { useFetchData } from '../../hooks/useFetchData'
 import { type IPayrollType, type IMenuState, type IIconDefinition } from "../../types"
 import { weekRange } from '../../utils/modifyDates'
+import { Each } from '../../utils/Each'
+import { DropMenuDates } from '../dropMenuDates/DropMenuDates'
 import { DropMenu } from '../dropmenu/DropMenu'
+import { FilterSkeleton } from '../../custom/filterSkeleton/FilterSkeleton'
 import { IoIosArrowDown } from 'react-icons/io'
 import './Filter.css'
-
-const DropMenuDates = React.lazy(() => import('../dropMenuDates/DropMenuDates').then(module => ({ default: module.DropMenuDates })))
 
 export const Filter = (): JSX.Element => {
   const { payroll, dispatch } = useNavigationContext() || { payroll: null }
@@ -56,26 +57,20 @@ export const Filter = (): JSX.Element => {
   }, [])
 
   if (payrollTypes.length === 0)
-    return <p>Cargando datos...</p>
+    return <FilterSkeleton />
 
   return (
     <section className='filters'>
       <div className='container'>
-        {filterData.map((filter: string, index: number) => (
+        <Each of={ filterData } render={(filter, index) => (
           <div className='filter' key={ filter } onClick={() => {
             if (index === 0) handleDropMenu(index)
           }}>
             <p>{ filter }</p>
-            {index === 0 && (
-              <IoIosArrowDown />
-            )}
-            {index === 0 && showDropMenu.date && (
-              <Suspense fallback={ <div>Loading dates ...</div> }>
-                <DropMenuDates />
-              </Suspense>
-            )}
+            { index === 0 && (<IoIosArrowDown />) }
+            { index === 0 && showDropMenu.date && (<DropMenuDates />) }
           </div>
-        ))}
+        )} />
         <div className='filter' onClick={ () => handleDropMenu(payroll) }>
           <p>{ payroll && payroll.name ? payroll.name : 'Error' }</p>
           <IoIosArrowDown />

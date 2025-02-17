@@ -1,5 +1,6 @@
 import React, { ChangeEvent, JSX, useState } from 'react'
 import { type IDropDownMenu } from '../../types'
+import { Each } from '../../utils/Each'
 import { compareNames, findKeyAndGetValue } from '../../utils/modifyData'
 import './DropDown.css'
 
@@ -42,9 +43,9 @@ export const DropDown: React.FC<Props> = React.memo(({ options, selectedId, valu
   return (
     <select id={ `${ selectedId }` } value={ selectedValue } onChange={ handleChange } disabled={ isDisabled ? true : undefined } autoComplete='off'>
       <option value='0'>Elije una opción...</option>
-      {sortedOptions.map((option: IDropDownMenu, index: number) => 
+      <Each of={ sortedOptions } render={(option, index) => 
         <option key={`${ selectedId }-${ index }`} value={ findKeyAndGetValue(option, 'Id')?.toString() }>{ option.name ?? option.description }</option>
-      )}
+      } />
     </select>
   )
 })
