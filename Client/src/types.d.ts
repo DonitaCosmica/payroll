@@ -86,6 +86,11 @@ export interface IPayrollType {
   readonly payrollType: 'Principal' | 'Secondary'
 }
 export interface IPageComponents {
-  titlebar: string,
-  filterReport: string
+  readonly titlebar: string,
+  readonly filterReport: string
+}
+
+export interface ITotals {
+  readonly name: string,
+  readonly total: number
 }

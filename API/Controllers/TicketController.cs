@@ -28,7 +28,8 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<TicketDTO>))]
     public IActionResult GetTicketsByPayroll([FromQuery] string payrollType)
     {
-      IEnumerable<TicketDTO> tickets = ticketRepository.GetTickets(payrollType).Select(MapToTicketDTORequest);
+      Payroll payroll = payrollRepository.GetPayroll(payrollType);
+      IEnumerable<TicketDTO> tickets = ticketRepository.GetTicketsByPayroll(payroll).Select(MapToTicketDTORequest);
       object result = CreateResult(tickets);
       return Ok(result);
     }
@@ -37,7 +38,8 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<TicketDTO>))]
     public IActionResult GetTicketsByWeekAndYear([FromQuery] ushort week, [FromQuery] ushort year, [FromQuery] string payrollType)
     {
-      IEnumerable<TicketDTO> tickets = ticketRepository.GetTicketsByWeekAndYear(week, year, payrollType).Select(MapToTicketDTORequest);
+      var payroll = payrollRepository.GetPayrollByName(payrollType);
+      IEnumerable<TicketDTO> tickets = ticketRepository.GetTicketsByWeekAndYear(week, year, payroll).Select(MapToTicketDTORequest);
       object result = CreateResult(tickets);
       return Ok(result);
     }
@@ -46,16 +48,19 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(float))]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public IActionResult GetTicketsAmount([FromQuery] string payrollType)
+    public IActionResult GetTicketsAmount([FromQuery] ushort week, [FromQuery] ushort year, [FromQuery] string payrollType)
     {
-      if (payrollType == "Principal")
-      {
-        var payroll = payrollRepository.GetPrincipalPayroll();
-        payrollType = payroll.Name;
-      } else if(payrollRepository.GetPayrollByName(payrollType) == null)
-        return NotFound();
+      Payroll payroll = payrollRepository.GetPayroll(payrollType);
+      string name = payroll.PayrollType == PayrollType.Principal
+        ? "Otros Periodos" : payrollRepository.GetPrincipalPayroll().Name;
 
-      return Ok(ticketRepository.GetTotalSum(payrollType));
+      var amount = new
+      {
+        Name = name,
+        Total = ticketRepository.GetTotalSum(week, year, payroll)
+      };
+
+      return Ok(amount);
     }
 
     [HttpGet("{ticketId}")]
@@ -301,10 +306,9 @@ namespace API.Controllers
         var additionalProperties = auxTicket.Perceptions
           .Where(p => p.Value > 0 && p.Name != "Sueldo" && p.Name != "Hora Extra")
           .Select((p, i) => new KeyValuePair<string, object>(p.Name ?? $"Unknown Perception { i }", p.Value))
-          .Concat(
-              auxTicket.Deductions
-                  .Where(d => d.Value > 0)
-                  .Select((d, i) => new KeyValuePair<string, object>(d.Name ?? $"Unknown Deduction { i }", d.Value))
+          .Concat(auxTicket.Deductions
+            .Where(d => d.Value > 0)
+            .Select((d, i) => new KeyValuePair<string, object>(d.Name ?? $"Unknown Deduction { i }", d.Value))
           )
           .GroupBy(kv => kv.Key)
           .ToDictionary(g => g.Key, g => g.First().Value);

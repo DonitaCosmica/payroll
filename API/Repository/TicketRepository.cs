@@ -1,6 +1,7 @@
 using System.Globalization;
 using API.Data;
 using API.DTO;
+using API.Enums;
 using API.Helpers;
 using API.Interfaces;
 using API.Models;
@@ -11,15 +12,15 @@ namespace API.Repository
   public class TicketRepository(DataContext context) : ITicketRepository
   {
     private readonly DataContext context = context;
-    public ICollection<Ticket> GetTickets(string? payrollType = null)
+    public ICollection<Ticket> GetTickets() =>
+      [.. IncludeRelatedEntities(context.Tickets)];
+    public ICollection<Ticket> GetTicketsByPayroll(Payroll payroll)
     {
       var (currentWeek, currentYear, previousWeek, previousYear) = GetWeekAndYearInfo();
-      var tickets = GetTicketsByWeekAndYear(currentWeek, currentYear, payrollType);
+      var tickets = GetTicketsByWeekAndYear(currentWeek, currentYear, payroll);
       if(tickets.Count > 0) return tickets;
 
-      var payroll = context.Payrolls.FirstOrDefault(pr => pr.Name == payrollType);
-
-      if(payroll != null || payrollType == "Principal")
+      if(payroll.PayrollType == PayrollType.Principal)
       {
         var period = context.Periods.FirstOrDefault(pr => pr.Week == currentWeek && pr.Year == currentYear)
           ?? CreateNewPeriod(currentWeek, currentYear);
@@ -30,20 +31,11 @@ namespace API.Repository
 
       return [];
     }
-    public ICollection<Ticket> GetTicketsByWeekAndYear(ushort week, ushort year, string? payrollType = null)
+    public ICollection<Ticket> GetTicketsByWeekAndYear(ushort week, ushort year, Payroll? payroll = null)
     {
       var query = IncludeRelatedEntities(context.Tickets).Where(t => t.Period.Week == week && t.Period.Year == year);
-      if(!string.IsNullOrEmpty(payrollType))
-      {
-        if(payrollType == "Principal")
-        {
-          var payroll = context.Payrolls.FirstOrDefault(pr => pr.PayrollType == Enums.PayrollType.Principal);
-          if(payroll == null) return [];
-          query = query.Where(t => t.PayrollType == payroll.Name);
-        }
-        else
-          query = query.Where(t => t.PayrollType == payrollType);
-      }
+      if(payroll != null)
+        query = query.Where(t => t.PayrollType == payroll.Name);
 
       return [.. query];
     }
@@ -120,13 +112,10 @@ namespace API.Repository
         return (nexSerie, 1);
       }
     }
-    public float GetTotalSum(string payrollType)
-    {
-      var (currentWeek, currentYear) = GetCurrentWeekAndYear();
-      return IncludeRelatedEntities(context.Tickets)
-        .Where(t => t.PayrollType != payrollType && t.Period.Week == currentWeek && t.Period.Year == currentYear)
+    public float GetTotalSum(ushort week, ushort year, Payroll payroll) =>
+      IncludeRelatedEntities(context.Tickets)
+        .Where(t => t.PayrollType != payroll.Name && t.Period.Week == week && t.Period.Year == year)
         .Sum(t => t.Total);
-    }
     public bool CreateTicket(HashSet<TicketPerceptionRelatedEntities> perceptions, 
       HashSet<TicketDeductionRelatedEntities> deductions, Ticket ticket)
     {
@@ -239,27 +228,16 @@ namespace API.Repository
       context.GetColumns(ticket, columns);
     public List<string> GetColumns() => context.GetColumns<Ticket>();
     public bool TicketExists(string ticketId) => context.Tickets.Any(t => t.TicketId == ticketId);
-    private static (ushort currentWeek, ushort currentYear) GetCurrentWeekAndYear()
-    {
-      DateTime today = DateTime.Now;
-      CultureInfo culture = new("es-Mx");
-      Calendar calendar = culture.Calendar;
-
-      ushort currentWeek = (ushort)calendar.GetWeekOfYear(today, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
-      ushort currentYear = (ushort)today.Year;
-
-      return (currentWeek, currentYear);
-    }
     private static (ushort currentWeek, ushort currentYear, ushort previousWeek, ushort previousYear) GetWeekAndYearInfo()
     {
-      var (currentWeek, currentYear) = GetCurrentWeekAndYear();
-
       DateTime today = DateTime.Now;
       CultureInfo culture = new("es-Mx");
       Calendar calendar = culture.Calendar;
       DateTime startOfWeek = today.AddDays(-(int)today.DayOfWeek + (int)DayOfWeek.Monday);
       DateTime startOfPreviousWeek = startOfWeek.AddDays(-7);
 
+      ushort currentWeek = (ushort)calendar.GetWeekOfYear(today, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
+      ushort currentYear = (ushort)today.Year;
       ushort previousWeek = (ushort)calendar.GetWeekOfYear(startOfPreviousWeek, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
       ushort previousYear = (ushort)startOfPreviousWeek.Year;
       if (previousWeek > currentWeek && previousYear == currentYear)
@@ -267,6 +245,12 @@ namespace API.Repository
 
       return (currentWeek, currentYear, previousWeek, previousYear);
     }
+    private Payroll? GetPayroll(string payrollType) =>
+      payrollType switch
+      {
+        "Principal" or "Secondary" => context.Payrolls.FirstOrDefault(pr => pr.PayrollType == Enum.Parse<PayrollType>(payrollType)),
+        _ => context.Payrolls.FirstOrDefault(pr => pr.Name == payrollType)
+      };
     private Period? CreateNewPeriod(ushort week, ushort year)
     {
       var newPeriod = new Period

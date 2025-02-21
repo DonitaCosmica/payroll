@@ -36,7 +36,7 @@ namespace API.Controllers
       if(!payrollRepository.PayrollExists(payrollId))
         return NotFound();
 
-      var payroll = payrollRepository.GetPayroll(payrollId);
+      var payroll = payrollRepository.GetPayrollById(payrollId);
       var payrollDTO = new PayrollDTO
       {
         PayrollId = payroll.PayrollId,
@@ -108,7 +108,7 @@ namespace API.Controllers
       if(payrollType == PayrollType.Principal && payrollRepository.PrimaryPayrollExists())
         return Conflict("There is already a principal payroll");
 
-      var payroll = payrollRepository.GetPayroll(payrollId);
+      var payroll = payrollRepository.GetPayrollById(payrollId);
       if(payroll == null)
         return NotFound("Payroll Not Found");
 
@@ -130,7 +130,7 @@ namespace API.Controllers
       if(!payrollRepository.PayrollExists(payrollId))
         return NotFound();
 
-      if(!payrollRepository.DeletePayroll(payrollRepository.GetPayroll(payrollId)))
+      if(!payrollRepository.DeletePayroll(payrollRepository.GetPayrollById(payrollId)))
         return StatusCode(500, "Something went wrong deleting payroll");
 
       return NoContent();

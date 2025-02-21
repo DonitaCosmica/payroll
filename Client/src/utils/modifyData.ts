@@ -1,3 +1,4 @@
+import { NavigationActionKind } from "../context/Navigation"
 import { type IListObject, type IDataObject } from "../types"
 
 const isIDataObject = (obj: any): obj is IDataObject => {
@@ -13,6 +14,30 @@ const transformKeysToCamelCase = (obj: IDataObject): IDataObject =>
     acc[camelCaseKey] = obj[key]
     return acc
   }, {} as IDataObject)
+
+const getValue = (value: string | number): number | string => 
+  typeof value === 'string' ? (isNaN(parseInt(value, 10)) ? value : parseInt(value, 10)) : value
+
+const getSortingKey = (item: IDataObject, keys: string[]): number | string | undefined => {
+  for (const key of keys) {
+    const value = item[key]
+    if (typeof value === 'string' || typeof value === 'number')
+      return getValue(value)
+  }
+
+  return undefined
+}
+
+const loadTranslations = async ({ opt }: { opt: NavigationActionKind }): Promise<Record<string, string>> => {
+  try {
+    const res: Response = await fetch('/src/data/translations.json')
+    const data = await res.json()
+    return data[opt]
+  } catch (error) {
+    console.error('Error loading translations: ', error)
+    return {} as Record<string, string>
+  }
+}
 
 export const getKeyByValue = (obj: Record<string, string>, valueToFind: string): string | undefined => {
   for (const key in obj)
@@ -72,6 +97,19 @@ export const getProperty = (obj: IDataObject, key: string): string | number | bo
   }, {} as Record<string, string>)
 
   return obj[propertyMap[key.toLowerCase()]]
+}
+
+export const sortDataByColumns = (data: IDataObject[], columns: string[]): void => {
+  const sortingKeys = columns.includes('Code') || columns.includes('Key')
+    ? ['code', 'key'] : columns.includes('Name') ? ['name'] : null
+
+  if (sortingKeys)
+    data.sort((a, b) => compareNames(getSortingKey(a, sortingKeys) ?? '', getSortingKey(b, sortingKeys) ?? ''))
+}
+
+export const translateColumns = async ({ opt, columnsNames }: { opt: NavigationActionKind, columnsNames: string[] }): Promise<string[]> => {
+  const columnsDictionary: Record<string, string> = await loadTranslations({ opt })
+  return columnsNames.map((column: string) => columnsDictionary[column] || column)
 }
 
 export const reorganizeData = (data: IDataObject[]): IDataObject[] =>

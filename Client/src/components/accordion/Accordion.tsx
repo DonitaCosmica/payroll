@@ -5,7 +5,7 @@ import { type IPeriod, type IDataResponse } from '../../types'
 import { IoIosArrowForward } from "react-icons/io"
 import { NavigationActionKind, useNavigationContext } from '../../context/Navigation'
 import { Each } from '../../utils/Each'
-import { reorganizeData } from '../../utils/modifyData'
+import { reorganizeData, sortDataByColumns, translateColumns } from '../../utils/modifyData'
 import { weekRange } from '../../utils/modifyDates'
 import './Accordion.css'
 
@@ -15,7 +15,7 @@ interface Props {
 }
 
 export const Accordion: React.FC<Props> = React.memo(({ year, periods }): JSX.Element => {
-  const { payroll, dispatch: updateList } = useNavigationContext()
+  const { option, payroll, dispatch: updateList } = useNavigationContext()
   const { selectedPeriod, setActionType, dispatch: updatePeriod } = usePeriodContext()
   const { fetchData } = useFetchData<IDataResponse>()
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true)
@@ -36,9 +36,13 @@ export const Accordion: React.FC<Props> = React.memo(({ year, periods }): JSX.El
     }
 
     const newData = reorganizeData(result.data)
+    const names: string[] = await translateColumns({ opt: option, columnsNames: result.columns })
+    const columns: string[] = result.formColumns
+    sortDataByColumns(newData, columns)
+
     updateList({
-      type: NavigationActionKind.UPDATETABLE,
-      payload: { data: newData, formData: result.formData }
+      type: NavigationActionKind.UPDATEDATA,
+      payload: { columnNames: names, keys: columns, data: newData, formData: result.formData }
     })
   }, [ updateList ])
 

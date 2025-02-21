@@ -62,4 +62,4 @@ export const FILTER_COLUMNS: Record<string, number[]> = {
   ['employeesByDate']: [ 2, 7, 9, 10, 11, 13, 17, 18 ]
 } as const
 
-export const totalTitles: string[] = ['Total de periodo', 'Total Extraordinario', 'Total Pagado', 'Saldo'] as const
+export const totalTitles: string[] = ['Total de periodo', '', 'Total Pagado', 'Saldo'] as const

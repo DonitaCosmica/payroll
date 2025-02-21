@@ -1,6 +1,6 @@
 import { createContext, JSX, ReactNode, useContext, useEffect, useReducer, useState } from "react"
 import { type IDataResponse, type IDataObject, type IPayrollType } from "../types"
-import { compareNames, reorganizeData } from "../utils/modifyData"
+import { reorganizeData, sortDataByColumns, translateColumns } from "../utils/modifyData"
 
 export enum NavigationActionKind {
   PAYROLLRECEIPTS = 1,
@@ -236,39 +236,10 @@ export const NavigationProvider: React.FC<Props> = ({ children }): JSX.Element =
   }, [])
 
   useEffect(() => {
-    const getValue = (value: string | number): number | string => 
-      typeof value === 'string' ? (isNaN(parseInt(value, 10)) ? value : parseInt(value, 10)) : value
-    
-    const loadTranslations = async ({ opt }: { opt: NavigationActionKind }): Promise<Record<string, string>> => {
-      try {
-        const res: Response = await fetch('/src/data/translations.json')
-        const data = await res.json()
-        return data[opt]
-      } catch (error) {
-        console.error('Error loading translations: ', error)
-        return {} as Record<string, string>
-      }
-    }
-
-    const translateColumns = async ({ opt, columnsNames }: { opt: NavigationActionKind, columnsNames: string[] }): Promise<string[]> => {
-      const columnsDictionary: Record<string, string> = await loadTranslations({ opt })
-      return columnsNames.map((column: string) => columnsDictionary[column] || column)
-    }
-
     const saveToLocalStorage = (): void => {
       const { option, formSize, url, title } = state
       const stateToSave = { option, formSize, url, title }
       localStorage.setItem('navigationState', JSON.stringify(stateToSave))
-    }
-
-    const getSortingKey = (item: IDataObject, keys: string[]): number | string | undefined => {
-      for (const key of keys) {
-        const value = item[key]
-        if (typeof value === 'string' || typeof value === 'number')
-          return getValue(value)
-      }
-
-      return undefined
     }
 
     const fetchData = async (): Promise<void> => {
@@ -291,12 +262,8 @@ export const NavigationProvider: React.FC<Props> = ({ children }): JSX.Element =
         const columns: string[] = dataResponse.formColumns
         const names: string[] = await translateColumns({ opt: state.option, columnsNames: dataResponse.columns })
         const newData = reorganizeData(dataResponse.data)
+        sortDataByColumns(newData, columns)
 
-        if (columns.includes('Code') || columns.includes('Key'))
-          newData.sort((a, b) => compareNames(getSortingKey(a, ['code', 'key']) ?? 0, getSortingKey(b, ['code', 'key']) ?? 0))
-        else if (columns.includes('Name'))
-          newData.sort((a, b) => compareNames(getSortingKey(a, ['name']) ?? '', getSortingKey(b, ['name']) ?? ''))
-        
         dispatch({ 
           type: NavigationActionKind.UPDATEDATA, 
           payload: { columnNames: names, keys: columns, data: newData, formData: dataResponse.formData } 

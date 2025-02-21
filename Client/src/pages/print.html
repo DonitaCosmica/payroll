@@ -612,13 +612,13 @@
           return bank ? bank.code : null
         }
 
-        const getWeekNumber = (date) => {
-          const currentDate = date || new Date()
-          const januaryFirst = new Date(currentDate.getFullYear(), 0, 1)
-          const daysToNextMonday = (januaryFirst.getDay() === 1) ? 0 : (7 - januaryFirst.getDay()) % 7
-          const nextMonday = new Date(currentDate.getFullYear(), 0, januaryFirst.getDate() + daysToNextMonday)
-          return (currentDate < nextMonday) ? 52 :
-            (currentDate > nextMonday ? Math.ceil((currentDate.getTime() - nextMonday.getTime()) / (24 * 3600 * 1000) / 7) : 1)
+        const getWeekNumber = (d) => {
+          const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
+          date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7))
+
+          const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1))
+          const week = Math.ceil(((date.getTime() - yearStart.getTime()) / 86400000 + 1) / 7)
+          return { week, year: date.getUTCFullYear() }
         }
 
         const pluralToSingular = (word) => {
@@ -889,7 +889,10 @@
                   p.textContent = `$${ sumColumn5.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }`
                   p.className = 'total-salary'
                 }
-                if (index === 10) p.textContent = `Periodo ${ getWeekNumber(new Date()) } ${ new Date().getFullYear() }`
+                if (index === 10) {
+                  const { week, year } = getWeekNumber(new Date())
+                  p.textContent = `Periodo ${ week } ${ year }`
+                }
                 td.appendChild(p)
                 extraRow2.appendChild(td)
               })

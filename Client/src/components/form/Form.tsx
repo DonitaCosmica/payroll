@@ -272,7 +272,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
   }
 
   const elements = useMemo(() => {
-    if ((!dropdownData || Object.keys(dropdownData).length === 0))
+    if ([1, 2, 3, 8].includes(option) && (!dropdownData || Object.keys(dropdownData).length === 0))
       return [] as JSX.Element[]
 
     const objectsForm = createObject(formDataRes, keys, selectedId, dropdownData, option)
@@ -361,7 +361,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
     }, [])
   }, [ option, dropdownData, toolbarOption, selectedId, data, keys, department ])
 
-  if ((!dropdownData || Object.keys(dropdownData).length === 0))
+  if ([1, 2, 3, 8].includes(option) && (!dropdownData || Object.keys(dropdownData).length === 0))
     return <FormSkeleton />
 
   return (

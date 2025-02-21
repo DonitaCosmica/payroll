@@ -5,7 +5,8 @@ namespace API.Interfaces
   public interface IPayrollRepository
   {
     ICollection<Payroll> GetPayrolls();
-    Payroll GetPayroll(string payrollId);
+    Payroll GetPayroll(string payroll);
+    Payroll GetPayrollById(string payrollId);
     Payroll GetPrincipalPayroll();
     Payroll? GetPayrollByName(string payrollName);
     bool CreatePayroll(Payroll payroll);
