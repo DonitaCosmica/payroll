@@ -1,4 +1,4 @@
-import { createContext, JSX, ReactNode, useContext, useEffect, useMemo, useReducer, useState } from "react"
+import React, { createContext, JSX, ReactNode, useContext, useEffect, useMemo, useReducer, useState } from "react"
 import { type IDates, type IWeekYear } from "../types"
 import { getWeekNumber } from "../utils/modifyDates" 
 
@@ -22,6 +22,7 @@ type PeriodAction =
 interface PeriodContextType extends PeriodState {
   isCurrentWeek: boolean,
   setActionType: React.Dispatch<React.SetStateAction<'FETCH_DATA' | 'SET_PERIOD' | 'NONE'>>,
+  setSubmitCount: React.Dispatch<React.SetStateAction<number>>
   dispatch: React.Dispatch<PeriodAction>
 }
 
@@ -36,6 +37,7 @@ export const PeriodContext: React.Context<PeriodContextType> = createContext<Per
   ...INITIAL_STATE,
   isCurrentWeek: true,
   setActionType: () => {},
+  setSubmitCount: () => {},
   dispatch: () => {}
 })
 
@@ -77,6 +79,7 @@ const periodReducer = (state: PeriodState, action: PeriodAction): PeriodState =>
 export const PeriodProvider: React.FC<Props> = ({ children }): JSX.Element => {
   const [state, dispatch] = useReducer(periodReducer, INITIAL_STATE)
   const [actionType, setActionType] = useState<'FETCH_DATA' | 'SET_PERIOD' | 'NONE'>('SET_PERIOD')
+  const [submitCount, setSubmitCount] = useState<number>(0)
 
   useEffect(() => {
     const fetchData = async(): Promise<void> => {
@@ -109,7 +112,7 @@ export const PeriodProvider: React.FC<Props> = ({ children }): JSX.Element => {
 
     if (actionType === 'SET_PERIOD') setPeriod()
     else if (actionType === 'FETCH_DATA') fetchData()
-  }, [ actionType, state.selectedPeriod ])
+  }, [ actionType, state.selectedPeriod, submitCount ])
 
   const isCurrentWeek = useMemo(() =>
     state.selectedPeriod.year !== getWeekNumber(new Date).year
@@ -122,6 +125,7 @@ export const PeriodProvider: React.FC<Props> = ({ children }): JSX.Element => {
         ...state,
         isCurrentWeek,
         setActionType,
+        setSubmitCount,
         dispatch
       }}>
       { children }

@@ -3,15 +3,15 @@ import { usePeriodContext } from '../../context/Period'
 import { useFetchData } from '../../hooks/useFetchData'
 import { type IWeekYear, type IIconDefinition } from '../../types'
 import { Each } from '../../utils/Each'
+import { Accordion } from '../accordion/Accordion'
 import { ICON_OPTIONS } from '../../utils/icons'
 import { getMondayOfWeek, getWeekNumber } from '../../utils/modifyDates'
-import { Accordion } from '../accordion/Accordion'
 import { FaCheck } from "react-icons/fa"
 import './DropMenuDates.css'
 
 export const DropMenuDates = React.memo((): JSX.Element => {
   const { fetchData, error } = useFetchData()
-  const { dates, selectedPeriod, setActionType } = usePeriodContext()
+  const { dates, selectedPeriod, setActionType, setSubmitCount } = usePeriodContext()
   const [showOptionsPeriod, setShowOptionsPeriod] = useState<boolean>(false)
   const selectedOption = useRef<number>(-1)
   const period = useRef<IWeekYear>({ week: 0, year: 0 })
@@ -60,6 +60,7 @@ export const DropMenuDates = React.memo((): JSX.Element => {
     if (!error) {
       setShowOptionsPeriod(false)
       setActionType('FETCH_DATA')
+      setSubmitCount((prevCount) => prevCount + 1)
     }
   }
 
@@ -68,6 +69,7 @@ export const DropMenuDates = React.memo((): JSX.Element => {
     const url = `http://localhost:5239/api/Period/${ selectedPeriod.periodId }`
     await fetchData(url, { method: 'DELETE' })
     if (!error) setActionType('FETCH_DATA')
+    setSubmitCount((prevCount) => prevCount + 1)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -84,7 +86,9 @@ export const DropMenuDates = React.memo((): JSX.Element => {
   }
   
   return (
-    <div className='drop-menu-dates' style={{ height: showOptionsPeriod ? '1225%' : '1000%' }}>
+    <div className='drop-menu-dates' style={{ height: showOptionsPeriod ? '1225%' : '1000%' }}
+      onClick={ (e) => e.stopPropagation() }
+    >
       <div className='title-menu'>
         <p>Seleccionar Periodo</p>
         <div className='title-menu-options'>
@@ -114,8 +118,7 @@ export const DropMenuDates = React.memo((): JSX.Element => {
         />
       </div>
       <ul style={{ height: showOptionsPeriod ? '75%' : '85%' }}>
-        <Each 
-          of={ Object.entries(dates).sort(([yearA], [yearB]) => parseInt(yearB) - parseInt(yearA)) }
+        <Each of={ Object.entries(dates).sort(([yearA], [yearB]) => parseInt(yearB) - parseInt(yearA)) }
           render={([year, periods]) =>
             <Accordion 
               key={ year }

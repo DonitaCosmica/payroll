@@ -245,12 +245,6 @@ namespace API.Repository
 
       return (currentWeek, currentYear, previousWeek, previousYear);
     }
-    private Payroll? GetPayroll(string payrollType) =>
-      payrollType switch
-      {
-        "Principal" or "Secondary" => context.Payrolls.FirstOrDefault(pr => pr.PayrollType == Enum.Parse<PayrollType>(payrollType)),
-        _ => context.Payrolls.FirstOrDefault(pr => pr.Name == payrollType)
-      };
     private Period? CreateNewPeriod(ushort week, ushort year)
     {
       var newPeriod = new Period

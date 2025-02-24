@@ -10,7 +10,7 @@ const getDatesOfWeek = (week: number, year: number): IWeek => {
     monday.setDate(monday.getDate() + 7)
 
   if (monday.getFullYear() > year || (monday.getFullYear() === year && monday.getMonth() === 11 && monday.getDate() > 28))
-      throw new RangeError(`${year} has no ISO week ${week}`);
+      throw new RangeError(`${ year } has no ISO week ${ week }`)
 
   const sunday = new Date(monday);
   sunday.setDate(monday.getDate() + 6)
@@ -27,18 +27,17 @@ const formatDate = (date: Date): string =>
   }).format(date).replace(',', '')
 
 export const getMondayOfWeek = ({ week, year }: IWeekYear): string => {
-  const janFirst = new Date(year, 0, 1)
-  const firstMonday = janFirst.getDay() <= 1 
-    ? new Date(year, 0, 1 + (1 - janFirst.getDay())) 
-    : new Date(year, 0, 1 + (8 - janFirst.getDay()))
+  const simple = new Date(year, 0, 1 + (week - 1) * 7)
+  const dayOfWeek = simple.getDay()
+  simple.setDate(simple.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1))
 
-  const targetMonday = new Date(firstMonday)
-  targetMonday.setDate(firstMonday.getDate() + (week - 1) * 7)
+  if (simple.getFullYear() !== year)
+    simple.setDate(simple.getDate() + 7)
 
-  const yearStr = targetMonday.getFullYear()
-  const monthStr = String(targetMonday.getMonth() + 1).padStart(2, '0')
-  const dayStr = String(targetMonday.getDate()).padStart(2, '0')
-  return `${ yearStr }-${ monthStr }-${ dayStr }`
+  if (simple.getFullYear() > year || (simple.getMonth() === 11 && simple.getDate() > 28))
+      throw new RangeError(`${ year } has no ISO week ${ week }`);
+
+  return `${ simple.getFullYear() }-${ String(simple.getMonth() + 1).padStart(2, '0') }-${ String(simple.getDate()).padStart(2, '0') }`
 }
 
 export const weekRange = (week: number, year: number): IWeek => {

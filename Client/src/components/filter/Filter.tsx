@@ -100,7 +100,6 @@ export const Filter = (): JSX.Element => {
                 ...op,
                 onClick: (): void => {
                   fetchTicketsByPayroll(op.label)
-
                   dispatch({
                     type: NavigationActionKind.UPDATEPAYROLL,
                     payload: { payroll: { payrollId: op.id, name: op.label, payrollType: 'Secondary' } }
