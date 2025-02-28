@@ -87,7 +87,7 @@ namespace API.Controllers
     [ProducesResponseType(400)]
     public IActionResult CreateDeduction([FromBody] DeductionDTO deductionCreate)
     {
-      if(deductionCreate == null || deductionCreate.Key < 0 || string.IsNullOrEmpty(deductionCreate.Description))
+      if(deductionCreate == null || string.IsNullOrEmpty(deductionCreate.Key) || string.IsNullOrEmpty(deductionCreate.Description))
         return BadRequest();
    
       if(deductionRepository.GetDeductionByName(deductionCreate.Description.Trim()) != null)
@@ -113,7 +113,7 @@ namespace API.Controllers
     [ProducesResponseType(404)]
     public IActionResult UpdateDeduction(string deductionId, [FromBody] DeductionDTO deductionUpdate)
     {
-      if(deductionId == null || deductionUpdate.Key < 0 || string.IsNullOrEmpty(deductionUpdate.Description))
+      if(deductionId == null || string.IsNullOrEmpty(deductionUpdate.Key) || string.IsNullOrEmpty(deductionUpdate.Description))
         return BadRequest();
 
       if(!deductionRepository.DeductionExists(deductionId))

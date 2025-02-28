@@ -269,7 +269,7 @@ namespace API.Controllers
         {
           float baseSalary = ticketRepository.GetBaseSalaryEmployee(t.Employee, t.JobPosition!, t.Department!);
           t.Perceptions.Add(new TicketPerceptionRelatedEntities { Name = "Sueldo", Value = baseSalary });
-          t.Perceptions.Add(new TicketPerceptionRelatedEntities { Name = "Hora Extra", Value = 0 });
+          t.Perceptions.Add(new TicketPerceptionRelatedEntities { Name = "Tiempo Extra", Value = 0 });
           totalPerceptions += baseSalary;
         }
 
@@ -304,7 +304,7 @@ namespace API.Controllers
       IEnumerable<TicketListDTO> ticketsToSend = listTickets.Select(auxTicket =>
       {
         var additionalProperties = auxTicket.Perceptions
-          .Where(p => p.Value > 0 && p.Name != "Sueldo" && p.Name != "Hora Extra")
+          .Where(p => p.Value > 0 && p.Name != "Sueldo" && p.Name != "Tiempo Extra")
           .Select((p, i) => new KeyValuePair<string, object>(p.Name ?? $"Unknown Perception { i }", p.Value))
           .Concat(auxTicket.Deductions
             .Where(d => d.Value > 0)
@@ -316,8 +316,8 @@ namespace API.Controllers
         if(!additionalProperties.ContainsKey("Sueldo"))
           additionalProperties["Sueldo"] = ticketRepository.GetBaseSalaryEmployee(auxTicket.Employee, auxTicket.JobPosition!, auxTicket.Department!);
 
-        if(!additionalProperties.ContainsKey("Hora Extra"))
-          additionalProperties["Hora Extra"] = auxTicket.Perceptions.FirstOrDefault(p => p.Name == "Hora Extra")?.Value ?? 0;
+        if(!additionalProperties.ContainsKey("Tiempo Extra"))
+          additionalProperties["Tiempo Extra"] = auxTicket.Perceptions.FirstOrDefault(p => p.Name == "Tiempo Extra")?.Value ?? 0;
 
         foreach(var perception in filteredPerceptions)
         {

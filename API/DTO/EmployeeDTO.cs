@@ -5,7 +5,7 @@ namespace API.DTO
   public class EmployeeDTO
   {
     public string? EmployeeId { get; set; }
-    public ushort Key { get; set; }
+    public string Key { get; set; } = default!;
     public string Name { get; set; } = default!;
     public string RFC { get; set; } = default!;
     public string CURP { get; set; } = default!;
@@ -15,16 +15,16 @@ namespace API.DTO
     public ulong BankPortal { get; set; }
     public bool IsAStarter { get; set; }
     public HashSet<EmployeeProjectRelatedEntities> Projects { get; set; } = [];
-    public string Regime { get; set; } = default!;
+    public string? Regime { get; set; }
     public uint NSS { get; set; }
     public string DateAdmission { get; set; } = default!;
     public string JobPosition { get; set; } = default!;
     public string? Department { get; set; }
-    public string CommercialArea { get; set; } = default!;
-    public string Contract { get; set; } = default!;
+    public string? CommercialArea { get; set; }
+    public string? Contract { get; set; }
     public float BaseSalary { get; set; }
     public float DailySalary { get; set; }
-    public string FederalEntity { get; set; } = default!;
+    public string? FederalEntity { get; set; }
     public ulong Phone { get; set; }
     public string Email { get; set; } = default!;
     public string? Direction { get; set; }

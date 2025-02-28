@@ -9,7 +9,7 @@ namespace API.Models
     public string RegimeId { get; set; } = default!;
 
     [Required]
-    [MaxLength(50)]
+    [MaxLength(100)]
     public string Name { get; set; } = default!;
 
     public ICollection<Employee> Employees { get; set; } = [];

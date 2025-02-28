@@ -11,7 +11,7 @@ namespace API.Models
     [Range(1, 52, ErrorMessage = "The period number must be between 1 and 52.")]
     public ushort Week { get; set; } = default!;
     [Required]
-    [Range(2024, ushort.MaxValue)]
+    [Range(2025, ushort.MaxValue)]
     public ushort Year { get; set; }
     public ICollection<Ticket> Tickets { get; set; } = [];
   }

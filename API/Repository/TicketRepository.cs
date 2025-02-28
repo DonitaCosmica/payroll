@@ -315,7 +315,7 @@ namespace API.Repository
     {
       foreach(var perception in ticket.TicketPerceptions)
       {
-        if(perception.Name == "Sueldo" || perception.Name == "Hora Extra")
+        if(perception.Name == "Sueldo" || perception.Name == "Tiempo Extra")
         {
           var newTicketPerception = new TicketPerception
           {
@@ -323,7 +323,7 @@ namespace API.Repository
             TicketId = newTicket.TicketId,
             PerceptionId = perception.PerceptionId,
             Name = perception.Name,
-            Total = perception.Name == "Hora Extra" ? 0 : perception.Total,
+            Total = perception.Name == "Tiempo Extra" ? 0 : perception.Total,
             Ticket = newTicket,
             Perception = perception.Perception
           };

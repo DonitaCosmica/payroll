@@ -8,10 +8,10 @@ namespace API.Models
     [MaxLength(36)]
     public string PerceptionId { get; set; } = default!;
     [Required]
-    [Range(1, ushort.MaxValue)]
-    public ushort Key { get; set; }
+    [MaxLength(3)]
+    public string Key { get; set; } = default!;
     [Required]
-    [MaxLength(75)]
+    [MaxLength(125)]
     public string Description { get; set; } = default!;
     public bool IsHidden { get; set; }
     public ICollection<TicketPerception> TicketPerceptions { get; set; } = [];

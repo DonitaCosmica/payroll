@@ -10,7 +10,7 @@ namespace API.Repository
 
     public ICollection<Perception> GetPerceptions()
     {
-      void EnsurePerceptionExists(ushort key, string description)
+      void EnsurePerceptionExists(string key, string description)
       {
         if(!PerceptionExistsByName(description))
         {
@@ -27,8 +27,8 @@ namespace API.Repository
         }
       }
 
-      EnsurePerceptionExists(1, "Sueldo");
-      EnsurePerceptionExists(2, "Hora Extra");
+      EnsurePerceptionExists("001", "Sueldo");
+      EnsurePerceptionExists("019", "Tiempo Extra");
       return [.. context.Perceptions];
     }
     public Perception GetPerception(string perceptionId) =>

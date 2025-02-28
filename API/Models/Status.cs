@@ -9,7 +9,7 @@ namespace API.Models
     [MaxLength(36)]
     public string StatusId { get; set; } = default!;
     [Required]
-    [MaxLength(15)]
+    [MaxLength(30)]
     public string Name { get; set; } = default!;
     [Required]
     public StatusType StatusType { get; set; }

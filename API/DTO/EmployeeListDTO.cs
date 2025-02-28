@@ -5,7 +5,7 @@ namespace API.DTO
   public class EmployeeListDTO
   {
     public string? EmployeeId { get; set; }
-    public ushort Key { get; set; }
+    public string Key { get; set; } = default!;
     public string Name { get; set; } = default!;
     public string RFC { get; set; } = default!;
     public string CURP { get; set; } = default!;
@@ -16,7 +16,7 @@ namespace API.DTO
     public string DateAdmission { get; set; } = default!;
     public string JobPosition { get; set; } = default!;
     public string? Department { get; set; }
-    public string CommercialArea { get; set; } = default!;
+    public string? CommercialArea { get; set; }
     public float BaseSalary { get; set; }
     public float DailySalary { get; set; }
     public ulong Phone { get; set; }

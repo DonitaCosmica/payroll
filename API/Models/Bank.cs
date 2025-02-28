@@ -10,7 +10,7 @@ namespace API.Models
     [Required]
     public string Code { get; set; } = default!;
     [Required]
-    [MaxLength(20)]
+    [MaxLength(100)]
     public string Name { get; set; } = default!;
     public ICollection<Employee> Employees { get; set; } = [];
   }

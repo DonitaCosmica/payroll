@@ -8,7 +8,7 @@ namespace API.Models
     [MaxLength(36)]
     public string DepartmentId { get; set; } = default!;
     [Required]
-    [MaxLength(50)]
+    [MaxLength(100)]
     public string Name { get; set; } = default!;
     [Required]
     public ushort TotalEmployees { get; set; }

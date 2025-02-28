@@ -9,7 +9,7 @@ namespace API.Models
     public string StateId { get; set; } = default!;
 
     [Required]
-    [MaxLength(20)]
+    [MaxLength(30)]
     public string Name { get; set; } = default!;
 
     [Required]

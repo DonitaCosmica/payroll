@@ -8,7 +8,7 @@ namespace API.Models
     [MaxLength(36)]
     public string CommercialAreaId { get; set; } = default!;
     [Required]
-    [MaxLength(30)]
+    [MaxLength(100)]
     public string Name { get; set; } = default!;
     public ICollection<Employee> Employees { get; set; } = [];
   }

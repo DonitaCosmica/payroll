@@ -12,7 +12,7 @@ export const fieldsConfig: Record<NavigationActionKind, IFieldConfig[]> = {
   ],
   [NavigationActionKind.EMPLOYEES]: [
     { type: FieldType.Section, name: 'Datos Generales', id: 'general-data' },
-    { type: FieldType.Input, name: 'Código', label: '0', inputType: InputType.Number, modify: true, id: 'key' },
+    { type: FieldType.Input, name: 'Código', label: '0', inputType: InputType.Text, modify: true, id: 'key' },
     { type: FieldType.Input, name: 'Nombre', label: 'Nombre...', inputType: InputType.Text, modify: true, id: 'name' },
     { type: FieldType.Input, name: 'RFC', label: 'RFC...', inputType: InputType.Text, modify: true, id: 'rfc' },
     { type: FieldType.Input, name: 'CURP', label: 'CURP...', inputType: InputType.Text, modify: true, id: 'curp' },
@@ -32,7 +32,7 @@ export const fieldsConfig: Record<NavigationActionKind, IFieldConfig[]> = {
     { type: FieldType.DropMenu, name: 'Entidad Federativa', fetchUrl: 'http://localhost:5239/api/FederalEntity', id: 'federalEntity' },
     { type: FieldType.MultiOption, name: 'Proyecto', amount: false, id: 'projects' },
     { type: FieldType.DropMenu, name: 'Contrato', fetchUrl: 'http://localhost:5239/api/Contract', id: 'contract' },
-    { type: FieldType.Input, name: 'Salario Semanal', label: '0.00', inputType: InputType.Number, modify: true, id: 'baseSalary' },
+    { type: FieldType.Input, name: 'Salario Mensual', label: '0.00', inputType: InputType.Number, modify: true, id: 'baseSalary' },
     { type: FieldType.Section, name: 'Contacto', id: 'contact-data' },
     { type: FieldType.Input, name: 'Teléfono', label: 'Teléfono...', inputType: InputType.Tel, modify: true, id: 'phone' },
     { type: FieldType.Input, name: 'Email', label: 'Email...', inputType: InputType.Email, modify: true, id: 'email' },
@@ -64,7 +64,7 @@ export const fieldsConfig: Record<NavigationActionKind, IFieldConfig[]> = {
     { type: FieldType.Input, name: 'Descripción', label: 'Descripción...', inputType: InputType.Text, modify: true, id: 'description' }
   ],
   [NavigationActionKind.DEDUCTIONS]: [
-    { type: FieldType.Input, name: 'Clave', label: 'Clave...', inputType: InputType.Number, modify: true, id: 'key' },
+    { type: FieldType.Input, name: 'Clave', label: 'Clave...', inputType: InputType.Text, modify: true, id: 'key' },
     { type: FieldType.Input, name: 'Descripción', label: 'Descripción...', inputType: InputType.Text, modify: true, id: 'description' }
   ],
   [NavigationActionKind.PROJECTCATALOG]: [

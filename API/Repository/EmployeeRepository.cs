@@ -18,24 +18,15 @@ namespace API.Repository
       IncludeRelatedEntities(context.Employees).FirstOrDefault(e => e.EmployeeId == employeeId)
       ?? throw new Exception("No Employee with the specified id was found");
     public EmployeeRelatedEntities? GetRelatedEntities(EmployeeDTO employeeDTO) =>
-      (from c in context.Companies
-        join b in context.Banks on employeeDTO.Bank equals b.BankId
-        join ca in context.CommercialAreas on employeeDTO.CommercialArea equals ca.CommercialAreaId
-        join ct in context.Contracts on employeeDTO.Contract equals ct.ContractId
-        join fe in context.FederalEntities on employeeDTO.FederalEntity equals fe.FederalEntityId
-        join jp in context.JobPositions on employeeDTO.JobPosition equals jp.JobPositionId
-        join r in context.Regimes on employeeDTO.Regime equals r.RegimeId
-        join s in context.Statuses on employeeDTO.Status equals s.StatusId
-        join st in context.States on employeeDTO.State equals st.StateId
-        where employeeDTO.Company == c.CompanyId &&
-          b.BankId == employeeDTO.Bank &&
-          ca.CommercialAreaId == employeeDTO.CommercialArea &&
-          ct.ContractId == employeeDTO.Contract &&
-          fe.FederalEntityId == employeeDTO.FederalEntity &&
-          jp.JobPositionId == employeeDTO.JobPosition &&
-          r.RegimeId == employeeDTO.Regime &&
-          s.StatusId == employeeDTO.Status &&
-          st.StateId == employeeDTO.State
+      (from b in context.Banks.Where(b => b.BankId == employeeDTO.Bank).DefaultIfEmpty()
+        from c in context.Companies.Where(c => c.CompanyId == employeeDTO.Company).DefaultIfEmpty()
+        from ca in context.CommercialAreas.Where(ca => ca.CommercialAreaId == employeeDTO.CommercialArea).DefaultIfEmpty()
+        from ct in context.Contracts.Where(ct => ct.ContractId == employeeDTO.Contract).DefaultIfEmpty()
+        from fe in context.FederalEntities.Where(fe => fe.FederalEntityId == employeeDTO.FederalEntity).DefaultIfEmpty()
+        from jp in context.JobPositions.Where(jp => jp.JobPositionId == employeeDTO.JobPosition).DefaultIfEmpty()
+        from r in context.Regimes.Where(r => r.RegimeId == employeeDTO.Regime).DefaultIfEmpty()
+        from s in context.Statuses.Where(s => s.StatusId == employeeDTO.Status).DefaultIfEmpty()
+        from st in context.States.Where(st => st.StateId == employeeDTO.State).DefaultIfEmpty()
         select new EmployeeRelatedEntities
         {
           Bank = b,
@@ -47,7 +38,7 @@ namespace API.Repository
           Regime = r,
           Status = s,
           State = st
-        }).FirstOrDefault();
+        }).FirstOrDefault() ?? new EmployeeRelatedEntities();
     public bool CreateEmployee(HashSet<EmployeeProjectRelatedEntities> projects, Employee employee)
     {
       if(employee == null) return false;
@@ -68,7 +59,7 @@ namespace API.Repository
           Project = p
         },
         employee.EmployeeProjects
-        );
+      );
 
       if(!addProjectsSuccess) return false;
       var (company, department) = numberOfEmployeesEntities.Value;

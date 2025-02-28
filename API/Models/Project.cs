@@ -9,10 +9,10 @@ namespace API.Models
     [MaxLength(36)]
     public string ProjectId { get; set; } = default!;
     [Required]
-    [MaxLength(20)]
+    [MaxLength(30)]
     public string Code { get; set; } = default!;
     [Required]
-    [MaxLength(30)]
+    [MaxLength(100)]
     public string Name { get; set; } = default!;
     [Required]
     [DataType(DataType.Date)]

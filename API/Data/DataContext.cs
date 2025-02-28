@@ -88,24 +88,28 @@ namespace API.Data
           .HasForeignKey(e => e.BankId);
         entity.HasOne(e => e.CommercialArea)
           .WithMany(ca => ca.Employees)
-          .HasForeignKey(e => e.CommercialAreaId);
+          .HasForeignKey(e => e.CommercialAreaId)
+          .IsRequired(false);
         entity.HasOne(e => e.Company)
           .WithMany(c => c.Employees)
           .HasForeignKey(e => e.CompanyId)
           .OnDelete(DeleteBehavior.Restrict);
         entity.HasOne(e => e.Contract)
           .WithMany(ct => ct.Employees)
-          .HasForeignKey(e => e.ContractId);
+          .HasForeignKey(e => e.ContractId)
+          .IsRequired(false);
         entity.HasOne(e => e.FederalEntity)
           .WithMany(fe => fe.Employees)
-          .HasForeignKey(e => e.FederalEntityId);
+          .HasForeignKey(e => e.FederalEntityId)
+          .IsRequired(false);
         entity.HasOne(e => e.JobPosition)
           .WithMany(jp => jp.Employees)
           .HasForeignKey(e => e.JobPositionId)
           .OnDelete(DeleteBehavior.Restrict);
         entity.HasOne(e => e.Regime)
           .WithMany(r => r.Employees)
-          .HasForeignKey(e => e.RegimeId);
+          .HasForeignKey(e => e.RegimeId)
+          .IsRequired(false);
         entity.HasOne(e => e.State)
           .WithMany(s => s.Employees)
           .HasForeignKey(e => e.StateId);

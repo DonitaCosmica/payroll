@@ -253,6 +253,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
 
     const urlToUse: string = selectedId && toolbarOption === 1 ? `${ String(url) }/${ selectedId } ` : String(url)
     const method = selectedId && toolbarOption === 1 ? 'PATCH' : 'POST'
+    console.log({ data: formData.current })
     const result = await fetchData(urlToUse, { method, body: formData.current })
     if (result === null) return
 

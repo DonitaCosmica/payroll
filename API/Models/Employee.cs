@@ -9,9 +9,9 @@ namespace API.Models
     [MaxLength(36)]
     public string EmployeeId { get; set; } = default!;
     [Required]
-    public ushort Key { get; set; }
+    public string Key { get; set; } = default!;
     [Required]
-    [MaxLength(50)]
+    [MaxLength(75)]
     public string Name { get; set; } = default!;
     [Required]
     [MaxLength(13)]
@@ -31,11 +31,10 @@ namespace API.Models
     public ulong BankPortal { get; set; }
     public bool IsAStarter { get; set; }
     public ICollection<EmployeeProject> EmployeeProjects { get; set; } = [];
-    [Required]
     [MaxLength(36)]
     [ForeignKey("Regime")]
-    public string RegimeId { get; set; } = default!;
-    public Regime Regime { get; set; } = new();
+    public string? RegimeId { get; set; }
+    public Regime? Regime { get; set; }
     public uint NSS { get; set; }
     [Required]
     [DataType(DataType.Date)]
@@ -48,27 +47,24 @@ namespace API.Models
     [ForeignKey("JobPosition")]
     public string JobPositionId { get; set; } = default!;
     public JobPosition JobPosition { get; set; } = new();
-    [Required]
     [MaxLength(36)]
     [ForeignKey("CommercialArea")]
-    public string CommercialAreaId { get; set; } = default!;
-    public CommercialArea CommercialArea { get; set; } = new();
-    [Required]
+    public string? CommercialAreaId { get; set; }
+    public CommercialArea? CommercialArea { get; set; }
     [MaxLength(36)]
     [ForeignKey("Contract")]
-    public string ContractId { get; set; } = default!;
-    public Contract Contract { get; set; } = new();
+    public string? ContractId { get; set; }
+    public Contract? Contract { get; set; }
     [Required]
     [Range(100, float.MaxValue)]
     public float BaseSalary { get; set; }
     [Required]
     [Range(100, float.MaxValue)]
     public float DailySalary { get; set; }
-    [Required]
     [MaxLength(36)]
     [ForeignKey("FederalEntity")]
-    public string FederalEntityId { get; set; } = default!;
-    public FederalEntity FederalEntity { get; set; } = new();
+    public string? FederalEntityId { get; set; }
+    public FederalEntity? FederalEntity { get; set; }
     [Required]
     [RegularExpression(@"^\d{10}$")]
     public ulong Phone { get; set; }

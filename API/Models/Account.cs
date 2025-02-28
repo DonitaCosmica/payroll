@@ -8,6 +8,7 @@ namespace API.Models
     [MaxLength(36)]
     public string AccountId { get; set; } = default!;
     [Required]
+    [MaxLength(100)]
     public string Name { get; set; } = default!;
     [Required]
     public string AccountNumber { get; set; } = default!;

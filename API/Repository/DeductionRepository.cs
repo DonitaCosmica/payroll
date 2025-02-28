@@ -10,7 +10,7 @@ namespace API.Repository
 
     public ICollection<Deduction> GetDeductions()
     {
-      void EnsureDeductionExists(ushort key, string description)
+      void EnsureDeductionExists(string key, string description)
       {
         if(!DeductionExistsByName(description))
         {
@@ -27,7 +27,7 @@ namespace API.Repository
         }
       }
 
-      EnsureDeductionExists(1, "Desc. x Prestamos");
+      EnsureDeductionExists("011", "Desc. x Prestamos");
       return [.. context.Deductions];
     }
     public Deduction GetDeduction(string deductionId) =>

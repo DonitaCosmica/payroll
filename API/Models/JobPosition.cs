@@ -10,7 +10,7 @@ namespace API.Models
     public string JobPositionId { get; set; } = default!;
 
     [Required]
-    [MaxLength(30)]
+    [MaxLength(100)]
     public string Name { get; set; } = default!;
 
     [Required]
