@@ -120,15 +120,16 @@ const createObject = (formDataRes: IDataObject[], keys: string[], selectedId: st
 
   return keys.slice(1).reduce((obj: Record<string, unknown>, key: string) => {
     const dropDownKey = key.replace(/Id$/i, '').toLowerCase()
-    const value = getProperty(selectedObj, dropDownKey)
-    const newKey = Object.keys(dropdownData).find((key: string) => (key.toLowerCase() === dropDownKey) ? dropdownData[key] : undefined) as string
-    if (!newKey) return { ...obj, [dropDownKey]: value };
+    const value = getProperty(selectedObj, dropDownKey) || ''
+    const newKey = Object.keys(dropdownData).find((key: string) => (key.toLowerCase() === dropDownKey) ? dropdownData[key] : undefined) as string    
+    const realKey = key === key.toUpperCase() ? key.toLowerCase() : (key.charAt(0).toLowerCase() + key.slice(1)).replace(/Id$/i, '')
+    if (!newKey) return { ...obj, [realKey]: value }
 
     const field = fieldsConfig[option].find(item => item.id.toLowerCase() === newKey.toLowerCase())
-    const dropDownDataFound = Array.isArray(value) ? value : (dropdownData[newKey]?.filter((dropData: IDropDownMenu) => dropData.name === value) || []);
+    const dropDownDataFound = Array.isArray(value) ? value : (dropdownData[newKey]?.filter((dropData: IDropDownMenu) => dropData.name === value) || [])
     const newValue = Array.isArray(dropDownDataFound) ? dropDownDataFound.map(item => item[`${ newKey }Id`] || item) : value            
     const oneValueInAnArray = field?.type === 'dropmenu' && Array.isArray(newValue)
-    return { ...obj, [dropDownKey]: oneValueInAnArray ? newValue[0] : newValue }
+    return { ...obj, [realKey]: oneValueInAnArray ? newValue[0] : newValue }
   }, {} as Record<string, unknown>)
 }
 
@@ -293,9 +294,9 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
         ]
       } else {
         const fieldId = id || `field-${index}`
-        const value = toolbarOption === 1 && objectsForm ? String(objectsForm[String(id.toLowerCase())]) : ''
+        const value = toolbarOption === 1 && objectsForm ? String(objectsForm[String(id)]) : ''
         const fieldElement = (
-          <div key={`${ name }-${ index }-${ id }`} className='field'>
+          <div key={ `${ name }-${ index }-${ id }` } className='field'>
             <label htmlFor={ fieldId }>{ name }</label>
             <div className='input-container'>
               {type === 'input' ? (
@@ -307,15 +308,15 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                   autoComplete='off'
                   onChange={ (e) => handleChange(e) }
                   defaultValue={toolbarOption === 1 && objectsForm
-                    ? String(objectsForm[id.toLowerCase()])
+                    ? String(objectsForm[id])
                     : id === 'department'
                       ? department
                       : ''}
                   readOnly={ modify ? undefined : true }
                   disabled={ isCurrentWeek }
                   checked={ toolbarOption === 1 
-                    && objectsForm && typeof objectsForm[String(id.toLocaleLowerCase())] === 'boolean' 
-                      ? objectsForm[String(id.toLocaleLowerCase())] as boolean 
+                    && objectsForm && typeof objectsForm[String(id)] === 'boolean' 
+                      ? objectsForm[String(id)] as boolean 
                       : undefined }
                 />
               ) : type === 'dropmenu' && Object.keys(dropdownData).length > 0 ? (
@@ -334,7 +335,7 @@ export const Form: React.FC<Props> = ({ setShowForm }): JSX.Element => {
                 <MultiDropDown
                   id={ fieldId }
                   options={ dropdownData[id ?? ''] || [] }
-                  value={ toolbarOption === 1 && objectsForm ? objectsForm[String(id.toLowerCase())] as IListObject[] : [] }
+                  value={ toolbarOption === 1 && objectsForm ? objectsForm[String(id)] as IListObject[] : [] }
                   idKey={ pluralToSingular(id) + 'Id' }
                   isDisabled={ isCurrentWeek }
                   showAmount={ amount ?? false }

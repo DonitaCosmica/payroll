@@ -13,29 +13,31 @@ namespace API.Models
     [Required]
     [MaxLength(75)]
     public string Name { get; set; } = default!;
-    [Required]
     [MaxLength(13)]
-    public string RFC { get; set; } = default!;
+    public string? RFC { get; set; }
     [Required]
     [MaxLength(18)]
-    public string CURP { get; set; } = default!;
+    public string? CURP { get; set; }
     [Required]
     [MaxLength(36)]
     [ForeignKey("Bank")]
     public string BankId { get; set; }  = default!;
     public Bank Bank { get; set; } = new();
-    [Required]
-    public ulong InterbankCode { get; set; }
-    public string BankAccount { get; set; } = default!;
+    [MaxLength(18)]
+    public string? InterbankCode { get; set; }
+    [MaxLength(20)]
+    public string? BankAccount { get; set; }
     [Required]
     public ulong BankPortal { get; set; }
+    [Required]
     public bool IsAStarter { get; set; }
     public ICollection<EmployeeProject> EmployeeProjects { get; set; } = [];
     [MaxLength(36)]
     [ForeignKey("Regime")]
     public string? RegimeId { get; set; }
     public Regime? Regime { get; set; }
-    public uint NSS { get; set; }
+    [MaxLength(11)]
+    public string? NSS { get; set; }
     [Required]
     [DataType(DataType.Date)]
     [DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
@@ -65,27 +67,24 @@ namespace API.Models
     [ForeignKey("FederalEntity")]
     public string? FederalEntityId { get; set; }
     public FederalEntity? FederalEntity { get; set; }
-    [Required]
+    [MaxLength(15)]
     [RegularExpression(@"^\d{10}$")]
-    public ulong Phone { get; set; }
-    [Required]
+    public string? Phone { get; set; }
     [EmailAddress]
-    public string Email { get; set; } = default!;
+    public string? Email { get; set; }
     [MaxLength(75)]
     public string? Direction { get; set; }
     [MaxLength(50)]
     public string? Suburb { get; set; }
-    public ushort PostalCode { get; set; }
+    public ushort? PostalCode { get; set; }
     [MaxLength(50)]
     public string? City { get; set; }
-    [Required]
     [MaxLength(36)]
     [ForeignKey("State")]
-    public string StateId { get; set; } = default!;
-    public State State { get; set; } = new();
-    [Required]
+    public string? StateId { get; set; }
+    public State? State { get; set; }
     [MaxLength(30)]
-    public string Country { get; set; } = default!;
+    public string? Country { get; set; }
     [Required]
     [MaxLength(36)]
     [ForeignKey("Status")]
@@ -93,12 +92,11 @@ namespace API.Models
     public Status Status { get; set; } = new();
     [Required]
     public bool IsProvider { get; set; }
-    [Required]
     [Range(100, uint.MaxValue)]
-    public uint Credit { get; set; }
-    [Required]
-    [Range(100, ulong.MaxValue)]
-    public ulong Contact { get; set; }
+    public uint? Credit { get; set; }
+    [MaxLength(15)]
+    [RegularExpression(@"^\d{10}$")]
+    public string? Contact { get; set; }
     [Required]
     [MaxLength(36)]
     [ForeignKey("Company")]

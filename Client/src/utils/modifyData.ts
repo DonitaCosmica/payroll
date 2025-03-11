@@ -8,13 +8,6 @@ const isIDataObject = (obj: any): obj is IDataObject => {
   )
 }
 
-const transformKeysToCamelCase = (obj: IDataObject): IDataObject => 
-  Object.keys(obj).reduce((acc: IDataObject, key: string) => {
-    const camelCaseKey = toCamelCase(key)
-    acc[camelCaseKey] = obj[key]
-    return acc
-  }, {} as IDataObject)
-
 const getValue = (value: string | number): number | string => 
   typeof value === 'string' ? (isNaN(parseInt(value, 10)) ? value : parseInt(value, 10)) : value
 
@@ -38,6 +31,13 @@ const loadTranslations = async ({ opt }: { opt: NavigationActionKind }): Promise
     return {} as Record<string, string>
   }
 }
+
+export const transformKeysToCamelCase = (obj: IDataObject): IDataObject => 
+  Object.keys(obj).reduce((acc: IDataObject, key: string) => {
+    const camelCaseKey = toCamelCase(key)
+    acc[camelCaseKey] = obj[key]
+    return acc
+  }, {} as IDataObject)
 
 export const getKeyByValue = (obj: Record<string, string>, valueToFind: string): string | undefined => {
   for (const key in obj)
@@ -75,10 +75,9 @@ export const pluralToSingular = (word: string): string => {
   else return word
 }
 
-export const toCamelCase = (str: string): string => {
-  return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index: number) =>
+export const toCamelCase = (str: string): string =>
+  str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index: number) =>
     index === 0 ? match.toLowerCase() : match.toUpperCase()).replace(/\s+/g, '')
-}
 
 export const findKeyAndGetValue = <T extends IDataObject>(obj: T, searchKey: string): string | number | boolean | object | undefined => {
   const foundKey = Object.keys(obj).find((key: string) => key.includes(searchKey) || searchKey.includes(key))

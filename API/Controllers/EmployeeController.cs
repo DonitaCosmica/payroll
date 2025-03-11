@@ -4,6 +4,7 @@ using API.Interfaces;
 using API.Models;
 using API.Helpers;
 using System.Globalization;
+using System.Reflection;
 
 namespace API.Controllers
 {
@@ -100,7 +101,7 @@ namespace API.Controllers
       return new Employee
       {
         EmployeeId = Guid.NewGuid().ToString(),
-        Key = employeeCreate.Key,
+        Key = employeeCreate.Key.ToString("D6"),
         Name = employeeCreate.Name,
         RFC = employeeCreate.RFC,
         CURP = employeeCreate.CURP,
@@ -145,7 +146,7 @@ namespace API.Controllers
 
     private static void MapToUpdateEmployeeModel(Employee employee, EmployeeDTO updateEmployee, EmployeeRelatedEntities relatedEntities)
     {
-      employee.Key = updateEmployee.Key;
+      employee.Key = updateEmployee.Key.ToString("D6");
       employee.Name = updateEmployee.Name;
       employee.RFC = updateEmployee.RFC;
       employee.CURP = updateEmployee.CURP;
@@ -195,7 +196,7 @@ namespace API.Controllers
       return new EmployeeDTO()
       {
         EmployeeId = employee.EmployeeId,
-        Key = employee.Key,
+        Key = ushort.Parse(employee.Key),
         Name = employee.Name,
         RFC = employee.RFC,
         CURP = employee.CURP,
@@ -221,7 +222,7 @@ namespace API.Controllers
         Suburb = employee.Suburb,
         PostalCode = employee.PostalCode,
         City = employee.City,
-        State = employee.State.Name,
+        State = employee.State?.Name,
         Country = employee.Country,
         Status = employee.Status.Name,
         IsProvider = employee.IsProvider,
@@ -245,7 +246,7 @@ namespace API.Controllers
         var employee = new EmployeeListDTO
         {
           EmployeeId = e.EmployeeId,
-          Key = e.Key,
+          Key = e.Key.ToString("D6"),
           Name = e.Name,
           RFC = e.RFC,
           CURP = e.CURP,
@@ -273,6 +274,14 @@ namespace API.Controllers
       formColumns.Add("Projects");
       formColumns.Add("Department");
 
+      Console.WriteLine("\nEmployeeListDTO:");
+      foreach(EmployeeListDTO employee in auxEmployees)
+        SetNullValues(employee);
+
+      Console.WriteLine("\nEmployeeDTO:");
+      foreach(EmployeeDTO employee in employees)
+        SetNullValues(employee);
+
       return new
       {
         Columns = columns.Count > 0 ? columns : employeeRepository.GetColumns(),
@@ -280,6 +289,26 @@ namespace API.Controllers
         Data = auxEmployees,
         FormData = employees
       };
+    }
+
+    private static void SetNullValues(object obj)
+    {
+      var defaultValues = new Dictionary<Type, object>
+      {
+        { typeof(string), "" },
+        { typeof(int), 0 },
+        { typeof(double), 0.0 },
+        { typeof(float), 0f },
+        { typeof(decimal), 0m },
+        { typeof(ushort), (ushort)0 }
+      };
+
+      foreach(PropertyInfo prop in obj.GetType().GetProperties())
+        if(prop.GetValue(obj) == null && defaultValues.TryGetValue(prop.PropertyType, out object? defaultValue))
+        {
+          prop.SetValue(obj, defaultValue!);
+          Console.WriteLine($"{ prop.Name }: { prop.GetValue(obj) } | { prop.PropertyType } | { defaultValue }");
+        }
     }
   }
 }

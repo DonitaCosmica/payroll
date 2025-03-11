@@ -285,7 +285,7 @@ export const List: React.FC<Props> = ({ searchFilter, setShowForm }): JSX.Elemen
             </thead>
             <tbody className="empty-table">
               <tr>
-                {[...Array(18)].map((_, id: number) =>
+                {columnNames.map((_, id: number) =>
                   <td key={ `cell-${ id }` } className='empty-cell'></td>
                 )}
               </tr>

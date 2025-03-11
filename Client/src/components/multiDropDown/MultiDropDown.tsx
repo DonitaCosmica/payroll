@@ -2,7 +2,6 @@ import { JSX, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { type IListObject, type IDropDownMenu } from "../../types"
 import { compareNames } from "../../utils/modifyData"
 import './MultiDropDown.css'
-import { Each } from "../../utils/Each"
 
 interface Props {
   id: string,
@@ -51,7 +50,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
     }
 
     addItemIfNotPresent('Sueldo', item => (item.name as string).toLowerCase() === 'sueldo')
-    addItemIfNotPresent('Hora Extra', item => (item.name as string).toLowerCase().includes('extra'))
+    addItemIfNotPresent('Tiempo Extra', item => (item.name as string).toLowerCase().includes('extra'))
     if (discount.current !== null)
       addItemIfNotPresent('Desc. x Prestamos', item => (item.name as string).toLowerCase().includes('prestamos'))
 
@@ -203,11 +202,11 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
           </span>
         ) : (
           <div className="multi-select-header-option-box">
-            <Each of={ selectedItemsRef.current } render={(item) => (
+            {selectedItemsRef.current.map((item: IListObject) => (
               <span key={ `values-${ item[idKey] as string }` } className="multi-select-header-option" aria-selected="false">
                 { item.name }
               </span>
-            )} />
+            ))}
           </div>
         )}
         <div className="multi-select-header-box" onClick={ () => setShowMenu(!showMenu) }>
@@ -231,7 +230,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
               <span>Seleccionar todos</span>
             </div>
           </div>
-          <Each of={ filteredOptions } render={(opt, index) => {
+          {filteredOptions.map((opt: IDropDownMenu, index: number) => {
             const selectedItem = selectedItemsRef.current.find(item => item[idKey] === opt[idKey])
             const isEditabled = !isDisabled && selectedItem?.compensationType === 'Discount'
               && (discount.current === null || discount.current === 0)
@@ -255,7 +254,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
                         <span
                           contentEditable={ true }
                           suppressContentEditableWarning={ true }
-                          onInput={ (e) => handleInput(e, opt) }
+                          onInput={(e) => handleInput(e, opt)}
                         >
                           { `$${ selectedItem.value }` || '$0.00' }
                         </span>
@@ -264,7 +263,7 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
                           <span
                             contentEditable={ !isDisabled }
                             suppressContentEditableWarning={ !isDisabled }
-                            onInput={ (e) => !isDisabled ? handleContent(e, opt, selectedItem) : () => {} }
+                            onInput={(e) => !isDisabled ? handleContent(e, opt, selectedItem) : () => {} }
                           >
                             { renderContent(selectedItem?.value as number, selectedItem) || '0' }
                           </span>
@@ -274,19 +273,18 @@ export const MultiDropDown: React.FC<Props> = ({ id, options, value, idKey, isDi
                             suppressContentEditableWarning={ isEditabled }
                             onInput={ (e) => isEditabled ? handleDiscount(e) : {} }
                           >
-                          { `$${selectedItem?.compensationType === 'Discount' && discount.current === null
+                          { `$${ selectedItem?.compensationType === 'Discount' && discount.current === null
                             ?  parseFloat(localStorage.getItem('discount') || '0') || '0.00'
                             : selectedItem?.compensationType === 'Discount' && discount.current !== null
                               ? discount.current
-                              : Number(selectedItem?.value).toFixed(2) }` || '$0.00'}
+                              : Number(selectedItem?.value).toFixed(2) }` || '$0.00' }
                           </span>
                         </>
                       )}
                   </div>
                 )}
               </div>
-            )
-          }} />
+          )})}
           {showAmount && (
             <>
               <hr />

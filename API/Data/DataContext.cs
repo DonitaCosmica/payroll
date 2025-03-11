@@ -112,7 +112,8 @@ namespace API.Data
           .IsRequired(false);
         entity.HasOne(e => e.State)
           .WithMany(s => s.Employees)
-          .HasForeignKey(e => e.StateId);
+          .HasForeignKey(e => e.StateId)
+          .IsRequired(false);
         entity.HasOne(e => e.Status)
           .WithMany(s => s.Employees)
           .HasForeignKey(e => e.StatusId)
