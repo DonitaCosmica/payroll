@@ -56,7 +56,8 @@ export interface IDropMenu {
 }
 export interface IIconDefinition extends IDropMenu {
   readonly icon?: JSX.Element,
-  readonly onClick?: (id?: string, label?: string) => void
+  readonly onClick?: (id?: string, label?: string) => void,
+  readonly url?: string
 }
 export interface IReportDefinition {
   readonly id: string,

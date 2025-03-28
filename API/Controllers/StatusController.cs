@@ -16,13 +16,13 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<StatusDTO>))]
     public IActionResult GetStatuses()
     {
-      var statuses = statusRepository.GetStatuses()
+      List<StatusDTO> statuses = [.. statusRepository.GetStatuses()
         .Select(s => new StatusDTO
         {
           StatusId = s.StatusId,
           Name = s.Name,
           StatusType = s.StatusType.ToString()
-        }).ToList();
+        })];
 
       return Ok(statuses);
     }
@@ -34,14 +34,14 @@ namespace API.Controllers
       if(string.IsNullOrEmpty(type) || !TryConvertToStatusType(type, out StatusType statusType))
         statusType = StatusType.Error;
 
-      var statuses = statusRepository.GetStatusesByType(statusType)
+      List<StatusDTO> statuses = [.. statusRepository.GetStatusesByType(statusType)
         .Select(s => new StatusDTO
         {
           StatusId = s.StatusId,
           Name = s.Name,
           StatusType = s.StatusType.ToString(),
           StatusOption = s.StatusOption.ToString()
-        }).ToList();
+        })];
 
       return Ok(statuses);
     }
@@ -54,8 +54,8 @@ namespace API.Controllers
       if(!statusRepository.StatusExists(statusId))
         return NotFound();
 
-      var status = statusRepository.GetStatus(statusId);
-      var statusDTO = new StatusDTO
+      Status status = statusRepository.GetStatus(statusId);
+      StatusDTO statusDTO = new()
       {
         StatusId = status.StatusId,
         Name = status.Name
@@ -81,7 +81,7 @@ namespace API.Controllers
       if(string.IsNullOrEmpty(statusCreate.StatusOption) || !TryConvertToStatusType(statusCreate.StatusOption, out StatusOption statusOption))
         statusOption = StatusOption.Error;
 
-      var status = new Status
+      Status status = new()
       {
         StatusId = Guid.NewGuid().ToString(),
         Name = statusCreate.Name,
@@ -113,7 +113,7 @@ namespace API.Controllers
       if(string.IsNullOrEmpty(statusUpdate.StatusOption) || !TryConvertToStatusType(statusUpdate.StatusOption, out StatusOption statusOption))
         statusOption = StatusOption.Error;
 
-      var status = statusRepository.GetStatus(statusId);
+      Status status = statusRepository.GetStatus(statusId);
       status.Name = statusUpdate.Name;
       status.StatusType = statusType;
       status.StatusOption = statusOption;
@@ -133,7 +133,7 @@ namespace API.Controllers
       if(!statusRepository.StatusExists(statusId))
         return NotFound();
 
-      var statusToDelete = statusRepository.GetStatus(statusId);
+      Status statusToDelete = statusRepository.GetStatus(statusId);
       if(!statusRepository.DeleteStatus(statusToDelete))
         return StatusCode(500, "Something went wrong deleting status");
 

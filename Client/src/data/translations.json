@@ -97,12 +97,16 @@
     "CompanyId": "Compañia",
     "Description": "Descripción",
     "Company": "Compañia",
-    "Status": "Estado"
+    "Status": "Estado",
+    "Nombre": "name",
+    "Clave": "code",
+    "Compañia": "company"
   },
   "9": {
     "CompanyId": "ID de la Compañia",
     "Name": "Nombre",
-    "TotalWorkers": "Total de trabajadores"
+    "TotalWorkers": "Total de trabajadores",
+    "Nombre": "name"
   },
   "11": {
     "TableWorkId": "ID",

@@ -15,7 +15,7 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<DepartmentDTO>))]
     public IActionResult GetDepartments()
     {
-      var departments = departmentRepository.GetDepartments()
+      List<DepartmentDTO> departments = departmentRepository.GetDepartments()
         .Select(d => new DepartmentDTO
         {
           DepartmentId = d.DepartmentId,
@@ -24,7 +24,7 @@ namespace API.Controllers
           SubContract = d.SubContract
         }).ToList();
 
-      var columns = departmentRepository.GetColumns();
+      List<string> columns = departmentRepository.GetColumns();
       var result = new
       {
         Columns = columns,
@@ -44,8 +44,8 @@ namespace API.Controllers
       if(!departmentRepository.DepartmentExists(departmentId))
         return NotFound();
 
-      var department = departmentRepository.GetDepartment(departmentId);
-      var departmentDTO = new DepartmentDTO
+      Department department = departmentRepository.GetDepartment(departmentId);
+      DepartmentDTO departmentDTO = new()
       {
         DepartmentId = department.DepartmentId,
         Name = department.Name,
@@ -67,7 +67,7 @@ namespace API.Controllers
       if(departmentRepository.GetDepartmentByName(departmentCreate.Name.Trim()) != null)
         return Conflict("Department already exists");
 
-      var department = new Department
+      Department department = new()
       {
         DepartmentId = Guid.NewGuid().ToString(),
         Name = departmentCreate.Name,
@@ -79,6 +79,47 @@ namespace API.Controllers
         return StatusCode(500, "Something went wrong while saving");
 
       return NoContent();
+    }
+
+    [HttpPost("csv")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public IActionResult UpdateDepartments([FromBody] IEnumerable<DepartmentDTO> departments)
+    {
+      if(departments == null || !departments.Any())
+        return BadRequest(new { success = false, message = "No departments provided." });
+
+      foreach(DepartmentDTO department in departments)
+      {
+        if(department == null || department.TotalEmployees < 0 || string.IsNullOrEmpty(department.Name))
+          return BadRequest(new { success = false, message = "Invalid data for one or more departments." });
+      
+        Department? existingDepartment = departmentRepository.GetDepartmentByName(department.Name.Trim());
+        if(existingDepartment == null)
+        {
+          Department newDepartment = new()
+          {
+            DepartmentId = Guid.NewGuid().ToString(),
+            Name = department.Name,
+            TotalEmployees = 0,
+            SubContract = department.SubContract
+          };
+
+          if(!departmentRepository.CreateDepartment(newDepartment))
+            return StatusCode(500, "Something went wrong while saving");
+        }
+        else
+        {
+          existingDepartment.Name = department.Name;
+          existingDepartment.TotalEmployees = department.TotalEmployees ?? 0;
+          existingDepartment.SubContract = department.SubContract;
+
+          if(!departmentRepository.UpdateDepartment(existingDepartment))
+            return StatusCode(500, "Something went wrong updating department");
+        }
+      }
+
+      return Ok(new { success = true, message = "Departments processed successfully." });
     }
 
     [HttpPatch("{departmentId}")]
@@ -93,7 +134,7 @@ namespace API.Controllers
       if(!departmentRepository.DepartmentExists(departmentId))
         return NotFound();
 
-      var department = departmentRepository.GetDepartment(departmentId);
+      Department department = departmentRepository.GetDepartment(departmentId);
       department.Name = departmentUpdate.Name;
       department.TotalEmployees = departmentUpdate.TotalEmployees ?? 0;
       department.SubContract = departmentUpdate.SubContract;
@@ -113,7 +154,7 @@ namespace API.Controllers
       if(!departmentRepository.DepartmentExists(departmentId))
         return NotFound();
 
-      var departmentToDelete = departmentRepository.GetDepartment(departmentId);
+      Department departmentToDelete = departmentRepository.GetDepartment(departmentId);
       if(!departmentRepository.DeleteDepartment(departmentToDelete))
         return StatusCode(500, "Something went wrong deleting department");
 

@@ -16,13 +16,13 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<PayrollDTO>))]
     public IActionResult GetPayrolls()
     {
-      var payrolls = payrollRepository.GetPayrolls()
+      List<PayrollDTO> payrolls = [.. payrollRepository.GetPayrolls()
         .Select(pr => new PayrollDTO
         {
           PayrollId = pr.PayrollId,
           Name = pr.Name,
           PayrollType = pr.PayrollType.ToString()
-        }).ToList();
+        })];
 
       return Ok(payrolls);
     }
@@ -36,8 +36,8 @@ namespace API.Controllers
       if(!payrollRepository.PayrollExists(payrollId))
         return NotFound();
 
-      var payroll = payrollRepository.GetPayrollById(payrollId);
-      var payrollDTO = new PayrollDTO
+      Payroll payroll = payrollRepository.GetPayrollById(payrollId);
+      PayrollDTO payrollDTO = new()
       {
         PayrollId = payroll.PayrollId,
         Name = payroll.Name
@@ -55,8 +55,8 @@ namespace API.Controllers
       if(!payrollRepository.PrimaryPayrollExists() && payrollType != "Principal")
         return NotFound();
 
-      var payroll = payrollRepository.GetPrincipalPayroll();
-      var payrollDTO = new PayrollDTO
+      Payroll payroll = payrollRepository.GetPrincipalPayroll();
+      PayrollDTO payrollDTO = new()
       {
         PayrollId = payroll.PayrollId,
         Name = payroll.Name,
@@ -80,7 +80,7 @@ namespace API.Controllers
       if(payrollType == PayrollType.Principal && payrollRepository.PrimaryPayrollExists())
         return Conflict("There is already a principal payroll");
       
-      var payroll = new Payroll
+      Payroll payroll = new()
       {
         PayrollId = Guid.NewGuid().ToString(),
         Name = createPayroll.Name,
@@ -108,7 +108,7 @@ namespace API.Controllers
       if(payrollType == PayrollType.Principal && payrollRepository.PrimaryPayrollExists())
         return Conflict("There is already a principal payroll");
 
-      var payroll = payrollRepository.GetPayrollById(payrollId);
+      Payroll payroll = payrollRepository.GetPayrollById(payrollId);
       if(payroll == null)
         return NotFound("Payroll Not Found");
 

@@ -21,6 +21,13 @@
 
 .content > thead > tr {
   background-color: #ededed;
+  position: sticky;
+  top: 0;
+  z-index: 4;
+}
+
+.content > thead > th {
+  background-color: #ededed;
   border: 1px solid #ddd;
 }
 

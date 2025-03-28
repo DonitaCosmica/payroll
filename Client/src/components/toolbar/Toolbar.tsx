@@ -1,6 +1,7 @@
 import React, { JSX, Suspense, useMemo, useState } from "react"
 import { NavigationActionKind, useNavigationContext } from "../../context/Navigation"
 import { useSortEmployeesContext } from "../../context/SortEmployees"
+import { DropMenu } from "../dropmenu/DropMenu"
 import { AiOutlineSearch } from 'react-icons/ai'
 import { ICON_OPTIONS } from "../../utils/icons"
 import './Toolbar.css'
@@ -10,9 +11,8 @@ interface Props {
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const DropMenu = React.lazy(() => import('../dropmenu/DropMenu').then(module => ({ default: module.DropMenu })))
-const IconSection = React.lazy(() => import('../iconSection/IconSection').then(module => ({ default: module.IconSection })))
 const BsThreeDotsVertical = React.lazy(() => import('react-icons/bs').then(module => ({ default: module.BsThreeDotsVertical })))
+const IconSection = React.lazy(() => import('../iconSection/IconSection').then(module => ({ default: module.IconSection })))
 const GrSort = React.lazy(() => import('react-icons/gr').then(module => ({ default: module.GrSort })))
 
 export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm }): JSX.Element => {
@@ -32,13 +32,6 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm }): JSX.
       end: commonOptions.length
     }
   }, [ option ])
-
-  const showMoreOptions = [
-    NavigationActionKind.PAYROLLRECEIPTS,
-    NavigationActionKind.EMPLOYEES,
-    NavigationActionKind.PROJECTCATALOG,
-    NavigationActionKind.TABLEWORK
-  ].includes(option)
 
   const handleForm = async (id: string, index: number): Promise<void> => {
     if (!id.includes('basic') && id !== 'table') return
@@ -81,25 +74,23 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm }): JSX.
       <div 
         className="container" 
         style={{ 
-          gridTemplateColumns: `${ showMoreOptions ? 'auto auto': 'auto' }`,
-          width: `${ showMoreOptions ? '45%': '30%' }`
+          gridTemplateColumns: `${ options.slice(end).length > 0 ? 'auto auto': 'auto' }`,
+          width: `${ options.slice(end).length > 0 ? 'auto' : '20%' }`
         }}
       >
         <div className='main-options'>
           <Suspense fallback={ <div>Loading icons...</div> }>
             <IconSection
               token={ 1 }
-              options={ showMoreOptions 
-                ? option !== NavigationActionKind.TABLEWORK
-                  ? options.slice(0, end)
-                  : options.slice(end)
-                : options }
+              options={option !== NavigationActionKind.TABLEWORK
+                ? options.slice(0, end)
+                : options.slice(end)}
               action={ option }
               handleForm={ handleForm }
             />
           </Suspense>
         </div>
-        {showMoreOptions && option !== NavigationActionKind.TABLEWORK && (
+        {options.slice(end).length > 0 && option !== NavigationActionKind.TABLEWORK && (
           <div className='other-options'>
             <Suspense fallback={ <div>Loading icons...</div> }>
               <IconSection
@@ -128,25 +119,21 @@ export const Toolbar: React.FC<Props> = ({ setSearchFilter, setShowForm }): JSX.
         <div className="container">
           <div className="sorting-employees">
             <Suspense fallback={ <div>Loading icons...</div> }>
-                <IconSection
-                  token={ 3 }
-                  action={ option }
-                  options={ [{ id: 'filter', icon: <GrSort />, label: label }] }
-                  handleForm={ handleForm }
-                />
-              </Suspense>
+              <IconSection
+                token={ 3 }
+                action={ option }
+                options={ [{ id: 'filter', icon: <GrSort />, label: label }] }
+                handleForm={ handleForm }
+              />
+            </Suspense>
           </div>
         </div>}
-      {showMoreOptions && option !== NavigationActionKind.TABLEWORK && (
+      {![NavigationActionKind.TABLEWORK, NavigationActionKind.COMPANIES, NavigationActionKind.BANKS].includes(option) && (
         <div className="more-options">
           <Suspense fallback={ <div>Loading dots...</div> }>
             <BsThreeDotsVertical onClick={ () => setShowDropMenu(!showDropMenu) } />
           </Suspense>
-          {showDropMenu && (
-            <Suspense fallback={ <div>Loading menu...</div> }>
-              <DropMenu menuOp={ menuOp ?? [] } dir={ 'right' } context="doc" />
-            </Suspense>
-          )}
+          { showDropMenu && <DropMenu menuOp={ menuOp ?? [] } dir={ 'right' } context="doc" /> }
         </div>
       )}
     </section>

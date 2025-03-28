@@ -18,9 +18,8 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<Employee>))]
     public IActionResult GetEmployees()
     {
-      var employees = employeeRepository.GetEmployees().Select(MapToEmployeeDTORequest);
-      var result = CreateResult(employees);
-
+      List<EmployeeDTO> employees = [.. employeeRepository.GetEmployees().Select(MapToEmployeeDTORequest)];
+      object result = CreateResult(employees);
       return Ok(result);
     }
 
@@ -33,7 +32,7 @@ namespace API.Controllers
       if(!employeeRepository.EmployeeExists(employeeId))
         return NotFound();
 
-      var employee = MapToEmployeeDTORequest(employeeRepository.GetEmployee(employeeId));
+      EmployeeDTO employee = MapToEmployeeDTORequest(employeeRepository.GetEmployee(employeeId));
       return Ok(employee);
     }
 
@@ -45,11 +44,11 @@ namespace API.Controllers
       if(employeeCreate == null)
         return BadRequest();
 
-      var relatedEntities = employeeRepository.GetRelatedEntities(employeeCreate);
+      EmployeeRelatedEntities? relatedEntities = employeeRepository.GetRelatedEntities(employeeCreate);
       if(relatedEntities == null)
         return StatusCode(500, "Something went wrong while fetching related data");
 
-      var employee = MapToEmployeeModel(employeeCreate, relatedEntities);
+      Employee employee = MapToEmployeeModel(employeeCreate, relatedEntities);
       if(!employeeRepository.CreateEmployee(employeeCreate.Projects, employee))
         return StatusCode(500, "Something went wrong while saving");
 
@@ -65,11 +64,11 @@ namespace API.Controllers
       if(updateEmployee == null)
         return BadRequest("Employee cannot be null");
 
-      var employee = employeeRepository.GetEmployee(employeeId);
+      Employee employee = employeeRepository.GetEmployee(employeeId);
       if(employee == null)
         return NotFound("Employee Not Found");
 
-      var relatedEntities = employeeRepository.GetRelatedEntities(updateEmployee);
+      EmployeeRelatedEntities? relatedEntities = employeeRepository.GetRelatedEntities(updateEmployee);
       if(relatedEntities == null)
         return StatusCode(500, "Something went wrong while fetching related data");
 
@@ -89,16 +88,15 @@ namespace API.Controllers
       if(!employeeRepository.EmployeeExists(employeeId))
         return NotFound();
 
-      var employeeToDelete = employeeRepository.GetEmployee(employeeId);
+      Employee employeeToDelete = employeeRepository.GetEmployee(employeeId);
       if(!employeeRepository.DeleteEmployee(employeeToDelete))
         return StatusCode(500, "Something went wrong deleting employee");
 
       return NoContent();
     }
 
-    private static Employee MapToEmployeeModel(EmployeeDTO employeeCreate, EmployeeRelatedEntities relatedEntities)
-    {
-      return new Employee
+    private static Employee MapToEmployeeModel(EmployeeDTO employeeCreate, EmployeeRelatedEntities relatedEntities) =>
+      new()
       {
         EmployeeId = Guid.NewGuid().ToString(),
         Key = employeeCreate.Key.ToString("D6"),
@@ -142,7 +140,6 @@ namespace API.Controllers
         CompanyId = employeeCreate.Company,
         Company = relatedEntities.Company
       };
-    }
 
     private static void MapToUpdateEmployeeModel(Employee employee, EmployeeDTO updateEmployee, EmployeeRelatedEntities relatedEntities)
     {
@@ -190,8 +187,7 @@ namespace API.Controllers
 
     private EmployeeDTO MapToEmployeeDTORequest(Employee? employee)
     {
-      if (employee == null)
-        return new EmployeeDTO();
+      if (employee == null) return new EmployeeDTO();
 
       return new EmployeeDTO()
       {
@@ -241,9 +237,9 @@ namespace API.Controllers
     private object CreateResult(IEnumerable<EmployeeDTO> employees)
     {
       List<string> columns = [];
-      var auxEmployees = employees.Select(e => 
+      List<EmployeeListDTO> auxEmployees = [.. employees.Select(e => 
       {
-        var employee = new EmployeeListDTO
+        EmployeeListDTO employee = new()
         {
           EmployeeId = e.EmployeeId,
           Key = e.Key.ToString("D6"),
@@ -268,17 +264,15 @@ namespace API.Controllers
 
         employeeRepository.GetColumnsFromRelatedEntity(employee, columns);
         return employee;
-      }).ToList();
+      })];
 
-      var formColumns = employeeRepository.GetColumns();
+      List<string> formColumns = employeeRepository.GetColumns();
       formColumns.Add("Projects");
       formColumns.Add("Department");
 
-      Console.WriteLine("\nEmployeeListDTO:");
       foreach(EmployeeListDTO employee in auxEmployees)
         SetNullValues(employee);
 
-      Console.WriteLine("\nEmployeeDTO:");
       foreach(EmployeeDTO employee in employees)
         SetNullValues(employee);
 
@@ -293,7 +287,7 @@ namespace API.Controllers
 
     private static void SetNullValues(object obj)
     {
-      var defaultValues = new Dictionary<Type, object>
+      Dictionary<Type, object> defaultValues = new()
       {
         { typeof(string), "" },
         { typeof(int), 0 },

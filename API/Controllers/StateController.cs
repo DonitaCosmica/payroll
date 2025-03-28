@@ -15,13 +15,13 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<StateDTO>))]
     public IActionResult GetStates()
     {
-      var states = stateRepository.GetStates()
+      List<StateDTO> states = [.. stateRepository.GetStates()
         .Select(s => new StateDTO 
         {
           StateId = s.StateId,
           Name = s.Name,
           Abbreviation = s.Abbreviation
-        }).ToList();
+        })];
 
       return Ok(states);
     }
@@ -34,8 +34,8 @@ namespace API.Controllers
       if(!stateRepository.StateExists(stateId))
         return NotFound();
 
-      var state = stateRepository.GetState(stateId);
-      var stateDTO = new StateDTO
+      State state = stateRepository.GetState(stateId);
+      StateDTO stateDTO = new()
       {
         StateId = state.StateId,
         Name = state.Name,
@@ -56,7 +56,7 @@ namespace API.Controllers
       if(stateRepository.GetStateByName(stateCreate.Name.Trim()) != null)
         return Conflict("State already exists");
 
-      var state = new State
+      State state = new()
       {
         StateId = Guid.NewGuid().ToString(),
         Name = stateCreate.Name,
@@ -81,7 +81,7 @@ namespace API.Controllers
       if(!stateRepository.StateExists(stateId))
         return NotFound();
 
-      var state = stateRepository.GetState(stateId);
+      State state = stateRepository.GetState(stateId);
       state.Name = stateUpdate.Name;
       state.Abbreviation = stateUpdate.Abbreviation;
 
@@ -100,7 +100,7 @@ namespace API.Controllers
       if(!stateRepository.StateExists(stateId))
         return NotFound();
 
-      var stateToDelete = stateRepository.GetState(stateId);
+      State stateToDelete = stateRepository.GetState(stateId);
       if(!stateRepository.DeleteState(stateToDelete))
         return StatusCode(500, "Something went wrong deleting state");
 

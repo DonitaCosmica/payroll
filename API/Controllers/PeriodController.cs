@@ -15,7 +15,7 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<PeriodDTO>))]
     public IActionResult GetPeriods()
     {
-      var periods = periodRepository.GetPeriods();
+      ICollection<Period> periods = periodRepository.GetPeriods();
       var groupedPeriods = periods.GroupBy(p => p.Year)
         .OrderByDescending(g => g.Key)
         .ToDictionary(
@@ -39,7 +39,7 @@ namespace API.Controllers
       if(!periodRepository.PeriodExists(periodId))
         return NotFound();
 
-      var period = MapToPeriodDTORequest(periodRepository.GetPeriod(periodId));
+      PeriodDTO period = MapToPeriodDTORequest(periodRepository.GetPeriod(periodId));
       return Ok(period);
     }
 
@@ -54,7 +54,7 @@ namespace API.Controllers
       if(periodRepository.GetPeriodByWeekYear(createPeriod.Week, createPeriod.Year) != null)
         return Conflict("Period already exist");
 
-      var period = new Period
+      Period period = new()
       {
         PeriodId = Guid.NewGuid().ToString(),
         Week = createPeriod.Week,
@@ -76,7 +76,7 @@ namespace API.Controllers
       if(updatePeriod == null || updatePeriod.Week < 0 || updatePeriod.Year < 2024)
         return BadRequest();
 
-      var period = periodRepository.GetPeriod(periodId);
+      Period period = periodRepository.GetPeriod(periodId);
       if (period == null)
         return NotFound("Period Not Found");
 
@@ -104,7 +104,7 @@ namespace API.Controllers
       return NoContent();
     }
 
-    private PeriodDTO MapToPeriodDTORequest(Period period)
+    private static PeriodDTO MapToPeriodDTORequest(Period period)
     {
       if(period == null) return new PeriodDTO();
 

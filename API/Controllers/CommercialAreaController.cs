@@ -15,14 +15,14 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<CommercialAreaDTO>))]
     public IActionResult GetCommercialAreas()
     {
-      var commercialAreas = commercialAreaRepository.GetCommercialAreas()
+      List<CommercialAreaDTO> commercialAreas = [.. commercialAreaRepository.GetCommercialAreas()
         .Select(ca => new CommercialAreaDTO
         {
           CommercialAreaId = ca.CommercialAreaId,
           Name = ca.Name
-        }).ToList();
+        })];
 
-      var columns = commercialAreaRepository.GetColumns();
+      List<string> columns = commercialAreaRepository.GetColumns();
       var result = new
       {
         Columns = columns,
@@ -42,8 +42,8 @@ namespace API.Controllers
       if(!commercialAreaRepository.CommercialAreaExists(commercialAreaId))
         return NotFound();
 
-      var commercialArea = commercialAreaRepository.GetCommercialArea(commercialAreaId);
-      var commercialAreaDTO = new CommercialAreaDTO
+      CommercialArea commercialArea = commercialAreaRepository.GetCommercialArea(commercialAreaId);
+      CommercialAreaDTO commercialAreaDTO = new()
       {
         CommercialAreaId = commercialArea.CommercialAreaId,
         Name = commercialArea.Name
@@ -63,7 +63,7 @@ namespace API.Controllers
       if(commercialAreaRepository.GetCommercialAreaByName(commercialAreaCreate.Name.Trim()) != null)
         return Conflict("Commercial Area already exists");
 
-      var commercialArea = new CommercialArea
+      CommercialArea commercialArea = new()
       {
         CommercialAreaId = Guid.NewGuid().ToString(),
         Name = commercialAreaCreate.Name
@@ -73,6 +73,42 @@ namespace API.Controllers
         return StatusCode(500, "Something went wrong while saving");
       
       return NoContent();
+    }
+
+    [HttpPost("csv")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public IActionResult UpdateCommercialAreas([FromBody] IEnumerable<CommercialAreaDTO> commercialAreas)
+    {
+      if(commercialAreas == null || !commercialAreas.Any())
+        return BadRequest(new { success = false, message = "No commercial areas provided." });
+
+      foreach(CommercialAreaDTO commercialArea in commercialAreas)
+      {
+        if(commercialArea == null || string.IsNullOrEmpty(commercialArea.Name))
+          return BadRequest(new { success = false, message = "Invalid data for one or more commercial areas." });
+      
+        CommercialArea? existingCommercialArea = commercialAreaRepository.GetCommercialAreaByName(commercialArea.Name);
+        if(existingCommercialArea == null)
+        {
+          CommercialArea newCommercialArea = new()
+          {
+            CommercialAreaId = Guid.NewGuid().ToString(),
+            Name = commercialArea.Name
+          };
+
+          if(!commercialAreaRepository.CreateCommercialArea(newCommercialArea))
+            return StatusCode(500, "Something went wrong while saving");
+        }
+        else
+        {
+          existingCommercialArea.Name = commercialArea.Name;
+          if(!commercialAreaRepository.UpdateCommercialArea(existingCommercialArea))
+            return StatusCode(500, "Something went wrong updating commercial area");
+        }
+      }
+
+      return Ok(new { success = true, message = "Commercial Areas processed successfully." });
     }
 
     [HttpPatch("{commercialAreaId}")]
@@ -87,7 +123,7 @@ namespace API.Controllers
       if(!commercialAreaRepository.CommercialAreaExists(commercialAreaId))
         return NotFound();
 
-      var commercialArea = commercialAreaRepository.GetCommercialArea(commercialAreaId);
+      CommercialArea commercialArea = commercialAreaRepository.GetCommercialArea(commercialAreaId);
       commercialArea.Name = commercialAreaUpdate.Name;
 
       if(!commercialAreaRepository.UpdateCommercialArea(commercialArea))
@@ -105,7 +141,7 @@ namespace API.Controllers
       if(!commercialAreaRepository.CommercialAreaExists(commercialAreaId))
         return NotFound();
 
-      var commercialAreaToDelete = commercialAreaRepository.GetCommercialArea(commercialAreaId);
+      CommercialArea commercialAreaToDelete = commercialAreaRepository.GetCommercialArea(commercialAreaId);
       if(!commercialAreaRepository.DeleteCommercialArea(commercialAreaToDelete))
         return StatusCode(500, "Something went wrong deleting commercial area");
 

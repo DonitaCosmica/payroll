@@ -15,13 +15,13 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<BankDTO>))]
     public IActionResult GetBanks()
     {
-      var banks = bankRepository.GetBanks()
+      List<BankDTO> banks = [.. bankRepository.GetBanks()
         .Select(b => new BankDTO
         {
           BankId = b.BankId,
           Name = b.Name,
           Code = b.Code
-        }).ToList();
+        })];
 
       return Ok(banks);
     }
@@ -34,8 +34,8 @@ namespace API.Controllers
       if(!bankRepository.BankExists(bankId))
         return NotFound();
 
-      var bank = bankRepository.GetBank(bankId);
-      var bankDTO = new BankDTO
+      Bank bank = bankRepository.GetBank(bankId);
+      BankDTO bankDTO = new()
       {
         BankId = bank.BankId,
         Name = bank.Name,
@@ -58,7 +58,7 @@ namespace API.Controllers
         || string.IsNullOrEmpty(bankCreate.Code))
         return Conflict("Bank already exists");
 
-      var bank = new Bank
+      Bank bank = new()
       {
         BankId = Guid.NewGuid().ToString(),
         Name = bankCreate.Name,
@@ -84,10 +84,10 @@ namespace API.Controllers
         if (string.IsNullOrEmpty(bank.Name) || string.IsNullOrEmpty(bank.Code))
           return BadRequest(new { success = false, message = "Invalid data for one or more banks." });
 
-        var existingBank = bankRepository.GetBankByName(bank.Name);
+        Bank? existingBank = bankRepository.GetBankByName(bank.Name);
         if(existingBank == null)
         {
-          var newBank = new Bank
+          Bank newBank = new()
           {
             BankId = Guid.NewGuid().ToString(),
             Name = bank.Name,
@@ -119,7 +119,7 @@ namespace API.Controllers
       if(updateBank == null || string.IsNullOrEmpty(updateBank.Name) || string.IsNullOrEmpty(updateBank.Code))
         return BadRequest();
 
-      var bank = bankRepository.GetBank(bankId);
+      Bank bank = bankRepository.GetBank(bankId);
       if(bank == null)
         return NotFound();
 

@@ -16,15 +16,15 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<JobPositionDTO>))]
     public IActionResult GetJobPositions()
     {
-      var jobPositions = jobPositionRepository.GetJobPositions()
+      List<JobPositionDTO> jobPositions = [.. jobPositionRepository.GetJobPositions()
         .Select(jp => new JobPositionDTO
         {
           JobPositionId = jp.JobPositionId,
           Name = jp.Name,
           Department = jp.Department.Name
-        }).ToList();
+        })];
 
-      var columns = jobPositionRepository.GetColumns();
+      List<string> columns = jobPositionRepository.GetColumns();
       var result = new
       {
         Columns = columns,
@@ -44,8 +44,8 @@ namespace API.Controllers
       if(!jobPositionRepository.JobPositionExists(jobPositionId))
         return NotFound();
 
-      var department = jobPositionRepository.GetJobPosition(jobPositionId).Department;
-      var departmentDTO = new DepartmentDTO
+      Department department = jobPositionRepository.GetJobPosition(jobPositionId).Department;
+      DepartmentDTO departmentDTO = new()
       {
         DepartmentId = department.DepartmentId,
         Name = department.Name,
@@ -64,8 +64,8 @@ namespace API.Controllers
       if(!jobPositionRepository.JobPositionExists(jobPositionId))
         return NotFound();
 
-      var jobPosition = jobPositionRepository.GetJobPosition(jobPositionId);
-      var jobPositionDTO = new JobPositionDTO
+      JobPosition jobPosition = jobPositionRepository.GetJobPosition(jobPositionId);
+      JobPositionDTO jobPositionDTO = new()
       {
         JobPositionId = jobPosition.JobPositionId,
         Name = jobPosition.Name,
@@ -86,7 +86,7 @@ namespace API.Controllers
       if(jobPositionRepository.GetJobPositionByName(jobPositionCreate.Name.Trim()) != null)
         return Conflict("Job Position already exists");
 
-      var jobPosition = new JobPosition
+      JobPosition jobPosition = new()
       {
         JobPositionId = Guid.NewGuid().ToString(),
         Name = jobPositionCreate.Name,
@@ -98,6 +98,49 @@ namespace API.Controllers
         return StatusCode(500, "Something went wrong while saving");
 
       return NoContent();
+    }
+
+    [HttpPost("csv")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public IActionResult UpdateJobPositions([FromBody] IEnumerable<JobPositionDTO> jobPositions)
+    {
+      if(jobPositions == null || !jobPositions.Any())
+        return BadRequest(new { success = false, message = "No job positions provided." });
+
+      foreach(JobPositionDTO jobPosition in jobPositions)
+      {
+        if(jobPosition == null || !departmentRepository.DepartmentExists(jobPosition.Department) || string.IsNullOrEmpty(jobPosition.Name))
+          return BadRequest(new { success = false, message = "Invalid data for one or more job positions." });
+
+        JobPosition? existingJobPosition = jobPositionRepository.GetJobPositionByName(jobPosition.Name.Trim());
+        if(existingJobPosition == null)
+        {
+          JobPosition newJobPosition = new()
+          {
+            JobPositionId = Guid.NewGuid().ToString(),
+            Name = jobPosition.Name,
+            DepartmentId = jobPosition.Department,
+            Department = departmentRepository.GetDepartment(jobPosition.Department)
+          };
+
+          if(!jobPositionRepository.CreateJobPosition(newJobPosition))
+            return StatusCode(500, "Something went wrong while saving");
+        }
+        else
+        {
+          existingJobPosition.Name = jobPosition.Name;
+          existingJobPosition.DepartmentId = jobPosition.Department;
+          
+          if(existingJobPosition.Department == null || existingJobPosition.Department.DepartmentId != jobPosition.Department)
+            existingJobPosition.Department = departmentRepository.GetDepartment(jobPosition.Department);
+
+          if(!jobPositionRepository.UpdateJobPosition(existingJobPosition))
+            return StatusCode(500, "Something went wrong updating Job Position");
+        }
+      }
+      
+      return Ok(new { success = true, message = "Job Positions processed successfully." });
     }
 
     [HttpPatch("{jobPositionId}")]
@@ -112,7 +155,7 @@ namespace API.Controllers
       if(!jobPositionRepository.JobPositionExists(jobPositionId))
         return NotFound();
 
-      var jobPosition = jobPositionRepository.GetJobPosition(jobPositionId);
+      JobPosition jobPosition = jobPositionRepository.GetJobPosition(jobPositionId);
       jobPosition.Name = jobPositionUpdate.Name;
       jobPosition.DepartmentId = jobPositionUpdate.Department;
       
@@ -134,7 +177,7 @@ namespace API.Controllers
       if(!jobPositionRepository.JobPositionExists(jobPositionId))
         return BadRequest();
       
-      var jobPositionToDelete = jobPositionRepository.GetJobPosition(jobPositionId);
+      JobPosition jobPositionToDelete = jobPositionRepository.GetJobPosition(jobPositionId);
       if(!jobPositionRepository.DeleteJobPosition(jobPositionToDelete))
         return StatusCode(500, "Something went wrong while deleting Job Position");
 

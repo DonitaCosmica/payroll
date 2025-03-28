@@ -15,12 +15,12 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<FederalEntityDTO>))]
     public IActionResult GetFederalsEntities()
     {
-      var federalEntities = federalEntityRepository.GetFederalsEntities()
+      List<FederalEntityDTO> federalEntities = [.. federalEntityRepository.GetFederalsEntities()
         .Select(fe => new FederalEntityDTO
         {
           FederalEntityId = fe.FederalEntityId,
           Name = fe.Name
-        });
+        })];
 
       return Ok(federalEntities);
     }
@@ -33,8 +33,8 @@ namespace API.Controllers
       if(!federalEntityRepository.FederalEntityExists(federalEntityId))
         return NotFound();
 
-      var federalEntity = federalEntityRepository.GetFederalEntity(federalEntityId);
-      var federalEntityDTO = new FederalEntityDTO
+      FederalEntity federalEntity = federalEntityRepository.GetFederalEntity(federalEntityId);
+      FederalEntityDTO federalEntityDTO = new()
       {
         FederalEntityId = federalEntity.FederalEntityId,
         Name = federalEntity.Name
@@ -54,7 +54,7 @@ namespace API.Controllers
       if(federalEntityRepository.GetFederalEntityByName(federalEntityCreate.Name.Trim()) != null)
         return Conflict("Federal Entity already exists");
 
-      var federalEntity = new FederalEntity
+      FederalEntity federalEntity = new()
       {
         FederalEntityId = Guid.NewGuid().ToString(),
         Name = federalEntityCreate.Name
@@ -78,7 +78,7 @@ namespace API.Controllers
       if(!federalEntityRepository.FederalEntityExists(federalEntityId))
         return NotFound();
 
-      var federalEntity = federalEntityRepository.GetFederalEntity(federalEntityId);
+      FederalEntity federalEntity = federalEntityRepository.GetFederalEntity(federalEntityId);
       federalEntity.Name = updateFederalEntity.Name;
 
       if(!federalEntityRepository.UpdateFederalEntity(federalEntity))
@@ -96,7 +96,7 @@ namespace API.Controllers
       if(!federalEntityRepository.FederalEntityExists(federalEntityId))
         return NotFound();
 
-      var federalEntityToDelete = federalEntityRepository.GetFederalEntity(federalEntityId);
+      FederalEntity federalEntityToDelete = federalEntityRepository.GetFederalEntity(federalEntityId);
       if(!federalEntityRepository.DeleteFederalEntity(federalEntityToDelete))
         return StatusCode(500, "Something went wrong deleting Federal Entity");
 

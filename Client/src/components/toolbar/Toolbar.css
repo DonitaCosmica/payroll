@@ -17,11 +17,15 @@
   display: flex;
   justify-content: space-evenly;
   align-items: center;
-  margin: 0 10px;
+  margin-left: 10px;
 }
 
-.toolbar > .container > .main-options {
+.toolbar > .container > :where(.main-options, .other-options) {
   border-right: 1px solid #666565;
+}
+
+.toolbar > .container > .other-options {
+  padding: 0 10px 0 0;
 }
 
 .toolbar > .search {
@@ -32,6 +36,7 @@
   width: 15%;
   height: 100%;
   padding: 5px 10px;
+  margin-left: 10px;
 }
 
 .toolbar > .search > input[type='text'] {
@@ -62,7 +67,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  width: 40%;
+  flex-grow: 1;
   height: 100%;
 }
 

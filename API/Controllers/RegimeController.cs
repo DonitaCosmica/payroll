@@ -15,12 +15,12 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<RegimeDTO>))]
     public IActionResult GetRegimes()
     {
-      var regimes = regimeRepository.GetRegimes()
+      List<RegimeDTO> regimes = [.. regimeRepository.GetRegimes()
         .Select(r => new RegimeDTO
         {
           RegimeId = r.RegimeId,
           Name = r.Name
-        });
+        })];
 
       return Ok(regimes);
     }
@@ -33,8 +33,8 @@ namespace API.Controllers
       if(!regimeRepository.RegimeExists(regimeId))
         return NotFound();
 
-      var regime = regimeRepository.GetRegime(regimeId);
-      var regimeDTO = new RegimeDTO
+      Regime regime = regimeRepository.GetRegime(regimeId);
+      RegimeDTO regimeDTO = new()
       {
         RegimeId = regime.RegimeId,
         Name = regime.Name
@@ -54,7 +54,7 @@ namespace API.Controllers
       if(regimeRepository.GetRegimeByName(regimeCreate.Name.Trim()) != null)
         return Conflict("Regime already exists");
 
-      var regime = new Regime
+      Regime regime = new()
       {
         RegimeId = Guid.NewGuid().ToString(),
         Name = regimeCreate.Name
@@ -78,7 +78,7 @@ namespace API.Controllers
       if(!regimeRepository.RegimeExists(regimeId))
         return NotFound();
 
-      var regime = regimeRepository.GetRegime(regimeId);
+      Regime regime = regimeRepository.GetRegime(regimeId);
       regime.Name = updateRegime.Name;
 
       if(!regimeRepository.UpdateRegime(regime))
@@ -96,7 +96,7 @@ namespace API.Controllers
       if(!regimeRepository.RegimeExists(regimeId))
         return NotFound();
 
-      var regimeToDelete = regimeRepository.GetRegime(regimeId);
+      Regime regimeToDelete = regimeRepository.GetRegime(regimeId);
       if(!regimeRepository.DeleteRegime(regimeToDelete))
         return StatusCode(500, "Something went wrong deleting regime");
 

@@ -15,12 +15,12 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<ContractDTO>))]
     public IActionResult GetContracts()
     {
-      var contracts = contractRepository.GetContracts()
+      List<ContractDTO> contracts = [.. contractRepository.GetContracts()
         .Select(ct => new ContractDTO
         {
           ContractId = ct.ContractId,
           Name = ct.Name
-        });
+        })];
 
       return Ok(contracts);
     }
@@ -33,8 +33,8 @@ namespace API.Controllers
       if(!contractRepository.ContractExists(contractId))
         return NotFound();
       
-      var contract = contractRepository.GetContract(contractId);
-      var contractDTO = new ContractDTO
+      Contract contract = contractRepository.GetContract(contractId);
+      ContractDTO contractDTO = new()
       {
         ContractId = contract.ContractId,
         Name = contract.Name
@@ -54,7 +54,7 @@ namespace API.Controllers
       if(contractRepository.GetContractByName(contractCreate.Name.Trim()) != null)
         return Conflict("Contract already exists");
 
-      var contract = new Contract
+      Contract contract = new()
       {
         ContractId = Guid.NewGuid().ToString(),
         Name = contractCreate.Name
@@ -78,7 +78,7 @@ namespace API.Controllers
       if(!contractRepository.ContractExists(contractId))
         return NotFound();
 
-      var contract = contractRepository.GetContract(contractId);
+      Contract contract = contractRepository.GetContract(contractId);
       contract.Name = updateContract.Name;
 
       if(!contractRepository.UpdateContract(contract))
@@ -96,7 +96,7 @@ namespace API.Controllers
       if(!contractRepository.ContractExists(contractId))
         return NotFound();
 
-      var contractToDelete = contractRepository.GetContract(contractId);
+      Contract contractToDelete = contractRepository.GetContract(contractId);
       if(!contractRepository.DeleteContract(contractToDelete))
         return StatusCode(500, "Something went wrong deleting contract");
 

@@ -15,15 +15,15 @@ namespace  API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<CompanyDTO>))]
     public IActionResult GetCompanies()
     {
-      var companies = companyRepository.GetCompanies()
+      List<CompanyDTO> companies = [.. companyRepository.GetCompanies()
         .Select(c => new CompanyDTO
         {
           CompanyId = c.CompanyId,
           Name = c.Name,
           TotalWorkers = c.TotalWorkers
-        }).ToList();
+        })];
 
-      var columns = companyRepository.GetColumns();
+      List<string> columns = companyRepository.GetColumns();
       var result = new
       {
         Columns = columns,
@@ -43,13 +43,14 @@ namespace  API.Controllers
       if(!companyRepository.CompanyExists(companyId))
         return NotFound();
 
-      var company = companyRepository.GetCompany(companyId);
-      var companyDTO = new CompanyDTO
+      Company company = companyRepository.GetCompany(companyId);
+      CompanyDTO companyDTO = new()
       {
         CompanyId = company.CompanyId,
         Name = company.Name,
         TotalWorkers = company.TotalWorkers
       };
+
       return Ok(companyDTO);
     }
 
@@ -64,7 +65,7 @@ namespace  API.Controllers
       if(companyRepository.GetCompanyByName(companyCreate.Name.Trim()) != null)
         return Conflict("Company already exists");
 
-      var company = new Company
+      Company company = new()
       {
         CompanyId = Guid.NewGuid().ToString(),
         Name = companyCreate.Name,
@@ -89,7 +90,7 @@ namespace  API.Controllers
       if(!companyRepository.CompanyExists(companyId))
         return NotFound();
 
-      var company = companyRepository.GetCompany(companyId);
+      Company company = companyRepository.GetCompany(companyId);
       company.Name = companyUpdate.Name;
       company.TotalWorkers = companyUpdate.TotalWorkers;
 
@@ -108,7 +109,7 @@ namespace  API.Controllers
       if(!companyRepository.CompanyExists(companyId))
         return NotFound();
 
-      var companyToDelete = companyRepository.GetCompany(companyId);
+      Company companyToDelete = companyRepository.GetCompany(companyId);
       if(!companyRepository.DeleteCompany(companyToDelete))
         return StatusCode(500, "Something went wrong deleting company");
 

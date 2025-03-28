@@ -10,7 +10,7 @@ import { FiSettings, FiUsers } from "react-icons/fi"
 import { MdOutlineEmail } from "react-icons/md"
 import { PiPrinter } from "react-icons/pi"
 import { TfiClose } from "react-icons/tfi"
-import { IoReload } from "react-icons/io5"
+import { IoReload, IoCloudUpload } from "react-icons/io5"
 import { LuClipboardList } from "react-icons/lu"
 
 interface IIConOptions {
@@ -71,15 +71,28 @@ export const ICON_OPTIONS: IIConOptions = {
     [NavigationActionKind.EMPLOYEES]: [
       { id: 'import', icon: <BsBoxArrowInDownLeft color="#73ba69" />, label: 'Importar xlsx' }
     ],
-    [NavigationActionKind.JOBPOSITIONS]: [],
-    [NavigationActionKind.DEPARTMENTS]: [],
-    [NavigationActionKind.COMMERCIALAREAS]: [],
-    [NavigationActionKind.PERCEPTIONS]: [],
-    [NavigationActionKind.DEDUCTIONS]: [],
-    [NavigationActionKind.PROJECTCATALOG]: [
-      { id: 'register', icon: <TbCalendarTime color="#333" />, label: 'Registro de Actividad' }
+    [NavigationActionKind.JOBPOSITIONS]: [
+      { id: 'upload', icon: <IoCloudUpload fontSize='1.2rem' color="#0747A6" />, label: 'Subir Datos', url: 'http://localhost:5239/api/JobPosition/csv' }
     ],
-    [NavigationActionKind.COMPANIES]: [],
+    [NavigationActionKind.DEPARTMENTS]: [
+      { id: 'upload', icon: <IoCloudUpload fontSize='1.2rem' color="#0747A6" />, label: 'Subir Datos', url: 'http://localhost:5239/api/Department/csv' }
+    ],
+    [NavigationActionKind.COMMERCIALAREAS]: [
+      { id: 'upload', icon: <IoCloudUpload fontSize='1.2rem' color="#0747A6" />, label: 'Subir Datos', url: 'http://localhost:5239/api/CommercialArea/csv' }
+    ],
+    [NavigationActionKind.PERCEPTIONS]: [
+      { id: 'upload', icon: <IoCloudUpload fontSize='1.2rem' color="#0747A6" />, label: 'Subir Datos', url: 'http://localhost:5239/api/Perception/csv' }
+    ],
+    [NavigationActionKind.DEDUCTIONS]: [
+      { id: 'upload', icon: <IoCloudUpload fontSize='1.2rem' color="#0747A6" />, label: 'Subir Datos', url: 'http://localhost:5239/api/Deduction/csv' }
+    ],
+    [NavigationActionKind.PROJECTCATALOG]: [
+      { id: 'register', icon: <TbCalendarTime color="#333" />, label: 'Registro de Actividad' },
+      { id: 'upload', icon: <IoCloudUpload fontSize='1.2rem' color="#0747A6" />, label: 'Subir Datos', url: 'http://localhost:5239/api/Project/csv' }
+    ],
+    [NavigationActionKind.COMPANIES]: [
+      { id: 'upload', icon: <IoCloudUpload fontSize='1.2rem' color="#0747A6" />, label: 'Subir Datos' }
+    ],
     [NavigationActionKind.BANKS]: [],
     [NavigationActionKind.TABLEWORK]: [],
     [NavigationActionKind.UPDATEDATA]: [],

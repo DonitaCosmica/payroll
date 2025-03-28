@@ -15,7 +15,7 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<AccountDTO>))]
     public IActionResult GetAccounts()
     {
-      var accounts = accountRepository.GetAccounts()
+      List<AccountDTO> accounts = [.. accountRepository.GetAccounts()
         .Select(a => new AccountDTO
         {
           AccountId = a.AccountId,
@@ -23,7 +23,7 @@ namespace API.Controllers
           Name = a.Name,
           Reference = a.Reference,
           RFC = a.RFC
-        }).ToList();
+        })];
 
       return Ok(accounts);
     }
@@ -36,8 +36,8 @@ namespace API.Controllers
       if(!accountRepository.AccountExists(accountId))
         return NotFound();
 
-      var account = accountRepository.GetAccount(accountId);
-      var accountDTO = new AccountDTO
+      Account account = accountRepository.GetAccount(accountId);
+      AccountDTO accountDTO = new()
       {
         AccountId = account.AccountId,
         AccountNumber = account.AccountNumber,
@@ -60,7 +60,7 @@ namespace API.Controllers
       if(accountRepository.GetAccountByName(accountCreate.Name.Trim()) != null)
         return Conflict("Account already exists");
 
-      var account = new Account
+      Account account = new()
       {
         AccountId = Guid.NewGuid().ToString(),
         AccountNumber = accountCreate.AccountNumber,
@@ -84,7 +84,7 @@ namespace API.Controllers
       if(updateAccount == null || string.IsNullOrEmpty(updateAccount.Name) || string.IsNullOrEmpty(updateAccount.RFC))
         return BadRequest();
 
-      var account = accountRepository.GetAccount(accountId);
+      Account account = accountRepository.GetAccount(accountId);
       if(account == null)
         return NotFound();
 

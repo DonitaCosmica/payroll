@@ -16,14 +16,14 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<PerceptionDTO>))]
     public IActionResult GetPerceptions()
     {
-      var perceptions = perceptionRepository.GetPerceptions()
+      List<PerceptionDTO> perceptions = [.. perceptionRepository.GetPerceptions()
         .Select(p => new PerceptionDTO
         {
           PerceptionId = p.PerceptionId,
           Key = p.Key,
           Description = p.Description,
           IsHidden = p.IsHidden
-        }).ToList();
+        })];
 
       var perceptionsWithCompensation = perceptions.Select(p => new
       {
@@ -34,7 +34,7 @@ namespace API.Controllers
         CompensationType = DetermineCompensationType(p.Description).ToString()
       });
 
-      var columns = perceptionRepository.GetColumns();
+      List<string> columns = perceptionRepository.GetColumns();
       var result = new
       {
         Columns = columns,
@@ -70,8 +70,8 @@ namespace API.Controllers
       if(!perceptionRepository.PerceptionExists(perceptionId))
         return NotFound();
 
-      var perception = perceptionRepository.GetPerception(perceptionId);
-      var perceptionDTO = new PerceptionDTO
+      Perception perception = perceptionRepository.GetPerception(perceptionId);
+      PerceptionDTO perceptionDTO = new()
       {
         PerceptionId = perception.PerceptionId,
         Key = perception.Key,
@@ -93,7 +93,7 @@ namespace API.Controllers
       if(perceptionRepository.GetPerceptionByName(perceptionCreate.Description.Trim()) != null)
         return Conflict("Perception already exists");
 
-      var perception = new Perception
+      Perception perception = new()
       {
         PerceptionId = Guid.NewGuid().ToString(),
         Key = perceptionCreate.Key,
@@ -105,6 +105,47 @@ namespace API.Controllers
         return StatusCode(500, "Something went wrong while saving");
       
       return NoContent();
+    }
+
+    [HttpPost("csv")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public IActionResult UpdatePerceptions([FromBody] IEnumerable<PerceptionDTO> perceptions)
+    {
+      if(perceptions == null || !perceptions.Any())
+        return BadRequest(new { success = false, message = "No perceptions provided." });
+
+      foreach(PerceptionDTO perception in perceptions)
+      {
+        if(perception == null || string.IsNullOrEmpty(perception.Key) || string.IsNullOrEmpty(perception.Description))
+          return BadRequest();
+
+        Perception? existingPerception = perceptionRepository.GetPerceptionByName(perception.Description.Trim());
+        if(existingPerception == null)
+        {
+          Perception newPerception = new()
+          {
+            PerceptionId = Guid.NewGuid().ToString(),
+            Key = perception.Key,
+            Description = perception.Description,
+            IsHidden = perception.IsHidden
+          };
+
+          if(!perceptionRepository.CreatePerception(newPerception))
+            return StatusCode(500, "Something went wrong while saving");
+        }
+        else
+        {
+          existingPerception.Description = perception.Description;
+          existingPerception.Key = perception.Key;
+          existingPerception.IsHidden = perception.IsHidden;
+
+          if(!perceptionRepository.UpdatePerception(existingPerception))
+            return StatusCode(500, "Something went wrong updating perception");
+        }
+      }
+
+      return Ok(new { success = true, message = "Perceptions processed successfully." });
     }
 
     [HttpPatch("{perceptionId}")]
@@ -119,7 +160,7 @@ namespace API.Controllers
       if(!perceptionRepository.PerceptionExists(perceptionId))
         return NotFound();
 
-      var perception = perceptionRepository.GetPerception(perceptionId);
+      Perception perception = perceptionRepository.GetPerception(perceptionId);
       perception.Description = perceptionUpdate.Description;
       perception.Key = perceptionUpdate.Key;
       perception.IsHidden = perceptionUpdate.IsHidden;
@@ -139,7 +180,7 @@ namespace API.Controllers
       if(!perceptionRepository.PerceptionExists(perceptionId))
         return NotFound();
 
-      var perceptionToDelete = perceptionRepository.GetPerception(perceptionId);
+      Perception perceptionToDelete = perceptionRepository.GetPerception(perceptionId);
       if(!perceptionRepository.DeletePerception(perceptionToDelete))
         return StatusCode(500, "Something went wrong deleting perception");
 

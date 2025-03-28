@@ -16,14 +16,14 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<DeductionDTO>))]
     public IActionResult GetDeductions()
     {
-      var deductions = deductionRepository.GetDeductions()
+      List<DeductionDTO> deductions = [.. deductionRepository.GetDeductions()
         .Select(d => new DeductionDTO
         {
           DeductionId = d.DeductionId,
           Key = d.Key,
           Description = d.Description,
           IsHidden = d.IsHidden
-        }).ToList();
+        })];
 
       var deductionsWithCompensation  = deductions.Select(d => new
       {
@@ -34,7 +34,7 @@ namespace API.Controllers
         CompensationType = DetermineCompensationType(d.Description).ToString()
       }).ToList();
 
-      var columns = deductionRepository.GetColumns();
+      List<string> columns = deductionRepository.GetColumns();
       var result = new
       {
         Columns = columns,
@@ -70,8 +70,8 @@ namespace API.Controllers
       if(!deductionRepository.DeductionExists(deductionId))
         return NotFound();
 
-      var deduction = deductionRepository.GetDeduction(deductionId);
-      var deductionDTO = new DeductionDTO
+      Deduction deduction = deductionRepository.GetDeduction(deductionId);
+      DeductionDTO deductionDTO = new()
       {
         DeductionId = deduction.DeductionId,
         Key = deduction.Key,
@@ -93,7 +93,7 @@ namespace API.Controllers
       if(deductionRepository.GetDeductionByName(deductionCreate.Description.Trim()) != null)
         return Conflict("Deduction already exists");
 
-      var deduction = new Deduction
+      Deduction deduction = new()
       {
         DeductionId = Guid.NewGuid().ToString(),
         Key = deductionCreate.Key,
@@ -105,6 +105,47 @@ namespace API.Controllers
         return StatusCode(500, "Something went wrong while saving");
 
       return NoContent();
+    }
+
+    [HttpPost("csv")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    public IActionResult UpdateDeductions([FromBody] IEnumerable<DeductionDTO> deductions)
+    {
+      if(deductions == null || !deductions.Any())
+        return BadRequest(new { success = false, message = "No deductions provided." });
+
+      foreach(DeductionDTO deduction in deductions)
+      {
+        if(deduction == null || string.IsNullOrEmpty(deduction.Key) || string.IsNullOrEmpty(deduction.Description))
+          return BadRequest(new { success = false, message = "Invalid data for one or more deductions." });
+
+        Deduction? existingDeduction = deductionRepository.GetDeductionByName(deduction.Description.Trim());
+        if(existingDeduction == null)
+        {
+          Deduction newDeduction = new()
+          {
+            DeductionId = Guid.NewGuid().ToString(),
+            Key = deduction.Key,
+            Description = deduction.Description,
+            IsHidden = deduction.IsHidden
+          };
+
+          if(!deductionRepository.CreateDeduction(newDeduction))
+            return StatusCode(500, "Something went wrong while saving");
+        }
+        else
+        {
+          existingDeduction.Description = deduction.Description;
+          existingDeduction.Key = deduction.Key;
+          existingDeduction.IsHidden = deduction.IsHidden;
+
+          if(!deductionRepository.UpdateDeduction(existingDeduction))
+            return StatusCode(500, "Something went wrong updating deduction"); 
+        }
+      }
+
+      return Ok(new { success = true, message = "Deductions processed successfully." });
     }
 
     [HttpPatch("{deductionId}")]
@@ -119,7 +160,7 @@ namespace API.Controllers
       if(!deductionRepository.DeductionExists(deductionId))
         return NotFound();
 
-      var deduction = deductionRepository.GetDeduction(deductionId);
+      Deduction deduction = deductionRepository.GetDeduction(deductionId);
       deduction.Description = deductionUpdate.Description;
       deduction.Key = deductionUpdate.Key;
       deduction.IsHidden = deductionUpdate.IsHidden;
@@ -139,7 +180,7 @@ namespace API.Controllers
       if(!deductionRepository.DeductionExists(deductionId))
         return NotFound();
 
-      var deductionToDelete = deductionRepository.GetDeduction(deductionId);
+      Deduction deductionToDelete = deductionRepository.GetDeduction(deductionId);
       if(!deductionRepository.DeleteDeduction(deductionToDelete))
         return StatusCode(500, "Something went wrong deleting deduction");
 

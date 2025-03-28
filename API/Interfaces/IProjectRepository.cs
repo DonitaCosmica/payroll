@@ -8,7 +8,7 @@ namespace API.Interfaces
     ICollection<Project> GetProjects();
     ICollection<Project> GetProjectsByCompany(string companyId);
     Project GetProject(string projectId);
-    Project? GetProjectByName(string projectName);
+    Project? GetProjectByName(ProjectDTO project);
     (Company, Status)? GetRelatedEntities(ProjectDTO projectDTO);
     bool CreateProject(Project project);
     bool UpdateProject(Project project);

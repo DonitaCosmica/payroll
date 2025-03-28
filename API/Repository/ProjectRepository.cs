@@ -18,17 +18,22 @@ namespace API.Repository
       context.Projects.Include(p => p.Company).Include(p => p.Status)
       .FirstOrDefault(p => p.ProjectId == projectId) ??
       throw new Exception("No Project with the specified id was found");
-    public Project? GetProjectByName(string projectName) => context.GetEntityByName<Project>(projectName);
+    public Project? GetProjectByName(ProjectDTO project) =>
+      context.Projects.FirstOrDefault(p => p.Name == project.Name.Trim() && p.CompanyId == project.Company && p.Code == project.Code);
     public (Company, Status)? GetRelatedEntities(ProjectDTO projectDTO)
     {
+      string trimmedCompany = projectDTO.Company.Trim().ToLower();
       var result = (from c in context.Companies
-        join s in context.Statuses on projectDTO.Status equals s.StatusId
-        where c.CompanyId == projectDTO.Company
+        where c.CompanyId == projectDTO.Company ||
+          c.Name.ToLower() == trimmedCompany
+        from s in context.Statuses
+        where projectDTO.Status != null
+          ? s.StatusId == projectDTO.Status 
+          : s.StatusType == Enums.StatusType.Project
         select new { c, s })
         .FirstOrDefault();
 
-      if(result == null) return null;
-      return (result.c, result.s);
+      return result == null ? null : (result.c, result.s);
     }
     public bool CreateProject(Project project) => context.CreateEntity(project);
     public bool UpdateProject(Project project) => context.UpdateEntity(project);

@@ -19,7 +19,7 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<TicketDTO>))]
     public IActionResult GetTickets()
     {
-      IEnumerable<TicketDTO> tickets = ticketRepository.GetTickets().Select(MapToTicketDTORequest);
+      List<TicketDTO> tickets = [.. ticketRepository.GetTickets().Select(MapToTicketDTORequest)];
       object result = CreateResult(tickets);
       return Ok(result);
     }
@@ -29,7 +29,7 @@ namespace API.Controllers
     public IActionResult GetTicketsByPayroll([FromQuery] string payrollType)
     {
       Payroll payroll = payrollRepository.GetPayroll(payrollType);
-      IEnumerable<TicketDTO> tickets = ticketRepository.GetTicketsByPayroll(payroll).Select(MapToTicketDTORequest);
+      List<TicketDTO> tickets = [.. ticketRepository.GetTicketsByPayroll(payroll).Select(MapToTicketDTORequest)];
       object result = CreateResult(tickets);
       return Ok(result);
     }
@@ -38,8 +38,8 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<TicketDTO>))]
     public IActionResult GetTicketsByWeekAndYear([FromQuery] ushort week, [FromQuery] ushort year, [FromQuery] string payrollType)
     {
-      var payroll = payrollRepository.GetPayrollByName(payrollType);
-      IEnumerable<TicketDTO> tickets = ticketRepository.GetTicketsByWeekAndYear(week, year, payroll).Select(MapToTicketDTORequest);
+      Payroll? payroll = payrollRepository.GetPayrollByName(payrollType);
+      List<TicketDTO> tickets = [.. ticketRepository.GetTicketsByWeekAndYear(week, year, payroll).Select(MapToTicketDTORequest)];
       object result = CreateResult(tickets);
       return Ok(result);
     }
@@ -128,7 +128,7 @@ namespace API.Controllers
       if(!ticketRepository.TicketExists(ticketId))
         return NotFound("Ticket Not Found");
 
-      var ticketToDelete = ticketRepository.GetTicket(ticketId);
+      Ticket ticketToDelete = ticketRepository.GetTicket(ticketId);
       if(!ticketRepository.DeleteTicket(ticketToDelete))
         return StatusCode(500, "Something went wrong deleting ticket");
 
@@ -264,7 +264,7 @@ namespace API.Controllers
       {
         float totalPerceptions = t.Perceptions.Sum(p => p.Value);
         float totalDeductions = t.Deductions.Sum(d => d.Value);
-        var baseSalaryPerception = t.Perceptions.FirstOrDefault(p => p.Name == "Sueldo");
+        TicketPerceptionRelatedEntities? baseSalaryPerception = t.Perceptions.FirstOrDefault(p => p.Name == "Sueldo");
         if(baseSalaryPerception == null)
         {
           float baseSalary = ticketRepository.GetBaseSalaryEmployee(t.Employee, t.JobPosition!, t.Department!);
@@ -301,9 +301,9 @@ namespace API.Controllers
       })];
 
       var (filteredPerceptions, filteredDeductions) = ticketRepository.GetFilteredPerceptionsAndDeductions(columns);
-      IEnumerable<TicketListDTO> ticketsToSend = listTickets.Select(auxTicket =>
+      List<TicketListDTO> ticketsToSend = [.. listTickets.Select(auxTicket =>
       {
-        var additionalProperties = auxTicket.Perceptions
+        Dictionary<string, object> additionalProperties = auxTicket.Perceptions
           .Where(p => p.Value > 0 && p.Name != "Sueldo" && p.Name != "Tiempo Extra")
           .Select((p, i) => new KeyValuePair<string, object>(p.Name ?? $"Unknown Perception { i }", p.Value))
           .Concat(auxTicket.Deductions
@@ -319,13 +319,13 @@ namespace API.Controllers
         if(!additionalProperties.ContainsKey("Tiempo Extra"))
           additionalProperties["Tiempo Extra"] = auxTicket.Perceptions.FirstOrDefault(p => p.Name == "Tiempo Extra")?.Value ?? 0;
 
-        foreach(var perception in filteredPerceptions)
+        foreach(Perception perception in filteredPerceptions)
         {
           if(!additionalProperties.ContainsKey(perception.Description))
             additionalProperties[perception.Description] = 0;
         }
 
-        foreach(var deduction in filteredDeductions)
+        foreach(Deduction deduction in filteredDeductions)
         {
           if(!additionalProperties.ContainsKey(deduction.Description))
             additionalProperties[deduction.Description] = 0;
@@ -349,9 +349,9 @@ namespace API.Controllers
         };
 
         return ticket;
-      });
+      })];
 
-      if(ticketsToSend.Any() || formTickets.Count > 0)
+      if(ticketsToSend.Count != 0 || formTickets.Count > 0)
       {
         formColumns.Insert(formColumns.Count - 1, "Perceptions");
         formColumns.Insert(formColumns.Count, "Deductions");

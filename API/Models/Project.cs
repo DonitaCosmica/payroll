@@ -31,7 +31,7 @@ namespace API.Models
     public string CompanyId { get; set; } = default!;
     public Company Company { get; set; } = new();
     [MaxLength(100)]
-    public string? Description { get; set; }
+    public string Description { get; set; } = default!;
     public ICollection<EmployeeProject> EmployeeProjects { get; set; } = [];
   }
 }

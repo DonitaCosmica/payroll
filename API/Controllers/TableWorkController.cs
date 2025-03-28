@@ -17,17 +17,17 @@ namespace API.Controllers
     private readonly IPerceptionRepository perceptionRepository = perceptionRepository;
     private readonly IDeductionRepository deductionRepository = deductionRepository;
     private readonly ITicketRepository ticketRepository = ticketRepository;
-    
+
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<TableWorkDTO>))]
     public IActionResult GetTableWorks()
     {
-      IEnumerable<TableWorkDTO> tableWorks = tableWorkRepository.GetTableWorks()
-        .Select(MapToTableWorkDTORequest);
-      IEnumerable<TableWorkFormDTO> tableWorkForms = tableWorkRepository.GetTableWorks()
-        .Select(MapToTableWorkFormDTORequest);
+      List<TableWorkDTO> tableWorks = [.. tableWorkRepository.GetTableWorks()
+        .Select(MapToTableWorkDTORequest)];
+      List<TableWorkFormDTO> tableWorkForms = [.. tableWorkRepository.GetTableWorks()
+        .Select(MapToTableWorkFormDTORequest)];
 
-      var result = CreateResult(tableWorks, tableWorkForms);
+      object result = CreateResult(tableWorks, tableWorkForms);
       return Ok(result);
     }
 
@@ -40,7 +40,7 @@ namespace API.Controllers
       if(updateTableWork == null || updateTableWork.Count == 0)
         return BadRequest();
 
-      foreach(var item in updateTableWork)
+      foreach(TableWorkFormDTO item in updateTableWork)
       {
         TableWork tableWork = tableWorkRepository.GetTableWork(item.TableWorkId);
         if (tableWork == null)
@@ -72,17 +72,17 @@ namespace API.Controllers
     private TableWorkDTO MapToTableWorkDTORequest(TableWork? tableWork)
     {
       if(tableWork == null) return new TableWorkDTO();
-      var perceptionValues = GetTicketValues(
+      IEnumerable<KeyValuePair<string, float>> perceptionValues = GetTicketValues(
         perceptionRepository.GetPerceptions(),
         p => p.Description,
         p => tableWork.Ticket.TicketPerceptions.FirstOrDefault(tp => tp.PerceptionId == p.PerceptionId)?.Total ?? 0);
 
-      var deductionValues = GetTicketValues(
+      IEnumerable<KeyValuePair<string, float>> deductionValues = GetTicketValues(
         deductionRepository.GetDeductions(),
         d => d.Description,
         d => tableWork.Ticket.TicketDeductions.FirstOrDefault(td => td.DeductionId == d.DeductionId)?.Total ?? 0);
 
-      var additionalProperties = perceptionValues
+      Dictionary<string, float> additionalProperties = perceptionValues
         .Concat(deductionValues)
         .ToDictionary(kv => kv.Key, kv => kv.Value);
 
@@ -169,9 +169,9 @@ namespace API.Controllers
 
     private List<string> GetFormattedColumns()
     {
-      var columns = tableWorkRepository.GetColumns();
-      var perceptionNames = perceptionRepository.GetPerceptions().Select(p => p.Description).ToList();
-      var deductionNames = deductionRepository.GetDeductions().Select(d => d.Description).ToList();
+      List<string> columns = tableWorkRepository.GetColumns();
+      List<string> perceptionNames = perceptionRepository.GetPerceptions().Select(p => p.Description).ToList();
+      List<string> deductionNames = deductionRepository.GetDeductions().Select(d => d.Description).ToList();
 
       perceptionNames.Remove("Sueldo");
       perceptionNames.Insert(0, "Sueldo");
@@ -187,7 +187,7 @@ namespace API.Controllers
 
     private object CreateResult(IEnumerable<TableWorkDTO> tableWorks, IEnumerable<TableWorkFormDTO> tableWorkForms)
     {
-      var columns = GetFormattedColumns();
+      List<string> columns = GetFormattedColumns();
       return new
       {
         Columns = columns,
@@ -197,9 +197,8 @@ namespace API.Controllers
       };
     }
 
-    private static object MapToResultObject(TableWorkDTO tw)
-    {
-      return new
+    private static object MapToResultObject(TableWorkDTO tw) =>
+      new
       {
         tw.TableWorkId,
         tw.Employee,
@@ -220,7 +219,6 @@ namespace API.Controllers
         tw.Saturday,
         tw.Sunday
       };
-    }
 
     private static bool TryConvertToCtaType<TEnum>(string value, out TEnum enumValue) where TEnum : struct, Enum =>
       Enum.TryParse(value, ignoreCase: true, out enumValue);
