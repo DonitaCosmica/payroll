@@ -36,7 +36,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-        o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+    o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
 });
 builder.Services.AddAuthorization();
 builder.Services.AddCors(options =>

@@ -2,3 +2,11 @@ API/*.http
 API/Migrations/
 API/bin/
 API/obj
+
+ERPAPI/*.http
+ERPAPI/Migrations/
+ERPAPI/bin/
+ERPAPI/obj
+
+Common/bin/
+Common/obj

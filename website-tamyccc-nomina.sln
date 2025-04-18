@@ -5,6 +5,10 @@ VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{10FF64CD-B6CF-4726-8648-F0043D39444F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERPAPI", "ERPAPI\ERPAPI.csproj", "{70CE2B38-56D6-4377-9DAE-E412742E55C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{5802C8F5-0C14-458E-BFD7-AA28D231849B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{10FF64CD-B6CF-4726-8648-F0043D39444F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10FF64CD-B6CF-4726-8648-F0043D39444F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10FF64CD-B6CF-4726-8648-F0043D39444F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70CE2B38-56D6-4377-9DAE-E412742E55C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70CE2B38-56D6-4377-9DAE-E412742E55C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70CE2B38-56D6-4377-9DAE-E412742E55C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70CE2B38-56D6-4377-9DAE-E412742E55C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5802C8F5-0C14-458E-BFD7-AA28D231849B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5802C8F5-0C14-458E-BFD7-AA28D231849B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5802C8F5-0C14-458E-BFD7-AA28D231849B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5802C8F5-0C14-458E-BFD7-AA28D231849B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

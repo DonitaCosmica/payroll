@@ -120,7 +120,7 @@ const createObject = (formDataRes: IDataObject[], keys: string[], selectedId: st
 
   return keys.slice(1).reduce((obj: Record<string, unknown>, key: string) => {
     const dropDownKey = key.replace(/Id$/i, '').toLowerCase()
-    const value = getProperty(selectedObj, dropDownKey) || ''
+    const value = getProperty(selectedObj, dropDownKey) ?? ''
     const newKey = Object.keys(dropdownData).find((key: string) => (key.toLowerCase() === dropDownKey) ? dropdownData[key] : undefined) as string    
     const realKey = key === key.toUpperCase() ? key.toLowerCase() : (key.charAt(0).toLowerCase() + key.slice(1)).replace(/Id$/i, '')
     if (!newKey) return { ...obj, [realKey]: value }

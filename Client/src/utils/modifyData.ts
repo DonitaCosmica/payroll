@@ -95,7 +95,7 @@ export const getProperty = (obj: IDataObject, key: string): string | number | bo
     return item
   }, {} as Record<string, string>)
 
-  return obj[propertyMap[key.toLowerCase()]]
+  return obj[propertyMap[key]]
 }
 
 export const sortDataByColumns = (data: IDataObject[], columns: string[]): void => {
