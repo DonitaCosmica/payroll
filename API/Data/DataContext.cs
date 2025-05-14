@@ -50,13 +50,19 @@ namespace API.Data
           .HasForeignKey(p => p.ProjectId)
           .OnDelete(DeleteBehavior.Restrict);
       });
+      
+      modelBuilder.Entity<Company>(entity =>
+      {
+        entity.Property(c => c.CompanyType)
+          .HasConversion(c => c.ToString(), c => Enum.Parse<CompanyType>(c));
+      });
 
       modelBuilder.Entity<Status>(entity =>
       {
         entity.Property(s => s.StatusType)
-          .HasConversion(v => v.ToString(), v => (StatusType)Enum.Parse(typeof(StatusType), v));
+          .HasConversion(v => v.ToString(), v => Enum.Parse<StatusType>(v));
         entity.Property(s => s.StatusOption)
-          .HasConversion(v => v.ToString(), v => (StatusOption)Enum.Parse(typeof(StatusOption), v));
+          .HasConversion(v => v.ToString(), v => Enum.Parse<StatusOption>(v));
       });
 
       modelBuilder.Entity<JobPosition>(entity =>

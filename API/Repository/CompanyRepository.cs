@@ -1,12 +1,11 @@
 using API.Data;
+using API.Enums;
 using API.Interfaces;
 using API.Models;
-using Common.Interfaces;
-using Common.Models;
 
 namespace API.Repository
 {
-  public class CompanyRepository(DataContext context) : ICompanyRepository, ICompanyLiteRepository
+  public class CompanyRepository(DataContext context) : ICompanyRepository
   {
     private readonly DataContext context = context;
 
@@ -15,22 +14,26 @@ namespace API.Repository
       context.Companies.Where(c => c.CompanyId == companyId).FirstOrDefault() ??
       throw new Exception("No Company with the specified id was found");
     public Company? GetCompanyByName(string companyName) => context.GetEntityByName<Company>(companyName);
-    public CompanyLite GetCompanyByMatchPrefix(string prefix)
+    public Company GetPrincipalCompany() =>
+      context.Companies.Where(c => c.CompanyType == CompanyType.Parent).FirstOrDefault() ??
+      throw new Exception("No Company with the specified id was found");
+    public Company GetCompanyByMatchPrefix(string prefix)
     {
       string lowerPrefix = prefix.ToLower();
-      Company? company = context.Companies
-          .Where(c => c.Name.StartsWith(lowerPrefix, StringComparison.CurrentCultureIgnoreCase))
-          .FirstOrDefault() ??
-      throw new Exception("No Company with the specified id was found");;
+      if(lowerPrefix == "xxx") lowerPrefix = "ccc";
+      if(lowerPrefix == "var") lowerPrefix = "tam";
 
-      return new CompanyLite
-      {
-        CompanyId = company.CompanyId,
-        Name = company.Name,
-        TotalWorkers = company.TotalWorkers
-      };
+      return context.Companies
+        .AsEnumerable()
+        .Where(c => c.Name.StartsWith(lowerPrefix, StringComparison.CurrentCultureIgnoreCase) && c.CompanyType == CompanyType.Child)
+        .FirstOrDefault() ??
+        throw new Exception("No Company with the specified id was found");
     }
-    public bool CreateCompany(Company company) => context.CreateEntity(company);
+    public bool CreateCompany(Company company)
+    {
+      company.CompanyType = (GetCompanies().Count == 0) ? CompanyType.Parent : CompanyType.Child;
+      return context.CreateEntity(company);
+    }
     public bool UpdateCompany(Company company) => context.UpdateEntity(company);
     public bool DeleteCompany(Company company) => context.DeleteEntity(company);
     public List<string> GetColumns() => context.GetColumns<Company>();

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using API.Data;
 using API.Interfaces;
 using API.Repository;
+using API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,7 @@ builder.Services.AddScoped<IStateReporitory, StateRepository>();
 builder.Services.AddScoped<IStatusRepository, StatusRepository>();
 builder.Services.AddScoped<ITableWorkRepository, TableWorkRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+builder.Services.AddScoped<ERPApiProjectService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -45,6 +47,10 @@ builder.Services.AddCors(options =>
     {
         builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
     });
+});
+builder.Services.AddHttpClient("ERPAPI", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5240/erpapi/");
 });
 
 var app = builder.Build();

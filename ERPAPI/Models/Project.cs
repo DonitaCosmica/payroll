@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Common.Models;
+namespace ERPAPI.Models;
 
 [Index("CvCtaCancelacionIngresosClientes", Name = "IX_Proyectos_11")]
 public partial class Project

@@ -73,7 +73,7 @@ const navigationConfig: Record<NavigationActionKind, IFormConfig> = {
   [NavigationActionKind.COMMERCIALAREAS]: { url: 'http://localhost:5239/api/CommercialArea', title: 'Área Comercial', formSize: 35 },
   [NavigationActionKind.PERCEPTIONS]: { url: 'http://localhost:5239/api/Perception', title: 'Percepción', formSize: 40 },
   [NavigationActionKind.DEDUCTIONS]: { url: 'http://localhost:5239/api/Deduction', title: 'Deducción', formSize: 40 },
-  [NavigationActionKind.PROJECTCATALOG]: { url: 'http://localhost:5239/api/Project', title: 'Proyecto', formSize: 75 },
+  [NavigationActionKind.PROJECTCATALOG]: { url: 'http://localhost:5239/api/Project/from-erp', title: 'Proyecto', formSize: 75 },
   [NavigationActionKind.COMPANIES]: { url: 'http://localhost:5239/api/Company', title: 'Compañia', formSize: 35 },
   [NavigationActionKind.BANKS]: { url: '', title: '', formSize: 0 },
   [NavigationActionKind.TABLEWORK]: { url: 'http://localhost:5239/api/TableWork', title: 'Tabla de Trabajo', formSize: 75 },

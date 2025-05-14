@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using API.Enums;
 
 namespace API.Models
 {
@@ -10,6 +11,7 @@ namespace API.Models
     [Required]
     [MaxLength(100)]
     public string Name { get; set; } = default!;
+    public CompanyType CompanyType { get; set; }
     public ushort TotalWorkers { get; set; }
     public ICollection<Employee> Employees { get; set; } = [];
     public ICollection<Project> Projects { get; set; } = [];

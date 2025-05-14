@@ -3,14 +3,27 @@ using Microsoft.AspNetCore.Mvc;
 using API.DTO;
 using API.Interfaces;
 using API.Models;
+using Common.DTO;
+using API.Services;
 
 namespace API.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
-  public class ProjectController(IProjectRepository projectRepository) : Controller
+  public class ProjectController(IProjectRepository projectRepository, ERPApiProjectService eRPApiProject,
+    ICompanyRepository companyRepository, IStatusRepository statusRepository) : Controller
   {
     private readonly IProjectRepository projectRepository = projectRepository;
+    private readonly ICompanyRepository companyRepository = companyRepository;
+    private readonly IStatusRepository statusRepository = statusRepository;
+
+    [HttpGet("from-erp")]
+    public async Task<IActionResult> GetProjectsFromERP()
+    {
+      List<ProjectDTO> projects = await GetFilteredProjectsAsync();
+      var result = CreateProjectResponse(projects);
+      return Ok(result);
+    }
 
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<ProjectDTO>))]
@@ -33,17 +46,10 @@ namespace API.Controllers
     [ProducesResponseType(200, Type = typeof(IEnumerable<ProjectDTO>))]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public IActionResult GetProjects([FromQuery] string companyId) {
-      List<ProjectDTO> projects = projectRepository.GetProjectsByCompany(companyId).Select(MapToProjectDTORequest).ToList();
-      List<string> columns = projectRepository.GetColumns();
-      var result = new
-      {
-        Columns = columns,
-        FormColumns = columns,
-        Data = projects,
-        FormData = projects
-      };
-
+    public async Task<IActionResult> GetProjects([FromQuery] string companyId) {
+      Company company = companyRepository.GetCompany(companyId);
+      List<ProjectDTO> projects = await GetFilteredProjectsAsync(company);
+      var result = CreateProjectResponse(projects);
       return Ok(result);
     }
 
@@ -228,6 +234,67 @@ namespace API.Controllers
         Status = project.Status.Name,
         Company = project.Company.Name,
         Description = project.Description
+      };
+    }
+
+    private async Task<List<ProjectDTO>> GetFilteredProjectsAsync(Company? company = null)
+    {
+      List<BusinessUnitDTO> businessUnits = await eRPApiProject.GetProjectsFromErpApi();
+      List<ProjectDTO> allProjects = CreateErpProjects(businessUnits);
+
+      return (company == null || company.CompanyType == Enums.CompanyType.Parent)
+        ? allProjects
+        : [.. allProjects.Where(p => p.Company == company.Name)];
+    }
+
+    private List<ProjectDTO> CreateErpProjects(List<BusinessUnitDTO> businessUnits)
+    {
+      List<ProjectDTO> projects = [];
+
+      foreach(BusinessUnitDTO businessUnit in businessUnits)
+      {
+        Company company = (businessUnit.Code.Length > 3)
+          ? companyRepository.GetCompanyByMatchPrefix(businessUnit.Code.Substring(1, 3))
+          : companyRepository.GetPrincipalCompany();
+
+        Status status = statusRepository.GetStatusByStatusOption(Enums.StatusOption.Positive);
+        
+        projects.Add(new ProjectDTO
+        {
+          ProjectId = businessUnit.BusinessUnitId,
+          Code = businessUnit.Code,
+          Name = businessUnit.Description,
+          StartDate = DateTime.Now.ToString("yyyy-MM-dd"),
+          Status = status.Name,
+          Company = company.Name,
+          Description = businessUnit.Description
+        });
+
+        foreach(SharedProjectDTO sharedProject in businessUnit.SharedProjects)
+          projects.Add(new ProjectDTO
+          {
+            ProjectId = sharedProject.ProjectId,
+            Code = sharedProject.Code,
+            Name = sharedProject.Name,
+            StartDate = sharedProject.StartDate,
+            Status = status.Name,
+            Company = company.Name,
+            Description = businessUnit.Description
+          });
+      }
+
+      return projects;
+    }
+
+    private object CreateProjectResponse(List<ProjectDTO> projects)
+    {
+      List<string> columns = projectRepository.GetColumns();
+      return new
+      {
+        Columns = columns,
+        FormColumns = columns,
+        Data = projects,
+        FormData = projects
       };
     }
   }

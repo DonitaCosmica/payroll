@@ -1,6 +1,6 @@
 using ERPAPI.Data;
 using ERPAPI.Interfaces;
-using Common.Models;
+using ERPAPI.Models;
 
 namespace ERPAPI.Repository;
 

@@ -1,4 +1,4 @@
-﻿using Common.Models;
+﻿using ERPAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ERPAPI.Data;

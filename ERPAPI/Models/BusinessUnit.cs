@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Common.Models;
+namespace ERPAPI.Models;
 
 [Table("AcUnidadesNegocio")]
 public partial class BusinessUnit

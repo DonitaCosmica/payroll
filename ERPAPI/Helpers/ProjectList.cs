@@ -1,10 +1,10 @@
-namespace Common.DTO;
+namespace ERPAPI.Helpers;
 
-public class ProjectDTO
+public class ProjectList
 {
   public int ProjectId { get; set; }
   public int BusinessUnitId { get; set; }
   public string Project { get; set; } = default!;
   public string Name { get; set; } = default!;
-  public string Status { get; set; } = default!;
+  public DateTime? StartDate { get; set; } 
 }

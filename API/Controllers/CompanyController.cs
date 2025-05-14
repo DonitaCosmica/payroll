@@ -24,6 +24,8 @@ namespace  API.Controllers
         })];
 
       List<string> columns = companyRepository.GetColumns();
+      columns.Remove("CompanyType");
+
       var result = new
       {
         Columns = columns,
