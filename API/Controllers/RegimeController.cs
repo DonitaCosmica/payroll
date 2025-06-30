@@ -57,7 +57,8 @@ namespace API.Controllers
       Regime regime = new()
       {
         RegimeId = Guid.NewGuid().ToString(),
-        Name = regimeCreate.Name
+        Code = regimeCreate.Code,
+        Name = regimeCreate.Code + " - " + regimeCreate.Name
       };
 
       if(!regimeRepository.CreateRegime(regime))
@@ -79,7 +80,7 @@ namespace API.Controllers
         return NotFound();
 
       Regime regime = regimeRepository.GetRegime(regimeId);
-      regime.Name = updateRegime.Name;
+      regime.Name = updateRegime.Code + " - " + updateRegime.Name;
 
       if(!regimeRepository.UpdateRegime(regime))
         return StatusCode(500, "Something went wrong updating regime");

@@ -15,7 +15,6 @@ namespace API.Models
     public string Name { get; set; } = default!;
     [MaxLength(13)]
     public string? RFC { get; set; }
-    [Required]
     [MaxLength(18)]
     public string? CURP { get; set; }
     [Required]

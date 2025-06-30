@@ -16,9 +16,9 @@ export const fieldsConfig: Record<NavigationActionKind, IFieldConfig[]> = {
     { type: FieldType.Input, name: 'Nombre', label: 'Nombre...', inputType: InputType.Text, modify: true, id: 'name' },
     { type: FieldType.Input, name: 'RFC', label: 'RFC...', inputType: InputType.Text, modify: true, id: 'rfc' },
     { type: FieldType.Input, name: 'CURP', label: 'CURP...', inputType: InputType.Text, modify: true, id: 'curp' },
-    { type: FieldType.DropMenu, name: 'Banco', fetchUrl: 'http://localhost:5239/api/Bank', id: 'bank' },
     { type: FieldType.Input, name: 'CLABE', label: 'CLABE...', inputType: InputType.Text, modify: true, id: 'interbankCode' },
     { type: FieldType.Input, name: 'Cuenta de Banco', label: 'Cuenta Banco...', inputType: InputType.Text, modify: true, id: 'bankAccount' },
+    { type: FieldType.DropMenu, name: 'Banco', fetchUrl: 'http://localhost:5239/api/Bank', id: 'bank' },
     { type: FieldType.Input, name: 'ID Portal Banco', label: 'Portal ID...', inputType: InputType.Number, modify: true, id: 'bankPortal' },
     { type: FieldType.Input, name: 'Titular', inputType: InputType.Checkbox, modify: true, id: 'isAStarter' },
     { type: FieldType.Section, name: 'Datos Laborales', id: 'labor-data' },
@@ -106,12 +106,15 @@ export const fieldsReport: Record<string, IFieldConfig[]> = {
   ['loans']: [],
   ['deductions']: [],
   ['employeesByDate']: [
-    { type: FieldType.DropMenu, name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', id: 'projects' },
+    { type: FieldType.DropMenu, name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project/from-erp', id: 'projects' },
     { type: FieldType.DropMenu, name: 'Puesto', fetchUrl: 'http://localhost:5239/api/JobPosition', id: 'jobPosition' },
     { type: FieldType.DropMenu, name: 'Status', fetchUrl: 'http://localhost:5239/api/Status/byType?type=Employee', id: 'status', uriComponent: 'Employee' }
   ],
+  ['filterProject'] :[
+    { type: FieldType.DropMenu, name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project/from-erp', id: 'projects' }
+  ],
   ['update-layout']: [
-    { type: FieldType.DropMenu, name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project', id: 'projects' },
+    { type: FieldType.DropMenu, name: 'Proyecto', fetchUrl: 'http://localhost:5239/api/Project/from-erp', id: 'projects' },
     { type: FieldType.DropMenu, name: 'Cuenta', fetchUrl: 'http://localhost:5239/api/Account', id: 'account' },
     { type: FieldType.Input, name: 'Agrupar no titulares', inputType: InputType.Checkbox, modify: true, id: 'titular' }
   ]

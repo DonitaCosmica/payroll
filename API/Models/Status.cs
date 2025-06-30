@@ -15,6 +15,8 @@ namespace API.Models
     public StatusType StatusType { get; set; }
     [Required]
     public StatusOption StatusOption { get; set; }
+    [Required]
+    public StatusCode StatusCode { get; set; }
     public ICollection<Project> Projects { get; set; } = new HashSet<Project>();
     public ICollection<Employee> Employees { get; set; } = new HashSet<Employee>();
   }

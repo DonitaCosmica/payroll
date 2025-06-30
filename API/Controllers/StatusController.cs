@@ -40,7 +40,8 @@ namespace API.Controllers
           StatusId = s.StatusId,
           Name = s.Name,
           StatusType = s.StatusType.ToString(),
-          StatusOption = s.StatusOption.ToString()
+          StatusOption = s.StatusOption.ToString(),
+          StatusCode = s.StatusCode.ToString()
         })];
 
       return Ok(statuses);
@@ -81,12 +82,16 @@ namespace API.Controllers
       if(string.IsNullOrEmpty(statusCreate.StatusOption) || !TryConvertToStatusType(statusCreate.StatusOption, out StatusOption statusOption))
         statusOption = StatusOption.Error;
 
+      if (string.IsNullOrEmpty(statusCreate.StatusCode) || !TryConvertToStatusType(statusCreate.StatusCode, out StatusCode statusCode))
+        statusCode = Enums.StatusCode.Error;
+
       Status status = new()
       {
         StatusId = Guid.NewGuid().ToString(),
         Name = statusCreate.Name,
         StatusType = statusType,
-        StatusOption = statusOption
+        StatusOption = statusOption,
+        StatusCode = statusCode
       };
 
       if(!statusRepository.CreateStatus(status))
@@ -113,12 +118,16 @@ namespace API.Controllers
       if(string.IsNullOrEmpty(statusUpdate.StatusOption) || !TryConvertToStatusType(statusUpdate.StatusOption, out StatusOption statusOption))
         statusOption = StatusOption.Error;
 
+      if (string.IsNullOrEmpty(statusUpdate.StatusCode) || !TryConvertToStatusType(statusUpdate.StatusCode, out StatusCode statusCode))
+        statusCode = Enums.StatusCode.Error;
+
       Status status = statusRepository.GetStatus(statusId);
       status.Name = statusUpdate.Name;
       status.StatusType = statusType;
       status.StatusOption = statusOption;
+      status.StatusCode = statusCode;
       
-      if(!statusRepository.UpdateStatus(status))
+      if (!statusRepository.UpdateStatus(status))
         return StatusCode(500, "Something went wrong updating status");
 
       return NoContent();

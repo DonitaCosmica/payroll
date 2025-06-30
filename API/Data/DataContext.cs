@@ -63,6 +63,8 @@ namespace API.Data
           .HasConversion(v => v.ToString(), v => Enum.Parse<StatusType>(v));
         entity.Property(s => s.StatusOption)
           .HasConversion(v => v.ToString(), v => Enum.Parse<StatusOption>(v));
+        entity.Property(s => s.StatusCode)
+          .HasConversion(v => v.ToString(), v => Enum.Parse<StatusCode>(v));
       });
 
       modelBuilder.Entity<JobPosition>(entity =>
@@ -132,7 +134,7 @@ namespace API.Data
         entity.Property(pr => pr.PayrollType)
           .HasConversion(
             v => v.ToString(),
-            v => (PayrollType)Enum.Parse(typeof(PayrollType), v));
+            v => Enum.Parse<PayrollType>(v));
       });
 
       modelBuilder.Entity<Ticket>(entity =>
@@ -180,7 +182,7 @@ namespace API.Data
         entity.Property(tw => tw.Cta)
           .HasConversion(
             v => v.ToString(),
-            v => (CtaOptions)Enum.Parse(typeof(CtaOptions), v));
+            v => Enum.Parse<CtaOptions>(v));
       });
 
       base.OnModelCreating(modelBuilder);

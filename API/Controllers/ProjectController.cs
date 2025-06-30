@@ -257,7 +257,7 @@ namespace API.Controllers
           ? companyRepository.GetCompanyByMatchPrefix(businessUnit.Code.Substring(1, 3))
           : companyRepository.GetPrincipalCompany();
 
-        Status status = statusRepository.GetStatusByStatusOption(Enums.StatusOption.Positive);
+        Status status = statusRepository.GetStatusByStatusCode(Enums.StatusCode.ProjectPending);
         
         projects.Add(new ProjectDTO
         {

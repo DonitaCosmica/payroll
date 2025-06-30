@@ -220,6 +220,7 @@
         width: 100%;
         height: 100%;
         background: linear-gradient(rgba(0, 0, 0, .7), rgba(0, 0, 0, .7));
+        z-index: 10;
       }
 
       .filter-report-container {
@@ -719,27 +720,7 @@
 
           const hasAccount = Object.keys(filterData).some(key => key === 'account')
           if (!hasAccount) {
-            const selectTags = document.getElementsByTagName('select')
-            Array.from(selectTags).forEach(tag => {
-              const option = tag.options[tag.selectedIndex].value
-              const valuesDropDown = filterData[tag.id]
-              const selectedValue = valuesDropDown.find(item => {
-                for (const value in item)
-                  if (item[value] === option) return item
-              })
-
-              const table = document.querySelector('#data-list tbody')
-              const rows = table.getElementsByTagName('tr')
-              Array.from(rows).forEach(row => {
-                const cells = row.getElementsByTagName('td')
-                const value = (selectedValue.name ?? selectedValue.description ?? '').toLowerCase().trim()
-                const matchFound = Array.from(cells).some(cell =>
-                  (cell.textContent || cell.innerText).toLowerCase().trim().includes(value)
-                )
-
-                row.style.display = matchFound ? '' : 'none'
-              })
-            })
+            
 
             return
           }
@@ -755,6 +736,7 @@
               'Tipo', 'ID Portal', 'Cta Ordenante', 'CUENTA/CLAVE', 'Monto',
               'Referencia', 'X', 'RFC', '0', '', 'Trabajador', '0'
             ]
+
             const [resAccount, resBanks, resEmployees] = await Promise.all([
               fetch(`http://localhost:5239/api/Account/${ filterData.account.accountId }`),
               fetch('http://localhost:5239/api/Bank'),

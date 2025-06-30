@@ -38,7 +38,7 @@ export const REPORTING_ACTIONS: Record<NavigationActionKind, Record<string, IRep
   [NavigationActionKind.DEDUCTIONS]: {},
   [NavigationActionKind.PROJECTCATALOG]: {
     'report': [
-      { id: 'accumulated', label: 'Acumulado', hasForm: false }
+      { id: 'accumulated', label: 'Acumulado', hasForm: false }, { id: 'filterProject', label: 'Filtrado de Proyectos', hasForm: true }
     ]
   },
   [NavigationActionKind.COMPANIES]: {},

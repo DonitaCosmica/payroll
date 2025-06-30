@@ -10,9 +10,10 @@ namespace API.Controllers
 {
   [Route("api/[controller]")]
   [ApiController]
-  public class EmployeeController(IEmployeeRepository employeeRepository) : Controller
+  public class EmployeeController(IEmployeeRepository employeeRepository, IStatusRepository statusRepository) : Controller
   {
     private readonly IEmployeeRepository employeeRepository = employeeRepository;
+    private readonly IStatusRepository statusRepository = statusRepository;
 
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(IEnumerable<Employee>))]
@@ -44,6 +45,7 @@ namespace API.Controllers
       if(employeeCreate == null)
         return BadRequest();
 
+      Status? status = statusRepository.GetStatusByName("Activo", Enums.StatusType.Employee);
       EmployeeRelatedEntities? relatedEntities = employeeRepository.GetRelatedEntities(employeeCreate);
       if(relatedEntities == null)
         return StatusCode(500, "Something went wrong while fetching related data");

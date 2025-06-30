@@ -8,12 +8,18 @@ using System.Globalization;
 
 namespace API.Repository
 {
-  public class EmployeeRepository(DataContext context) : IEmployeeRepository
+  public class EmployeeRepository(DataContext context, IStatusRepository statusRepository) : IEmployeeRepository
   {
     private readonly DataContext context = context;
+    private readonly IStatusRepository statusRepository = statusRepository;
 
-    public ICollection<Employee> GetEmployees() =>
-      IncludeRelatedEntities(context.Employees).ToList();
+    public ICollection<Employee> GetEmployees()
+    {
+      List<Status> statuses = [.. statusRepository.GetStatusesByType(Enums.StatusType.Employee)];
+      if (statuses.Count > 0) return [.. IncludeRelatedEntities(context.Employees)];
+
+      return [];
+    }
     public Employee GetEmployee(string employeeId) =>
       IncludeRelatedEntities(context.Employees).FirstOrDefault(e => e.EmployeeId == employeeId)
       ?? throw new Exception("No Employee with the specified id was found");

@@ -61,7 +61,7 @@ namespace API.Controllers
       Bank bank = new()
       {
         BankId = Guid.NewGuid().ToString(),
-        Name = bankCreate.Name,
+        Name = bankCreate.Code + " - " + bankCreate.Name,
         Code = bankCreate.Code
       };
 
@@ -90,7 +90,7 @@ namespace API.Controllers
           Bank newBank = new()
           {
             BankId = Guid.NewGuid().ToString(),
-            Name = bank.Name,
+            Name = bank.Code + " - " + bank.Name,
             Code = bank.Code
           };
 
@@ -99,7 +99,7 @@ namespace API.Controllers
         }
         else
         {
-          existingBank.Name = bank.Name;
+          existingBank.Name = bank.Code + " - " + bank.Name;
           existingBank.Code = bank.Code;
 
           if (!bankRepository.UpdateBank(existingBank))
@@ -123,7 +123,7 @@ namespace API.Controllers
       if(bank == null)
         return NotFound();
 
-      bank.Name = updateBank.Name;
+      bank.Name = updateBank.Code + " - " + updateBank.Name;
       bank.Code = updateBank.Code;
 
       if(!bankRepository.UpdateBank(bank))

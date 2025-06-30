@@ -53,7 +53,7 @@ public class ProjectController(IBusinessUnitRepository businessUnitRepository,
       .Where(p=> businessUnit.IdUnidadNegocio == p.BusinessUnitId)
       .Select(p => new SharedProjectDTO
       {
-        ProjectId = p.ProjectId.ToString(),
+        ProjectId = businessUnit.IdUnidadNegocio.ToString(),
         Code = p.Project,
         Name = p.Name,
         StartDate = (p.StartDate ?? DateTime.Now).ToString("yyyy-MM-dd"),

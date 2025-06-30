@@ -7,11 +7,11 @@ namespace API.Models
     [Key]
     [MaxLength(36)]
     public string RegimeId { get; set; } = default!;
-
+    [Required]
+    public string Code { get; set; } = default!;
     [Required]
     [MaxLength(100)]
     public string Name { get; set; } = default!;
-
     public ICollection<Employee> Employees { get; set; } = [];
   }
 }
